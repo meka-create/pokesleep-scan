@@ -11,7 +11,11 @@ const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.webmanifes
 const release = JSON.parse(fs.readFileSync(path.join(root, 'release.json'), 'utf8')).id;
 
 assert.match(index, /rel="manifest"/);
-assert.ok(index.includes(`manifest.webmanifest?release=${release}`), 'manifest URL must be release-versioned');
+assert.ok(index.includes('href="./manifest.webmanifest"'), 'manifest URL must stay stable for Android/PWA identity');
+assert.ok(!index.includes('manifest.webmanifest?release='), 'manifest URL must not be release-versioned');
+assert.ok(sw.includes("'./manifest.webmanifest'"), 'service worker must precache the stable manifest URL');
+assert.ok(index.includes("current.searchParams.delete('release')"), 'release navigation must clean the visible URL');
+assert.ok(index.includes('history.replaceState'), 'release navigation must restore a clean URL without reload');
 assert.match(index, /navigator\.serviceWorker\.register/);
 assert.match(index, /updateViaCache:\s*'none'/);
 assert.match(index, /visibilitychange/);

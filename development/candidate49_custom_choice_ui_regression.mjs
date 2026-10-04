@@ -4,7 +4,7 @@ const index=fs.readFileSync(new URL('../index.html', import.meta.url),'utf8');
 const app=fs.readFileSync(new URL('../app.js', import.meta.url),'utf8');
 const release=JSON.parse(fs.readFileSync(new URL('../release.json', import.meta.url),'utf8'));
 assert.ok(release.id,'release id must be present');
-assert.ok(index.includes(`manifest.webmanifest?release=${release.id}`),'index must reference the current release id');
+assert.ok(index.includes('href="./manifest.webmanifest"'),'index must use the stable manifest URL');
 assert.match(index,/id="choicePicker" class="choice-picker"/);
 assert.match(index,/\.choice-picker-panel\{position:fixed/);
 assert.doesNotMatch(index,/@media\(max-width:680px\).*\.choice-picker-panel\{left:0!important;right:0!important;bottom:0!important/s);

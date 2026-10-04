@@ -1,11 +1,11 @@
-const RELEASE_ID = '2026-10-04-candidate93-species-reopen-paddle-cleanup';
+const RELEASE_ID = '2026-10-05-candidate94-pwa-clean-url-stable-manifest';
 const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}`;
 const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}`;
 const APP_SHELL = [
   './',
   './index.html',
   './release.json',
-  versioned('./manifest.webmanifest'),
+  './manifest.webmanifest',
   versioned('./master_data.js'),
   versioned('./classifier.js'),
   versioned('./food_color_features.js'),

@@ -1,28 +1,22 @@
 {
-  "package": "public-ui-candidate93-pwa",
-  "releaseId": "2026-10-04-candidate93-species-reopen-paddle-cleanup",
-  "basedOn": "public-ui-candidate92-pwa",
+  "package": "public-ui-candidate94-pwa",
+  "releaseId": "2026-10-05-candidate94-pwa-clean-url-stable-manifest",
+  "basedOn": "public-ui-candidate93-pwa",
   "recognitionLogicChanged": false,
   "maintenanceChanges": [
-    "Restore transient species-food-conflict review state when a manual species selection is reopened back to an unresolved species state.",
-    "Keep deterministic food1 when reopening a manual species override returns to the same underlying UNIQUE species; re-resolve food1 only when the underlying UNIQUE species differs.",
-    "Use attempt-local verified Paddle model Blob URLs and revoke them on partial mirror failure or generation supersession before official fallback.",
-    "Mark the Candidate31 unlocked-food blank-confirm behavior as historical in README; current normal-Pokemon manual completion requires explicit food selections.",
-    "Intentionally defer Tamagetake / Morobareru master additions until confirmed performance data becomes available."
+    "Keep the Web App Manifest URL stable instead of release-versioning the manifest link, preserving a stable Android/PWA manifest identity.",
+    "Continue using a transient release query only for cache-busting navigation, then remove it with history.replaceState so the visible/share/install URL returns to the clean public URL.",
+    "Keep manifest id/start_url/scope stable at ./ and keep asset/icon release versioning unchanged.",
+    "No recognition-core or species-master changes; Tamagetake / Morobareru remain deferred."
   ],
   "validation": {
-    "candidate93SpeciesReopenPaddleCleanup": "passed (dedicated unit/static regression)",
-    "candidate92Pixel100": "100/100 successful; Candidate91 raw CSV/recognition/review-state diffs all 0",
-    "completePortableRegressionSuite": "passed in Candidate93 worktree",
+    "candidate94PwaCleanUrlStableManifest": "passed (static + executable release-navigation regression)",
+    "completePortableRegressionSuite": "passed",
     "classifier100Replay": "100/100 UNIQUE; 0 saved-species mismatches",
-    "currentPokesleepToolCsvContract": "passed; scanner species accepted 247/247; 16-column contract preserved",
-    "recognitionCoreFiveFiles": "byte-identical to Candidate92",
-    "nodeCheckAppJs": "passed",
-    "allJsMjsSyntax": "60 files passed",
-    "jsonParse": "66 JSON files passed",
+    "currentPokesleepToolCsvContract": "passed; scanner species accepted 247/247",
+    "recognitionCoreFiveFiles": "byte-identical to Candidate93",
     "pwaRegression": "passed",
-    "packageManifest": "139 entries; self excluded; SHA/size verified in worktree",
-    "zipReexpandedAudit": "preliminary distribution is re-expanded and rerun before final packaging; final distribution is re-expanded and rerun after this manifest finalization"
+    "packageManifest": "140 entries; self excluded; SHA/size regenerated"
   },
   "files": [
     {
@@ -33,7 +27,7 @@
     {
       "path": "app.js",
       "bytes": 231855,
-      "sha256": "3e7ae96f263ac566cd3c2b06f3de26c2f052a65dbd7b43c65cc18f53b08d6eeb"
+      "sha256": "2c40c950c35f004e47898f8186d3866fedeeee605799b93e5daa5ee6a68075e0"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -172,8 +166,8 @@
     },
     {
       "path": "development/candidate49_custom_choice_ui_regression.mjs",
-      "bytes": 2080,
-      "sha256": "a0a357b711ebd61f45b6a733484831aebeb44bd8d1ed1bcaf97ca236c674d7c4"
+      "bytes": 2062,
+      "sha256": "31cd08b2774c293409e86be97ea9b3e79975cde15476d5484c6423926cf4d9ff"
     },
     {
       "path": "development/candidate49_custom_choice_ui_validation.json",
@@ -332,8 +326,8 @@
     },
     {
       "path": "development/candidate67_regression_release_cleanup_regression.mjs",
-      "bytes": 3944,
-      "sha256": "47c4e23c2109e64d000dde9492b7e5f5152c62db9b438ddaeba6bf1ea3d683de"
+      "bytes": 4110,
+      "sha256": "52651e2d8e07d9fe3ad1feb385e697c8f48fb69225e03736097b53bed5377bae"
     },
     {
       "path": "development/candidate67_regression_release_cleanup_validation.json",
@@ -562,8 +556,8 @@
     },
     {
       "path": "development/candidate92_review_state_nature_csv_safety_regression.mjs",
-      "bytes": 6362,
-      "sha256": "ee03bf500925b5571100a1742ddcf37212a15af4458fb7c1449eeff8577478a6"
+      "bytes": 6365,
+      "sha256": "53f89d2799a5922f85f4df926c87a280f9aa5d0edb5d03cc400232c73c4c494c"
     },
     {
       "path": "development/candidate92_review_state_nature_csv_safety_validation.json",
@@ -572,13 +566,18 @@
     },
     {
       "path": "development/candidate93_species_reopen_paddle_cleanup_regression.mjs",
-      "bytes": 8473,
-      "sha256": "de7eb345722a15bc7cc49a3bcdf60cc2bb44d7c5755bdd334234ff25d3342bf8"
+      "bytes": 8474,
+      "sha256": "11b8f66b8791e70dfc460627821db9ca61a697e4c7a92709127aa248e215d1e3"
     },
     {
       "path": "development/candidate93_species_reopen_paddle_cleanup_validation.json",
       "bytes": 635,
       "sha256": "e6fc916fc949b2dbbd7c7311ad863fdf5184ca4869f02103dfeec40cda929ff8"
+    },
+    {
+      "path": "development/candidate94_pwa_clean_url_stable_manifest_regression.mjs",
+      "bytes": 2777,
+      "sha256": "4a125179064121d5cb631bf2512f3d4523d39387eae261bce14a0c23e74922a9"
     },
     {
       "path": "development/classifier100_fixture.json",
@@ -617,8 +616,8 @@
     },
     {
       "path": "development/pwa_regression.mjs",
-      "bytes": 1639,
-      "sha256": "63ce27ed246c524f470dc44125829d7c171cf0ed7e5be2a3d3f9e2cc13424473"
+      "bytes": 2091,
+      "sha256": "ab5e7a247b29ad08dab1412725a8f904b7fbd9de083f6255dbb47a5af4a09b0d"
     },
     {
       "path": "development/release_manifest_v12_final.json",
@@ -687,13 +686,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 57888,
-      "sha256": "960aecb6582db55bb29610a3364c4f1b0f6d8b352fa6adf6fd5ef3c3c9ddbf5f"
+      "bytes": 57983,
+      "sha256": "b907a38eaf85d0b32cb050b13673b3be43406642f1d802cc441c4c933c740f06"
     },
     {
       "path": "manifest.webmanifest",
       "bytes": 1093,
-      "sha256": "dd3b78c5c62ca1c6b454d2d5edcac098040fcacfd076452f9e7c7938c972673f"
+      "sha256": "48c22c7105bad1fde28be414a11170b76bd1e4026d061f2272f450d4f670d6e3"
     },
     {
       "path": "master_data.js",
@@ -702,13 +701,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 103142,
-      "sha256": "9adb62900d878a78586b4e76778c13aca3cd75e1f7c2c9f9f8678e45efb3ed62"
+      "bytes": 103776,
+      "sha256": "7b5c4a57bdbac9d3bebfb98852a0354d1df3c6662dfcb29fdb1befab5acbee58"
     },
     {
       "path": "release.json",
       "bytes": 67,
-      "sha256": "452863f4b2b12cce13ada43f6985a266af87929f27615ef20bc27cbf03ee4c2b"
+      "sha256": "c9636f7b02433ff83da4607836e23b0e42d3e79dace9c9bafc6206347eab6349"
     },
     {
       "path": "start_server.bat",
@@ -717,13 +716,13 @@
     },
     {
       "path": "sw.js",
-      "bytes": 3055,
-      "sha256": "e69d72e3bac84f0ffeb4227c8a936f300264136f9d5397e924bf4b1c27262e6f"
+      "bytes": 3044,
+      "sha256": "06b2cc9df1f0268abf61679bcada3714afbcacc0ee44d97424fef4e4c764d8c5"
     }
   ],
   "publicUrl": {
     "page": "https://meka-create.github.io/pokesleep-scan/",
-    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-04-candidate93-species-reopen-paddle-cleanup",
-    "configuredAt": "2026-10-04T17:01:25.803Z"
+    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-05-candidate94-pwa-clean-url-stable-manifest",
+    "configuredAt": "2026-10-04T18:08:02.257Z"
   }
 }

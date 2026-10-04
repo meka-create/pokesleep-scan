@@ -841,3 +841,10 @@ Candidate89 is an **実機比較用テスト版**. Production recognition decisi
 - READMEのCandidate 31節に残っていた「未解放食材2/3を空欄で確定できる」という旧仕様へ、現行仕様では変更済みである旨を追記しました。
 - classifier.js / master_data.js / food_matcher.js / food_features.js / food_color_features.js、NO_FOOD閾値、Candidate 91のfood3安全化、Candidate 92のnature CSV preflight、CSV列契約、checkpoint compatibility IDは変更していません。
 
+
+
+## Candidate94 PWA clean URL / stable manifest
+- Android/PWA installation stability: the Web App Manifest link is now stable (`./manifest.webmanifest`) instead of changing with every release ID.
+- Release navigation still uses a transient `?release=...` cache-buster when switching versions, then immediately removes it with `history.replaceState`, restoring the clean public URL.
+- `manifest` `id`, `start_url`, and `scope` remain `./`; icon/static asset release versioning remains enabled.
+- Recognition core and Pokémon master data are unchanged from Candidate93. Tamagetake / Morobareru remain deferred pending confirmed data.

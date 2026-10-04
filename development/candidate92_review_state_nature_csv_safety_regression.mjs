@@ -24,7 +24,7 @@ function extractFunction(name){
   return app.slice(start,end);
 }
 
-assert.match(release.id,/^2026-10-04-candidate\d+-/);
+assert.match(release.id,/^2026-10-\d{2}-candidate\d+-/);
 assert.ok(app.includes(`CHECKPOINT_RELEASE_ID='${release.id}'`));
 assert.ok(app.includes("CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-04-v1'"));
 

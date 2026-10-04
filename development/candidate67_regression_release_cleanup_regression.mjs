@@ -20,7 +20,10 @@ function extractFunction(name){
 
 // Release IDs stay internally consistent, but historical regression files must not pin old IDs.
 assert.ok(app.includes(`CHECKPOINT_RELEASE_ID='${release.id}'`));
-assert.ok(html.includes(`manifest.webmanifest?release=${release.id}`));
+assert.ok(html.includes('href="./manifest.webmanifest"'));
+assert.ok(!html.includes('manifest.webmanifest?release='));
+assert.ok(html.includes("current.searchParams.delete('release')"));
+assert.ok(html.includes('history.replaceState')); 
 const testFiles=fs.readdirSync(new URL('.',import.meta.url)).filter(x=>x.endsWith('.mjs'));
 for(const file of testFiles){
   const src=fs.readFileSync(new URL(file,import.meta.url),'utf8');
