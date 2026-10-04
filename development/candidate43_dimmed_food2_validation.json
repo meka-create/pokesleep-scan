@@ -1,0 +1,44 @@
+{
+  "candidate": "public-ui-candidate43-pwa",
+  "basedOn": "public-ui-candidate42-pwa",
+  "scope": "Fix only the dimmed/unlocked-state second-food misclassification class reported for 1000005041.png.",
+  "algorithm": {
+    "appliesTo": "food2 only when parsed level < 30 and there are multiple allowed food candidates",
+    "normalColorMarginMax": 0.04,
+    "shapeForegroundDistanceThreshold": 25,
+    "shapeMarginMin": 0.04,
+    "arbitrationRule": "Only switch when the shape matcher prefers the normal color matcher's second candidate, the color result is close (margin <= 0.04), and the shape result is clearly separated (margin >= 0.04).",
+    "food1Changed": false,
+    "food3Changed": false
+  },
+  "candidate42Final100Replay": {
+    "totalResults": 100,
+    "dimmedFood2CasesEvaluated": 74,
+    "changedFood2Slots": [
+      {
+        "file": "1000005035.png",
+        "before": "めざましコーヒー",
+        "after": "ピュアなオイル",
+        "expectedByScreenshot": "ピュアなオイル"
+      },
+      {
+        "file": "1000005041.png",
+        "before": "めざましコーヒー",
+        "after": "ピュアなオイル",
+        "expectedByScreenshot": "ピュアなオイル"
+      },
+      {
+        "file": "1000005042.png",
+        "before": "あったかジンジャー",
+        "after": "ほっこりポテト",
+        "expectedByScreenshot": "ほっこりポテト"
+      }
+    ],
+    "otherFood2SlotsChanged": 0,
+    "reportedCase1000005041Resolved": true
+  },
+  "notes": [
+    "This candidate intentionally does not implement the pending Mew/Darkrai 'none' food option or custom dropdown UI; those remain separate tasks.",
+    "Classifier, master data, and food reference data are unchanged."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "candidate": 77,
+  "base": 76,
+  "scope": [
+    "apply pending release before a new image-selection session starts",
+    "silently expire checkpoint metadata older than seven days before loading image/result stores",
+    "remove unused nicknameConsensus, foodReviewCount, and scoreClass helpers"
+  ],
+  "recognition_core_changed": false,
+  "csv_changed": false,
+  "ui_layout_changed": false
+}

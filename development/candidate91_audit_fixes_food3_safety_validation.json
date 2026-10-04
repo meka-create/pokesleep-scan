@@ -1,0 +1,41 @@
+{
+  "candidate": "public-ui-candidate91-pwa",
+  "basedOn": "public-ui-candidate90-pwa",
+  "releaseId": "2026-10-04-candidate91-audit-fixes-food3-safety",
+  "scope": "Apply only Candidate90 strict-audit confirmed fixes plus the Candidate90 real-device locked-food3 dimmed-arbitration safety guard; keep unresolved CSV preflight policy unchanged.",
+  "candidate90RealDevice": {
+    "rowCount": 100,
+    "successfulRowCount": 100,
+    "candidate89To90PreManualCsvDiffRows": 1,
+    "noFoodPositive": "1000005276.png / Mew food3 safely confirmed as NO_FOOD and exported as blank",
+    "lockedFood3DimmedArbitration": {
+      "observedCount": 2,
+      "observedWrongCount": 2,
+      "files": [
+        "1000005323.jpg",
+        "1000005314.jpg"
+      ],
+      "policy": "Do not auto-relabel to another food; mark locked food3 as needsReview whenever dimmedShapeArbitration is used."
+    },
+    "lockedFood2DimmedArbitration": {
+      "observedCount": 3,
+      "previouslyVerifiedCorrectCount": 3,
+      "policy": "Unchanged."
+    }
+  },
+  "fixes": [
+    "Verified mirror det/rec downloads use direct fetch tracing instead of overlapping globalThis.fetch monkey patches.",
+    "A failed food-empty-reference image load clears its cached Promise so a later attempt can recover in the same session.",
+    "NO_FOOD automatic confirmation now requires finite regular-best evidence and therefore fails closed on NaN/non-finite input.",
+    "Manual species confirmation revalidates the current three-food sequence against the selected species; conflicts become editable needsReview slots.",
+    "CSV preflight independently rejects species-food combinations that are illegal even when stale food objects do not carry needsReview.",
+    "Locked food3 (level < 60) that required dimmedShapeArbitration is review-only; food2 dimmed arbitration remains unchanged.",
+    "README current-spec text and Candidate89 empty-reference calibration note are updated to avoid obsolete CSV/NO_FOOD wording."
+  ],
+  "intentionallyUnchanged": [
+    "Candidate90 NO_FOOD thresholds 0.50 score / 0.10 margin.",
+    "Recognition-core five files.",
+    "Checkpoint compatibility ID checkpoint-compat-2026-10-04-v1.",
+    "Existing CSV preflight policy for level / skillLevel / ordinary mainSkill / nature; the prior audit marked that item as specification-dependent, not a confirmed bug."
+  ]
+}

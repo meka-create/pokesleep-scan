@@ -1,0 +1,89 @@
+{
+  "candidate": "public-ui-candidate45-pwa",
+  "basedOn": "public-ui-candidate44-pwa",
+  "scope": "Add explicit no-food (―) choices for the mythical Pokémon food slots that are unsettable in pokesleep-tool-compatible rules, while preserving Candidate 44 OCR and dimmed-food matching.",
+  "noFoodDisplay": "―",
+  "rules": {
+    "ミュウ": {
+      "food1": false,
+      "food2": false,
+      "food3": true
+    },
+    "ダークライ": {
+      "food1": false,
+      "food2": true,
+      "food3": true
+    },
+    "otherSpecies": "no ― option"
+  },
+  "implementation": {
+    "classifier": "Mythical profile generation adds a zero-quantity {key:none,name:―} profile option only when the existing master row marks the corresponding base ingredient slot as name=unknown and quantity 0.",
+    "ui": "Food review dropdown adds ― only when the currently chosen species has a classifier profile permitting ― at that slot. Manual completion obtains the same option from classifier profiles.",
+    "csv": "A confirmed ― is a real explicit value and is exported as ―; unresolved review slots remain blank as before.",
+    "masterDataChanged": false,
+    "foodMatcherChanged": false,
+    "foodFeaturesChanged": false,
+    "foodColorFeaturesChanged": false
+  },
+  "profileChecks": {
+    "mewDashSlots": [
+      false,
+      false,
+      true
+    ],
+    "darkraiDashSlots": [
+      false,
+      true,
+      true
+    ],
+    "otherSpeciesWithDash": [],
+    "mewProfileCount": 441,
+    "darkraiProfileCount": 648
+  },
+  "candidate44To45ClassifierReplay": {
+    "source": "csv_json(5).zip / pokesleep_ocr_v12_diagnostics.json",
+    "rows": 100,
+    "candidate44": {
+      "UNIQUE": 100,
+      "NO_EXACT_MATCH": 0,
+      "MISSING_INPUT": 0
+    },
+    "candidate45": {
+      "UNIQUE": 100,
+      "NO_EXACT_MATCH": 0,
+      "MISSING_INPUT": 0
+    },
+    "changedStatusOrSpeciesCandidates": 0,
+    "note": "Replay uses the final structured OCR values saved in the diagnostics and compares inferWithoutFoods (or neutralized inference where applicable) between Candidate 44 and Candidate 45."
+  },
+  "staticChecks": {
+    "javascriptSyntax": "passed",
+    "jsonParse": "passed",
+    "pwaRegression": "passed"
+  },
+  "uiAccess": {
+    "reviewSlots": "― is added to the food review candidate list when the chosen species/slot permits no food.",
+    "alreadyAutoMatchedSlots": "The same mythical slots expose a 変更 button even after automatic food matching, so the user can reopen the selector and explicitly choose ― without forcing every such slot into review."
+  },
+  "syntheticLv60Resolution": {
+    "ミュウ": {
+      "foods": [
+        "ふといながねぎ",
+        "ふといながねぎ",
+        "―"
+      ],
+      "status": "UNIQUE",
+      "candidate": "ミュウ"
+    },
+    "ダークライ": {
+      "foods": [
+        "とくせんリンゴ",
+        "―",
+        "―"
+      ],
+      "status": "UNIQUE",
+      "candidate": "ダークライ"
+    },
+    "method": "Constructed Lv60 observations from Candidate 45 classifier frequency/SP formulas with neutral nature and no active subskills, then verified inferWithoutFoods + resolveWithFoods."
+  }
+}

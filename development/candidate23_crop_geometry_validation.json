@@ -1,0 +1,16 @@
+{
+  "candidate": "public-ui-candidate23-pwa",
+  "checkedAgainst": [
+    "HTf6C0VboAA3r66.jpg",
+    "HRf3pIyaQAAAjrY.jpg",
+    "HTfyOHcaIAAlqPY.jpg",
+    "HTi9VeTasAA0lUs.jpg"
+  ],
+  "checks": {
+    "topCardExcludesFoodLevelLabels": true,
+    "skillLevelCropTargetsUpperRightLvLabel": true,
+    "subskillRowsAligned": true,
+    "natureCropAlignedAndRightSideNarrowed": true
+  },
+  "note": "Visual crop-geometry validation only. Full OCR/browser rerun on the 30-image set remains pending user-side execution."
+}

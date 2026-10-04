@@ -1,0 +1,14 @@
+{
+  "candidate": 87,
+  "scope": "checkpoint atomic commit and post-failure recovery-chain hardening",
+  "checks": {
+    "successResultAndNextIndexAtomic": true,
+    "failureResultAndPausedMetaAtomic": true,
+    "pausedRetryRehydratesFailedAndAllRemainingSources": true,
+    "pausedRetryFullRuntimeResetBeforeAtomicRestart": true,
+    "reselectUsesFullRuntimeReset": true,
+    "manualCompletionContinueUsesFullRuntimeReset": true,
+    "deleteContinueUsesFullRuntimeReset": true,
+    "recognitionLogicChanged": false
+  }
+}

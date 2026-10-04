@@ -1,0 +1,31 @@
+{
+  "candidate": "public-ui-candidate92-pwa",
+  "basedOn": "public-ui-candidate91-pwa",
+  "releaseId": "2026-10-04-candidate92-review-state-nature-csv-safety",
+  "scope": "Preserve Candidate91 real-device recognition behavior while fixing the species-review round-trip state bug and blocking unresolved nature values from CSV export.",
+  "candidate91RealDevice": {
+    "rowCount": 100,
+    "successfulRowCount": 100,
+    "candidate90To91RawCsvDiffRows": 0,
+    "structuredDiagnosticDiffFiles": [
+      "1000005323.jpg",
+      "1000005314.jpg"
+    ],
+    "structuredDiagnosticDiff": "Only food3 needsReview/reviewReason/reviewState.foods changed as intended; all parsed values and food names remained unchanged.",
+    "noFoodPositive": "1000005276.png / Mew food3 remained safely confirmed as NO_FOOD.",
+    "food2DimmedRescues": "1000005266.png, 1000005272.png, and 1000005273.png remained unchanged."
+  },
+  "fixes": [
+    "species-food-conflict is now a temporary overlay that saves and restores the pre-existing food needsReview/reviewReason state across manual species changes.",
+    "Explicit manual food confirmation and full manual completion discard the temporary species-conflict backup so user confirmation remains authoritative.",
+    "CSV preflight blocks when nature is blank, invalid, or natureNeedsReview=true, preventing unresolved nature from being exported as a concrete value downstream."
+  ],
+  "intentionallyUnchanged": [
+    "Candidate91 locked-food3 dimmed-arbitration safety guard.",
+    "Candidate90 NO_FOOD thresholds and template behavior.",
+    "PaddleOCR verified-mirror and fallback behavior.",
+    "level / skillLevel / ordinary mainSkill CSV preflight policy.",
+    "Recognition-core five files.",
+    "Checkpoint compatibility ID checkpoint-compat-2026-10-04-v1."
+  ]
+}

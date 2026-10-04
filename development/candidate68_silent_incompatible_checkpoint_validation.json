@@ -1,0 +1,11 @@
+{
+  "releaseId": "2026-10-04-candidate68-silent-incompatible-checkpoint",
+  "base": "candidate67",
+  "scope": "Remove only the user-facing incompatible-checkpoint modal; keep strict release/schema rejection and silent discard.",
+  "checks": {
+    "incompatibleCheckpointRejected": "passed",
+    "incompatibleCheckpointDiscardedBeforeBlobLoad": "covered by candidate65 regression",
+    "userFacingOldVersionModalRemoved": "passed",
+    "persistenceFailureWarningPreserved": "covered by candidate65 regression"
+  }
+}

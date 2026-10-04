@@ -1,0 +1,10 @@
+{
+  "candidate": 85,
+  "checks": {
+    "manifestSelfHashExcluded": true,
+    "publicUrlConfigurator": true,
+    "absoluteOgpAtFormalRelease": true,
+    "checkpointCompatibilitySeparatedFromPublicRelease": true,
+    "legacyCompatibleReleases": [82, 83, 84]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "candidate": "public-ui-candidate72",
+  "basedOn": "public-ui-candidate71",
+  "scope": "Make the main top action resume a processingError-paused batch from the failed image.",
+  "behavior": [
+    "When analysisPause is active, the main button label becomes 停止した画像から再開.",
+    "Clicking it reuses retryProcessingFailure for the paused result instead of runAll, so the failed image is retried first and the remaining batch continues on success.",
+    "During retry/manual commit/checkpoint restore the main button is disabled and shows 再開中… when applicable.",
+    "After checkpoint restore finishes, a paused batch exposes the top resume action immediately.",
+    "Failure-card recovery actions remain available and unchanged."
+  ],
+  "guardrails": [
+    "No OCR/classifier/food/CSV logic changes.",
+    "No changes to processingError pause position or checkpoint contents.",
+    "Normal 解析する behavior remains unchanged when no pause exists."
+  ]
+}

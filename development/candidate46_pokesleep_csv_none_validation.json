@@ -1,0 +1,40 @@
+{
+  "candidate": "public-ui-candidate46-pwa",
+  "basedOn": "public-ui-candidate45-pwa",
+  "scope": "Correct only CSV serialization of confirmed mythical no-food slots to match pokesleep-tool CSV semantics; keep UI/internal ― behavior unchanged.",
+  "upstreamPokesleepToolCompatibility": {
+    "checked": "2026-10-03",
+    "repository": "nitoyon/pokesleep-tool main",
+    "BoxExporter.ts": "Ingredient name unknown is serialized to an empty CSV/TSV cell.",
+    "BoxImporter.ts": "Empty ingredient cells are accepted; for mythical Pokémon they become undefined mythIng values and are normalized by PokemonIv.",
+    "PokemonIv.ts": "Mythical ingredient defaults use internal name unknown. Mew food3 can remain unknown; Darkrai base food2/food3 are unknown/0 in master data.",
+    "scannerMapping": {
+      "ui": "―",
+      "classifierInternal": "― explicit no-food profile",
+      "csv": ""
+    }
+  },
+  "changes": {
+    "app.js": "Add foodCsvValue(): needsReview or explicit ― serializes as empty string; all normal confirmed ingredients serialize unchanged.",
+    "ui": "unchanged",
+    "classifier": "unchanged",
+    "masterData": "unchanged",
+    "foodMatcher": "unchanged"
+  },
+  "staticChecks": {
+    "javascriptSyntax": "passed",
+    "jsonAndWebmanifestParse": "passed",
+    "pwaRegression": "passed",
+    "csvNoFoodMappingSmokeTest": "passed (confirmed ― -> empty; needsReview -> empty; normal food unchanged)",
+    "recognitionCoreBytePreservationVsCandidate45": "passed",
+    "appJsMinimalDiffAudit": "passed"
+  },
+  "regressionExpectation": "Candidate 45 recognition/classification behavior is byte-preserved; only CSV boundary serialization changes.",
+  "coreHashes": {
+    "classifier.js": "93a1fbe56887ae9683409ca5db48563f18c78711aedac01b8758510768ec7c71",
+    "master_data.js": "403b28544bf650323b1c5d2c1cde4b71be09d6897949cf6ea8c6cf896fc3a8f5",
+    "food_matcher.js": "68f20e2ce1ab45222824669514eaa62077add12dfe8949658caf0f6a9589c9a7",
+    "food_features.js": "d5f68af858d37abfbdfad50138f9f9bd5dc6cdc7bf91ea56f5e0b684e9b61750",
+    "food_color_features.js": "e00286ae2e8fe96d6f0b49c93e03150469175382ba09c62b499e6f33d85ae444"
+  }
+}

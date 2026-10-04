@@ -1,0 +1,14 @@
+{
+  "candidate": 67,
+  "basedOn": 66,
+  "scope": [
+    "regression suite cleanup",
+    "consume deferred public release when session becomes idle",
+    "remove unused legacy manual-completion renderer/listener/CSS"
+  ],
+  "recognitionLogicChanged": false,
+  "portableRegressionRunner": "development/run_regressions.mjs",
+  "classifierReplayFixture": "development/classifier100_fixture.json",
+  "regressions": "passed",
+  "classifierReplay": "100/100 UNIQUE; 0 saved-species mismatches"
+}

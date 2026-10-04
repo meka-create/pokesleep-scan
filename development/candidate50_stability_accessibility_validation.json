@@ -1,0 +1,93 @@
+{
+  "candidate": "public-ui-candidate50-pwa",
+  "basedOn": "public-ui-candidate49-pwa",
+  "releaseId": "2026-10-03-candidate50-stability-accessibility",
+  "scope": "Four stability/accessibility fixes identified in the Candidate 49 whole-program audit; recognition core unchanged.",
+  "changes": {
+    "mewVersatileExplicitState": {
+      "status": "implemented",
+      "details": [
+        "Mew concrete Versatile skill is stored separately from the display label オールマイティー.",
+        "Manual completion requires choosing the concrete Versatile skill from the 12 supported candidates.",
+        "CSV preflight blocks save/copy if Mew concrete Versatile skill is unresolved; no silent blanking or guessing."
+      ]
+    },
+    "pickerPendingRenderFlush": {
+      "status": "implemented",
+      "details": [
+        "Closing the custom picker schedules flushPendingRender().",
+        "Focus restored to a closed custom-select trigger no longer counts as an active review editor.",
+        "Actual text/review editing and an open picker still defer analysis re-rendering."
+      ]
+    },
+    "manualFoodCompletion": {
+      "status": "implemented",
+      "details": [
+        "Normal Pokemon require food1-food3 to be explicitly selected even when food2/food3 are not yet unlocked.",
+        "Existing mythical special handling including Mew/Darkrai explicit ― slots is preserved."
+      ]
+    },
+    "pickerAccessibility": {
+      "status": "implemented",
+      "details": [
+        "Modal focus trap for Tab/Shift+Tab.",
+        "Roving tabindex keeps one option in the tab order.",
+        "ArrowUp/ArrowDown option navigation plus Home/End.",
+        "Escape closes and restores trigger focus.",
+        "ArrowUp/ArrowDown on a custom-select trigger opens the picker; ArrowUp starts at the last option.",
+        "Listbox is labelled by the picker title; trigger exposes dialog relationship via aria-haspopup/aria-controls."
+      ]
+    }
+  },
+  "regression": {
+    "step1MewVersatile": "passed",
+    "step2RenderPending": "passed",
+    "step3ManualFoods": "passed",
+    "step4PickerAccessibilityPlaywright": "passed",
+    "candidate49CustomChoiceUi": "passed",
+    "candidate48PokesleepCsvRoundTrip": "passed",
+    "saved100ClassifierReplay": "100/100 UNIQUE; 0 status/species-candidate mismatches against saved diagnostics",
+    "pwaRegression": "passed",
+    "javascriptSyntax": "passed for runtime JS",
+    "jsonParse": "passed for all JSON files",
+    "runtimeReleaseIds": "consistent",
+    "temporaryStepSnapshotsRemoved": true
+  },
+  "recognitionCoreByteIdentity": {
+    "classifier.js": {
+      "candidate50Sha256": "93a1fbe56887ae9683409ca5db48563f18c78711aedac01b8758510768ec7c71",
+      "matchesCandidate49": true
+    },
+    "master_data.js": {
+      "candidate50Sha256": "403b28544bf650323b1c5d2c1cde4b71be09d6897949cf6ea8c6cf896fc3a8f5",
+      "matchesCandidate49": true
+    },
+    "food_matcher.js": {
+      "candidate50Sha256": "68f20e2ce1ab45222824669514eaa62077add12dfe8949658caf0f6a9589c9a7",
+      "matchesCandidate49": true
+    },
+    "food_features.js": {
+      "candidate50Sha256": "d5f68af858d37abfbdfad50138f9f9bd5dc6cdc7bf91ea56f5e0b684e9b61750",
+      "matchesCandidate49": true
+    },
+    "food_color_features.js": {
+      "candidate50Sha256": "e00286ae2e8fe96d6f0b49c93e03150469175382ba09c62b499e6f33d85ae444",
+      "matchesCandidate49": true
+    }
+  },
+  "changedRuntimeFilesFromCandidate49": [
+    "README.md",
+    "app.js",
+    "index.html",
+    "manifest.webmanifest",
+    "release.json",
+    "sw.js"
+  ],
+  "hashes": {
+    "app.js": "2635c6717c71f743d70a04bb107d3bdca2457a0f247e0b295b97650671e55107",
+    "index.html": "ccf4f2a8f3dda0419790275e96d748b35c4f5e9ceab8c8e840e314293d355698",
+    "release.json": "6046744bf4d5205ff6d7ade31fcf580f5ea4badac66addd2f65967c868d6c328",
+    "manifest.webmanifest": "9960b23f8b3bcce5d1ae27307da7a0ed5078d87410e172fac38046fd65dbdd8b",
+    "sw.js": "95455217c75ab895edb37bc147fb45987cb9d52487f915f21d82dedd46828f4e"
+  }
+}

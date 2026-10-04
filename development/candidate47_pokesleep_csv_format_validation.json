@@ -1,0 +1,49 @@
+{
+  "candidate": "public-ui-candidate47-pwa",
+  "basedOn": "public-ui-candidate46-pwa",
+  "scope": "Align CSV serialization format with nitoyon/pokesleep-tool while preserving every scanner result row and the existing unresolved-value safety policy.",
+  "upstreamPokesleepToolCompatibility": {
+    "checked": "2026-10-03",
+    "repository": "nitoyon/pokesleep-tool main",
+    "BoxExporter.ts": [
+      "16 columns in fixed order",
+      "LF row separator",
+      "unknown ingredient -> empty cell",
+      "main skill uses iv.versatileSkill (Mew exports concrete versatile skill)",
+      "ribbon exports 0/200/500/1000/2000",
+      "shiny exports 0/1"
+    ],
+    "BoxImporter.ts": "Header names are matched after lowercasing/removing whitespace; input text does not strip UTF-8 BOM. Blank ribbon defaults to ribbon 0 and blank shiny becomes false.",
+    "CsvFormatter.ts": "CSV escaping quotes cells containing comma, double quote, or newline."
+  },
+  "changes": {
+    "app.js": [
+      "CSV Mew main skill unwraps display-only オールマイティー (...) to the concrete skill when present.",
+      "CSV fixed main skills use parsed base skill rather than display-only supplemental labels.",
+      "Unknown ribbon serializes as 0; known ribbon stays 0/200/500/1000/2000.",
+      "Shiny serializes as 0/1; current scanner output defaults to 0.",
+      "CSV row separator changed CRLF -> LF.",
+      "CSV download no longer prepends UTF-8 BOM."
+    ],
+    "rowPolicy": "No result row is removed. Column count remains fixed at 16. Existing unresolved food/species/subskill empty-cell safety behavior is retained.",
+    "recognition": "unchanged"
+  },
+  "staticChecks": {
+    "javascriptSyntax": "passed",
+    "jsonAndWebmanifestParse": "passed",
+    "pwaRegression": "passed",
+    "csvMappingSmokeTest": "passed (16 columns; Mew concrete skill; display suffix stripped; ― -> empty; ribbon 0/200/...; shiny 0/1; LF)",
+    "downloadBomAudit": "passed (no UTF-8 BOM prepended)",
+    "recognitionCoreBytePreservationVsCandidate46": "passed",
+    "noRowDeletion": "passed (buildCsvText emits one row per results entry)",
+    "saved100CsvShapeReplay": "passed (100/100 data rows retained, 16 columns each; Mew detailed skill becomes ゆめのかけらゲットS in both saved cases)"
+  },
+  "coreHashes": {
+    "app.js": "e6169fbadd7b4937cd02b537ef03d9e3a9d6427a08a9b05bb0782a7e82cd5749",
+    "classifier.js": "93a1fbe56887ae9683409ca5db48563f18c78711aedac01b8758510768ec7c71",
+    "master_data.js": "403b28544bf650323b1c5d2c1cde4b71be09d6897949cf6ea8c6cf896fc3a8f5",
+    "food_matcher.js": "68f20e2ce1ab45222824669514eaa62077add12dfe8949658caf0f6a9589c9a7",
+    "food_features.js": "d5f68af858d37abfbdfad50138f9f9bd5dc6cdc7bf91ea56f5e0b684e9b61750",
+    "food_color_features.js": "e00286ae2e8fe96d6f0b49c93e03150469175382ba09c62b499e6f33d85ae444"
+  }
+}

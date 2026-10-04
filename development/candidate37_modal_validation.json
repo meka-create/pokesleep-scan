@@ -1,0 +1,21 @@
+{
+  "candidate": "public-ui-candidate37-pwa",
+  "basedOn": "public-ui-candidate36-pwa",
+  "recognitionLogicChanged": false,
+  "changes": [
+    "Show an explicit modal after the entire selected batch finishes parsing, including total image count and review-item counts.",
+    "Replace native CSV save/copy confirmation dialogs with an in-app modal showing unresolved nickname/food/species counts and Continue/Return actions.",
+    "Replace the clipboard-copy failure native alert with the same in-app modal system."
+  ],
+  "behaviorChecks": [
+    "CSV export behavior itself is unchanged: unresolved food/species fields remain blank; unresolved nickname uses the current OCR value.",
+    "Completion modal is shown only after a fully successful batch loop, not after an exception.",
+    "Candidate36 recognition core files are byte-identical."
+  ],
+  "checks": {
+    "javascriptSyntax": "passed",
+    "pwaRegression": "passed",
+    "nativeConfirmAlertInPublicCode": "none",
+    "htmlModalElements": "present"
+  }
+}

@@ -1,0 +1,431 @@
+{
+  "source": "user diagnostics pokesleep_ocr_v12_diagnostics(20261004-055800).json",
+  "reviewedNonBlankSlots": 11,
+  "cases": [
+    {
+      "file": "1000005317.jpg",
+      "level": 50,
+      "current": "最大所持数アップM",
+      "evidence": [
+        {
+          "source": "composite",
+          "psm": "6",
+          "crop": "primary",
+          "text": "—=» 放 昌 昌 昌 四",
+          "confidence": 1.00665283203125
+        },
+        {
+          "source": "fallback",
+          "psm": "6",
+          "crop": "fallback",
+          "text": "|       ee 人でのシンーーンジニー       |      最大所持数アップM",
+          "confidence": 64
+        },
+        {
+          "source": "verify-composite",
+          "psm": "6",
+          "crop": "threshold190",
+          "text": "Q し Lv. 最大 50 所 持 数 アッ プ M",
+          "confidence": 86.67777945778586
+        },
+        {
+          "source": "dedicated",
+          "psm": "7",
+          "crop": "verification",
+          "text": "ーーンー",
+          "confidence": 17
+        },
+        {
+          "source": "dedicated",
+          "psm": "11",
+          "crop": "verification",
+          "text": "wammmron",
+          "confidence": 0
+        }
+      ]
+    },
+    {
+      "file": "1000005317.jpg",
+      "level": 70,
+      "current": "最大所持数アップL",
+      "evidence": [
+        {
+          "source": "composite",
+          "psm": "6",
+          "crop": "primary",
+          "text": "=»",
+          "confidence": 9.179267883300781
+        },
+        {
+          "source": "fallback",
+          "psm": "6",
+          "crop": "fallback",
+          "text": "|       au れいan放電笠ーー ーワニーキー       | 最大所持数アップL",
+          "confidence": 52
+        },
+        {
+          "source": "verify-composite",
+          "psm": "6",
+          "crop": "threshold190",
+          "text": "Q Lv.70 最大 所 持 数 アッ プ L",
+          "confidence": 90.04193962944879
+        },
+        {
+          "source": "dedicated",
+          "psm": "7",
+          "crop": "verification",
+          "text": "本",
+          "confidence": 7
+        },
+        {
+          "source": "dedicated",
+          "psm": "11",
+          "crop": "verification",
+          "text": "| mamens ップL —",
+          "confidence": 51
+        }
+      ]
+    },
+    {
+      "file": "1000005336.jpg",
+      "level": 50,
+      "current": "スキルレベルアップS",
+      "evidence": [
+        {
+          "source": "composite",
+          "psm": "6",
+          "crop": "primary",
+          "text": "6 スキ so ルレ 天天 ベル 還 本 生生 アッ プ 間 S",
+          "confidence": 47.76587178156926
+        },
+        {
+          "source": "fallback",
+          "psm": "6",
+          "crop": "fallback",
+          "text": "スキルレベルアップS$S",
+          "confidence": 87
+        },
+        {
+          "source": "verify-composite",
+          "psm": "6",
+          "crop": "threshold190",
+          "text": "315",
+          "confidence": 39.26600646972656
+        },
+        {
+          "source": "dedicated",
+          "psm": "7",
+          "crop": "verification",
+          "text": "313",
+          "confidence": 71
+        },
+        {
+          "source": "dedicated",
+          "psm": "11",
+          "crop": "verification",
+          "text": "312",
+          "confidence": 79
+        }
+      ]
+    },
+    {
+      "file": "1000005336.jpg",
+      "level": 70,
+      "current": "スキル確率アップS",
+      "evidence": [
+        {
+          "source": "composite",
+          "psm": "6",
+          "crop": "primary",
+          "text": "らい 7 スキ , ルル 確率 アッ プ S",
+          "confidence": 67.16579267713759
+        },
+        {
+          "source": "verify-composite",
+          "psm": "6",
+          "crop": "threshold190",
+          "text": "419 秒 ご と り",
+          "confidence": 76.48326721191407
+        },
+        {
+          "source": "dedicated",
+          "psm": "7",
+          "crop": "verification",
+          "text": "19秒ごと (いり",
+          "confidence": 75
+        },
+        {
+          "source": "dedicated",
+          "psm": "11",
+          "crop": "verification",
+          "text": "19秒ごと 日",
+          "confidence": 83
+        }
+      ]
+    },
+    {
+      "file": "1000005336.jpg",
+      "level": 80,
+      "current": "食材確率アップM",
+      "evidence": [
+        {
+          "source": "composite",
+          "psm": "6",
+          "crop": "primary",
+          "text": "6 い so 食材 本 本 確率 本 アッ プ M 昌明",
+          "confidence": 56.78304926554362
+        },
+        {
+          "source": "fallback",
+          "psm": "6",
+          "crop": "fallback",
+          "text": "ヘー一一一一一一一一一一一一一一一一一一一一一一 & Lv. 80                                。、 食材確率アップM |",
+          "confidence": 78
+        },
+        {
+          "source": "verify-composite",
+          "psm": "6",
+          "crop": "threshold190",
+          "text": "GEIED 4",
+          "confidence": 2.9452743530273438
+        },
+        {
+          "source": "dedicated",
+          "psm": "7",
+          "crop": "verification",
+          "text": "241",
+          "confidence": 38
+        },
+        {
+          "source": "dedicated",
+          "psm": "11",
+          "crop": "verification",
+          "text": "24{",
+          "confidence": 55
+        }
+      ]
+    },
+    {
+      "file": "1000005308.jpg",
+      "level": 25,
+      "current": "スキルレベルアップS",
+      "evidence": [
+        {
+          "source": "composite",
+          "psm": "6",
+          "crop": "primary",
+          "text": "enlRE™— スキ ルレ ベル アッ プ S",
+          "confidence": 72.8741476876395
+        },
+        {
+          "source": "fallback",
+          "psm": "6",
+          "crop": "fallback",
+          "text": "いらいい25 J      スキルレベルアップS$S",
+          "confidence": 70
+        },
+        {
+          "source": "verify-composite",
+          "psm": "6",
+          "crop": "threshold190",
+          "text": "R (Cx2 ) (カカ Cx5 う (ググ €D",
+          "confidence": 52.65253496170044
+        },
+        {
+          "source": "dedicated",
+          "psm": "7",
+          "crop": "verification",
+          "text": "5 の",
+          "confidence": 15
+        },
+        {
+          "source": "dedicated",
+          "psm": "11",
+          "crop": "verification",
+          "text": "olll _o G2) Cs) €D",
+          "confidence": 24
+        }
+      ]
+    },
+    {
+      "file": "1000005308.jpg",
+      "level": 70,
+      "current": "スキル確率アップM",
+      "evidence": [
+        {
+          "source": "composite",
+          "psm": "6",
+          "crop": "primary",
+          "text": "らい 70 スキ J ル 確 率 ア ッ プ M",
+          "confidence": 74.93600914695047
+        },
+        {
+          "source": "verify-composite",
+          "psm": "6",
+          "crop": "threshold190",
+          "text": "9 秒 ご と て くり",
+          "confidence": 70.29391860961914
+        },
+        {
+          "source": "dedicated",
+          "psm": "7",
+          "crop": "verification",
+          "text": "9秒ごと (i",
+          "confidence": 61
+        },
+        {
+          "source": "dedicated",
+          "psm": "11",
+          "crop": "verification",
+          "text": "9秒ごと",
+          "confidence": 91
+        }
+      ]
+    },
+    {
+      "file": "1000005309.jpg",
+      "level": 25,
+      "current": "おてつだいスピードS",
+      "evidence": [
+        {
+          "source": "composite",
+          "psm": "6",
+          "crop": "primary",
+          "text": "お て つ だ い ス ピー ド S$S |",
+          "confidence": 89.9188133239746
+        },
+        {
+          "source": "verify-composite",
+          "psm": "6",
+          "crop": "threshold190",
+          "text": "€D 2) €©)",
+          "confidence": 14.976488749186197
+        },
+        {
+          "source": "dedicated",
+          "psm": "7",
+          "crop": "verification",
+          "text": "ら VL L",
+          "confidence": 0
+        },
+        {
+          "source": "dedicated",
+          "psm": "11",
+          "crop": "verification",
+          "text": "5 銀色 CX Q2) CS)",
+          "confidence": 40
+        }
+      ]
+    },
+    {
+      "file": "1000005309.jpg",
+      "level": 50,
+      "current": "スキルレベルアップM",
+      "evidence": [
+        {
+          "source": "composite",
+          "psm": "6",
+          "crop": "primary",
+          "text": "6 so スキ ) ルレ ベル アッ プ M",
+          "confidence": 75.79253429836697
+        },
+        {
+          "source": "verify-composite",
+          "psm": "6",
+          "crop": "threshold190",
+          "text": "53",
+          "confidence": 20.207122802734375
+        },
+        {
+          "source": "dedicated",
+          "psm": "7",
+          "crop": "verification",
+          "text": "33】",
+          "confidence": 53
+        },
+        {
+          "source": "dedicated",
+          "psm": "11",
+          "crop": "verification",
+          "text": "334",
+          "confidence": 85
+        }
+      ]
+    },
+    {
+      "file": "1000005309.jpg",
+      "level": 80,
+      "current": "最大所持数アップS",
+      "evidence": [
+        {
+          "source": "composite",
+          "psm": "6",
+          "crop": "primary",
+          "text": "6 so 最大 ) 所 持 数 アッ プ S",
+          "confidence": 72.61902046203613
+        },
+        {
+          "source": "verify-composite",
+          "psm": "6",
+          "crop": "threshold190",
+          "text": "20",
+          "confidence": 28.12592315673828
+        },
+        {
+          "source": "dedicated",
+          "psm": "7",
+          "crop": "verification",
+          "text": "241",
+          "confidence": 68
+        },
+        {
+          "source": "dedicated",
+          "psm": "11",
+          "crop": "verification",
+          "text": "24f",
+          "confidence": 59
+        }
+      ]
+    },
+    {
+      "file": "1000005283.png",
+      "level": 70,
+      "current": "スキルレベルアップS",
+      "evidence": [
+        {
+          "source": "composite",
+          "psm": "6",
+          "crop": "primary",
+          "text": "スキ ルレ ベル アッ プ S$S",
+          "confidence": 92.96064631144206
+        },
+        {
+          "source": "verify-composite",
+          "psm": "6",
+          "crop": "threshold190",
+          "text": "",
+          "confidence": 0
+        },
+        {
+          "source": "dedicated",
+          "psm": "7",
+          "crop": "verification",
+          "text": "p— プS$S",
+          "confidence": 51
+        },
+        {
+          "source": "dedicated",
+          "psm": "11",
+          "crop": "verification",
+          "text": "芽デデテー",
+          "confidence": 45
+        }
+      ]
+    }
+  ],
+  "policy": {
+    "singleCandidateMayAutoConfirmOnlyWhen": "same as current parsed value, distinctive, non-EXP, and exact>=60 confidence or fuzzy score>=0.64/confidence>=67",
+    "expPair": "still requires independent consensus",
+    "conflict": "still requires review"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "candidate": "public-ui-candidate38-pwa",
+  "basedOn": "public-ui-candidate37-pwa",
+  "checks": {
+    "completionModalRemoved": true,
+    "fixedBottomProgress": true,
+    "csvWarningSecondaryLabel": "キャンセル",
+    "manualRecoveryForUnresolvedClassification": true,
+    "manualSpeciesPrefixSearch": true,
+    "manualFoodCandidatesConstrainedBySpeciesProfiles": true,
+    "manualSubskillExactDuplicateRejected": true,
+    "mythicalSubskillBlankAllowed": true,
+    "foodConflictPreservesPreFoodUniqueAndMarksReview": true,
+    "coreClassifierMasterFoodFilesUnchangedFromCandidate37": true,
+    "jsSyntax": "passed",
+    "pwaRegression": "passed"
+  },
+  "notes": [
+    "Manual species override is authoritative for CSV output after explicit confirmation.",
+    "Manual completion edits only CSV-facing fields; SP/help-time/carry are retained as OCR diagnostics.",
+    "Food conflict safety does not guess the correct food combination."
+  ],
+  "foodConflictReplay": {
+    "file": "HTLjkmib0AEKQos.jpg",
+    "preFoodStatus": "UNIQUE",
+    "preFoodCandidates": [
+      "ミュウ"
+    ],
+    "autoFoods": [
+      "げきからハーブ",
+      "マメミート",
+      "ふといながねぎ"
+    ],
+    "withAutoFoodsStatus": "NO_EXACT_MATCH",
+    "conflictSlots": [
+      0,
+      1,
+      2
+    ],
+    "candidate38Expected": "preserve UNIQUE Mew; mark food1/2/3 review"
+  },
+  "mythicalBlankRuleSpeciesFromMaster": [
+    "ミュウ",
+    "ダークライ"
+  ]
+}

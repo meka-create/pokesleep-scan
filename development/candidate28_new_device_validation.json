@@ -1,0 +1,39 @@
+{
+  "candidate": "public-ui-candidate28-pwa",
+  "releaseID": "2026-10-03-ui28-new-device-rescue",
+  "basis": {
+    "newDevice30Candidate27": {
+      "UNIQUE": 25,
+      "NO_EXACT_MATCH": 1,
+      "MISSING_INPUT": 4,
+      "adaptive": {
+        "count": 11,
+        "UNIQUE": 11
+      },
+      "legacy": {
+        "count": 19,
+        "UNIQUE": 14,
+        "NO_EXACT_MATCH": 1,
+        "MISSING_INPUT": 4
+      }
+    },
+    "fixed20Candidate27": {
+      "UNIQUE": 20
+    }
+  },
+  "changes": [
+    "missing level consistency rescue across levels 1-100, applied only when species+level are unique",
+    "tall legacy main-skill card section-relative subskill reread at >=640px main/detail span",
+    "nickname review safety for Lv-like contamination and one-edit near-species OCR typos"
+  ],
+  "offlineReplay": {
+    "missingLevelRows": {
+      "5f7b8b61-bd55-5453-ad78-041703a0a187.jpg": "Lv27 ミュウツー unique",
+      "6172f828-84db-50e1-850b-0e8c533d5922.jpg": "Lv50 ミュウツー unique",
+      "c109bd49-5abc-5135-8680-c9bba7356df3.jpg": "Lv14 ワニノコ unique",
+      "4c75bd4b-cccc-5483-b5de-18989d68ebd7.jpg": "helpSeconds=1874 + Lv27 ミュウツー unique"
+    },
+    "tallLegacyThreshold": "new-device30: only 1d78... has main/detail span >=640; fixed20: none"
+  },
+  "browser30Rerun": "pending user-side run"
+}

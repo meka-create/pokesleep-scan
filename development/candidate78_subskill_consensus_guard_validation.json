@@ -1,0 +1,13 @@
+{
+  "candidate": 78,
+  "scope": "subskill OCR consensus guard",
+  "reported_sample": "1000005045.png",
+  "expected_sub10": "睡眠EXPボーナス",
+  "safety": [
+    "independent batched subskill verification",
+    "targeted PSM7/PSM11 on conflict or weak evidence",
+    "EXP bonus pair requires independent confirmation",
+    "classifier rescue requires OCR consensus",
+    "unresolved subskill is review-required and blank in CSV"
+  ]
+}

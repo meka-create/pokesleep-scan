@@ -1,0 +1,36 @@
+{
+  "candidate": "public-ui-candidate90-pwa",
+  "basedOn": "public-ui-candidate89-pwa",
+  "releaseId": "2026-10-04-candidate90-safe-no-food-http-paddle-fallback",
+  "scope": "Promote only the validated safe no-food template decision and explicit WebCrypto-unavailable Paddle fallback; remove Candidate89 shadow-only CLAHE/threshold benchmark runtime.",
+  "subskillShadowDecision": {
+    "adopted": false,
+    "reason": "Real-device 100-image Candidate89 analysis found no verified rescue case; nonblank conflicts included S/M/L regressions. Production Candidate88/89 subskill logic remains unchanged."
+  },
+  "noFoodTemplate": {
+    "reference": "assets/food-empty-reference.png",
+    "scoreMin": 0.5,
+    "marginMin": 0.1,
+    "guards": [
+      "inference status UNIQUE with exactly one species",
+      "NO_FOOD legal for that species and slot",
+      "empty template score >= 0.50",
+      "empty score minus regular best score >= 0.10 when a regular candidate exists"
+    ],
+    "candidate89RealDeviceEvidence": {
+      "positiveCount": 1,
+      "positiveScore": 0.589109,
+      "positiveMarginVsRegularBest": 0.149386,
+      "negativeCount": 299,
+      "maxNegativeScore": 0.420679,
+      "maxNegativeMarginVsRegularBest": -0.480166
+    }
+  },
+  "foodMatcher": "Candidate89/88 production dimmed food matcher unchanged byte-for-byte.",
+  "paddleHttpLan": {
+    "behavior": "If crypto.subtle.digest is unavailable, skip verified Hugging Face mirror before any mirror fetch and proceed to official-auto-fallback.",
+    "candidate89ObservedFailure": "TypeError: Cannot read properties of undefined (reading digest)",
+    "fallbackPreviouslyObserved": "official-auto-fallback succeeded"
+  },
+  "checkpointCompatibilityId": "checkpoint-compat-2026-10-04-v1"
+}

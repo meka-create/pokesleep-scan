@@ -1,0 +1,35 @@
+{
+  "candidate": "public-ui-candidate23-pwa",
+  "releaseId": "2026-10-03-ui23-field-crops-safety",
+  "basis": {
+    "dataset": "alternate-phone-30",
+    "candidate22UserRerun": {
+      "total": 30,
+      "UNIQUE": 18,
+      "NO_EXACT_MATCH": 9,
+      "MISSING_INPUT": 3,
+      "adaptive": 16,
+      "legacy": 14
+    }
+  },
+  "changes": [
+    "adaptive top-card and nickname crops restricted to the red-card side to avoid food Lv.30/Lv.60 contamination",
+    "adaptive main-skill level is OCR'd from a dedicated upper-right card region",
+    "adaptive first-pass subskill and nature crops now use adaptive section geometry instead of legacy coordinates",
+    "nickname outputs containing likely surrounding-UI tokens remain review-required",
+    "single added kanji at the end of an otherwise plausible Japanese nickname is no longer auto-accepted as a safe Paddle suffix"
+  ],
+  "unchanged": [
+    "classifier.js",
+    "food_matcher.js",
+    "master_data.js",
+    "food_color_features.js",
+    "food_features.js",
+    "White Mint decision logic",
+    "CSV unresolved-food blanking",
+    "100 image upload limit",
+    "TIPS first-show localStorage key"
+  ],
+  "knownFollowup": "The legacy-layout クサナギ case remained NO_EXACT_MATCH in Candidate 22 despite apparently complete structured fields. Candidate 23 intentionally does not alter classifier logic; re-check this case after the UI/OCR rerun.",
+  "browserRerun": "pending user-side Candidate 23 run on the same 30-image set"
+}

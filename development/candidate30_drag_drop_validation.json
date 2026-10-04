@@ -1,0 +1,28 @@
+{
+  "candidate": "public-ui-candidate30-pwa",
+  "releaseId": "2026-10-03-ui30-pc-drag-drop",
+  "basedOn": "public-ui-candidate29-pwa",
+  "recognitionLogicChanged": false,
+  "change": "Desktop drag-and-drop image selection reuses the same validation and analysis flow as the file input.",
+  "dropBehavior": {
+    "formats": [
+      "PNG",
+      "JPG",
+      "JPEG"
+    ],
+    "maxFiles": 100,
+    "selectionSemantics": "replace current selection, same as file picker",
+    "preventsBrowserNavigationOnFileDropOutsideZone": true
+  },
+  "candidate28RegressionEvidence": {
+    "fixed20": {
+      "UNIQUE": 20,
+      "total": 20
+    },
+    "newDevice30": {
+      "UNIQUE": 30,
+      "total": 30
+    }
+  },
+  "browserRerun": "pending"
+}

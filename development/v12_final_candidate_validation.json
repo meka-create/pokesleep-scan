@@ -1,0 +1,97 @@
+{
+  "release": "v12-final-candidate",
+  "basedOn": "v12-beta2",
+  "scope": [
+    "Release packaging only; recognition and review logic frozen from v12-beta2",
+    "Record actual v12-beta2 30-image browser run and manual food-review confirmation"
+  ],
+  "actualBrowserRun": {
+    "images": 30,
+    "classificationUnique": 30,
+    "paddleSuccess": 30,
+    "nicknameNeedsReview": 5,
+    "foodNeedsReviewBeforeManualConfirmation": 1,
+    "structuredRescueApplied": 2,
+    "mintApplied": 1,
+    "sleepTogetherNonBlank": 0,
+    "mintCase": {
+      "file": "1000004928.png",
+      "normalStatus": "NO_EXACT_MATCH",
+      "mintDetected": true,
+      "neutralStatus": "UNIQUE",
+      "finalCandidate": "フライゴン"
+    },
+    "foodReviewCase": {
+      "file": "1000004931.png",
+      "slot": 3,
+      "automaticFirst": "ずっしりカボチャ",
+      "automaticSecond": "ほっこりポテト",
+      "margin": 0.00949637564435013,
+      "unresolvedCsvValue": "",
+      "manualSelection": "ほっこりポテト",
+      "afterManualNeedsReview": false,
+      "manualOverride": true
+    },
+    "csvManualConfirmationDiff": {
+      "changedCells": 1,
+      "row": 25,
+      "column": "食材3",
+      "before": "",
+      "after": "ほっこりポテト"
+    }
+  },
+  "candidatePolicy": {
+    "recognitionLogicChangesFromBeta2": 0,
+    "allowedChanges": [
+      "build/version labels",
+      "localhost port",
+      "download filenames",
+      "README/release metadata",
+      "validation/manifest files"
+    ]
+  },
+  "coreFilesUnchangedFromBeta2": {
+    "classifier.js": {
+      "v12beta2": "fe7af2f7b7c19231f7d0150fd7e2e02388cdbcaa0665b6cbacc9e160534f9ee7",
+      "candidate": "fe7af2f7b7c19231f7d0150fd7e2e02388cdbcaa0665b6cbacc9e160534f9ee7",
+      "same": true
+    },
+    "food_matcher.js": {
+      "v12beta2": "14e6f75ef0df6193e1f52ab400137c7dd651ebbbbab5c9cd91d5cbd0e8d2a0a2",
+      "candidate": "14e6f75ef0df6193e1f52ab400137c7dd651ebbbbab5c9cd91d5cbd0e8d2a0a2",
+      "same": true
+    },
+    "master_data.js": {
+      "v12beta2": "403b28544bf650323b1c5d2c1cde4b71be09d6897949cf6ea8c6cf896fc3a8f5",
+      "candidate": "403b28544bf650323b1c5d2c1cde4b71be09d6897949cf6ea8c6cf896fc3a8f5",
+      "same": true
+    },
+    "food_color_features.js": {
+      "v12beta2": "e00286ae2e8fe96d6f0b49c93e03150469175382ba09c62b499e6f33d85ae444",
+      "candidate": "e00286ae2e8fe96d6f0b49c93e03150469175382ba09c62b499e6f33d85ae444",
+      "same": true
+    },
+    "food_features.js": {
+      "v12beta2": "d5f68af858d37abfbdfad50138f9f9bd5dc6cdc7bf91ea56f5e0b684e9b61750",
+      "candidate": "d5f68af858d37abfbdfad50138f9f9bd5dc6cdc7bf91ea56f5e0b684e9b61750",
+      "same": true
+    }
+  },
+  "appPackagingDiffOnly": {
+    "v12beta2Sha256": "99a86fed55772be3166639cc52b51f964bd0e9d4819181d66247d8e6bd47872a",
+    "candidateSha256": "8e0c2b1c6e55b09d9d8998e10087810431bfbd0d6d62b622b3c8b15f09287f2a",
+    "expectedChangedFields": [
+      "BUILD_ID",
+      "HTTP(S) startup guidance label",
+      "diagnostic version",
+      "diagnostics download filename",
+      "CSV download filename"
+    ],
+    "recognitionOrReviewLogicChanged": false
+  },
+  "staticChecks": {
+    "appJsSyntax": true,
+    "classifierJsSyntax": true,
+    "foodMatcherJsSyntax": true
+  }
+}

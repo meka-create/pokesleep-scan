@@ -1,0 +1,13 @@
+{
+  "candidate": 70,
+  "scope": "desktop-only result-card layout fix",
+  "checks": {
+    "desktopDuplicateStatusImageButtonHidden": true,
+    "desktopImageColumnButtonRetained": true,
+    "mobileStatusRowImageButtonUnchanged": true,
+    "desktopNicknameCropBeforeControls": true,
+    "desktopNicknameDropdownAndConfirmBelowCrop": true,
+    "mobileNicknameLayoutUnchanged": true,
+    "recognitionCoreChanged": false
+  }
+}
