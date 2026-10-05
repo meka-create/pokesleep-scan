@@ -1,4 +1,4 @@
-const RELEASE_ID = '2026-10-05-candidate97-overflow-info-modals';
+const RELEASE_ID = '2026-10-05-candidate98-embedded-empty-food-reference';
 const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}`;
 const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}`;
 const APP_SHELL = [
@@ -16,8 +16,7 @@ const APP_SHELL = [
   versioned('./icons/icon-192.png'),
   versioned('./icons/icon-512.png'),
   versioned('./assets/example-screenshot.png'),
-  versioned('./assets/ogp-card.png'),
-  versioned('./assets/food-empty-reference.png')
+  versioned('./assets/ogp-card.png')
 ];
 
 self.addEventListener('install', (event) => {

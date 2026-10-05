@@ -1,7 +1,7 @@
 {
-  "package": "public-ui-candidate97-runtime-only",
-  "releaseId": "2026-10-05-candidate97-overflow-info-modals",
-  "basedOn": "public-ui-candidate96-runtime-only",
+  "package": "public-ui-candidate98-runtime-only",
+  "releaseId": "2026-10-05-candidate98-embedded-empty-food-reference",
+  "basedOn": "public-ui-candidate97-runtime-only",
   "recognitionLogicChanged": false,
   "runtimeOnly": true,
   "publicAllowlistPolicy": {
@@ -25,19 +25,21 @@
     "Suppress supported browser horizontal swipe navigation (back/forward) with the same page-level overscroll-behavior:none policy.",
     "Update the Tips note for 「一緒に眠った時間」 to clarify that it is outside OCR analysis scope but reflected when the value can be determined by calculation.",
     "In installed PWA standalone mode only, use CloseWatcher to consume one cancelable Android Back/edge-swipe close request; preserve source-image modal Back-to-close behavior and leave normal browser-tab navigation untouched.",
-    "Move secondary information into a TIPS-adjacent overflow menu (vertical three-dot button); show 「トラブルシューティング」 and 「出典」 in dedicated modal dialogs without shifting the page layout."
+    "Move secondary information into a TIPS-adjacent overflow menu (vertical three-dot button); show 「トラブルシューティング」 and 「出典」 in dedicated modal dialogs without shifting the page layout.",
+    "Embed the byte-identical food-empty reference image directly in app.js as an image/jpeg data URL; remove assets/food-empty-reference.png from the public package and Service Worker precache without changing empty-food scoring, thresholds, or confirmation logic."
   ],
   "validation": {
     "candidate96RuntimeComplianceRegression": "passed (runtime-only allowlist + provenance/license ledgers + ORT 1.26.0 alignment)",
     "completePortableRegressionSuite": "passed (including Python Playwright picker accessibility)",
     "classifier100Replay": "100/100 UNIQUE; 0 saved-species mismatches",
     "currentPokesleepToolCsvContract": "passed; scanner species accepted 247/247",
-    "recognitionCoreFiveFiles": "byte-identical to Candidate96 (and Candidate95)",
+    "recognitionCoreFiveFiles": "byte-identical to Candidate97/Candidate96 (public runtime contains the same four used core files; development-only food_features.js remains excluded)",
     "pwaRegression": "passed",
-    "freshReextract": "passed on final ZIP (verified separately)",
-    "runtimeOnlyLocalHttp": "passed: runtime/release 200; known development fixture URLs, README.md, and start_server.bat returned 404",
+    "freshReextract": "passed on final ZIP (manifest size/SHA verification + JS syntax + removed old asset check)",
+    "runtimeOnlyLocalHttp": "passed: /, release.json, app.js = 200; removed assets/food-empty-reference.png = 404",
     "pwaStandaloneCloseWatcherGuard": "static + state-flow validation passed; active only for display-mode: standalone; source-image modal close preserved; no History/beforeunload guard added",
-    "candidate97OverflowInfoModals": "static validation passed: TIPS-adjacent overflow menu present; troubleshooting/source menu items open dedicated dialogs; diagnostic button IDs preserved; four external source references present; recognition/runtime core unchanged"
+    "candidate97OverflowInfoModals": "static validation passed: TIPS-adjacent overflow menu present; troubleshooting/source menu items open dedicated dialogs; diagnostic button IDs preserved; four external source references present; recognition/runtime core unchanged",
+    "candidate98EmbeddedEmptyFoodReference": "PASS: embedded bytes SHA-256 1c7826401c5aac45fec3ad67e96f31eb91b865c4ad26ce380670289ef75ad1cc exactly match Candidate97 asset; decoded dimensions/pixels verified identical; normalizedGrayVector/grayCorrelation/foodEmptyTemplateScore/noFoodTemplateEligible/applySafeNoFoodTemplate source blocks unchanged; old asset removed from public tree and Service Worker precache."
   },
   "files": [
     {
@@ -46,19 +48,19 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 4083,
+      "sha256": "9302ed3453ac55f89ed092f2c81644a663c1a455d22820683a78bafdfb5c1403"
+    },
+    {
       "path": "app.js",
-      "bytes": 233658,
-      "sha256": "2a7311306a5d2887a5caf69e81663cf59509434dd381f2758cd924ccf9900334"
+      "bytes": 238219,
+      "sha256": "fe3104f1c7c13a850b58209d4790b91f997f59e6ff317eb70f5f4b5ae47c1146"
     },
     {
       "path": "assets/example-screenshot.png",
       "bytes": 105279,
       "sha256": "24d74d22839034e02525931a2c9343af0ca626b7f11b19b19993b1fd21fe358c"
-    },
-    {
-      "path": "assets/food-empty-reference.png",
-      "bytes": 3315,
-      "sha256": "1c7826401c5aac45fec3ad67e96f31eb91b865c4ad26ce380670289ef75ad1cc"
     },
     {
       "path": "assets/ogp-card.png",
@@ -102,8 +104,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 65045,
-      "sha256": "b65df37dfc23e70aed27a9d62121dfe02a1e03979bf8a4fc90b424d64614cae7"
+      "bytes": 65099,
+      "sha256": "a51637fbccbf46fe1e332fc906e9ba01679cf51d87b67d3299d4ba79f0b9e7c2"
     },
     {
       "path": "manifest.webmanifest",
@@ -117,23 +119,18 @@
     },
     {
       "path": "release.json",
-      "bytes": 58,
-      "sha256": "b3f7ca502eeac07d04e955c768128ac56b2631bc96f7a6920e16bc9934cf54f7"
+      "bytes": 67,
+      "sha256": "9ee3e8574f41d8adb8e635b6a9558d78b7a6260931f6f50b62cf58512abcab42"
     },
     {
       "path": "sw.js",
-      "bytes": 3035,
-      "sha256": "3a723626f9cf3c9dfc39db49b7dafb6769124a624205d4858e3d53571f5fc6dd"
-    },
-    {
-      "path": "THIRD_PARTY_NOTICES.md",
-      "bytes": 4083,
-      "sha256": "9302ed3453ac55f89ed092f2c81644a663c1a455d22820683a78bafdfb5c1403"
+      "bytes": 2994,
+      "sha256": "4f69d1fcfabf06efecbf620a39ac633e0d953a9ff946b8041aac6e58162e365c"
     }
   ],
   "publicUrl": {
     "page": "https://meka-create.github.io/pokesleep-scan/",
-    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-05-candidate97-overflow-info-modals",
+    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-05-candidate98-embedded-empty-food-reference",
     "configuredAt": "2026-10-05T11:11:13.150724Z"
   }
 }
