@@ -1,8 +1,8 @@
 {
-  "package": "public-ui-candidate98-runtime-only",
-  "releaseId": "2026-10-05-candidate98-embedded-empty-food-reference",
-  "basedOn": "public-ui-candidate97-runtime-only",
-  "recognitionLogicChanged": false,
+  "package": "public-ui-candidate99-runtime-only",
+  "releaseId": "2026-10-05-candidate99-foongus-amoonguss-master",
+  "basedOn": "public-ui-candidate98-runtime-only",
+  "recognitionLogicChanged": true,
   "runtimeOnly": true,
   "publicAllowlistPolicy": {
     "mode": "explicit-allowlist",
@@ -26,20 +26,22 @@
     "Update the Tips note for 「一緒に眠った時間」 to clarify that it is outside OCR analysis scope but reflected when the value can be determined by calculation.",
     "In installed PWA standalone mode only, use CloseWatcher to consume one cancelable Android Back/edge-swipe close request; preserve source-image modal Back-to-close behavior and leave normal browser-tab navigation untouched.",
     "Move secondary information into a TIPS-adjacent overflow menu (vertical three-dot button); show 「トラブルシューティング」 and 「出典」 in dedicated modal dialogs without shifting the page layout.",
-    "Embed the byte-identical food-empty reference image directly in app.js as an image/jpeg data URL; remove assets/food-empty-reference.png from the public package and Service Worker precache without changing empty-food scoring, thresholds, or confirmation logic."
+    "Embed the byte-identical food-empty reference image directly in app.js as an image/jpeg data URL; remove assets/food-empty-reference.png from the public package and Service Worker precache without changing empty-food scoring, thresholds, or confirmation logic.",
+    "Add Foongus/タマゲタケ and Amoonguss/モロバレル to master_data.js from the current nitoyon/pokesleep-tool src/data/pokemon.json and Japanese name map; keep classifier/app/food matching algorithms unchanged."
   ],
   "validation": {
     "candidate96RuntimeComplianceRegression": "passed (runtime-only allowlist + provenance/license ledgers + ORT 1.26.0 alignment)",
     "completePortableRegressionSuite": "passed (including Python Playwright picker accessibility)",
     "classifier100Replay": "100/100 UNIQUE; 0 saved-species mismatches",
-    "currentPokesleepToolCsvContract": "passed; scanner species accepted 247/247",
-    "recognitionCoreFiveFiles": "byte-identical to Candidate97/Candidate96 (public runtime contains the same four used core files; development-only food_features.js remains excluded)",
+    "currentPokesleepToolCsvContract": "passed; scanner species accepted 249/249; no missing or extra species labels against the current 249-name contract snapshot",
+    "recognitionCoreFiveFiles": "master_data.js intentionally updated only for cutoff 2026-10-05 plus Foongus/Amoonguss rows; classifier.js, app.js, food_matcher.js, food_color_features.js remain byte-identical to Candidate98",
     "pwaRegression": "passed",
     "freshReextract": "passed on final ZIP (manifest size/SHA verification + JS syntax + removed old asset check)",
     "runtimeOnlyLocalHttp": "passed: /, release.json, app.js = 200; removed assets/food-empty-reference.png = 404",
     "pwaStandaloneCloseWatcherGuard": "static + state-flow validation passed; active only for display-mode: standalone; source-image modal close preserved; no History/beforeunload guard added",
     "candidate97OverflowInfoModals": "static validation passed: TIPS-adjacent overflow menu present; troubleshooting/source menu items open dedicated dialogs; diagnostic button IDs preserved; four external source references present; recognition/runtime core unchanged",
-    "candidate98EmbeddedEmptyFoodReference": "PASS: embedded bytes SHA-256 1c7826401c5aac45fec3ad67e96f31eb91b865c4ad26ce380670289ef75ad1cc exactly match Candidate97 asset; decoded dimensions/pixels verified identical; normalizedGrayVector/grayCorrelation/foodEmptyTemplateScore/noFoodTemplateEligible/applySafeNoFoodTemplate source blocks unchanged; old asset removed from public tree and Service Worker precache."
+    "candidate98EmbeddedEmptyFoodReference": "PASS: embedded bytes SHA-256 1c7826401c5aac45fec3ad67e96f31eb91b865c4ad26ce380670289ef75ad1cc exactly match Candidate97 asset; decoded dimensions/pixels verified identical; normalizedGrayVector/grayCorrelation/foodEmptyTemplateScore/noFoodTemplateEligible/applySafeNoFoodTemplate source blocks unchanged; old asset removed from public tree and Service Worker precache.",
+    "candidate99FoongusAmoonguss": "PASS: upstream values mapped exactly; synthetic classifier ground-truth replay 600/600 UNIQUE for タマゲタケ and 1200/1200 UNIQUE for モロバレル across 25 natures, Lv10/30/60/70, all six ingredient profiles, and applicable evolution histories; saved classifier100 fixture remains 100/100 UNIQUE with 0 species mismatches."
   },
   "files": [
     {
@@ -104,8 +106,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 65099,
-      "sha256": "a51637fbccbf46fe1e332fc906e9ba01679cf51d87b67d3299d4ba79f0b9e7c2"
+      "bytes": 65069,
+      "sha256": "059ff3995dd71bde934aeed8f405ec4d5883c92b7464ce1e86f17a25687006fb"
     },
     {
       "path": "manifest.webmanifest",
@@ -114,23 +116,24 @@
     },
     {
       "path": "master_data.js",
-      "bytes": 130899,
-      "sha256": "403b28544bf650323b1c5d2c1cde4b71be09d6897949cf6ea8c6cf896fc3a8f5"
+      "bytes": 131939,
+      "sha256": "b0f3bc100966de43dfdd4bd2d6b2036d8f7609b718b241a60674612aaf384ab4"
     },
     {
       "path": "release.json",
-      "bytes": 67,
-      "sha256": "9ee3e8574f41d8adb8e635b6a9558d78b7a6260931f6f50b62cf58512abcab42"
+      "bytes": 62,
+      "sha256": "c80f206f3aec97462436c6a8a22782ec59fa19a41a4c0fab0a18e3341af8f22a"
     },
     {
       "path": "sw.js",
-      "bytes": 2994,
-      "sha256": "4f69d1fcfabf06efecbf620a39ac633e0d953a9ff946b8041aac6e58162e365c"
+      "bytes": 2989,
+      "sha256": "38c61b058c05b3aa0c2184b5bd0a3a79d935d58c671e38e18a5a90b134e101d2"
     }
   ],
   "publicUrl": {
     "page": "https://meka-create.github.io/pokesleep-scan/",
-    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-05-candidate98-embedded-empty-food-reference",
-    "configuredAt": "2026-10-05T11:11:13.150724Z"
-  }
+    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-05-candidate99-foongus-amoonguss-master",
+    "configuredAt": "2026-10-05T11:44:27.973672Z"
+  },
+  "masterDataChanged": true
 }

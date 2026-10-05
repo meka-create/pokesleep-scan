@@ -1,4 +1,4 @@
-const RELEASE_ID = '2026-10-05-candidate98-embedded-empty-food-reference';
+const RELEASE_ID = '2026-10-05-candidate99-foongus-amoonguss-master';
 const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}`;
 const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}`;
 const APP_SHELL = [
