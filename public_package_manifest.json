@@ -1,7 +1,7 @@
 {
-  "package": "public-ui-candidate96-runtime-only",
-  "releaseId": "2026-10-05-candidate96-runtime-only-provenance-ort-alignment",
-  "basedOn": "public-ui-candidate95-audit-safety",
+  "package": "public-ui-candidate97-runtime-only",
+  "releaseId": "2026-10-05-candidate97-sources-disclosure-ui",
+  "basedOn": "public-ui-candidate96-runtime-only",
   "recognitionLogicChanged": false,
   "runtimeOnly": true,
   "publicAllowlistPolicy": {
@@ -24,18 +24,20 @@
     "Prevent pull-to-refresh at all times with page-level overscroll-behavior:none; keep the existing analysis-time touch fallback unchanged.",
     "Suppress supported browser horizontal swipe navigation (back/forward) with the same page-level overscroll-behavior:none policy.",
     "Update the Tips note for 「一緒に眠った時間」 to clarify that it is outside OCR analysis scope but reflected when the value can be determined by calculation.",
-    "In installed PWA standalone mode only, use CloseWatcher to consume one cancelable Android Back/edge-swipe close request; preserve source-image modal Back-to-close behavior and leave normal browser-tab navigation untouched."
+    "In installed PWA standalone mode only, use CloseWatcher to consume one cancelable Android Back/edge-swipe close request; preserve source-image modal Back-to-close behavior and leave normal browser-tab navigation untouched.",
+    "Add a user-facing 「出典」 disclosure next to 「トラブルシューティング」, using the same tap-to-open details UI and linking to ポケモンスリープ攻略・検証Wiki, RP collection project, RaenonX, and pokesleep-tool."
   ],
   "validation": {
     "candidate96RuntimeComplianceRegression": "passed (runtime-only allowlist + provenance/license ledgers + ORT 1.26.0 alignment)",
     "completePortableRegressionSuite": "passed (including Python Playwright picker accessibility)",
     "classifier100Replay": "100/100 UNIQUE; 0 saved-species mismatches",
     "currentPokesleepToolCsvContract": "passed; scanner species accepted 247/247",
-    "recognitionCoreFiveFiles": "byte-identical to Candidate95",
+    "recognitionCoreFiveFiles": "byte-identical to Candidate96 (and Candidate95)",
     "pwaRegression": "passed",
     "freshReextract": "passed on final ZIP (verified separately)",
     "runtimeOnlyLocalHttp": "passed: runtime/release 200; known development fixture URLs, README.md, and start_server.bat returned 404",
-    "pwaStandaloneCloseWatcherGuard": "static + state-flow validation passed; active only for display-mode: standalone; source-image modal close preserved; no History/beforeunload guard added"
+    "pwaStandaloneCloseWatcherGuard": "static + state-flow validation passed; active only for display-mode: standalone; source-image modal close preserved; no History/beforeunload guard added",
+    "candidate97SourcesDisclosureUI": "passed: source disclosure added beside troubleshooting; four external references present; recognition/runtime core unchanged"
   },
   "files": [
     {
@@ -100,8 +102,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 60571,
-      "sha256": "03bf44bada66d55742b620ffe7f6ba7ae4c8a668ce6ae499316251360c0cafbc"
+      "bytes": 61337,
+      "sha256": "c68817baf284870ca33db734277ebee88bb2273ad9ea82c4070890ca6486b1a2"
     },
     {
       "path": "manifest.webmanifest",
@@ -115,13 +117,13 @@
     },
     {
       "path": "release.json",
-      "bytes": 75,
-      "sha256": "e26fe626c4f5f4ae5d91602d740dfcb2963268ec7f4b1c72f557f5901c67a970"
+      "bytes": 59,
+      "sha256": "09c457feff1f14ccf5af1e971d71159f5fd4848302809ec63041ce75887560d4"
     },
     {
       "path": "sw.js",
-      "bytes": 3052,
-      "sha256": "88dbe35abb63b223d367b9ed0a69185f0ad33770350f7e05697951ce01748437"
+      "bytes": 3036,
+      "sha256": "38173412fce6459eeaf6b962fcf6a74f6840ca0566242fb9a6afcd498a056f8e"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -131,7 +133,7 @@
   ],
   "publicUrl": {
     "page": "https://meka-create.github.io/pokesleep-scan/",
-    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-05-candidate96-runtime-only-provenance-ort-alignment",
-    "configuredAt": "2026-10-05T02:14:52.320Z"
+    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-05-candidate97-sources-disclosure-ui",
+    "configuredAt": "2026-10-05T10:53:14.157044Z"
   }
 }
