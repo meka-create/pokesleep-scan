@@ -1,22 +1,41 @@
 {
-  "package": "public-ui-candidate94-pwa",
-  "releaseId": "2026-10-05-candidate94-pwa-clean-url-stable-manifest",
-  "basedOn": "public-ui-candidate93-pwa",
+  "package": "public-ui-candidate96-runtime-only",
+  "releaseId": "2026-10-05-candidate96-runtime-only-provenance-ort-alignment",
+  "basedOn": "public-ui-candidate95-audit-safety",
   "recognitionLogicChanged": false,
+  "runtimeOnly": true,
+  "publicAllowlistPolicy": {
+    "mode": "explicit-allowlist",
+    "developmentIncluded": false,
+    "developerReadmeIncluded": false,
+    "localServerIncluded": false,
+    "unusedFoodFeaturesIncluded": false,
+    "complianceDocsIncluded": [
+      "THIRD_PARTY_NOTICES.md"
+    ],
+    "provenanceLedgerPublic": false
+  },
   "maintenanceChanges": [
-    "Keep the Web App Manifest URL stable instead of release-versioning the manifest link, preserving a stable Android/PWA manifest identity.",
-    "Continue using a transient release query only for cache-busting navigation, then remove it with history.replaceState so the visible/share/install URL returns to the clean public URL.",
-    "Keep manifest id/start_url/scope stable at ./ and keep asset/icon release versioning unchanged.",
-    "No recognition-core or species-master changes; Tamagetake / Morobareru remain deferred."
+    "Build GitHub Pages deployment from an explicit runtime allowlist; exclude development fixtures, validation/regression files, developer README, local server launcher, and unused food_features.js.",
+    "Add DATA_PROVENANCE.md to the official development package as an internal provenance ledger; do not publish it in the runtime deployment.",
+    "Add THIRD_PARTY_NOTICES.md for the audited OCR/runtime dependency and model license inventory.",
+    "Align PaddleOCR explicit ONNX Runtime Web diagnostics/WASM path from 1.22.0 to 1.26.0 to match the observed @paddleocr/paddleocr-js@0.4.2 +esm runtime dependency resolution.",
+    "Keep checkpoint compatibility and diagnostic JSON/CSV payloads unchanged; keep recognition core five byte-identical to Candidate95.",
+    "Prevent pull-to-refresh at all times with page-level overscroll-behavior:none; keep the existing analysis-time touch fallback unchanged.",
+    "Suppress supported browser horizontal swipe navigation (back/forward) with the same page-level overscroll-behavior:none policy.",
+    "Update the Tips note for 「一緒に眠った時間」 to clarify that it is outside OCR analysis scope but reflected when the value can be determined by calculation.",
+    "In installed PWA standalone mode only, use CloseWatcher to consume one cancelable Android Back/edge-swipe close request; preserve source-image modal Back-to-close behavior and leave normal browser-tab navigation untouched."
   ],
   "validation": {
-    "candidate94PwaCleanUrlStableManifest": "passed (static + executable release-navigation regression)",
-    "completePortableRegressionSuite": "passed",
+    "candidate96RuntimeComplianceRegression": "passed (runtime-only allowlist + provenance/license ledgers + ORT 1.26.0 alignment)",
+    "completePortableRegressionSuite": "passed (including Python Playwright picker accessibility)",
     "classifier100Replay": "100/100 UNIQUE; 0 saved-species mismatches",
     "currentPokesleepToolCsvContract": "passed; scanner species accepted 247/247",
-    "recognitionCoreFiveFiles": "byte-identical to Candidate93",
+    "recognitionCoreFiveFiles": "byte-identical to Candidate95",
     "pwaRegression": "passed",
-    "packageManifest": "140 entries; self excluded; SHA/size regenerated"
+    "freshReextract": "passed on final ZIP (verified separately)",
+    "runtimeOnlyLocalHttp": "passed: runtime/release 200; known development fixture URLs, README.md, and start_server.bat returned 404",
+    "pwaStandaloneCloseWatcherGuard": "static + state-flow validation passed; active only for display-mode: standalone; source-image modal close preserved; no History/beforeunload guard added"
   },
   "files": [
     {
@@ -26,8 +45,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 231855,
-      "sha256": "2c40c950c35f004e47898f8186d3866fedeeee605799b93e5daa5ee6a68075e0"
+      "bytes": 233658,
+      "sha256": "2a7311306a5d2887a5caf69e81663cf59509434dd381f2758cd924ccf9900334"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -50,614 +69,9 @@
       "sha256": "93a1fbe56887ae9683409ca5db48563f18c78711aedac01b8758510768ec7c71"
     },
     {
-      "path": "development/candidate22_alt_phone_layout_validation.json",
-      "bytes": 19672,
-      "sha256": "bd6c72b6a83ece094514579f5f4e7659774bf12a99272ff5ef993f43e5efdbac"
-    },
-    {
-      "path": "development/candidate23_alt_phone_followup_validation.json",
-      "bytes": 1487,
-      "sha256": "5bca781828a567780a6fadf66204dc2a9ef528d6f7f7def197b9424f51c18704"
-    },
-    {
-      "path": "development/candidate23_crop_geometry_validation.json",
-      "bytes": 510,
-      "sha256": "42ecc11c5d5ac7695d5f7ec25c6a417c898670aa071c4d22acdf64f6339f49b9"
-    },
-    {
-      "path": "development/candidate24_alt_phone_validation.json",
-      "bytes": 1433,
-      "sha256": "e1397eac8f1b185ea8cf38620c1c348c402bafa21e583ebfcd0a560d23573b8e"
-    },
-    {
-      "path": "development/candidate28_new_device_validation.json",
-      "bytes": 1330,
-      "sha256": "e18f7d23101134e85ddb1ff9ead30c8e3157416f51b32cfe7a3223b6d290400f"
-    },
-    {
-      "path": "development/candidate29_species_review_validation.json",
-      "bytes": 812,
-      "sha256": "93df8e5b99217fa2eb84e4c87dd868b01f76d807e1f335894e568be829b2daa5"
-    },
-    {
-      "path": "development/candidate30_drag_drop_validation.json",
-      "bytes": 731,
-      "sha256": "37e374a71f242f3b4c849984468fe4c559ef2854965e181ebed88f443fc8dbb9"
-    },
-    {
-      "path": "development/candidate31_review_ui_validation.json",
-      "bytes": 507,
-      "sha256": "d68786adcd2603108627ea0167d5070a9b1634f0ab20e419c5f00f61af70e855"
-    },
-    {
-      "path": "development/candidate32_final100_rescue_validation.json",
-      "bytes": 2058,
-      "sha256": "1a72e3c13ee250de164576fecb78e13be43fdc95a66835e4901a722b9647f9f7"
-    },
-    {
-      "path": "development/candidate36_nature_deep_rescue_validation.json",
-      "bytes": 1016,
-      "sha256": "d930f20acdc140f5871ba0fc129c9587244c8cb8743df14ee1a1db662376fa97"
-    },
-    {
-      "path": "development/candidate37_modal_validation.json",
-      "bytes": 1014,
-      "sha256": "c96b036c17542b4be7b9547bdfe41a8d7e7b50a8748cf4165d600107dab75a8c"
-    },
-    {
-      "path": "development/candidate38_manual_recovery_validation.json",
-      "bytes": 1470,
-      "sha256": "3101603022e45a3d6bbbffe78201865abb760bd39772aa8ef0eebce5dfc88f92"
-    },
-    {
-      "path": "development/candidate39_smart_progress_output_safety_validation.json",
-      "bytes": 1588,
-      "sha256": "082f1228096bae04f19227785620503586ad1f3785b4816718e2da3e156975cd"
-    },
-    {
-      "path": "development/candidate40_monotonic_local_progress_validation.json",
-      "bytes": 816,
-      "sha256": "43523ad841ed4b765eca99b39535cc788e98d69582d6f7102f7910114a6d0080"
-    },
-    {
-      "path": "development/candidate41_premium_completion_validation.json",
-      "bytes": 936,
-      "sha256": "2df64ba777a390d38b5b951b628ed127eeae3a398618ebd313a07ff4e1af31f6"
-    },
-    {
-      "path": "development/candidate42_safety_audit_validation.json",
-      "bytes": 2040,
-      "sha256": "e57bbcdea76b0b8fcfe061a81b24ce932159606800ffa63c7096aa1e66af1e48"
-    },
-    {
-      "path": "development/candidate43_dimmed_food2_validation.json",
-      "bytes": 1738,
-      "sha256": "d8946764a06c02b2f470b7654a804dc2ef433a025f99003a9f6abc0d50059ea8"
-    },
-    {
-      "path": "development/candidate44_dimmed_food3_validation.json",
-      "bytes": 4271,
-      "sha256": "3766712fc7a971e67f5937c1f08d0ca7aacc26553ec8298a54ec1eb87c0b6c40"
-    },
-    {
-      "path": "development/candidate45_mythical_none_food_validation.json",
-      "bytes": 3169,
-      "sha256": "c9f90645167eecf0426ad49caceea043e1547a869f70e1f777aec9d64c3ecb66"
-    },
-    {
-      "path": "development/candidate46_pokesleep_csv_none_validation.json",
-      "bytes": 2155,
-      "sha256": "5bec2e2f6745c14ca8a63c33691c2dc10fbd726d99df7bdcef51456971a5b361"
-    },
-    {
-      "path": "development/candidate47_pokesleep_csv_format_validation.json",
-      "bytes": 2850,
-      "sha256": "02f032cc782e32fa0e508daf22150fa3a50eb9b9b6b40d9f5753b150447b9d46"
-    },
-    {
-      "path": "development/candidate48_pokesleep_csv_preflight_validation.json",
-      "bytes": 4155,
-      "sha256": "aa1c237faf9b1a7f58ef814d8d06f041a19c29f80379184e45334ff6118c3b3d"
-    },
-    {
-      "path": "development/candidate48_pokesleep_csv_roundtrip.mjs",
-      "bytes": 10591,
-      "sha256": "0ea29fa7407882b235e34e95f9729f79e5e9264c52e9de833f776cde35383a9b"
-    },
-    {
-      "path": "development/candidate49_custom_choice_ui_regression.mjs",
-      "bytes": 2062,
-      "sha256": "31cd08b2774c293409e86be97ea9b3e79975cde15476d5484c6423926cf4d9ff"
-    },
-    {
-      "path": "development/candidate49_custom_choice_ui_validation.json",
-      "bytes": 1418,
-      "sha256": "5216294642025426084ffe0e454a7d0f50cea165aee240af2f45b7bc8a39c750"
-    },
-    {
-      "path": "development/candidate50_classifier100_replay.mjs",
-      "bytes": 1413,
-      "sha256": "83a37791c42a117897955c8e97bb79880d99da77713c4956fe054c75fcaacb86"
-    },
-    {
-      "path": "development/candidate50_stability_accessibility_validation.json",
-      "bytes": 4010,
-      "sha256": "d6f37f6fc550ccc93a189485d40f9f88240a3c63685ef60a9bea5b902e991de8"
-    },
-    {
-      "path": "development/candidate50_step1_mew_versatile_regression.mjs",
-      "bytes": 2841,
-      "sha256": "b3ae6676aa842248f95f027e0f56337f637539bf7dc10eb007e14d448bab1df9"
-    },
-    {
-      "path": "development/candidate50_step2_picker_render_pending_regression.mjs",
-      "bytes": 3093,
-      "sha256": "ed72d0325c8c8346d420b06bc645bdf93ba7a2c7e11d8119be3c07826c1aeca4"
-    },
-    {
-      "path": "development/candidate50_step3_manual_food_completion_regression.mjs",
-      "bytes": 2007,
-      "sha256": "b7ae0257f134c27d14213660aefb77e76bec784483255f48270f1c577aee2d7f"
-    },
-    {
-      "path": "development/candidate50_step4_picker_accessibility_regression.py",
-      "bytes": 4997,
-      "sha256": "8259ed687cb3fa5fd3ffe9545f70a757687a63d8f99c5dffce0a0499dfdab9b2"
-    },
-    {
-      "path": "development/candidate51_mobile_runtime_recovery_regression.mjs",
-      "bytes": 1634,
-      "sha256": "49ec5e50633d50d28a63a698a690d8485a8019dd4744fafbccb2271e888b66bb"
-    },
-    {
-      "path": "development/candidate52_mobile_ui_final_validation.json",
-      "bytes": 2126,
-      "sha256": "d1771717268c74fe77ac94078aa00ab0b58a7c5d5f03727dfc8906da8d8543ad"
-    },
-    {
-      "path": "development/candidate52_step05_06_mobile_ui_regression.mjs",
-      "bytes": 1843,
-      "sha256": "31894f15a7910232ff502fffbb29ae4b1ccb0f5abc1d679591aaa33d4bd6eb0d"
-    },
-    {
-      "path": "development/candidate52_step07_09_inline_manual_mobile_layout_regression.mjs",
-      "bytes": 3361,
-      "sha256": "1fe564730a996d874fc53ebd250e5795634603f365ea30a8f7101ee311990aa0"
-    },
-    {
-      "path": "development/candidate52_step10_11_search_status_tips_regression.mjs",
-      "bytes": 2420,
-      "sha256": "c6d41482cece8f2fdc1fdd85ae45a8833f1c206f2c0a412fa70ed2ca342c5b85"
-    },
-    {
-      "path": "development/candidate53_review_consistency_regression.mjs",
-      "bytes": 4858,
-      "sha256": "dd9a3d3b58ca6cfee902481e5a32837421da5060a46c50de1b5cf82668722ca8"
-    },
-    {
-      "path": "development/candidate53_review_consistency_validation.json",
-      "bytes": 2476,
-      "sha256": "5e641433713ce01526c3a47dbe99663febe2bd25e8d6c70d9f31e188aeb30f38"
-    },
-    {
-      "path": "development/candidate54_failure_review_mobile_alignment_regression.mjs",
-      "bytes": 5011,
-      "sha256": "14f60c73985bf63f1d186cb3333e28221f4a5e8552efc794c0b6529cbe380ba5"
-    },
-    {
-      "path": "development/candidate55_nature_source_csv_jump_regression.mjs",
-      "bytes": 2402,
-      "sha256": "eba713f8ced2e0f01a242ef3e36540349c419edba38332c3cfeccfb33f0953e4"
-    },
-    {
-      "path": "development/candidate56_skill_food_preview_regression.mjs",
-      "bytes": 4716,
-      "sha256": "88b114751991c94defe388568d06e23455d0f90e3ae5f9647f504eb09e30b50c"
-    },
-    {
-      "path": "development/candidate56_skill_food_preview_validation.json",
-      "bytes": 1243,
-      "sha256": "2593d2804ff8526d18af9bc29ed863692f40686db0bcce09ad7e19964b4d7987"
-    },
-    {
-      "path": "development/candidate57_failure_recovery_source_ui_regression.mjs",
-      "bytes": 4123,
-      "sha256": "7080c03361a3eeaa470fd59536d5f65e7939b9aea0932ddb410f4904be3900ee"
-    },
-    {
-      "path": "development/candidate57_failure_recovery_source_ui_validation.json",
-      "bytes": 995,
-      "sha256": "dbf15812960726165e451704e3823fc3f9053268533bd5da0738d71ff76b435d"
-    },
-    {
-      "path": "development/candidate58_refined_controls_regression.mjs",
-      "bytes": 1437,
-      "sha256": "d10bb4f6cd7aae0021bd9bb7bce2d7d74965b26c90afacc1a50c166ad3055a09"
-    },
-    {
-      "path": "development/candidate59_refined_confirm_image_control_regression.mjs",
-      "bytes": 1508,
-      "sha256": "7d5b9876d0eca618866e37c7b5b7c3b1ebca281687e999fe933bf4a90390f8e7"
-    },
-    {
-      "path": "development/candidate60_card_header_confirm_balance_regression.mjs",
-      "bytes": 2288,
-      "sha256": "85c80485324bab4c23914b7c5bb502f1eaa5f287a7ec89743190ae20d26ab7e6"
-    },
-    {
-      "path": "development/candidate60_inherited_failure_recovery_regression.mjs",
-      "bytes": 4123,
-      "sha256": "7080c03361a3eeaa470fd59536d5f65e7939b9aea0932ddb410f4904be3900ee"
-    },
-    {
-      "path": "development/candidate61_image_control_surface_regression.mjs",
-      "bytes": 1477,
-      "sha256": "7ce28d25cd83387f0e61d517233ea0e1f775ef56030ec469985ac83f3c66b0f8"
-    },
-    {
-      "path": "development/candidate62_pause_resume_regression.mjs",
-      "bytes": 4632,
-      "sha256": "e47d5f2da71c38bc965bb8dcec7c31bc05826177711aaffec024edaada62e191"
-    },
-    {
-      "path": "development/candidate63_pull_refresh_indexeddb_regression.mjs",
-      "bytes": 5191,
-      "sha256": "cdd7b0a2d69d45ae5fca0ad0e4fcac9a827a588c0d3798eb49afca61f72aefce"
-    },
-    {
-      "path": "development/candidate63_pull_refresh_indexeddb_validation.json",
-      "bytes": 1195,
-      "sha256": "48593bbbd1d4e190c129ded261bd19411b16e2783192ded1553ea1bceb47763f"
-    },
-    {
-      "path": "development/candidate64_checkpoint_memory_regression.mjs",
-      "bytes": 5115,
-      "sha256": "672541556a1e6237aabd0cdac5d4745d94bf79c66fa36b6feec66b28c0fe623c"
-    },
-    {
-      "path": "development/candidate65_checkpoint_compat_failure_notice_regression.mjs",
-      "bytes": 7340,
-      "sha256": "9376eb74f26a3c254979a07d0286d995404b23cf61c4c0a33ddd3339e72f988e"
-    },
-    {
-      "path": "development/candidate66_manual_checkpoint_ordering_regression.mjs",
-      "bytes": 7630,
-      "sha256": "e25adf6c6683331a518246a242bb4d85b9f45f09cdc87d03710837824ad3aee0"
-    },
-    {
-      "path": "development/candidate67_regression_release_cleanup_regression.mjs",
-      "bytes": 4110,
-      "sha256": "52651e2d8e07d9fe3ad1feb385e697c8f48fb69225e03736097b53bed5377bae"
-    },
-    {
-      "path": "development/candidate67_regression_release_cleanup_validation.json",
-      "bytes": 488,
-      "sha256": "9ceaccd399f091420cd5facb628f2ddfb153329287245f3ebb06aab3f60a9a8d"
-    },
-    {
-      "path": "development/candidate68_silent_incompatible_checkpoint_regression.mjs",
-      "bytes": 1537,
-      "sha256": "66a13c57cafc792546acb49af7e559dc93d70c6b42ac33549511f1522d1ffe04"
-    },
-    {
-      "path": "development/candidate68_silent_incompatible_checkpoint_validation.json",
-      "bytes": 515,
-      "sha256": "6b8478646586ebef3cdf268b8428df765151937f75d6ce947fc9a0e48ca331e1"
-    },
-    {
-      "path": "development/candidate69_mobile_nature_food_preview_regression.mjs",
-      "bytes": 6122,
-      "sha256": "109dd3aac9376b6c91cdfe688677aa6c61e915342aa11dd1b3024a3c37020c14"
-    },
-    {
-      "path": "development/candidate69_mobile_nature_food_preview_validation.json",
-      "bytes": 1223,
-      "sha256": "f1577aa7bb644a02e8e4fa5009d0bca795298378f56a4be3dcfae566d63b0f99"
-    },
-    {
-      "path": "development/candidate70_desktop_image_nickname_layout_regression.mjs",
-      "bytes": 1912,
-      "sha256": "8c0b940c84c2a4688302fe5e28289d3a54c27d6d054751f47b1b8a6b824f515c"
-    },
-    {
-      "path": "development/candidate70_desktop_image_nickname_layout_validation.json",
-      "bytes": 421,
-      "sha256": "94b562979163d8301399a4ddc8066440df50cc6768851ec29958811db84c7b9c"
-    },
-    {
-      "path": "development/candidate71_nature_consensus_guard_regression.mjs",
-      "bytes": 4556,
-      "sha256": "ef2bf630bd2b072f449edc0c0785e8316cf7da06ac7bfa9d71d8b8c812337690"
-    },
-    {
-      "path": "development/candidate71_nature_consensus_guard_validation.json",
-      "bytes": 898,
-      "sha256": "4aab682d0dfd3e94a5dfa15ba4236679cac496e7dbe068dc86c67d26c7c65efd"
-    },
-    {
-      "path": "development/candidate72_top_pause_resume_regression.mjs",
-      "bytes": 3774,
-      "sha256": "39bef0c4bf798b86770ef281171a5a251b32e7f1f3b53d217efc1492e20e1d31"
-    },
-    {
-      "path": "development/candidate72_top_pause_resume_validation.json",
-      "bytes": 986,
-      "sha256": "7d9fd7dffef2a2b6ece10ce7c256eac5f21965775f0509fb7a0d7a365dd8806d"
-    },
-    {
-      "path": "development/candidate73_nickname_preview_geometry_regression.mjs",
-      "bytes": 1916,
-      "sha256": "ce0391da03e393c87f3fe98581209333fc8d284da4a1e073ee840daba4162c24"
-    },
-    {
-      "path": "development/candidate73_nickname_preview_geometry_validation.json",
-      "bytes": 570,
-      "sha256": "08321dc2728c11b07b9c531f5dea3865e698d25fb74b2330b36214680608c187"
-    },
-    {
-      "path": "development/candidate74_idb_retry_source_regression.mjs",
-      "bytes": 5026,
-      "sha256": "051655529c9c5371494d4f6f5bc714df362417b321340b3871ace623c726f605"
-    },
-    {
-      "path": "development/candidate74_idb_retry_source_validation.json",
-      "bytes": 786,
-      "sha256": "7e71d883eb3898888bb051815f154c26529eeb52b706b2be97cdbcab1a5ca1b3"
-    },
-    {
-      "path": "development/candidate75_nature_overcorrection_guard_regression.mjs",
-      "bytes": 4875,
-      "sha256": "342c657b701aae4ef9ecf301479396be4c652723cb95fd434ac058fe771df1f2"
-    },
-    {
-      "path": "development/candidate75_nature_overcorrection_guard_validation.json",
-      "bytes": 944,
-      "sha256": "9ca2b7fcfb31c86a5344a5fa3864f7c63f16c03bde98565351b1e51bb54ecc5f"
-    },
-    {
-      "path": "development/candidate76_checkpoint_atomic_preview_prune_regression.mjs",
-      "bytes": 7906,
-      "sha256": "c2ceaaa677880e9bb556a7de2bd996603bdc79024eac97ec715597258ea0c1ad"
-    },
-    {
-      "path": "development/candidate76_checkpoint_atomic_preview_prune_validation.json",
-      "bytes": 472,
-      "sha256": "611334cc203598652e02d5d410ba2071caf8bf8dbbaebb0ba523ec925408cc86"
-    },
-    {
-      "path": "development/candidate77_pending_ttl_cleanup_regression.mjs",
-      "bytes": 5019,
-      "sha256": "2738ef4ffd56d1144d5d6b72ed8a76f3b6780b950068216d05c6b2374cba0374"
-    },
-    {
-      "path": "development/candidate77_pending_ttl_cleanup_validation.json",
-      "bytes": 397,
-      "sha256": "0641339205d46b7022893ffb78bd8023147836e10d693ec66ef3375546610088"
-    },
-    {
-      "path": "development/candidate78_subskill_consensus_guard_regression.mjs",
-      "bytes": 4339,
-      "sha256": "968da314ed6b983711646333c7ce0fe4c13f59209572820424c937bb299d7464"
-    },
-    {
-      "path": "development/candidate78_subskill_consensus_guard_validation.json",
-      "bytes": 439,
-      "sha256": "ab16ebd2c1fea043b76b7aa19ab5e037852fea59a124d13d9df32ef39e59926d"
-    },
-    {
-      "path": "development/candidate79_pokesleep_tool_current_csv_contract_regression.mjs",
-      "bytes": 6128,
-      "sha256": "e7b5f99b44d8217f1470c6246829fb7d6119f2774f872abd6c4955049605ae9f"
-    },
-    {
-      "path": "development/candidate79_pokesleep_tool_current_csv_contract_validation.json",
-      "bytes": 3138,
-      "sha256": "b1bac590c1999d2d5046f5464dbd7333bd56a2c984936b67f151e3e54ff24a8c"
-    },
-    {
-      "path": "development/candidate80_recovery_runtime_hardening_regression.mjs",
-      "bytes": 4628,
-      "sha256": "1c3b54a5df5f932d02208863c56a5e8b2c70327cf02cfcbd481691591cd8be4f"
-    },
-    {
-      "path": "development/candidate80_recovery_runtime_hardening_validation.json",
-      "bytes": 876,
-      "sha256": "3fbdddeb2152bff804e20fb8e634a25c121817f6827dc4d624d7b63e1ec9c170"
-    },
-    {
-      "path": "development/candidate81_inline_subskill_review_regression.mjs",
-      "bytes": 4307,
-      "sha256": "8087e143a45b249ff145a952fd686a11625b6885e00f976cd04ed1193abedaab"
-    },
-    {
-      "path": "development/candidate81_inline_subskill_review_validation.json",
-      "bytes": 653,
-      "sha256": "cf6a9c71d2d4df2db4941516a24cf2be91a3babebd1ba90de02962a8735a5826"
-    },
-    {
-      "path": "development/candidate82_subskill_review_tuning_csv_filename_regression.mjs",
-      "bytes": 4114,
-      "sha256": "86a95f3f776a54b3a564615ba1282bf4e1c7849da849f694424f16e59fd2d9aa"
-    },
-    {
-      "path": "development/candidate82_subskill_review_tuning_validation.json",
-      "bytes": 11263,
-      "sha256": "a3cba719b45990b2608bbd297ae1a48c9bd8a2d8f854e54a5e2ab9ea3a445223"
-    },
-    {
-      "path": "development/candidate83_screen_wake_lock_regression.mjs",
-      "bytes": 4493,
-      "sha256": "383a3cd109348fcc7619f0102601b412592d65813bd1d076336d77a7fc5dfa49"
-    },
-    {
-      "path": "development/candidate85_release_integrity_regression.mjs",
-      "bytes": 5176,
-      "sha256": "dca0f98ec83d85b0cf80c610238686844a90fe6a012bd67a9814b2baa25a4bd9"
-    },
-    {
-      "path": "development/candidate85_release_integrity_validation.json",
-      "bytes": 262,
-      "sha256": "5f1d4f0578f4bfb194402c33893f062c8a3aacb85dc77e5ba6e627caa0ad6edc"
-    },
-    {
-      "path": "development/candidate86_diagnostic_raw_csv_snapshot_regression.mjs",
-      "bytes": 5346,
-      "sha256": "aa1f5e4c95766415f8639fa31b3a1b29d26e2eae075ba72d3b5000cca143cdfb"
-    },
-    {
-      "path": "development/candidate86_diagnostic_raw_csv_snapshot_validation.json",
-      "bytes": 321,
-      "sha256": "89b664f459305a3eb2308922e5a591f1deb4d283cf0ae22a2a9ab86d8d2f7536"
-    },
-    {
-      "path": "development/candidate87_checkpoint_recovery_chain_regression.mjs",
-      "bytes": 6938,
-      "sha256": "617ffaa7a2f14e977bb00d044a308b68168ba2af47fea607b3e62f2cc2b3aba6"
-    },
-    {
-      "path": "development/candidate87_checkpoint_recovery_chain_validation.json",
-      "bytes": 521,
-      "sha256": "9f74678a70ccd0255a8bd1c1abcb18fad45862ae73b64d606601f24277eeff97"
-    },
-    {
-      "path": "development/candidate88_diagnostic_traceability_cleanup_regression.mjs",
-      "bytes": 4465,
-      "sha256": "2a4f5897f0ed9c6a199c5d456792acaf5af9cb75425d57233d5bb3f48db9b691"
-    },
-    {
-      "path": "development/candidate88_diagnostic_traceability_cleanup_validation.json",
-      "bytes": 362,
-      "sha256": "52c25e942db109c39bba506eedc1e06fc26d5645b4ef902b7a5d345357f8e39a"
-    },
-    {
-      "path": "development/candidate89_empty_reference_validation.json",
-      "bytes": 782,
-      "sha256": "b934e03726784a7f644c4a3617dc5a64add34f50baa27b5765e4ec6b0767542b"
-    },
-    {
-      "path": "development/candidate90_safe_no_food_paddle_fallback_regression.mjs",
-      "bytes": 5431,
-      "sha256": "f30658212fef11c095ac13fbcb65c6f5bed135d148d63cef2f577e967b4f13ea"
-    },
-    {
-      "path": "development/candidate90_safe_no_food_paddle_fallback_validation.json",
-      "bytes": 1757,
-      "sha256": "75925cf527a92bb3773bfe928776103edf957db9f03e639397e8307e1f495e2c"
-    },
-    {
-      "path": "development/candidate91_audit_fixes_food3_safety_regression.mjs",
-      "bytes": 8017,
-      "sha256": "1087ec09a5840db73c8359551d7b117a88714edf89006388e4e8528d85193afe"
-    },
-    {
-      "path": "development/candidate91_audit_fixes_food3_safety_validation.json",
-      "bytes": 2361,
-      "sha256": "cc5281cc07ed5cc0f2e7c9e11e731628e85585ac679ddf1d2acd22a7e12e0f00"
-    },
-    {
-      "path": "development/candidate92_review_state_nature_csv_safety_regression.mjs",
-      "bytes": 6365,
-      "sha256": "53f89d2799a5922f85f4df926c87a280f9aa5d0edb5d03cc400232c73c4c494c"
-    },
-    {
-      "path": "development/candidate92_review_state_nature_csv_safety_validation.json",
-      "bytes": 1803,
-      "sha256": "357dc7df668b396525e8368f81bd5d3986b06acece91211dabff3fb312e4bc8c"
-    },
-    {
-      "path": "development/candidate93_species_reopen_paddle_cleanup_regression.mjs",
-      "bytes": 8474,
-      "sha256": "11b8f66b8791e70dfc460627821db9ca61a697e4c7a92709127aa248e215d1e3"
-    },
-    {
-      "path": "development/candidate93_species_reopen_paddle_cleanup_validation.json",
-      "bytes": 635,
-      "sha256": "e6fc916fc949b2dbbd7c7311ad863fdf5184ca4869f02103dfeec40cda929ff8"
-    },
-    {
-      "path": "development/candidate94_pwa_clean_url_stable_manifest_regression.mjs",
-      "bytes": 2777,
-      "sha256": "4a125179064121d5cb631bf2512f3d4523d39387eae261bce14a0c23e74922a9"
-    },
-    {
-      "path": "development/classifier100_fixture.json",
-      "bytes": 42146,
-      "sha256": "11c99b8c3c4b8784fc154757a57b5a95d179a45e5738d3cc998d35bdfe9ada99"
-    },
-    {
-      "path": "development/compact_layout_validation.json",
-      "bytes": 2832,
-      "sha256": "40a9acef4be78cb6eac54ae95d5f3d8bdaaf16b5d55b870490d6e6569d6d61ab"
-    },
-    {
-      "path": "development/configure_public_url.mjs",
-      "bytes": 2996,
-      "sha256": "f82bf221a716453552b2c325ba3bd803b06a7db5c196552eadde11185c2f56cb"
-    },
-    {
-      "path": "development/index_v12_final_original.html",
-      "bytes": 5999,
-      "sha256": "a7969a64f6adf33b2344184e500f021a08779e2fd1e2c27cc59fbc550e293bae"
-    },
-    {
-      "path": "development/level_ocr_validation.json",
-      "bytes": 1602,
-      "sha256": "7c20139b6bb717899f55ee7616229f9d74fa7921d1b3bf106f2191c8cf54f4af"
-    },
-    {
-      "path": "development/pokesleep_tool_csv_contract_20261004.json",
-      "bytes": 9250,
-      "sha256": "7344e3580324c38ea769a54ccd74e75f4b7b149eebf1bf37a2b89baf3518da88"
-    },
-    {
-      "path": "development/public_package_manifest_pre_ui.json",
-      "bytes": 4412,
-      "sha256": "e589e57e67b1123fc398d208ca0ef194008437866bf161cad0818b55c2f06cc7"
-    },
-    {
-      "path": "development/pwa_regression.mjs",
-      "bytes": 2091,
-      "sha256": "ab5e7a247b29ad08dab1412725a8f904b7fbd9de083f6255dbb47a5af4a09b0d"
-    },
-    {
-      "path": "development/release_manifest_v12_final.json",
-      "bytes": 2108,
-      "sha256": "cdee2f02adc6a4eaec87995649d6bfd1c1900cd847367250873382b466ef286b"
-    },
-    {
-      "path": "development/run_regressions.mjs",
-      "bytes": 1174,
-      "sha256": "1487a9ab8d6eb50c052af6ec4c759b586c00933fdb04675072a758228c901975"
-    },
-    {
-      "path": "development/v12_beta_validation.json",
-      "bytes": 3172,
-      "sha256": "a1eb30134fcfb8709d85569278544f2113e1670a28124884f96081ca43e9289e"
-    },
-    {
-      "path": "development/v12_beta2_validation.json",
-      "bytes": 1906,
-      "sha256": "64769f7e4099017f18061bb517e1b814562424c8f141f302521619b23dc2bf34"
-    },
-    {
-      "path": "development/v12_final_candidate_validation.json",
-      "bytes": 3242,
-      "sha256": "daf4f0f3d78633a037324160f7da1e0f2cc591862f0c02aec1c0501ae412f95b"
-    },
-    {
-      "path": "development/v12_final_validation.json",
-      "bytes": 2686,
-      "sha256": "8774b2ce82da0b1fb2923070b59190ba4e75c2ebed88315ea22d003b48343d8b"
-    },
-    {
       "path": "food_color_features.js",
       "bytes": 497419,
       "sha256": "e00286ae2e8fe96d6f0b49c93e03150469175382ba09c62b499e6f33d85ae444"
-    },
-    {
-      "path": "food_features.js",
-      "bytes": 354623,
-      "sha256": "d5f68af858d37abfbdfad50138f9f9bd5dc6cdc7bf91ea56f5e0b684e9b61750"
     },
     {
       "path": "food_matcher.js",
@@ -686,13 +100,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 57983,
-      "sha256": "b907a38eaf85d0b32cb050b13673b3be43406642f1d802cc441c4c933c740f06"
+      "bytes": 60571,
+      "sha256": "03bf44bada66d55742b620ffe7f6ba7ae4c8a668ce6ae499316251360c0cafbc"
     },
     {
       "path": "manifest.webmanifest",
-      "bytes": 1093,
-      "sha256": "48c22c7105bad1fde28be414a11170b76bd1e4026d061f2272f450d4f670d6e3"
+      "bytes": 1117,
+      "sha256": "d16b5c0b74374b99e31c17f807e6ab55b289d933ede1774d590cf31c44206d56"
     },
     {
       "path": "master_data.js",
@@ -700,29 +114,24 @@
       "sha256": "403b28544bf650323b1c5d2c1cde4b71be09d6897949cf6ea8c6cf896fc3a8f5"
     },
     {
-      "path": "README.md",
-      "bytes": 103776,
-      "sha256": "7b5c4a57bdbac9d3bebfb98852a0354d1df3c6662dfcb29fdb1befab5acbee58"
-    },
-    {
       "path": "release.json",
-      "bytes": 67,
-      "sha256": "c9636f7b02433ff83da4607836e23b0e42d3e79dace9c9bafc6206347eab6349"
-    },
-    {
-      "path": "start_server.bat",
-      "bytes": 650,
-      "sha256": "ee489b31783aae81b04c0a62ac207fd96017c183544b5ec8daaf7e1e143a0b9f"
+      "bytes": 75,
+      "sha256": "e26fe626c4f5f4ae5d91602d740dfcb2963268ec7f4b1c72f557f5901c67a970"
     },
     {
       "path": "sw.js",
-      "bytes": 3044,
-      "sha256": "06b2cc9df1f0268abf61679bcada3714afbcacc0ee44d97424fef4e4c764d8c5"
+      "bytes": 3052,
+      "sha256": "88dbe35abb63b223d367b9ed0a69185f0ad33770350f7e05697951ce01748437"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 4083,
+      "sha256": "9302ed3453ac55f89ed092f2c81644a663c1a455d22820683a78bafdfb5c1403"
     }
   ],
   "publicUrl": {
     "page": "https://meka-create.github.io/pokesleep-scan/",
-    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-05-candidate94-pwa-clean-url-stable-manifest",
-    "configuredAt": "2026-10-04T18:08:02.257Z"
+    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-05-candidate96-runtime-only-provenance-ort-alignment",
+    "configuredAt": "2026-10-05T02:14:52.320Z"
   }
 }

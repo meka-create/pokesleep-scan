@@ -16,19 +16,19 @@
   ],
   "icons": [
     {
-      "src": "./icons/icon-192.png?release=2026-10-05-candidate94-pwa-clean-url-stable-manifest",
+      "src": "./icons/icon-192.png?release=2026-10-05-candidate96-runtime-only-provenance-ort-alignment",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-512.png?release=2026-10-05-candidate94-pwa-clean-url-stable-manifest",
+      "src": "./icons/icon-512.png?release=2026-10-05-candidate96-runtime-only-provenance-ort-alignment",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/apple-touch-icon.png?release=2026-10-05-candidate94-pwa-clean-url-stable-manifest",
+      "src": "./icons/apple-touch-icon.png?release=2026-10-05-candidate96-runtime-only-provenance-ort-alignment",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"

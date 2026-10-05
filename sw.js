@@ -1,4 +1,4 @@
-const RELEASE_ID = '2026-10-05-candidate94-pwa-clean-url-stable-manifest';
+const RELEASE_ID = '2026-10-05-candidate96-runtime-only-provenance-ort-alignment';
 const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}`;
 const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}`;
 const APP_SHELL = [

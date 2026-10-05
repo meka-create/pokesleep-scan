@@ -12,18 +12,18 @@
 <meta property="og:title" content="個体値ぶっこみスキャン for Pokémon Sleep">
 <meta property="og:description" content="Pokémon Sleepの個体詳細スクリーンショットをOCR解析し、種族・Lv・食材・メインスキル・サブスキル・性格などを読み取り、pokesleep-tool互換CSVへ出力するPWAツールです。">
 <meta property="og:site_name" content="個体値ぶっこみスキャン">
-<meta property="og:image" content="https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-05-candidate94-pwa-clean-url-stable-manifest">
+<meta property="og:image" content="https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-05-candidate96-runtime-only-provenance-ort-alignment">
 <meta property="og:image:width" content="1731">
 <meta property="og:image:height" content="909">
 <meta property="og:image:alt" content="個体値ぶっこみスキャンのOGP画像">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="個体値ぶっこみスキャン for Pokémon Sleep">
 <meta name="twitter:description" content="Pokémon Sleepの個体詳細スクリーンショットをOCR解析し、種族・Lv・食材・メインスキル・サブスキル・性格などを読み取り、pokesleep-tool互換CSVへ出力するPWAツールです。">
-<meta name="twitter:image" content="https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-05-candidate94-pwa-clean-url-stable-manifest">
+<meta name="twitter:image" content="https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-05-candidate96-runtime-only-provenance-ort-alignment">
 <!-- 正式公開前に: node development/configure_public_url.mjs https://example.com/path/ で canonical / og:url / OGP画像URLを絶対URL化してください。 -->
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png?release=2026-10-05-candidate94-pwa-clean-url-stable-manifest">
-<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png?release=2026-10-05-candidate94-pwa-clean-url-stable-manifest">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png?release=2026-10-05-candidate96-runtime-only-provenance-ort-alignment">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png?release=2026-10-05-candidate96-runtime-only-provenance-ort-alignment">
 <meta name="theme-color" content="#5558e8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -121,6 +121,7 @@ body.modal-open{overflow:hidden}.image-modal[hidden]{display:none}.image-modal{p
 }
 
 
+html,body{overscroll-behavior:none}
 html.analysis-pull-guard,html.analysis-pull-guard body,body.analysis-pull-guard{overscroll-behavior-y:none}
 body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
 </style>
@@ -129,7 +130,7 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
 <div class="shell">
   <header class="topbar">
     <div class="brand">
-      <img class="brandmark" src="./icons/icon-192.png?release=2026-10-05-candidate94-pwa-clean-url-stable-manifest" alt="" aria-hidden="true">
+      <img class="brandmark" src="./icons/icon-192.png?release=2026-10-05-candidate96-runtime-only-provenance-ort-alignment" alt="" aria-hidden="true">
       <span class="brandtext"><span class="brandname">個体値ぶっこみスキャン</span><span class="brandsub">for Pokémon Sleep</span></span>
     </div>
     <button id="tipsBtn" class="tips-btn" type="button" aria-haspopup="dialog" aria-controls="tipsDialog" title="スクショ例を見る">TIPS</button>
@@ -199,10 +200,10 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
   <div class="tips-dialog-body">
     <p class="tips-lead">食材から性格までが入るスクショを選んでください。<br>性格は必ず入れてください。食材は少し見切れていても解析できます。</p>
     <figure class="tips-example">
-      <img src="./assets/example-screenshot.png?release=2026-10-05-candidate94-pwa-clean-url-stable-manifest" alt="アップロードするおてつだい能力画面の例">
+      <img src="./assets/example-screenshot.png?release=2026-10-05-candidate96-runtime-only-provenance-ort-alignment" alt="アップロードするおてつだい能力画面の例">
       <figcaption class="tips-caption">複数枚まとめて選択できます</figcaption>
     </figure>
-    <p class="tips-note">※「一緒に眠った時間」は、計算で確定できた場合のみ表示されます。</p>
+    <p class="tips-note">※「一緒に眠った時間」は解析対象外ですが、計算で確定できた場合は結果に反映されます。</p>
   </div>
 </dialog>
 
@@ -393,6 +394,68 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
   // これにより、リダイレクト直前に「表示済み」だけ保存される競合を防ぐ。
   if(window.__PUBLIC_RELEASE_READY__)initFirstShow();
   else window.addEventListener('bukkomi-release-ready',initFirstShow,{once:true});
+})();
+</script>
+
+<script>
+(()=>{
+  // Installed PWA only: intercept Android's device-level Back/edge-swipe close signal.
+  // Browser-tab navigation is intentionally left alone.
+  const standalone=window.matchMedia?.('(display-mode: standalone)').matches===true;
+  if(!standalone||typeof window.CloseWatcher!=='function')return;
+
+  let appCloseWatcher=null;
+  const imageModalOpen=()=>{
+    const modal=document.getElementById('imageModal');
+    return !!modal&&!modal.hidden;
+  };
+  const closeImageModal=()=>{
+    const closeButton=document.getElementById('imageModalClose');
+    if(closeButton)closeButton.click();
+  };
+  const armAppCloseGuard=()=>{
+    if(appCloseWatcher)return;
+    try{
+      const watcher=new CloseWatcher();
+      appCloseWatcher=watcher;
+      watcher.addEventListener('cancel',event=>{
+        // When the source-image modal is open, Back keeps its existing meaning: close the modal.
+        if(imageModalOpen()){
+          if(event.cancelable)event.preventDefault();
+          closeImageModal();
+          return;
+        }
+        // Otherwise consume one accidental Android Back/edge-swipe close request when allowed.
+        if(event.cancelable)event.preventDefault();
+      });
+      watcher.addEventListener('close',()=>{
+        if(appCloseWatcher===watcher)appCloseWatcher=null;
+      });
+    }catch(err){
+      appCloseWatcher=null;
+      console.warn('PWA CloseWatcher guard could not be enabled.',err);
+    }
+  };
+
+  // A canceled close request consumes history-action activation by design. If Chrome later
+  // deactivates the watcher, the next normal user interaction arms a fresh standalone guard.
+  document.addEventListener('pointerdown',()=>{if(!appCloseWatcher)armAppCloseGuard();},{passive:true});
+  document.addEventListener('keydown',()=>{if(!appCloseWatcher)armAppCloseGuard();},{passive:true});
+  window.addEventListener('pageshow',()=>{if(!appCloseWatcher)armAppCloseGuard();});
+
+  // Avoid grouping this app-level watcher with the Tips <dialog> shown automatically on first use.
+  const armAfterInitialTips=()=>{
+    requestAnimationFrame(()=>{
+      const tipsDialog=document.getElementById('tipsDialog');
+      if(tipsDialog?.open){
+        tipsDialog.addEventListener('close',armAppCloseGuard,{once:true});
+      }else{
+        armAppCloseGuard();
+      }
+    });
+  };
+  if(window.__PUBLIC_RELEASE_READY__)armAfterInitialTips();
+  else window.addEventListener('bukkomi-release-ready',armAfterInitialTips,{once:true});
 })();
 </script>
 </body>
