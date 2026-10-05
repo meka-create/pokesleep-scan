@@ -1,4 +1,4 @@
-const RELEASE_ID = '2026-10-05-candidate99-foongus-amoonguss-master';
+const RELEASE_ID = '2026-10-05-candidate100-maintenance-release-pwa-regression-docs';
 const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}`;
 const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}`;
 const APP_SHELL = [

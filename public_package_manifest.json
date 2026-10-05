@@ -1,8 +1,8 @@
 {
-  "package": "public-ui-candidate99-runtime-only",
-  "releaseId": "2026-10-05-candidate99-foongus-amoonguss-master",
-  "basedOn": "public-ui-candidate98-runtime-only",
-  "recognitionLogicChanged": true,
+  "package": "public-ui-candidate100-runtime-only",
+  "releaseId": "2026-10-05-candidate100-maintenance-release-pwa-regression-docs",
+  "basedOn": "public-ui-candidate99-runtime-only",
+  "recognitionLogicChanged": false,
   "runtimeOnly": true,
   "publicAllowlistPolicy": {
     "mode": "explicit-allowlist",
@@ -16,32 +16,22 @@
     "provenanceLedgerPublic": false
   },
   "maintenanceChanges": [
-    "Build GitHub Pages deployment from an explicit runtime allowlist; exclude development fixtures, validation/regression files, developer README, local server launcher, and unused food_features.js.",
-    "Add DATA_PROVENANCE.md to the official development package as an internal provenance ledger; do not publish it in the runtime deployment.",
-    "Add THIRD_PARTY_NOTICES.md for the audited OCR/runtime dependency and model license inventory.",
-    "Align PaddleOCR explicit ONNX Runtime Web diagnostics/WASM path from 1.22.0 to 1.26.0 to match the observed @paddleocr/paddleocr-js@0.4.2 +esm runtime dependency resolution.",
-    "Keep checkpoint compatibility and diagnostic JSON/CSV payloads unchanged; keep recognition core five byte-identical to Candidate95.",
-    "Prevent pull-to-refresh at all times with page-level overscroll-behavior:none; keep the existing analysis-time touch fallback unchanged.",
-    "Suppress supported browser horizontal swipe navigation (back/forward) with the same page-level overscroll-behavior:none policy.",
-    "Update the Tips note for 「一緒に眠った時間」 to clarify that it is outside OCR analysis scope but reflected when the value can be determined by calculation.",
-    "In installed PWA standalone mode only, use CloseWatcher to consume one cancelable Android Back/edge-swipe close request; preserve source-image modal Back-to-close behavior and leave normal browser-tab navigation untouched.",
-    "Move secondary information into a TIPS-adjacent overflow menu (vertical three-dot button); show 「トラブルシューティング」 and 「出典」 in dedicated modal dialogs without shifting the page layout.",
-    "Embed the byte-identical food-empty reference image directly in app.js as an image/jpeg data URL; remove assets/food-empty-reference.png from the public package and Service Worker precache without changing empty-food scoring, thresholds, or confirmation logic.",
-    "Add Foongus/タマゲタケ and Amoonguss/モロバレル to master_data.js from the current nitoyon/pokesleep-tool src/data/pokemon.json and Japanese name map; keep classifier/app/food matching algorithms unchanged."
+    "Correct CHECKPOINT_RELEASE_ID so newly saved checkpoint metadata records the Candidate100 public release while preserving checkpoint-compat-2026-10-04-v1 compatibility.",
+    "Version all three manifest.webmanifest icon URLs with the Candidate100 release ID so PWA icon cache-busting is aligned with the current public release.",
+    "Normalize stale regression expectations to the approved current specification: current Tips wording, 249-species master, current master_data.js hash, embedded empty-food reference, and release-agnostic/current-release assertions.",
+    "Update README.md, DATA_PROVENANCE.md, and THIRD_PARTY_NOTICES.md to describe the current Candidate100/Candidate99 state without guessing unresolved historical provenance.",
+    "Keep Candidate99 recognition algorithms, thresholds, 249-species master values, food matching features, CSV behavior, PWA CloseWatcher behavior, permanent pull-to-refresh suppression, and diagnostic payload semantics unchanged."
   ],
   "validation": {
-    "candidate96RuntimeComplianceRegression": "passed (runtime-only allowlist + provenance/license ledgers + ORT 1.26.0 alignment)",
-    "completePortableRegressionSuite": "passed (including Python Playwright picker accessibility)",
+    "completePortableRegressionSuite": "PASS: zero failures, including Python picker accessibility",
     "classifier100Replay": "100/100 UNIQUE; 0 saved-species mismatches",
-    "currentPokesleepToolCsvContract": "passed; scanner species accepted 249/249; no missing or extra species labels against the current 249-name contract snapshot",
-    "recognitionCoreFiveFiles": "master_data.js intentionally updated only for cutoff 2026-10-05 plus Foongus/Amoonguss rows; classifier.js, app.js, food_matcher.js, food_color_features.js remain byte-identical to Candidate98",
-    "pwaRegression": "passed",
-    "freshReextract": "passed on final ZIP (manifest size/SHA verification + JS syntax + removed old asset check)",
-    "runtimeOnlyLocalHttp": "passed: /, release.json, app.js = 200; removed assets/food-empty-reference.png = 404",
-    "pwaStandaloneCloseWatcherGuard": "static + state-flow validation passed; active only for display-mode: standalone; source-image modal close preserved; no History/beforeunload guard added",
-    "candidate97OverflowInfoModals": "static validation passed: TIPS-adjacent overflow menu present; troubleshooting/source menu items open dedicated dialogs; diagnostic button IDs preserved; four external source references present; recognition/runtime core unchanged",
-    "candidate98EmbeddedEmptyFoodReference": "PASS: embedded bytes SHA-256 1c7826401c5aac45fec3ad67e96f31eb91b865c4ad26ce380670289ef75ad1cc exactly match Candidate97 asset; decoded dimensions/pixels verified identical; normalizedGrayVector/grayCorrelation/foodEmptyTemplateScore/noFoodTemplateEligible/applySafeNoFoodTemplate source blocks unchanged; old asset removed from public tree and Service Worker precache.",
-    "candidate99FoongusAmoonguss": "PASS: upstream values mapped exactly; synthetic classifier ground-truth replay 600/600 UNIQUE for タマゲタケ and 1200/1200 UNIQUE for モロバレル across 25 natures, Lv10/30/60/70, all six ingredient profiles, and applicable evolution histories; saved classifier100 fixture remains 100/100 UNIQUE with 0 species mismatches."
+    "currentPokesleepToolCsvContract": "PASS: scanner species accepted 249/249; ingredients 19; natures 25; subskills 17; Mew Versatile labels 12/12",
+    "candidate99FoongusAmoongussRegression": "PASS: タマゲタケ 600/600 UNIQUE; モロバレル 1200/1200 UNIQUE",
+    "candidate100MaintenanceRegression": "PASS: release/checkpoint/PWA/docs/current-master/embedded-empty-reference/public-allowlist invariants",
+    "pwaRegression": "PASS: stable manifest identity, release-versioned icons, service worker update invariants",
+    "javascriptSyntaxAndJson": "PASS: app/classifier/food runtime JS plus all development MJS; 66 JSON files parsed",
+    "freshReextract": "performed after final packaging; see external Candidate100 final validation record",
+    "recognitionCoreFromCandidate99": "master_data.js, classifier.js, food_matcher.js, food_color_features.js unchanged; app.js only changes CHECKPOINT_RELEASE_ID from Candidate96-stale value to Candidate100 release ID"
   },
   "files": [
     {
@@ -50,19 +40,14 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "path": "THIRD_PARTY_NOTICES.md",
-      "bytes": 4083,
-      "sha256": "9302ed3453ac55f89ed092f2c81644a663c1a455d22820683a78bafdfb5c1403"
-    },
-    {
       "path": "app.js",
-      "bytes": 238219,
-      "sha256": "fe3104f1c7c13a850b58209d4790b91f997f59e6ff317eb70f5f4b5ae47c1146"
+      "bytes": 238222,
+      "sha256": "81fa93052efb643dda1309ae49921f1ea6e2b392b2632bca24384fcf916ae137"
     },
     {
       "path": "assets/example-screenshot.png",
-      "bytes": 105279,
-      "sha256": "24d74d22839034e02525931a2c9343af0ca626b7f11b19b19993b1fd21fe358c"
+      "bytes": 943338,
+      "sha256": "f64c04611e7cfd5dda7f6442bfee4077776f2d6e1beef1b8c52d0a6d892919c6"
     },
     {
       "path": "assets/ogp-card.png",
@@ -106,13 +91,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 65069,
-      "sha256": "059ff3995dd71bde934aeed8f405ec4d5883c92b7464ce1e86f17a25687006fb"
+      "bytes": 65165,
+      "sha256": "8020359df28531a8a5d9ed5ba0c38dea8b0b4fa049912d9b4d3280842ab63383"
     },
     {
       "path": "manifest.webmanifest",
-      "bytes": 1117,
-      "sha256": "d16b5c0b74374b99e31c17f807e6ab55b289d933ede1774d590cf31c44206d56"
+      "bytes": 1126,
+      "sha256": "36323e6a4ef8dd8b0d96b39799a3053e1388cc806b2ecb1683ac173a65fe0866"
     },
     {
       "path": "master_data.js",
@@ -121,19 +106,24 @@
     },
     {
       "path": "release.json",
-      "bytes": 62,
-      "sha256": "c80f206f3aec97462436c6a8a22782ec59fa19a41a4c0fab0a18e3341af8f22a"
+      "bytes": 78,
+      "sha256": "ea34a5c175bd90f9a86854082552fd55306fdb1e25a07d17925f0d223aa6bf33"
     },
     {
       "path": "sw.js",
-      "bytes": 2989,
-      "sha256": "38c61b058c05b3aa0c2184b5bd0a3a79d935d58c671e38e18a5a90b134e101d2"
+      "bytes": 3005,
+      "sha256": "07ed3daf53757a19e4884ca473cb4b2c4b602226976be9dafd66795f1556dc42"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 4318,
+      "sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
     }
   ],
   "publicUrl": {
     "page": "https://meka-create.github.io/pokesleep-scan/",
-    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-05-candidate99-foongus-amoonguss-master",
-    "configuredAt": "2026-10-05T11:44:27.973672Z"
+    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-05-candidate100-maintenance-release-pwa-regression-docs",
+    "configuredAt": "2026-10-05T13:08:29.379Z"
   },
-  "masterDataChanged": true
+  "masterDataChanged": false
 }

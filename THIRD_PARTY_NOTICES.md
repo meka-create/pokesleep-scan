@@ -1,8 +1,8 @@
-# Third-party software and model notices — Candidate96
+# Third-party software and model notices — Candidate100
 
 Audit status date: 2026-10-05
 
-This file is a practical dependency/license inventory for the current browser OCR path. It is not legal advice and does not replace the upstream license texts. Candidate96 currently loads most OCR dependencies from third-party hosts at runtime rather than bundling their binaries into this ZIP; the notices are kept here for transparency and to prepare for any future self-hosting.
+This file is a practical dependency/license inventory for the current browser OCR path. It is not legal advice and does not replace the upstream license texts. Candidate100 currently loads most OCR dependencies from third-party hosts at runtime rather than bundling their binaries into this ZIP; the notices are kept here for transparency and to prepare for any future self-hosting.
 
 ## Direct/runtime OCR dependencies
 
@@ -31,7 +31,7 @@ This file is a practical dependency/license inventory for the current browser OC
 - License: Apache License 2.0
 
 ### ONNX Runtime Web
-- Candidate96 explicit WASM path: `onnxruntime-web@1.26.0/dist/`
+- Candidate100 explicit WASM path: `onnxruntime-web@1.26.0/dist/`
 - Resolved JavaScript dependency observed from the PaddleOCR.js 0.4.2 `+esm` path on 2026-10-05: 1.26.0
 - Project: https://github.com/microsoft/onnxruntime
 - License: MIT
@@ -51,7 +51,7 @@ This file is a practical dependency/license inventory for the current browser OC
 
 ## PaddleOCR ONNX model mirror
 
-Candidate96’s verified-mirror path uses the public model repository:
+Candidate100’s verified-mirror path uses the public model repository:
 
 - Repository: https://huggingface.co/LunarOilRig/paddleocr-onnx
 - Pinned revision: `7b67be7e7eb3b1ed7f95eaff5c7521498b9515da`
@@ -59,7 +59,7 @@ Candidate96’s verified-mirror path uses the public model repository:
 - Model card license: Apache License 2.0
 - Candidate runtime additionally verifies expected byte length and SHA-256 before using the mirror asset.
 
-The mirror model card states that the files mirror official PaddleOCR archives. Candidate96 does not independently certify upstream byte identity beyond the application’s configured hashes and the audit evidence available on 2026-10-05.
+The mirror model card states that the files mirror official PaddleOCR archives. Candidate100 does not independently certify upstream byte identity beyond the application’s configured hashes and the audit evidence available on 2026-10-05.
 
 ## CSV compatibility reference
 
@@ -68,7 +68,7 @@ The development-only CSV contract documents compatibility work against:
 - Project: https://github.com/nitoyon/pokesleep-tool
 - License indicated by upstream project: MIT
 
-Candidate96 does not claim that format compatibility alone constitutes copying upstream code. If copied or adapted source-code expression is identified later, preserve the applicable MIT copyright and permission notice for that material.
+Candidate100 does not claim that format compatibility alone constitutes copying upstream code. Candidate99 added the two newly supported species by mapping current upstream public Pokémon data into this project's existing master schema; this notice does not imply that the entire master table originated from that project. If copied or adapted source-code expression is identified later, preserve the applicable MIT copyright and permission notice for that material.
 
 ## Distribution obligations summary
 
