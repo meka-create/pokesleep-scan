@@ -25,7 +25,7 @@
     "Suppress supported browser horizontal swipe navigation (back/forward) with the same page-level overscroll-behavior:none policy.",
     "Update the Tips note for 「一緒に眠った時間」 to clarify that it is outside OCR analysis scope but reflected when the value can be determined by calculation.",
     "In installed PWA standalone mode only, use CloseWatcher to consume one cancelable Android Back/edge-swipe close request; preserve source-image modal Back-to-close behavior and leave normal browser-tab navigation untouched.",
-    "Add a user-facing 「出典」 disclosure next to 「トラブルシューティング」, using the same tap-to-open details UI and linking to ポケモンスリープ攻略・検証Wiki, RP collection project, RaenonX, and pokesleep-tool."
+    "Add a user-facing 「出典」 disclosure as an independent collapsible item below 「トラブルシューティング」, so its content opens directly beneath its own heading; link to ポケモンスリープ攻略・検証Wiki, RP collection project, RaenonX, and pokesleep-tool."
   ],
   "validation": {
     "candidate96RuntimeComplianceRegression": "passed (runtime-only allowlist + provenance/license ledgers + ORT 1.26.0 alignment)",
@@ -37,7 +37,7 @@
     "freshReextract": "passed on final ZIP (verified separately)",
     "runtimeOnlyLocalHttp": "passed: runtime/release 200; known development fixture URLs, README.md, and start_server.bat returned 404",
     "pwaStandaloneCloseWatcherGuard": "static + state-flow validation passed; active only for display-mode: standalone; source-image modal close preserved; no History/beforeunload guard added",
-    "candidate97SourcesDisclosureUI": "passed: source disclosure added beside troubleshooting; four external references present; recognition/runtime core unchanged"
+    "candidate97SourcesDisclosureUI": "passed: source disclosure placed as an independent stacked collapsible below troubleshooting; its panel opens directly beneath its own summary; four external references present; recognition/runtime core unchanged"
   },
   "files": [
     {
@@ -102,8 +102,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 61337,
-      "sha256": "c68817baf284870ca33db734277ebee88bb2273ad9ea82c4070890ca6486b1a2"
+      "bytes": 61334,
+      "sha256": "e8f6e718f6c72102b09a472c50357df5f200537057be82d022b7c66da1b703b4"
     },
     {
       "path": "manifest.webmanifest",
