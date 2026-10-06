@@ -16,19 +16,19 @@
   ],
   "icons": [
     {
-      "src": "./icons/icon-192.png?release=2026-10-06-candidate103-checkpoint-safety-metadata",
+      "src": "./icons/icon-192.png?release=2026-10-06-candidate104d-ios-storage-diagnostic",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-512.png?release=2026-10-06-candidate103-checkpoint-safety-metadata",
+      "src": "./icons/icon-512.png?release=2026-10-06-candidate104d-ios-storage-diagnostic",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/apple-touch-icon.png?release=2026-10-06-candidate103-checkpoint-safety-metadata",
+      "src": "./icons/apple-touch-icon.png?release=2026-10-06-candidate104d-ios-storage-diagnostic",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"
