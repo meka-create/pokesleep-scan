@@ -1,4 +1,4 @@
-const RELEASE_ID = '2026-10-06-candidate102-workfix-review-integrity';
+const RELEASE_ID = '2026-10-06-candidate103-checkpoint-safety-metadata';
 const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}`;
 const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}`;
 const APP_SHELL = [

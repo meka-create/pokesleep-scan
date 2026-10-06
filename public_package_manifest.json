@@ -1,8 +1,8 @@
 {
-  "package": "public-ui-candidate102-workfix-runtime-only",
-  "releaseId": "2026-10-06-candidate102-workfix-review-integrity",
-  "basedOn": "public-ui-candidate101-runtime-only",
-  "recognitionLogicChanged": true,
+  "package": "public-ui-candidate103-workfix-runtime-only",
+  "releaseId": "2026-10-06-candidate103-checkpoint-safety-metadata",
+  "basedOn": "public-ui-candidate102-workfix-runtime-only",
+  "recognitionLogicChanged": false,
   "runtimeOnly": true,
   "publicAllowlistPolicy": {
     "mode": "explicit-allowlist",
@@ -16,18 +16,30 @@
     "provenanceLedgerPublic": false
   },
   "maintenanceChanges": [
-    "Nickname safety now sends exact known species names with obvious UI affixes such as leading V= or trailing bare LV/SP to review without rewriting the nickname.",
-    "Locked food3 adds a review-only safety guard for the reproduced low-confidence Mushroom-over-Soy confusion; it never auto-relabels the food.",
-    "Diagnostic JSON now preserves the immutable nickname review state captured at analysis completion and separately records whether the nickname was manually confirmed later.",
-    "Candidate100 classifier/master/food matcher algorithms, CSV contract, PWA UI, checkpoint compatibility ID, and unrelated recognition behavior remain unchanged.",
-    "Invalidate current nickname manual confirmation on actual text edits and reopen; preserve analysis snapshot.",
-    "Review-only guards for reproduced locked food3 low-confidence mushroom/milk and coffee/honey patterns.",
-    "Remove RP collection project from the visible source list as previously requested by the user; historical provenance records are retained."
+    "Reject all pre-Candidate103 checkpoint contracts, including legacy releases without compatibility ID; recheck compatibility at restore entry.",
+    "Preserve Candidate102 recognition and review-only guards, nickname snapshot/manual-confirm behavior and current CSV contract.",
+    "Align release/cache/manifest/README metadata with Candidate103 and distinguish prior Candidate102 device evidence.",
+    "Keep RP collection project absent from visible sources. Change only the requested Tips wording from 見切れて to 欠けて."
   ],
   "validation": {
-    "status": "provisional; see candidate102_workfix_validation.json",
-    "deviceValidation": "NOT_RUN",
-    "whole100FreshOCR": "NOT_RUN"
+    "candidate": "Candidate103",
+    "status": "WORK_REGRESSIONS_PASS_DEVICE_CONFIRMATION_PENDING",
+    "deviceValidation": "NOT_RUN_FOR_CANDIDATE103",
+    "whole100FreshOCR": "NOT_RUN_FOR_CANDIDATE103_RECOGNITION_UNCHANGED",
+    "baselineCandidate102": {
+      "formalRelease": true,
+      "freshDevice100Parsed": 100,
+      "totalImages": 100,
+      "separateGeodudeImages": 2,
+      "nicknameFinalStateDiagnostic": "SUPPORTED_BY_SUPPLIED_JSON",
+      "pwaSmoke": "REPORTED_IN_FORMAL_RELEASE_NOTES_NOT_RERUN_BY_WORK"
+    },
+    "workRegression": {
+      "suiteCount": 62,
+      "passed": 62,
+      "failed": 0
+    },
+    "checkpointIntegration": "REAL_INDEXEDDB_OLD_REJECT_NEW_RELOAD_RESUME_COMPLETION_CLEAR_PASS"
   },
   "files": [
     {
@@ -37,8 +49,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 240569,
-      "sha256": "7b95918a07771ea782c34491c656f0d4ed57cac945c4b56a1fdecf3ef4fa4dcc"
+      "bytes": 240465,
+      "sha256": "f8d1f755462bffbf8140bad2239afe7fcfb03c8db85b35f984c4d87a9f0d18ed"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -87,13 +99,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 64892,
-      "sha256": "2f3cca080b55ea67183f7435125346d3852c8fd9dde85e4a2ce4bc544afb5ca7"
+      "bytes": 64901,
+      "sha256": "dded3c00cf9d4f93c0eebda59f01965be18819c31860e48d44cc1b7248368fa2"
     },
     {
       "path": "manifest.webmanifest",
-      "bytes": 1081,
-      "sha256": "abcc640e0b27d4c245b526c967064552c241db0cb0ed3a105d88a1240a31f758"
+      "bytes": 1087,
+      "sha256": "d4c51e7c2cf15e09e75460fce17b000b0b060989a080f91e1a6ca1867250c1c1"
     },
     {
       "path": "master_data.js",
@@ -102,13 +114,13 @@
     },
     {
       "path": "release.json",
-      "bytes": 63,
-      "sha256": "f368f05c17eb297a58d02941bd0da20c758ceaf5a584aade3048be1eb6951627"
+      "bytes": 65,
+      "sha256": "860fad59e75d17b9e103ece49b32ea7f7b45398e02a1da5c710917cd4226b348"
     },
     {
       "path": "sw.js",
-      "bytes": 2990,
-      "sha256": "2b32fb5ab71f1f5c234557d8e737511ac226f4220b92e61daad3d847ab627fe1"
+      "bytes": 2992,
+      "sha256": "4ec14640832dd44a380ded8094ce1ccd857de0e15e70e755a21ba0486143176f"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -118,10 +130,11 @@
   ],
   "publicUrl": {
     "page": "https://meka-create.github.io/pokesleep-scan/",
-    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-05-candidate100-maintenance-release-pwa-regression-docs",
+    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-06-candidate103-checkpoint-safety-metadata",
     "configuredAt": "2026-10-05T13:08:29.379Z"
   },
   "masterDataChanged": false,
-  "formalBaseline": "Candidate100",
-  "provisional": true
+  "formalBaseline": "Candidate102",
+  "provisional": true,
+  "checkpointCompatibilityId": "checkpoint-compat-2026-10-06-candidate103-v2"
 }
