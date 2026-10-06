@@ -1,6 +1,6 @@
 {
-  "package": "public-ui-candidate104d-ios-storage-diagnostic-runtime-only",
-  "releaseId": "2026-10-06-candidate104d-ios-storage-diagnostic",
+  "package": "public-ui-candidate105-ios-arraybuffer-runtime-only",
+  "releaseId": "2026-10-06-candidate105-ios-arraybuffer-checkpoint",
   "basedOn": "public-ui-candidate104-ios-recovery-runtime-only",
   "recognitionLogicChanged": false,
   "runtimeOnly": true,
@@ -16,14 +16,28 @@
     "provenanceLedgerPublic": false
   },
   "maintenanceChanges": [
-    "Diagnostic-only build based on Candidate104; recognition logic is unchanged.",
-    "Checkpoint initialization warning now reports the failing sub-stage and DOMException name/message to diagnose iPad/iPhone IndexedDB failures.",
-    "No production fix is claimed by this diagnostic build."
+    "Keep Candidate104 completed-result recovery, post-analysis edit persistence, OCR runtime cleanup, and cancelled-file-picker protection.",
+    "Serialize checkpoint image bytes to ArrayBuffer before IndexedDB transactions instead of storing File/Blob objects directly.",
+    "Reconstruct fresh File/Blob objects from stored ArrayBuffer bytes during checkpoint restore.",
+    "Keep backward read compatibility with Candidate103/Candidate104 checkpoint rows that contain a blob field.",
+    "Recognition models, crops, thresholds, food guards, nickname safety rules, master data and CSV contract are unchanged from formal Candidate103."
   ],
   "validation": {
-    "candidate": "Candidate104D",
-    "status": "DIAGNOSTIC_ONLY_NOT_FOR_FORMAL_RELEASE",
-    "deviceValidation": "IPAD_STORAGE_ERROR_CAPTURE_REQUIRED"
+    "candidate": "Candidate105",
+    "status": "LOCAL_REGRESSION_PASS_IPAD_DEVICE_CONFIRMATION_PENDING",
+    "deviceValidation": "PENDING_IPAD_IPHONE_CONFIRMATION",
+    "rootCauseEvidence": "Real iPad: IndexedDB available; initial checkpoint failed at image File/Blob save with transaction failure for both 1 and 5 images.",
+    "whole100FreshOCR": "NOT_REQUIRED_YET_RECOGNITION_LOGIC_UNCHANGED",
+    "baselineCandidate103": {
+      "formalRelease": true,
+      "recognitionLogicUnchanged": true
+    },
+    "checkpointIntegration": "ARRAYBUFFER_IMAGE_STORAGE_LOCAL_REGRESSION_PASS_DEVICE_PENDING",
+    "localRegression": {
+      "suiteCount": 64,
+      "passed": 64,
+      "failed": 0
+    }
   },
   "files": [
     {
@@ -32,14 +46,9 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "path": "THIRD_PARTY_NOTICES.md",
-      "bytes": 4318,
-      "sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
-    },
-    {
       "path": "app.js",
-      "bytes": 242201,
-      "sha256": "26cee7c7ff76bbc89c4a4753c9eb6054f9399b4ff0d85a15fe1068177f94807a"
+      "bytes": 242041,
+      "sha256": "1a31c04aad481301c288c7274aa279f09474c312b23993d290275a90878a995d"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -88,13 +97,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 64883,
-      "sha256": "8ffcafb500be8f01b976e28b426e12f1e400633d877e7ae7e3e5e7a832751418"
+      "bytes": 64901,
+      "sha256": "0c0cfe90c8026ab4dc20b4a0fb95e0f02599212a8888f112beca8ff8a23142db"
     },
     {
       "path": "manifest.webmanifest",
-      "bytes": 1078,
-      "sha256": "12905f2f88dd5658a158a05f676e72a5fa5894391f5d3ca2656fcf27db0b9e05"
+      "bytes": 1087,
+      "sha256": "245f0d1e6b90679bbd833ee950585593b5a19040193d98f6f5e2c859596b75ac"
     },
     {
       "path": "master_data.js",
@@ -103,18 +112,23 @@
     },
     {
       "path": "release.json",
-      "bytes": 62,
-      "sha256": "ba7867414f434bca9018b4008dc0983a76a5d5d814c086f09e720e0d3e0cbd49"
+      "bytes": 65,
+      "sha256": "2611bb844f7607289d514925fb94ee61fffee9d669827bdfe4d8cb58a7d0fdac"
     },
     {
       "path": "sw.js",
-      "bytes": 2989,
-      "sha256": "5b2e0e3db006fdaa5c357a06a1285ba8a85d52a5d0530325ed0fae73408f3712"
+      "bytes": 2992,
+      "sha256": "0a619e272aa0dbebd2a2d26710e8b7a58bae03f968eb4d7cdbac37f81096d73d"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 4318,
+      "sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
     }
   ],
   "publicUrl": {
     "page": "https://meka-create.github.io/pokesleep-scan/",
-    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-06-candidate104d-ios-storage-diagnostic",
+    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-06-candidate105-ios-arraybuffer-checkpoint",
     "configuredAt": "2026-10-05T13:08:29.379Z"
   },
   "masterDataChanged": false,
