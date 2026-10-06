@@ -1,0 +1,37 @@
+{
+  "id": "./",
+  "name": "個体値ぶっこみスキャン for Pokémon Sleep",
+  "short_name": "ぶっこみスキャン",
+  "description": "Pokémon Sleepのおてつだい能力スクリーンショットをまとめて解析し、個体データをCSV化するツール。",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f7fb",
+  "theme_color": "#5558e8",
+  "orientation": "any",
+  "categories": [
+    "utilities",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "./icons/icon-192.png?release=2026-10-06-candidate103-checkpoint-safety-metadata",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png?release=2026-10-06-candidate103-checkpoint-safety-metadata",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/apple-touch-icon.png?release=2026-10-06-candidate103-checkpoint-safety-metadata",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
