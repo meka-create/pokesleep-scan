@@ -16,19 +16,19 @@
   ],
   "icons": [
     {
-      "src": "./icons/icon-192.png?release=2026-10-05-candidate100-maintenance-release-pwa-regression-docs",
+      "src": "./icons/icon-192.png?release=2026-10-06-candidate102-workfix-review-integrity",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-512.png?release=2026-10-05-candidate100-maintenance-release-pwa-regression-docs",
+      "src": "./icons/icon-512.png?release=2026-10-06-candidate102-workfix-review-integrity",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/apple-touch-icon.png?release=2026-10-05-candidate100-maintenance-release-pwa-regression-docs",
+      "src": "./icons/apple-touch-icon.png?release=2026-10-06-candidate102-workfix-review-integrity",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"

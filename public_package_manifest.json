@@ -1,8 +1,8 @@
 {
-  "package": "public-ui-candidate100-runtime-only",
-  "releaseId": "2026-10-05-candidate100-maintenance-release-pwa-regression-docs",
-  "basedOn": "public-ui-candidate99-runtime-only",
-  "recognitionLogicChanged": false,
+  "package": "public-ui-candidate102-workfix-runtime-only",
+  "releaseId": "2026-10-06-candidate102-workfix-review-integrity",
+  "basedOn": "public-ui-candidate101-runtime-only",
+  "recognitionLogicChanged": true,
   "runtimeOnly": true,
   "publicAllowlistPolicy": {
     "mode": "explicit-allowlist",
@@ -16,22 +16,18 @@
     "provenanceLedgerPublic": false
   },
   "maintenanceChanges": [
-    "Correct CHECKPOINT_RELEASE_ID so newly saved checkpoint metadata records the Candidate100 public release while preserving checkpoint-compat-2026-10-04-v1 compatibility.",
-    "Version all three manifest.webmanifest icon URLs with the Candidate100 release ID so PWA icon cache-busting is aligned with the current public release.",
-    "Normalize stale regression expectations to the approved current specification: current Tips wording, 249-species master, current master_data.js hash, embedded empty-food reference, and release-agnostic/current-release assertions.",
-    "Update README.md, DATA_PROVENANCE.md, and THIRD_PARTY_NOTICES.md to describe the current Candidate100/Candidate99 state without guessing unresolved historical provenance.",
-    "Keep Candidate99 recognition algorithms, thresholds, 249-species master values, food matching features, CSV behavior, PWA CloseWatcher behavior, permanent pull-to-refresh suppression, and diagnostic payload semantics unchanged."
+    "Nickname safety now sends exact known species names with obvious UI affixes such as leading V= or trailing bare LV/SP to review without rewriting the nickname.",
+    "Locked food3 adds a review-only safety guard for the reproduced low-confidence Mushroom-over-Soy confusion; it never auto-relabels the food.",
+    "Diagnostic JSON now preserves the immutable nickname review state captured at analysis completion and separately records whether the nickname was manually confirmed later.",
+    "Candidate100 classifier/master/food matcher algorithms, CSV contract, PWA UI, checkpoint compatibility ID, and unrelated recognition behavior remain unchanged.",
+    "Invalidate current nickname manual confirmation on actual text edits and reopen; preserve analysis snapshot.",
+    "Review-only guards for reproduced locked food3 low-confidence mushroom/milk and coffee/honey patterns.",
+    "Remove RP collection project from the visible source list as previously requested by the user; historical provenance records are retained."
   ],
   "validation": {
-    "completePortableRegressionSuite": "PASS: zero failures, including Python picker accessibility",
-    "classifier100Replay": "100/100 UNIQUE; 0 saved-species mismatches",
-    "currentPokesleepToolCsvContract": "PASS: scanner species accepted 249/249; ingredients 19; natures 25; subskills 17; Mew Versatile labels 12/12",
-    "candidate99FoongusAmoongussRegression": "PASS: タマゲタケ 600/600 UNIQUE; モロバレル 1200/1200 UNIQUE",
-    "candidate100MaintenanceRegression": "PASS: release/checkpoint/PWA/docs/current-master/embedded-empty-reference/public-allowlist invariants",
-    "pwaRegression": "PASS: stable manifest identity, release-versioned icons, service worker update invariants",
-    "javascriptSyntaxAndJson": "PASS: app/classifier/food runtime JS plus all development MJS; 66 JSON files parsed",
-    "freshReextract": "performed after final packaging; see external Candidate100 final validation record",
-    "recognitionCoreFromCandidate99": "master_data.js, classifier.js, food_matcher.js, food_color_features.js unchanged; app.js only changes CHECKPOINT_RELEASE_ID from Candidate96-stale value to Candidate100 release ID"
+    "status": "provisional; see candidate102_workfix_validation.json",
+    "deviceValidation": "NOT_RUN",
+    "whole100FreshOCR": "NOT_RUN"
   },
   "files": [
     {
@@ -41,8 +37,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 238222,
-      "sha256": "81fa93052efb643dda1309ae49921f1ea6e2b392b2632bca24384fcf916ae137"
+      "bytes": 240569,
+      "sha256": "7b95918a07771ea782c34491c656f0d4ed57cac945c4b56a1fdecf3ef4fa4dcc"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -91,13 +87,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 65165,
-      "sha256": "8020359df28531a8a5d9ed5ba0c38dea8b0b4fa049912d9b4d3280842ab63383"
+      "bytes": 64892,
+      "sha256": "2f3cca080b55ea67183f7435125346d3852c8fd9dde85e4a2ce4bc544afb5ca7"
     },
     {
       "path": "manifest.webmanifest",
-      "bytes": 1126,
-      "sha256": "36323e6a4ef8dd8b0d96b39799a3053e1388cc806b2ecb1683ac173a65fe0866"
+      "bytes": 1081,
+      "sha256": "abcc640e0b27d4c245b526c967064552c241db0cb0ed3a105d88a1240a31f758"
     },
     {
       "path": "master_data.js",
@@ -106,13 +102,13 @@
     },
     {
       "path": "release.json",
-      "bytes": 78,
-      "sha256": "ea34a5c175bd90f9a86854082552fd55306fdb1e25a07d17925f0d223aa6bf33"
+      "bytes": 63,
+      "sha256": "f368f05c17eb297a58d02941bd0da20c758ceaf5a584aade3048be1eb6951627"
     },
     {
       "path": "sw.js",
-      "bytes": 3005,
-      "sha256": "07ed3daf53757a19e4884ca473cb4b2c4b602226976be9dafd66795f1556dc42"
+      "bytes": 2990,
+      "sha256": "2b32fb5ab71f1f5c234557d8e737511ac226f4220b92e61daad3d847ab627fe1"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -125,5 +121,7 @@
     "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-05-candidate100-maintenance-release-pwa-regression-docs",
     "configuredAt": "2026-10-05T13:08:29.379Z"
   },
-  "masterDataChanged": false
+  "masterDataChanged": false,
+  "formalBaseline": "Candidate100",
+  "provisional": true
 }
