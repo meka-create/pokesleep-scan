@@ -1,7 +1,7 @@
 {
-  "package": "public-ui-candidate106-ios-eager-file-snapshot-runtime-only",
-  "releaseId": "2026-10-06-candidate106-ios-eager-file-snapshot",
-  "basedOn": "public-ui-candidate105-ios-arraybuffer-runtime-only",
+  "package": "public-candidate109-workfix-checkpoint-integrity-runtime-only",
+  "releaseId": "2026-10-07-candidate109-workfix-checkpoint-integrity",
+  "basedOn": "Candidate107 provisional; formal baseline Candidate103",
   "recognitionLogicChanged": false,
   "runtimeOnly": true,
   "publicAllowlistPolicy": {
@@ -16,29 +16,25 @@
     "provenanceLedgerPublic": false
   },
   "maintenanceChanges": [
-    "Keep Candidate104 completed-result recovery, post-analysis edit persistence, OCR runtime cleanup, and cancelled-file-picker protection.",
-    "Keep Candidate105 ArrayBuffer-only checkpoint image storage and legacy Blob checkpoint read compatibility.",
-    "Immediately materialize each picker File into an internal in-memory File copy after selection, before the user can start analysis.",
-    "Gate the analysis button until the eager image snapshot is complete, so later checkpoint/OCR work no longer depends on the provider-backed picker File handle.",
-    "Report picker-source NotFoundError as an image-selection read failure instead of mislabeling it as an IndexedDB storage failure.",
-    "Recognition models, crops, thresholds, food guards, nickname safety rules, master data and CSV contract are unchanged from formal Candidate103."
+    "Atomic full result+completed metadata commit; reject incomplete/corrupt restore including running gaps.",
+    "New one-way checkpoint compatibility; validated Candidate103/106/107 migration; pre103 rejected.",
+    "Completed review preview regeneration followed by runtime cleanup.",
+    "Session-scoped storage failure history.",
+    "Recognition, CSV, external OCR dependencies unchanged; Candidate108 discarded.",
+    "Replacement images and metadata commit together; failed replacement preserves paused source."
   ],
   "validation": {
-    "candidate": "Candidate106",
-    "status": "LOCAL_REGRESSION_PASS_IPAD_DEVICE_CONFIRMATION_REQUIRED",
-    "deviceValidation": "PENDING_IPAD_IPHONE_CONFIRMATION",
-    "rootCauseEvidence": "Real iPad Candidate105 intermittently failed immediately after tapping Analyze with NotFoundError: The object can not be found here during initial image ArrayBuffer checkpoint preparation.",
-    "whole100FreshOCR": "NOT_REQUIRED_YET_RECOGNITION_LOGIC_UNCHANGED",
-    "baselineCandidate103": {
-      "formalRelease": true,
-      "recognitionLogicUnchanged": true
-    },
-    "checkpointIntegration": "EAGER_PICKER_FILE_SNAPSHOT_PLUS_ARRAYBUFFER_IDB_DEVICE_PENDING",
+    "candidate": "Candidate109_workfix",
+    "status": "AUTOMATED_PASS_PROVISIONAL_PENDING_IPHONE",
+    "formalBaseline": "Candidate103",
+    "provisional": true,
+    "deviceValidation": "NOT_RUN_iPhone_PENDING",
     "localRegression": {
-      "suiteCount": 65,
-      "passed": 65,
+      "suiteCount": 67,
+      "passed": 67,
       "failed": 0
-    }
+    },
+    "checkpointIntegration": "ATOMIC_COMPLETE_VALIDATED_ONE_WAY_MIGRATION_REVIEW_PREVIEW_RECOVERY"
   },
   "files": [
     {
@@ -48,8 +44,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 244003,
-      "sha256": "47b424886e01f73f328ed56002661b0a2e352a40efcee915a247b720f113db0c"
+      "bytes": 250075,
+      "sha256": "8caa7f811f945b980d87bb934b29ff5e646d39d7a2065168fa4f6891ab5a96b6"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -98,13 +94,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 64883,
-      "sha256": "ed9b2b9741eb569406b535b9a1a0ef519b9501cbfd1cc0e837654fe01b0f9914"
+      "bytes": 65327,
+      "sha256": "f0b7622cfb1648cec01021e565844bb425b6537a512b5883848bad099af6c487"
     },
     {
       "path": "manifest.webmanifest",
-      "bytes": 1078,
-      "sha256": "9365dd215c950386cdb1c3231eb3395f777eae62f829136286e08d1f929947a1"
+      "bytes": 1093,
+      "sha256": "0df466825eca86bf9386782dddb9e249acb9f7e6047e38aac9d129a84ca434f1"
     },
     {
       "path": "master_data.js",
@@ -113,13 +109,13 @@
     },
     {
       "path": "release.json",
-      "bytes": 62,
-      "sha256": "ae812a876f6152111ceb95ae784fc3b9aee3571bdcf9ad4e216718c993d7890c"
+      "bytes": 67,
+      "sha256": "4149dfc6c14aa2fc450b9d65cf233bca95d3c204499cbde2c755a89cfdbd3b8e"
     },
     {
       "path": "sw.js",
-      "bytes": 2989,
-      "sha256": "3870e92973dfea26ca64a98be57ee264f731b0f4c8ed48ebb49cea80cf029c2c"
+      "bytes": 2994,
+      "sha256": "5050cf26c7a7331f21da0a1b73c66b2d9fed32af19d08de8fe5be81690fc04a5"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -129,11 +125,11 @@
   ],
   "publicUrl": {
     "page": "https://meka-create.github.io/pokesleep-scan/",
-    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-06-candidate106-ios-eager-file-snapshot",
+    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-07-candidate109-workfix-checkpoint-integrity",
     "configuredAt": "2026-10-05T13:08:29.379Z"
   },
   "masterDataChanged": false,
   "formalBaseline": "Candidate103",
   "provisional": true,
-  "checkpointCompatibilityId": "checkpoint-compat-2026-10-06-candidate103-v2"
+  "checkpointCompatibilityId": "checkpoint-compat-2026-10-07-candidate109-v3"
 }

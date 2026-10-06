@@ -12,18 +12,18 @@
 <meta property="og:title" content="個体値ぶっこみスキャン for Pokémon Sleep">
 <meta property="og:description" content="Pokémon Sleepの個体詳細スクリーンショットをOCR解析し、種族・Lv・食材・メインスキル・サブスキル・性格などを読み取り、pokesleep-tool互換CSVへ出力するPWAツールです。">
 <meta property="og:site_name" content="個体値ぶっこみスキャン">
-<meta property="og:image" content="https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-06-candidate106-ios-eager-file-snapshot">
+<meta property="og:image" content="https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-07-candidate109-workfix-checkpoint-integrity">
 <meta property="og:image:width" content="1731">
 <meta property="og:image:height" content="909">
 <meta property="og:image:alt" content="個体値ぶっこみスキャンのOGP画像">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="個体値ぶっこみスキャン for Pokémon Sleep">
 <meta name="twitter:description" content="Pokémon Sleepの個体詳細スクリーンショットをOCR解析し、種族・Lv・食材・メインスキル・サブスキル・性格などを読み取り、pokesleep-tool互換CSVへ出力するPWAツールです。">
-<meta name="twitter:image" content="https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-06-candidate106-ios-eager-file-snapshot">
+<meta name="twitter:image" content="https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-07-candidate109-workfix-checkpoint-integrity">
 <!-- 正式公開前に: node development/configure_public_url.mjs https://example.com/path/ で canonical / og:url / OGP画像URLを絶対URL化してください。 -->
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png?release=2026-10-06-candidate106-ios-eager-file-snapshot">
-<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png?release=2026-10-06-candidate106-ios-eager-file-snapshot">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png?release=2026-10-07-candidate109-workfix-checkpoint-integrity">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png?release=2026-10-07-candidate109-workfix-checkpoint-integrity">
 <meta name="theme-color" content="#5558e8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -130,7 +130,7 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
 <div class="shell">
   <header class="topbar">
     <div class="brand">
-      <img class="brandmark" src="./icons/icon-192.png?release=2026-10-06-candidate106-ios-eager-file-snapshot" alt="" aria-hidden="true">
+      <img class="brandmark" src="./icons/icon-192.png?release=2026-10-07-candidate109-workfix-checkpoint-integrity" alt="" aria-hidden="true">
       <span class="brandtext"><span class="brandname">個体値ぶっこみスキャン</span><span class="brandsub">for Pokémon Sleep</span></span>
     </div>
     <div class="top-actions">
@@ -203,7 +203,7 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
   <div class="tips-dialog-body">
     <p class="tips-lead">食材から性格までが入るスクショを選んでください。<br>性格は必ず入れてください。食材は少し欠けていても解析できます。</p>
     <figure class="tips-example">
-      <img src="./assets/example-screenshot.png?release=2026-10-06-candidate106-ios-eager-file-snapshot" alt="アップロードするおてつだい能力画面の例">
+      <img src="./assets/example-screenshot.png?release=2026-10-07-candidate109-workfix-checkpoint-integrity" alt="アップロードするおてつだい能力画面の例">
       <figcaption class="tips-caption">複数枚まとめて選択できます</figcaption>
     </figure>
     <p class="tips-note">※「一緒に眠った時間」は解析対象外ですが、計算で確定できた場合は結果に反映されます。</p>
@@ -402,10 +402,17 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
   close.addEventListener('click',hide);
   dialog.addEventListener('click',e=>{if(e.target===dialog)hide();});
 
+  // iOS/iPadOS Safari のプライベート/高度な保護環境では、サイト側の永続ストレージが
+  // タブ終了時に破棄されることがあり「初回だけ」を保証できない。Apple端末では
+  // 自動表示せず、ヘッダーの TIPS ボタンからいつでも確認できるようにする。
+  const ua=navigator.userAgent||'';
+  const appleTouchWebKit=/iP(?:hone|ad|od)/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+
   let initialized=false;
   const initFirstShow=()=>{
     if(initialized)return;
     initialized=true;
+    if(appleTouchWebKit)return;
     let seen=false;
     try{seen=localStorage.getItem(TIPS_SEEN_KEY)==='1';}catch{}
     if(seen)return;
@@ -416,7 +423,6 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
   };
 
   // release.json による最新版URLへの切替が終わってから初回表示を判定する。
-  // これにより、リダイレクト直前に「表示済み」だけ保存される競合を防ぐ。
   if(window.__PUBLIC_RELEASE_READY__)initFirstShow();
   else window.addEventListener('bukkomi-release-ready',initFirstShow,{once:true});
 })();
