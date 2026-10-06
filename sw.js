@@ -1,4 +1,4 @@
-const RELEASE_ID = '2026-10-06-candidate105-ios-arraybuffer-checkpoint';
+const RELEASE_ID = '2026-10-06-candidate106-ios-eager-file-snapshot';
 const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}`;
 const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}`;
 const APP_SHELL = [
