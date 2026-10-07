@@ -60,7 +60,7 @@ const NATURES=POKESLEEP_MASTER.natures.map(x=>x.ja);
 const SUBSKILLS=POKESLEEP_MASTER.subskills.map(x=>x.ja);
 const SPECIES_NAMES=[...new Set(POKESLEEP_MASTER.pokemon.map(x=>x.name))];
 const $=s=>document.querySelector(s);let selected=[],results=[],worker=null,paddleOcr=null,paddleInitPromise=null,paddleUnavailableError=null,paddleRuntimeGeneration=0,isRunning=false,analysisPause=null,checkpointPreparing=false,selectionSnapshotPreparing=false,selectionSnapshotGeneration=0,checkpointRestoreRunning=false,checkpointSessionActive=false,checkpointPersistenceWarningShown=false,renderPending=false,modalObjectUrl='',modalReturnFocus=null,appDialogResolver=null,appDialogReturnFocus=null,localProgressVisible=true,localProgressState='idle',localProgressMaxPct=0,floatingProgressState='idle',floatingProgressDone=0,floatingProgressTotal=0,floatingProgressReviews=0,floatingCompletionTimer=null,floatingCompletionPending=false,floatingCompletionDismissed=false,preManualCsvSnapshot=null,wakeLockSentinel=null,wakeLockRequestPromise=null,wakeLockRetryTimer=null;const checkpointFailureLog=[];const layoutCache=new WeakMap(),profileCardCache=new WeakMap(),stableSourcePromises=new WeakMap(),stableSourceFiles=new WeakSet();
-const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-07-candidate112-ios-readonly-restore',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-07-candidate109-v3',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set([]),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_MANUAL_SAVE_DELAY_MS=120,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveTimers=new Map();
+const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-07-candidate113-ios-results-card-visibility',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-07-candidate109-v3',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set([]),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_MANUAL_SAVE_DELAY_MS=120,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveTimers=new Map();
 function pullRefreshGuardActive(){return !!(isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing);}
 function analysisWakeLockShouldHold(){return !!((isRunning||checkpointPreparing)&&!analysisPause);}
 function wakeLockApiSupported(){return typeof navigator!=='undefined'&&!!navigator.wakeLock?.request;}
@@ -193,11 +193,11 @@ async function loadAnalysisCheckpoint(){
  if(!checkpointSupported())return null;
  try{
   await checkpointSaveChain.catch(()=>{});
-  const meta=await checkpointWithDbRetry(async db=>{const tx=db.transaction('meta','readonly');return checkpointRequest(tx.objectStore('meta').get(CHECKPOINT_META_KEY));});
+  const meta=await checkpointWithDbRetry(async db=>{const tx=db.transaction('meta','readonly'),row=await checkpointRequest(tx.objectStore('meta').get(CHECKPOINT_META_KEY));await checkpointTxDone(tx);return row;});
   if(!meta||!['running','paused','completed'].includes(meta.status))return null;
   if(checkpointExpired(meta)){let discardError=null;try{await checkpointClearNow();}catch(e){discardError=e;console.warn('期限切れの解析チェックポイントを削除できませんでした',e);}return {expired:true,meta,discardError};}
   if(!checkpointMetaCompatible(meta)){let discardError=null;try{await checkpointClearNow();}catch(e){discardError=e;console.warn('互換性のない解析チェックポイントを削除できませんでした',e);}return {incompatible:true,meta,discardError};}
-  const payload=await checkpointWithDbRetry(async db=>{const tx=db.transaction(['files','results'],'readonly'),filesReq=tx.objectStore('files').getAll(),resultsReq=tx.objectStore('results').getAll();const [fileRows,rawResults]=await Promise.all([checkpointRequest(filesReq),checkpointRequest(resultsReq)]);return {fileRows,rawResults};});
+  const payload=await checkpointWithDbRetry(async db=>{const tx=db.transaction(['files','results'],'readonly'),filesReq=tx.objectStore('files').getAll(),resultsReq=tx.objectStore('results').getAll(),fileRows=await checkpointRequest(filesReq),rawResults=await checkpointRequest(resultsReq);await checkpointTxDone(tx);return {fileRows,rawResults};});
   const fileRows=payload?.fileRows||[],rawResults=payload?.rawResults||[],rows=fileRows.sort((a,b)=>a.index-b.index);
   if(!rows.length||rows.length!==meta.total||rows.some((row,index)=>row.index!==index))return {invalid:true,meta,reason:'画像一覧の件数または順序が不正です'};
   const files=rows.map((row,index)=>checkpointFileFromRow(row,index));
@@ -845,7 +845,7 @@ function flushPendingRender(){if(!renderPending||reviewEditorActive())return fal
 function renderDuringAnalysis(){if(isRunning&&reviewEditorActive()){renderPending=true;return;}renderPending=false;render();}
 function render(){
  closeChoicePicker(false);
- const tb=$('#tbl tbody');tb.innerHTML='';
+ const tb=$('#tbl tbody'),resultsCard=$('#resultsCard');if(resultsCard)resultsCard.hidden=!results.length;tb.innerHTML='';
  const ordered=results.map((r,ri)=>({r,ri,needsReview:resultNeedsReview(r),reviewResolved:!!r.reviewResolved})).sort((a,b)=>{const ap=a.needsReview?0:(a.reviewResolved?1:2),bp=b.needsReview?0:(b.reviewResolved?1:2);return (ap-bp)||(a.ri-b.ri);});
  for(const item of ordered){
   const {r,ri}=item,p=r.parsed,c=r.classification,[st,cl]=statusView(r),reviewState=resultReviewState(r),classificationNeedsReview=reviewState.species;

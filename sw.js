@@ -1,4 +1,4 @@
-const RELEASE_ID = '2026-10-07-candidate112-ios-readonly-restore';
+const RELEASE_ID = '2026-10-07-candidate113-ios-results-card-visibility';
 const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}`;
 const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}`;
 const APP_SHELL = [

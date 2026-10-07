@@ -1,7 +1,7 @@
 {
-  "package": "public-candidate112-ios-readonly-restore-runtime-only",
-  "releaseId": "2026-10-07-candidate112-ios-readonly-restore",
-  "basedOn": "public-candidate111-workfix-idb-open-lifecycle-runtime-only",
+  "package": "public-candidate113-ios-results-card-visibility-runtime-only",
+  "releaseId": "2026-10-07-candidate113-ios-results-card-visibility",
+  "basedOn": "public-candidate111-workfix-idb-open-lifecycle-runtime-only (Candidate112 F8 hypothesis discarded after iPhone FAIL)",
   "recognitionLogicChanged": false,
   "runtimeOnly": true,
   "publicAllowlistPolicy": {
@@ -16,23 +16,15 @@
     "provenanceLedgerPublic": false
   },
   "maintenanceChanges": [
-    "F8 only: readonly checkpoint restore returns after the required IndexedDB read requests succeed instead of waiting for readonly transaction complete.",
-    "Metadata uses request success; files/results use Promise.all over both getAll request successes. Write/commit durability paths are unchanged and still await transaction completion.",
-    "Targets iPhone Safari reload where completed status remained visible but result rows/review UI appeared only after background/foreground.",
-    "Candidate111 open-lifecycle fixes, Candidate109-v3 checkpoint contract, recognition core, CSV/OCR behavior and edit persistence are unchanged. Candidate108 discarded.",
-    "iOS TIPS auto-open behavior is intentionally unchanged; agreed cleanup remains deferred until the iPhone Gate completes."
+    "F8 only: remove dynamic CSS :has(tbody:empty) visibility dependency from the results card.",
+    "Results card visibility is now driven explicitly by render() from results.length; initial HTML starts hidden.",
+    "Candidate112 readonly transaction-complete experiment is not carried forward."
   ],
   "validation": {
-    "candidate": "Candidate112",
-    "status": "AUTOMATED_PASS_PROVISIONAL_PENDING_IPHONE",
+    "candidate": "Candidate113",
     "formalBaseline": "Candidate103",
-    "provisional": true,
-    "deviceValidation": "NOT_RUN_iPhone_PENDING",
-    "localRegression": {
-      "suiteCount": 70,
-      "passed": 70,
-      "failed": 0
-    }
+    "deviceValidation": "IPHONE_PENDING_F8",
+    "scope": "F8 results-card visibility only; Candidate112 readonly change discarded"
   },
   "files": [
     {
@@ -42,8 +34,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 253059,
-      "sha256": "8b46027dbe2743c33ca5f097771b67979e2edd394fef11d78dc74b7a350dc308"
+      "bytes": 253197,
+      "sha256": "55ac8ffb1dc4b088a9919cfaa8da0483c5abd2509c846e74654c0f91adb5a499"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -92,13 +84,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 65279,
-      "sha256": "783f9ebccbf86485d08cccf2a73f546bd92f56152f834493ec70ca5a53190edc"
+      "bytes": 65319,
+      "sha256": "f01085ea1cb0598f3680e3b7b6e1040e0845b48b1baaf298e0e9f5c4e3f3da83"
     },
     {
       "path": "manifest.webmanifest",
-      "bytes": 1069,
-      "sha256": "595ab9bb83b89ecdae4f512be1b1a1bdc6253800ca9b76a3c21dc11b721f4e99"
+      "bytes": 1090,
+      "sha256": "ff4b89e546d5b6d8ff86d7d2ffa14d5803ac319fdf039cf03caaef63d983894b"
     },
     {
       "path": "master_data.js",
@@ -107,13 +99,13 @@
     },
     {
       "path": "release.json",
-      "bytes": 59,
-      "sha256": "86d2f7d7c763e2a78053685ef71f841484556e58dc0f4fbc70191a4c4bba6fca"
+      "bytes": 66,
+      "sha256": "5eb90603715f5101114ad9c1bbe461f29338894acfc3220a3912674d9423f343"
     },
     {
       "path": "sw.js",
-      "bytes": 2986,
-      "sha256": "296259b3b9b7fac33be9a5add484cb4bf39b83795523a4f553c4ff0f50c48187"
+      "bytes": 2993,
+      "sha256": "93045b4f4746ca15bfffe5280a6dfa0007dd4361170c220b6a4ba237606a4193"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -123,7 +115,7 @@
   ],
   "publicUrl": {
     "page": "https://meka-create.github.io/pokesleep-scan/",
-    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-07-candidate112-ios-readonly-restore",
+    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-07-candidate113-ios-results-card-visibility",
     "configuredAt": "2026-10-05T13:08:29.379Z"
   },
   "masterDataChanged": false,
