@@ -16,19 +16,19 @@
   ],
   "icons": [
     {
-      "src": "./icons/icon-192.png?release=2026-10-07-candidate115-species-kana-running-preview",
+      "src": "./icons/icon-192.png?release=2026-10-07-candidate116-release-finalization",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-512.png?release=2026-10-07-candidate115-species-kana-running-preview",
+      "src": "./icons/icon-512.png?release=2026-10-07-candidate116-release-finalization",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/apple-touch-icon.png?release=2026-10-07-candidate115-species-kana-running-preview",
+      "src": "./icons/apple-touch-icon.png?release=2026-10-07-candidate116-release-finalization",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"

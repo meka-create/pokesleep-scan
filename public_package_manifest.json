@@ -1,7 +1,7 @@
 {
-  "package": "public-candidate115-species-kana-running-preview-runtime-only",
-  "releaseId": "2026-10-07-candidate115-species-kana-running-preview",
-  "basedOn": "public-candidate114-tips-first-show-cleanup-runtime-only (Candidate114 formal baseline)",
+  "package": "public-candidate116-release-finalization-runtime-only",
+  "releaseId": "2026-10-07-candidate116-release-finalization",
+  "basedOn": "public-candidate115-species-kana-running-preview-runtime-only (Candidate115 focused device gate PASS)",
   "recognitionLogicChanged": false,
   "runtimeOnly": true,
   "publicAllowlistPolicy": {
@@ -16,15 +16,15 @@
     "provenanceLedgerPublic": false
   },
   "maintenanceChanges": [
-    "Fix manual species picker search to use kana-normalized prefix matching, accepting katakana and hiragana input.",
-    "Fix running-checkpoint restore so existing review screenshot crops are regenerated before remaining OCR resumes.",
-    "Candidate114 TIPS cleanup and Candidate113 F8 results-card visibility fix are retained unchanged."
+    "No functional logic change from Candidate115; finalize formal-baseline release/provenance metadata after focused device PASS.",
+    "Retain Candidate115 manual species kana-prefix search and running restore review-preview regeneration unchanged.",
+    "Retain Candidate114 TIPS cleanup and Candidate113 F8 results-card visibility fix unchanged."
   ],
   "validation": {
-    "candidate": "Candidate115",
-    "formalBaseline": "Candidate114",
-    "deviceValidation": "FOCUSED_DEVICE_CHECK_PENDING",
-    "scope": "manual species kana prefix search + running restore review-preview regeneration only"
+    "candidate": "Candidate116",
+    "formalBaseline": "Candidate116",
+    "deviceValidation": "PASS_INHERITED_FROM_CANDIDATE115_FOCUSED_DEVICE_GATE",
+    "scope": "release/provenance finalization only; no functional runtime logic change from Candidate115"
   },
   "files": [
     {
@@ -34,8 +34,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 253451,
-      "sha256": "54c798d5525b4555e6a9b5998b1b254b5051106f1fee66c85fec238bf80205c7"
+      "bytes": 253443,
+      "sha256": "725d0d0b133ec8c5331d39008466a716ae11f7e5fb3bf55dbfc37831ebfd1d65"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -84,13 +84,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 65013,
-      "sha256": "ebc0d7b01858bfe9edf428fe681981f6707a482d27aaec946cfba5cc9278e500"
+      "bytes": 64965,
+      "sha256": "ff0c863184c51c0f213f4ea1c9cbfa1a01951877c086765c43b37d96e81f3db8"
     },
     {
       "path": "manifest.webmanifest",
-      "bytes": 1093,
-      "sha256": "947dd4c777ddd63f14277276188c245b7e594ccf94d1c127706ef5868489d10b"
+      "bytes": 1069,
+      "sha256": "425ff6bd35b356596abb1f4e4d7f95bb9908766531ac2f865c534bb2e86e0f3a"
     },
     {
       "path": "master_data.js",
@@ -99,13 +99,13 @@
     },
     {
       "path": "release.json",
-      "bytes": 67,
-      "sha256": "3a3d5cda6c5e8be9df2d0b367afad79c07cac37071243184d27bad19842f1921"
+      "bytes": 59,
+      "sha256": "b486be33cb6c42e3f19b84ead0ccadfede40df4a4464e26221729ac734ec8969"
     },
     {
       "path": "sw.js",
-      "bytes": 2994,
-      "sha256": "000002d019b609f162c8baedb20b257b35d9df8f14689214eb0754ddae49454f"
+      "bytes": 2986,
+      "sha256": "34773d0d53801ab19988bb3cf20539885bc95c9eb3593179c171855854d17c82"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -115,11 +115,11 @@
   ],
   "publicUrl": {
     "page": "https://meka-create.github.io/pokesleep-scan/",
-    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-07-candidate115-species-kana-running-preview",
+    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-07-candidate116-release-finalization",
     "configuredAt": "2026-10-05T13:08:29.379Z"
   },
   "masterDataChanged": false,
-  "formalBaseline": "Candidate114",
-  "provisional": true,
+  "formalBaseline": "Candidate116",
+  "provisional": false,
   "checkpointCompatibilityId": "checkpoint-compat-2026-10-07-candidate109-v3"
 }

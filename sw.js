@@ -1,4 +1,4 @@
-const RELEASE_ID = '2026-10-07-candidate115-species-kana-running-preview';
+const RELEASE_ID = '2026-10-07-candidate116-release-finalization';
 const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}`;
 const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}`;
 const APP_SHELL = [
