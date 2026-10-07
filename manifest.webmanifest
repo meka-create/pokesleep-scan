@@ -16,19 +16,19 @@
   ],
   "icons": [
     {
-      "src": "./icons/icon-192.png?release=2026-10-07-candidate113-ios-results-card-visibility",
+      "src": "./icons/icon-192.png?release=2026-10-07-candidate114-tips-first-show-cleanup",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-512.png?release=2026-10-07-candidate113-ios-results-card-visibility",
+      "src": "./icons/icon-512.png?release=2026-10-07-candidate114-tips-first-show-cleanup",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/apple-touch-icon.png?release=2026-10-07-candidate113-ios-results-card-visibility",
+      "src": "./icons/apple-touch-icon.png?release=2026-10-07-candidate114-tips-first-show-cleanup",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"

@@ -1,7 +1,7 @@
 {
-  "package": "public-candidate113-ios-results-card-visibility-runtime-only",
-  "releaseId": "2026-10-07-candidate113-ios-results-card-visibility",
-  "basedOn": "public-candidate111-workfix-idb-open-lifecycle-runtime-only (Candidate112 F8 hypothesis discarded after iPhone FAIL)",
+  "package": "public-candidate114-tips-first-show-cleanup-runtime-only",
+  "releaseId": "2026-10-07-candidate114-tips-first-show-cleanup",
+  "basedOn": "public-candidate113-ios-results-card-visibility-runtime-only (Candidate113 iPhone Gate PASS)",
   "recognitionLogicChanged": false,
   "runtimeOnly": true,
   "publicAllowlistPolicy": {
@@ -16,15 +16,16 @@
     "provenanceLedgerPublic": false
   },
   "maintenanceChanges": [
-    "F8 only: remove dynamic CSS :has(tbody:empty) visibility dependency from the results card.",
-    "Results card visibility is now driven explicitly by render() from results.length; initial HTML starts hidden.",
-    "Candidate112 readonly transaction-complete experiment is not carried forward."
+    "Cleanup only: restore first-visit TIPS auto-open consistently on Android / iPhone / iPad.",
+    "The existing localStorage key bukkomi_scan_tips_seen_v3 is preserved; already-seen users are not reopened.",
+    "Private Browsing / ephemeral storage persistence remains outside the guarantee; manual TIPS button remains available.",
+    "Candidate113 F8 results-card visibility fix is unchanged."
   ],
   "validation": {
-    "candidate": "Candidate113",
+    "candidate": "Candidate114",
     "formalBaseline": "Candidate103",
-    "deviceValidation": "IPHONE_PENDING_F8",
-    "scope": "F8 results-card visibility only; Candidate112 readonly change discarded"
+    "deviceValidation": "TIPS_CROSS_PLATFORM_SMOKE_PENDING",
+    "scope": "TIPS first-show cleanup only; Candidate113 iPhone Gate already PASS"
   },
   "files": [
     {
@@ -34,8 +35,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 253197,
-      "sha256": "55ac8ffb1dc4b088a9919cfaa8da0483c5abd2509c846e74654c0f91adb5a499"
+      "bytes": 253193,
+      "sha256": "cb425d9fc17076213bffaf16e3d410e5c90e11d64531e8146132e2fe4735d9e5"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -84,13 +85,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 65319,
-      "sha256": "f01085ea1cb0598f3680e3b7b6e1040e0845b48b1baaf298e0e9f5c4e3f3da83"
+      "bytes": 64983,
+      "sha256": "fb6026e193c9b14ee9885ac2835d40c39e5f67d5af280827382f9859bc7462a5"
     },
     {
       "path": "manifest.webmanifest",
-      "bytes": 1090,
-      "sha256": "ff4b89e546d5b6d8ff86d7d2ffa14d5803ac319fdf039cf03caaef63d983894b"
+      "bytes": 1078,
+      "sha256": "73c8cf1158527a744d102cfd93b541209583420ac53333b5ae998a0dde6547a0"
     },
     {
       "path": "master_data.js",
@@ -99,13 +100,13 @@
     },
     {
       "path": "release.json",
-      "bytes": 66,
-      "sha256": "5eb90603715f5101114ad9c1bbe461f29338894acfc3220a3912674d9423f343"
+      "bytes": 62,
+      "sha256": "231459b392c4fc2b6e8f624c59ec9cfd6dad6effb841bc8cccf969aa8b4b5c4d"
     },
     {
       "path": "sw.js",
-      "bytes": 2993,
-      "sha256": "93045b4f4746ca15bfffe5280a6dfa0007dd4361170c220b6a4ba237606a4193"
+      "bytes": 2989,
+      "sha256": "9a04439dce637abec72042248310e1ae24f6521c166ba96ffa7b51424246f245"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -115,7 +116,7 @@
   ],
   "publicUrl": {
     "page": "https://meka-create.github.io/pokesleep-scan/",
-    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-07-candidate113-ios-results-card-visibility",
+    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-07-candidate114-tips-first-show-cleanup",
     "configuredAt": "2026-10-05T13:08:29.379Z"
   },
   "masterDataChanged": false,
