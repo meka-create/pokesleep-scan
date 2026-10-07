@@ -1,7 +1,7 @@
 {
-  "package": "public-candidate109-workfix-checkpoint-integrity-runtime-only",
-  "releaseId": "2026-10-07-candidate109-workfix-checkpoint-integrity",
-  "basedOn": "Candidate107 provisional; formal baseline Candidate103",
+  "package": "public-candidate111-workfix-idb-open-lifecycle-runtime-only",
+  "releaseId": "2026-10-07-candidate111-workfix-idb-open-lifecycle",
+  "basedOn": "public-candidate110-ios-idb-reopen-recovery-runtime-only",
   "recognitionLogicChanged": false,
   "runtimeOnly": true,
   "publicAllowlistPolicy": {
@@ -16,25 +16,23 @@
     "provenanceLedgerPublic": false
   },
   "maintenanceChanges": [
-    "Atomic full result+completed metadata commit; reject incomplete/corrupt restore including running gaps.",
-    "New one-way checkpoint compatibility; validated Candidate103/106/107 migration; pre103 rejected.",
-    "Completed review preview regeneration followed by runtime cleanup.",
-    "Session-scoped storage failure history.",
-    "Recognition, CSV, external OCR dependencies unchanged; Candidate108 discarded.",
-    "Replacement images and metadata commit together; failed replacement preserves paused source."
+    "Per-open ownership and settled state prevent late success after invalidation/blocked/error from caching obsolete connections.",
+    "Retired DB close/versionchange events cannot invalidate a new pending open or current connection.",
+    "Keep Candidate110 one-retry policy and visible load failures; no broad AbortError/UnknownError retry.",
+    "Keep Candidate109-v3 checkpoint semantics, atomic completion, previews, migration, selection/edit safety.",
+    "Recognition core/CSV/OCR external dependencies unchanged. Candidate108 discarded."
   ],
   "validation": {
-    "candidate": "Candidate109_workfix",
+    "candidate": "Candidate111_workfix",
     "status": "AUTOMATED_PASS_PROVISIONAL_PENDING_IPHONE",
     "formalBaseline": "Candidate103",
     "provisional": true,
     "deviceValidation": "NOT_RUN_iPhone_PENDING",
     "localRegression": {
-      "suiteCount": 67,
-      "passed": 67,
+      "suiteCount": 69,
+      "passed": 69,
       "failed": 0
-    },
-    "checkpointIntegration": "ATOMIC_COMPLETE_VALIDATED_ONE_WAY_MIGRATION_REVIEW_PREVIEW_RECOVERY"
+    }
   },
   "files": [
     {
@@ -44,8 +42,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 250075,
-      "sha256": "8caa7f811f945b980d87bb934b29ff5e646d39d7a2065168fa4f6891ab5a96b6"
+      "bytes": 253116,
+      "sha256": "6065034bb604d98f2b38274fa339789c655562853c2da3514cd7333b248ffe51"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -94,13 +92,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 65327,
-      "sha256": "f0b7622cfb1648cec01021e565844bb425b6537a512b5883848bad099af6c487"
+      "bytes": 65315,
+      "sha256": "757bf4ff6368fa3e51d4a9c45f7587a409e01ada927e226a5a9f3bab3c73a640"
     },
     {
       "path": "manifest.webmanifest",
-      "bytes": 1093,
-      "sha256": "0df466825eca86bf9386782dddb9e249acb9f7e6047e38aac9d129a84ca434f1"
+      "bytes": 1087,
+      "sha256": "61273d21cefb3868ef5842dd6e456d3b8bd4fe37080480effe3cd20a3dbf908a"
     },
     {
       "path": "master_data.js",
@@ -109,13 +107,13 @@
     },
     {
       "path": "release.json",
-      "bytes": 67,
-      "sha256": "4149dfc6c14aa2fc450b9d65cf233bca95d3c204499cbde2c755a89cfdbd3b8e"
+      "bytes": 65,
+      "sha256": "442f1fd74761c3913fef0e4788b37a90d1c8cff36aa3fa75011beba8a2f59c48"
     },
     {
       "path": "sw.js",
-      "bytes": 2994,
-      "sha256": "5050cf26c7a7331f21da0a1b73c66b2d9fed32af19d08de8fe5be81690fc04a5"
+      "bytes": 2992,
+      "sha256": "2cdecc440e1140b9a9946d4e4482e8de7a03627efd49cb1b30fcc084f73a5909"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -125,7 +123,7 @@
   ],
   "publicUrl": {
     "page": "https://meka-create.github.io/pokesleep-scan/",
-    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-07-candidate109-workfix-checkpoint-integrity",
+    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-07-candidate111-workfix-idb-open-lifecycle",
     "configuredAt": "2026-10-05T13:08:29.379Z"
   },
   "masterDataChanged": false,

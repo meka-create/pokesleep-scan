@@ -1,4 +1,4 @@
-const RELEASE_ID = '2026-10-07-candidate109-workfix-checkpoint-integrity';
+const RELEASE_ID = '2026-10-07-candidate111-workfix-idb-open-lifecycle';
 const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}`;
 const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}`;
 const APP_SHELL = [
