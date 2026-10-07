@@ -1,7 +1,7 @@
 {
-  "package": "public-candidate116-release-finalization-runtime-only",
-  "releaseId": "2026-10-07-candidate116-release-finalization",
-  "basedOn": "public-candidate115-species-kana-running-preview-runtime-only (Candidate115 focused device gate PASS)",
+  "package": "public-candidate117-immediate-edit-checkpoint-runtime-only",
+  "releaseId": "2026-10-07-candidate117-immediate-edit-checkpoint",
+  "basedOn": "public-candidate116-release-finalization-runtime-only (Candidate116 formal baseline)",
   "recognitionLogicChanged": false,
   "runtimeOnly": true,
   "publicAllowlistPolicy": {
@@ -16,15 +16,15 @@
     "provenanceLedgerPublic": false
   },
   "maintenanceChanges": [
-    "No functional logic change from Candidate115; finalize formal-baseline release/provenance metadata after focused device PASS.",
-    "Retain Candidate115 manual species kana-prefix search and running restore review-preview regeneration unchanged.",
-    "Retain Candidate114 TIPS cleanup and Candidate113 F8 results-card visibility fix unchanged."
+    "Durability-only fix: remove the fixed 120 ms delay before persisting manual/review result edits to the active checkpoint.",
+    "Use immediate serialized result persistence with per-result latest-state coalescing; edits arriving during an in-flight write receive one follow-up latest-state write.",
+    "Retain Candidate115 kana-prefix search and running review-preview recovery, Candidate114 TIPS cleanup, Candidate113 F8 fix, and Candidate116 release/provenance baseline unchanged."
   ],
   "validation": {
-    "candidate": "Candidate116",
+    "candidate": "Candidate117",
     "formalBaseline": "Candidate116",
-    "deviceValidation": "PASS_INHERITED_FROM_CANDIDATE115_FOCUSED_DEVICE_GATE",
-    "scope": "release/provenance finalization only; no functional runtime logic change from Candidate115"
+    "deviceValidation": "FOCUSED_EDIT_DURABILITY_CHECK_PENDING",
+    "scope": "120ms edit checkpoint durability only; no recognition/CSV/checkpoint-format changes"
   },
   "files": [
     {
@@ -34,8 +34,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 253443,
-      "sha256": "725d0d0b133ec8c5331d39008466a716ae11f7e5fb3bf55dbfc37831ebfd1d65"
+      "bytes": 254089,
+      "sha256": "87e4c127ad02b61d72126eedeb916d40e385086f0c6eecaeaf2f30a64509ee7f"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -84,13 +84,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 64965,
-      "sha256": "ff0c863184c51c0f213f4ea1c9cbfa1a01951877c086765c43b37d96e81f3db8"
+      "bytes": 64995,
+      "sha256": "2aaad07d384cf4274d9c1737f475930041de703972ce60b1668eead88a068241"
     },
     {
       "path": "manifest.webmanifest",
-      "bytes": 1069,
-      "sha256": "425ff6bd35b356596abb1f4e4d7f95bb9908766531ac2f865c534bb2e86e0f3a"
+      "bytes": 1084,
+      "sha256": "0f0d6c02fc819614691be0e3f45f77b9e75e1f24600c12ee384697c8d4b07b16"
     },
     {
       "path": "master_data.js",
@@ -99,13 +99,13 @@
     },
     {
       "path": "release.json",
-      "bytes": 59,
-      "sha256": "b486be33cb6c42e3f19b84ead0ccadfede40df4a4464e26221729ac734ec8969"
+      "bytes": 64,
+      "sha256": "d63cade9be36a79025da0665412e2b0a4208e0ad9d5ce31bd73f28db2ce095e8"
     },
     {
       "path": "sw.js",
-      "bytes": 2986,
-      "sha256": "34773d0d53801ab19988bb3cf20539885bc95c9eb3593179c171855854d17c82"
+      "bytes": 2991,
+      "sha256": "57e1eaf3d0680036ca5a07053ae4e42f92ef3267d571d389a1661155b2d6500d"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -115,11 +115,11 @@
   ],
   "publicUrl": {
     "page": "https://meka-create.github.io/pokesleep-scan/",
-    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-07-candidate116-release-finalization",
+    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-07-candidate117-immediate-edit-checkpoint",
     "configuredAt": "2026-10-05T13:08:29.379Z"
   },
   "masterDataChanged": false,
   "formalBaseline": "Candidate116",
-  "provisional": false,
+  "provisional": true,
   "checkpointCompatibilityId": "checkpoint-compat-2026-10-07-candidate109-v3"
 }
