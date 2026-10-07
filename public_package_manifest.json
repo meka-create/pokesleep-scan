@@ -1,0 +1,126 @@
+{
+  "package": "public-candidate114-tips-first-show-cleanup-runtime-only",
+  "releaseId": "2026-10-07-candidate114-tips-first-show-cleanup",
+  "basedOn": "public-candidate113-ios-results-card-visibility-runtime-only (Candidate113 iPhone Gate PASS)",
+  "recognitionLogicChanged": false,
+  "runtimeOnly": true,
+  "publicAllowlistPolicy": {
+    "mode": "explicit-allowlist",
+    "developmentIncluded": false,
+    "developerReadmeIncluded": false,
+    "localServerIncluded": false,
+    "unusedFoodFeaturesIncluded": false,
+    "complianceDocsIncluded": [
+      "THIRD_PARTY_NOTICES.md"
+    ],
+    "provenanceLedgerPublic": false
+  },
+  "maintenanceChanges": [
+    "Cleanup only: restore first-visit TIPS auto-open consistently on Android / iPhone / iPad.",
+    "The existing localStorage key bukkomi_scan_tips_seen_v3 is preserved; already-seen users are not reopened.",
+    "Private Browsing / ephemeral storage persistence remains outside the guarantee; manual TIPS button remains available.",
+    "Candidate113 F8 results-card visibility fix is unchanged."
+  ],
+  "validation": {
+    "candidate": "Candidate114",
+    "formalBaseline": "Candidate103",
+    "deviceValidation": "TIPS_CROSS_PLATFORM_SMOKE_PENDING",
+    "scope": "TIPS first-show cleanup only; Candidate113 iPhone Gate already PASS"
+  },
+  "files": [
+    {
+      "path": ".nojekyll",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "app.js",
+      "bytes": 253193,
+      "sha256": "cb425d9fc17076213bffaf16e3d410e5c90e11d64531e8146132e2fe4735d9e5"
+    },
+    {
+      "path": "assets/example-screenshot.png",
+      "bytes": 105755,
+      "sha256": "faf93b7dfeab7395ba20d5e296ef81da2a2df3b1b61e62f3ebb5674313fe8a06"
+    },
+    {
+      "path": "assets/ogp-card.png",
+      "bytes": 1083675,
+      "sha256": "461dd958fc6f4cd5ebe7fc1d2fd1fc1f8c86aad667562a858138120c16a4fd14"
+    },
+    {
+      "path": "classifier.js",
+      "bytes": 13891,
+      "sha256": "93a1fbe56887ae9683409ca5db48563f18c78711aedac01b8758510768ec7c71"
+    },
+    {
+      "path": "food_color_features.js",
+      "bytes": 497419,
+      "sha256": "e00286ae2e8fe96d6f0b49c93e03150469175382ba09c62b499e6f33d85ae444"
+    },
+    {
+      "path": "food_matcher.js",
+      "bytes": 6506,
+      "sha256": "68f20e2ce1ab45222824669514eaa62077add12dfe8949658caf0f6a9589c9a7"
+    },
+    {
+      "path": "icons/apple-touch-icon.png",
+      "bytes": 36171,
+      "sha256": "94efded712e48ea4d759f43f18638d57ba5ab0b306cf3acc7881b1125c2e08bc"
+    },
+    {
+      "path": "icons/favicon-32.png",
+      "bytes": 2353,
+      "sha256": "597f50ab41004b1e7bc9d67c886181c71c3dca528d89d7ffbe44ed77326468bc"
+    },
+    {
+      "path": "icons/icon-192.png",
+      "bytes": 40243,
+      "sha256": "52296a381af6c11f40b00ef73c1285f4dd0ba7b454a4b86d589aa8d4ea01d1de"
+    },
+    {
+      "path": "icons/icon-512.png",
+      "bytes": 232560,
+      "sha256": "87aef36407bfdfef3170b32bda7e695f283c22f0d5ba934137edb6913101baf4"
+    },
+    {
+      "path": "index.html",
+      "bytes": 64983,
+      "sha256": "fb6026e193c9b14ee9885ac2835d40c39e5f67d5af280827382f9859bc7462a5"
+    },
+    {
+      "path": "manifest.webmanifest",
+      "bytes": 1078,
+      "sha256": "73c8cf1158527a744d102cfd93b541209583420ac53333b5ae998a0dde6547a0"
+    },
+    {
+      "path": "master_data.js",
+      "bytes": 131939,
+      "sha256": "b0f3bc100966de43dfdd4bd2d6b2036d8f7609b718b241a60674612aaf384ab4"
+    },
+    {
+      "path": "release.json",
+      "bytes": 62,
+      "sha256": "231459b392c4fc2b6e8f624c59ec9cfd6dad6effb841bc8cccf969aa8b4b5c4d"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 2989,
+      "sha256": "9a04439dce637abec72042248310e1ae24f6521c166ba96ffa7b51424246f245"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 4318,
+      "sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
+    }
+  ],
+  "publicUrl": {
+    "page": "https://meka-create.github.io/pokesleep-scan/",
+    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-07-candidate114-tips-first-show-cleanup",
+    "configuredAt": "2026-10-05T13:08:29.379Z"
+  },
+  "masterDataChanged": false,
+  "formalBaseline": "Candidate103",
+  "provisional": true,
+  "checkpointCompatibilityId": "checkpoint-compat-2026-10-07-candidate109-v3"
+}
