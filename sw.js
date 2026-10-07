@@ -1,4 +1,4 @@
-const RELEASE_ID = '2026-10-07-candidate117-immediate-edit-checkpoint';
+const RELEASE_ID = '2026-10-07-candidate120-ios-ocr-recycle-hardening';
 const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}`;
 const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}`;
 const APP_SHELL = [
