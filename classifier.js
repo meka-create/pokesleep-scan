@@ -39,7 +39,9 @@ function maxSkill(skill){return MAX8.has(skill)?8:MAX7.has(skill)?7:6;}
 function skillSpValues(skill){return (SP_SKILL[skill]||DEFAULT_SP).slice(0,maxSkill(skill));}
 function trunc(v,n){const N=10**n;const d=Number((v*N).toFixed(6));return Math.floor(d)/N;}
 function roundPos(v){return Math.floor(v+0.5);}
+const HELP_SECONDS_TOLERANCE=1;
 function floorStable(v){return Math.floor(v+1e-9);}
+function helpSecondsMatches(calculated,observed){return Number.isFinite(calculated)&&Number.isFinite(observed)&&Math.abs(calculated-observed)<=HELP_SECONDS_TOLERANCE;}
 function mul100(v){return Number((v*100).toFixed(6));}
 function ribbonSpeed(sp,tier){const el=sp.evolutionLeft||0;if(el===0)return 1;if(tier>=4)return el===2?.75:.88;if(tier>=2)return el===2?.89:.95;return 1;}
 function frequency(sp,level,nature,mod,ribbon){const ugly=(level===10&&sp.frequency===2600)?.1:0;const factor=((501-level)/500)*nature.speed*ribbonSpeed(sp,ribbon)*(1-mod.hs*.07);return sp.frequency*trunc(factor,4)-ugly;}
@@ -95,7 +97,7 @@ function inferWithoutFoods(obs){
    // A directly caught evolved Pokémon may have hist=0. Only performed evolutions force skill-level increases.
    if(obs.skillLevel<1+hist+mod.sl)continue;
    for(let ribbon=0;ribbon<5;ribbon++){
-    const f=frequency(sp,obs.level,nature,mod,ribbon);if(floorStable(f)!==obs.helpSeconds)continue;
+    const f=frequency(sp,obs.level,nature,mod,ribbon);if(!helpSecondsMatches(floorStable(f),obs.helpSeconds))continue;
     const calculatedCarry=sp.carryLimit+5*hist+RIB_CARRY[ribbon]+mod.inv*6;
     for(const p of profiles(sp)){
      const calc=computeSp(sp,p,obs.level,nature,mod,ribbon,obs.skillLevel);if(calc!==obs.sp)continue;
@@ -128,7 +130,7 @@ function inferWithoutFoodsNeutralized(obs){
   for(let hist=0;hist<=Math.max(0,sp.evolutionCount||0);hist++){
    if(obs.skillLevel<1+hist+mod.sl)continue;
    for(let ribbon=0;ribbon<5;ribbon++){
-    const f=frequency(sp,obs.level,NEUTRAL_NATURE,mod,ribbon);if(floorStable(f)!==obs.helpSeconds)continue;
+    const f=frequency(sp,obs.level,NEUTRAL_NATURE,mod,ribbon);if(!helpSecondsMatches(floorStable(f),obs.helpSeconds))continue;
     const calculatedCarry=sp.carryLimit+5*hist+RIB_CARRY[ribbon]+mod.inv*6;
     for(const p of profiles(sp)){
      const calc=computeSp(sp,p,obs.level,NEUTRAL_NATURE,mod,ribbon,obs.skillLevel);if(calc!==obs.sp)continue;

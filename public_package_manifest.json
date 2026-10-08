@@ -1,8 +1,8 @@
 {
-  "package": "public-candidate120-ios-ocr-recycle-hardening-runtime-only",
-  "releaseId": "2026-10-07-candidate120-ios-ocr-recycle-hardening",
-  "basedOn": "public-candidate119-ios-ocr-memory-guard-runtime-only (Candidate119 provisional)",
-  "recognitionLogicChanged": false,
+  "package": "public-candidate125-carry-corroborated-first-food-runtime-only",
+  "releaseId": "2026-10-09-candidate125-carry-corroborated-first-food",
+  "basedOn": "public-candidate124-species-ocr-consensus-rescue-runtime-only (Candidate124 formal baseline)",
+  "recognitionLogicChanged": true,
   "runtimeOnly": true,
   "publicAllowlistPolicy": {
     "mode": "explicit-allowlist",
@@ -16,17 +16,21 @@
     "provenanceLedgerPublic": false
   },
   "maintenanceChanges": [
-    "Fix Candidate119 recycle-failure attribution: an already-durable completed image is never replaced by a recycle error.",
-    "If Tesseract recycle/fresh-worker preparation fails after image i, pause safely at the next unprocessed image i+1.",
-    "Count recycle success only after a fresh worker is ready; record attempts, failures, and last recycle error.",
-    "Persist OCR memory-guard telemetry in checkpoint meta so post-reload diagnostics retain pre-reload evidence.",
-    "Retain Tesseract.js 5.1.1 and all OCR/classifier/crop/threshold behavior; no recognition-core algorithm change."
+    "Add review-only safety guards for observed false-confirm patterns without changing Candidate121 OCR/classifier recognition values.",
+    "Mark nicknames with unmatched closing punctuation for review instead of silently accepting the contaminated value.",
+    "When species is unresolved, mark low-confidence main-skill evidence for review and block CSV export until that review is resolved.",
+    "When species is unresolved and any subskill already carries uncertainty evidence, preserve/propagate review across the nonblank subskill chain instead of hiding it.",
+    "Reapply Candidate122 review-safety guards after checkpoint restore while respecting manual confirmations.",
+    "Keep Candidate121 ±1-second help-time tolerance, OCR engines, crop/threshold geometry, food matcher, species classifier matching, carry logic, checkpoint schema/compatibility, and iOS OCR memory guard unchanged.",
+    "Candidate123 numeric read-only review badges for missing SP/helpSeconds/carry or corroborated SP inconsistency.",
+    "Candidate124: strictly consensus-supported multi-field species rescue using already collected skill-line/header OCR evidence; only when classifier UNIQUE and carry-consistent; no additional OCR or classifier/food-matcher changes.",
+    "Candidate125: when an occluded first food icon has corroborated runner-up image evidence, a unique carry-consistent classifier candidate and a matching later-food profile, correct first food under explicit review and resolve species; no extra OCR or baseline regression."
   ],
   "validation": {
-    "candidate": "Candidate120",
-    "formalBaseline": "Candidate118",
-    "deviceValidation": "NORMAL_USE_FIELD_CONFIRMATION_PENDING",
-    "scope": "Candidate119 iOS OCR memory-guard failure-path and telemetry hardening only"
+    "candidate": "Candidate125",
+    "formalBaseline": "Candidate124",
+    "deviceValidation": "IPHONE_ANDROID_PRIORITY_CORPUS_GATE_PENDING",
+    "scope": "Carry- and food3-corroborated first-food image rescue; preserves review; no extra OCR calls, classifier/food matcher/CSV schema/memory guard changes"
   },
   "files": [
     {
@@ -36,8 +40,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 258400,
-      "sha256": "6255d2ab5fcb70ad0362137c3c5e8a4029f742092380046075ea3630001453e1"
+      "bytes": 267467,
+      "sha256": "ae5f1e0a1896aab83a14d5ab3d42ad25641cd8bd1c95b9802517a57c5a28a66d"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -51,8 +55,8 @@
     },
     {
       "path": "classifier.js",
-      "bytes": 13891,
-      "sha256": "93a1fbe56887ae9683409ca5db48563f18c78711aedac01b8758510768ec7c71"
+      "bytes": 14129,
+      "sha256": "cc32653aecb43be416cf1bd3be09ac7bfca5c18e0a0c20d2f7f4206b7af723c1"
     },
     {
       "path": "food_color_features.js",
@@ -86,13 +90,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 64995,
-      "sha256": "4c38fe6b5340cfdc1301147227290f8f9f54fa6acecbc5381f16993c19247753"
+      "bytes": 65019,
+      "sha256": "5201fdcbe08922d696c8ecad5094d709a6b9a565e7b8d7df961078c57c4ec571"
     },
     {
       "path": "manifest.webmanifest",
-      "bytes": 1084,
-      "sha256": "8a0898258b8139da40d36c988ebcf24073a9e050574d4744dd014d70768cc672"
+      "bytes": 1096,
+      "sha256": "be65840e2fd893d19143ab7a19b991a5a323d935a619341ace3850db8df2d83d"
     },
     {
       "path": "master_data.js",
@@ -101,13 +105,13 @@
     },
     {
       "path": "release.json",
-      "bytes": 64,
-      "sha256": "84ef3fe12e09bf9babeccbde3c6638336fd87dc3931b7175fb6f6ca20839309b"
+      "bytes": 68,
+      "sha256": "4aad2516039d66fc02cad9967e4ac51b902c11d39859ece05bb265dc041dca4d"
     },
     {
       "path": "sw.js",
-      "bytes": 2991,
-      "sha256": "86cc86d6aa1d3898954d4345262c01f769bc5a4fc84702340f9e03379acdf64a"
+      "bytes": 2995,
+      "sha256": "7eaa16a4f38e2446ad6c1ee0c3bf3f94a1dbecc33d707e57b934695679187697"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -117,11 +121,11 @@
   ],
   "publicUrl": {
     "page": "https://meka-create.github.io/pokesleep-scan/",
-    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-07-candidate120-ios-ocr-recycle-hardening",
+    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-09-candidate125-carry-corroborated-first-food",
     "configuredAt": "2026-10-05T13:08:29.379Z"
   },
   "masterDataChanged": false,
-  "formalBaseline": "Candidate118",
+  "formalBaseline": "Candidate124",
   "provisional": true,
   "checkpointCompatibilityId": "checkpoint-compat-2026-10-07-candidate109-v3"
 }
