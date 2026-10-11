@@ -23,6 +23,10 @@ node --test development/runtime_smoke.test.cjs
 python development/start_local.py
 ~~~
 
+Windowsでは、開発ブランチのルートに追加した start_server.bat をダブルクリックしても起動できます。Python 3が必要です。既存の公開用HTMLが参照する旧バッチ名を、開発用ZIPで利用できるようにしたもので、本番mainへは反映していません。
+
+ローカルサーバーは既定で127.0.0.1にのみ待ち受けます。PC以外のスマホから直接アクセスできません。スマホの実機試験には、別途HTTPSの隔離検証サイトを用意してください。
+
 ブラウザで http://127.0.0.1:8000/ を開く。OCRモデル読込にはネットワークが必要な場合がある。画像コーパスはこのリポジトリに追加しない。
 
 ## AI版マスターとの完全一致の再検証（任意）
@@ -39,7 +43,9 @@ AIマスターの生SHA-256を照合し、OCRマスター5項目のJSON構造が
 
 - 既存Runtimeの実行ソースは一行も変更しない。
 - development/ と専用CIに、基礎検証・実行手順・復元記録を追加する。
-- CIはソースハッシュ、JavaScript構文、分類器の内部スモーク、AI版マスター一致だけを確認する。
+- CIはソースハッシュ、JavaScript構文、分類器の内部スモーク、改ざん検出の逆方向テスト、AI版マスター一致、実ChromiumでのUI起動・画像選択を確認する。
+- Chromium UI試験はTesseract CDNをスタブ化しており、OCRやPaddleの実認識、モデル取得、端末処理を実行しない。これらを検証済みとは扱わない。
+- 既知の .nojekyll 欠落はGitHub Actionsのwarningと検証レポートで顕在化させ、SUCCESSと実体完全復元を混同しない。
 - 172枚画像・Android/iPhone実機・実ブラウザE2E・実Importer検証は未実施。
 - public_package_manifest.jsonに載る .nojekyll が実Git treeにない。既知の不一致として報告し、公開Runtimeを勝手に補修しない。
 - Candidate124_FINAL_HANDOFF.zip、candidate124_device_regression_runner_v1_FILENAME_FIXED_NO_IMAGES.zip、Candidate125_RETURN_BUNDLE.zipは今回の作業環境から未回収。
