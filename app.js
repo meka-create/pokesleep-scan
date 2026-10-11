@@ -896,8 +896,51 @@ function numericDataNeedsReview(r,key){
 function resultReviewState(r){return {processingError:!!r?.processingError,species:speciesNeedsReview(r),nickname:nicknameDataNeedsReview(r),level:levelDataNeedsReview(r),sp:(typeof numericDataNeedsReview==='function'&&numericDataNeedsReview(r,'sp')),helpSeconds:(typeof numericDataNeedsReview==='function'&&numericDataNeedsReview(r,'helpSeconds')),carry:(typeof numericDataNeedsReview==='function'&&numericDataNeedsReview(r,'carry')),skillLevel:skillLevelDataNeedsReview(r),mainSkill:mainSkillDataNeedsReview(r),nature:natureDataNeedsReview(r),foods:foodDataNeedsReview(r),subskills:subskillNeedsReview(r)};}
 function statusView(r){const c=r.classification,state=resultReviewState(r),classWarn=state.species,anyWarn=Object.values(state).some(Boolean);if(r?.processingError)return ['解析失敗','bad'];if(r?.manualEditOpen)return ['手動入力中','warn'];if(r?.manualCompleted){if(anyWarn)return ['要確認','warn'];return ['手動補完済','ok'];}if(!classWarn){if(anyWarn)return ['要確認','warn'];return ['完了','ok'];}if(c.status==='AMBIGUOUS')return ['要確認','warn'];if(c.status==='NO_EXACT_MATCH')return ['要確認','bad'];return ['読取失敗','bad'];}
 function resultNeedsReview(r){return !!(r?.manualEditOpen||Object.values(resultReviewState(r)).some(Boolean));}
-const UNRESOLVED_SPECIES_MAIN_SKILL_CONFIDENCE_MIN=55;
-function applyResultReviewSafetyGuards(r){if(!r||r.processingError)return r;const p=r.parsed||{};if(!p.nicknameManualConfirmed)applyNicknameSafety(p);if(!speciesNeedsReview(r))return r;const main=String(p.mainSkill||'').trim(),mainConfidence=Number(r?.raw?.mainskill?.confidence);if(main&&(!Number.isFinite(mainConfidence)||mainConfidence<UNRESOLVED_SPECIES_MAIN_SKILL_CONFIDENCE_MIN)){p.mainSkillNeedsReview=true;p.mainSkillReviewReason=p.mainSkillReviewReason||'species-unresolved-low-main-skill-evidence';}const subs=Array.isArray(p.subs)?p.subs:[],chainRisk=subs.some(s=>!!s?.needsReview);if(chainRisk){for(const sub of subs){const value=String(sub?.value||'').trim();if(!value||sub?.manualConfirmed||sub?.manualOverride)continue;sub.needsReview=true;if(!sub.reviewReason||sub.reviewReason==='subskill-ocr-consensus'||sub.reviewReason==='subskill-single-strong-ocr')sub.reviewReason='species-unresolved-subskill-chain-risk';}}return r;}
+// Third-food image matching is weaker when the first two foods were inferred
+// from the master (not read independently).  Fail closed on weak absolute
+// evidence with a plausible alternative; do not substitute that alternative.
+function weakThirdFoodEvidence(foods){
+ if(!Array.isArray(foods)||foods.length!==3)return false;
+ const [first,second,third]=foods;
+ return first?.method==='db-inferred'&&second?.method==='db-inferred'
+  &&third?.method==='image'&&!!String(third?.name||'').trim()
+  &&!third.needsReview&&!third.manualOverride
+  &&Number.isFinite(third.score)&&third.score<.90
+  &&Number.isFinite(third.secondScore)&&third.secondScore>=.70;
+}
+function applyResultReviewSafetyGuards(r){
+ if(!r||r.processingError)return r;
+ const p=r.parsed||{};
+ if(!p.nicknameManualConfirmed)applyNicknameSafety(p);
+ if(weakThirdFoodEvidence(r.foods)){
+  const third=r.foods[2];
+  third.needsReview=true;
+  third.reviewReason=third.reviewReason||'weak-third-food-image-with-inferred-preceding-slots';
+ }
+ // No species resolution means the classifier cannot corroborate the level or
+ // main skill.  Flags must persist after choosing species until manual review.
+ if(!speciesNeedsReview(r))return r;
+ if(validPokemonLevelValue(p.level)){
+  p.levelNeedsReview=true;
+  p.levelReviewReason=p.levelReviewReason||'species-unresolved-level-not-cross-checked';
+ }
+ const main=String(p.mainSkill||'').trim();
+ if(main){
+  p.mainSkillNeedsReview=true;
+  p.mainSkillReviewReason=p.mainSkillReviewReason||'species-unresolved-main-skill-not-cross-checked';
+ }
+ const subs=Array.isArray(p.subs)?p.subs:[],chainRisk=subs.some(s=>!!s?.needsReview);
+ if(chainRisk){
+  for(const sub of subs){
+   const value=String(sub?.value||'').trim();
+   if(!value||sub?.manualConfirmed||sub?.manualOverride)continue;
+   sub.needsReview=true;
+   if(!sub.reviewReason||sub.reviewReason==='subskill-ocr-consensus'||sub.reviewReason==='subskill-single-strong-ocr')
+    sub.reviewReason='species-unresolved-subskill-chain-risk';
+  }
+ }
+ return r;
+}
 function foodConflictReviewSlots(inference,foods){if(inference?.status!=='UNIQUE'||!Array.isArray(inference?.profiles)||!inference.profiles.length||!Array.isArray(foods)||foods.length!==3||foods.some(x=>!x?.name))return [];const names=foods.map(x=>x.name),profiles=inference.profiles.map(p=>p.foods||[]).filter(x=>x.length===3);if(profiles.some(p=>p.every((x,i)=>x===names[i])))return [];const impossible=[];for(let i=0;i<3;i++)if(!profiles.some(p=>p[i]===names[i]))impossible.push(i);return impossible.length?impossible:[0,1,2];}
 // Candidate125: a partly occluded first food icon may prefer the wrong top match.
 // Rescue only when the independently calculated carry singles out one species,
