@@ -112,7 +112,7 @@ def main():
                         live.wait_for_function("""async ()=>{
                           if(!window.POKESLEEP_CSV_GATE)return false;
                           const cacheNames=await caches.keys();
-                          const key=cacheNames.find(k=>k.endsWith('-step3-prod-multi-picker-v1'));
+                          const key=cacheNames.find(k=>k.endsWith('-step3-prod-multi-picker-v1-reviewclean-v1'));
                           if(!key)return false;
                           const cache=await caches.open(key);
                           const release=window.__PUBLIC_RELEASE_ID__;
@@ -122,6 +122,7 @@ def main():
                             req.searchParams.set('step2','sharedcsv-v1');
                             req.searchParams.set('step3','androidroi-v1');
                             req.searchParams.set('pick','multi-v1');
+                            req.searchParams.set('ui','review-clean-v1');
                             if(!(await cache.match(req.toString())))return false;
                           }
                           return true;
