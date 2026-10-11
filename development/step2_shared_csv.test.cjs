@@ -1,0 +1,103 @@
+"use strict";
+const test=require('node:test'),assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const {webcrypto}=require('node:crypto');
+const root=path.resolve(__dirname,'..');
+const asset=fs.readFileSync(path.join(root,'shared/MASTER_DATA.json'));
+const legacy=fs.readFileSync(path.join(root,'master_data.js'),'utf8');
+const bridge=fs.readFileSync(path.join(root,'shared_master.js'),'utf8');
+const gateSource=fs.readFileSync(path.join(root,'csv_gate.js'),'utf8');
+const ai=JSON.parse(asset.toString('utf8'));
+function harness(opts={}){
+ const store=new Map(),data=opts.data||asset,failed=!!opts.failed;
+ const context={
+  window:{__PUBLIC_RELEASE_ID__:'step2-test'},
+  crypto:opts.noCrypto?undefined:webcrypto,
+  fetch:async()=>failed?{ok:false,status:503}:{ok:true,arrayBuffer:async()=>Uint8Array.from(data).buffer},
+  location:{href:'http://localhost:8000/'},
+  TextDecoder,AbortController,URL,setTimeout,clearTimeout,
+  navigator:{locks:{request:async(_name,fn)=>fn()}},
+  localStorage:{getItem:k=>store.has(k)?store.get(k):null,setItem:(k,v)=>store.set(k,v)},
+  console:{warn:()=>{}}
+ };
+ vm.createContext(context);
+ vm.runInContext(legacy,context,{filename:'master_data.js'});
+ const initial=context.window.POKESLEEP_MASTER;
+ vm.runInContext(bridge,context,{filename:'shared_master.js'});
+ vm.runInContext(gateSource,context,{filename:'csv_gate.js'});
+ return {context,initial,gate:context.window.POKESLEEP_CSV_GATE,
+         bridge:context.window.POKESLEEP_SHARED_MASTER};
+}
+test('verified v27 master selected, preserving classifier inputs',async()=>{
+ const h=harness(),status=await h.bridge.load();
+ assert.equal(status.source,'pinned-ai-v27');
+ assert.equal(status.sha256,'d60410ba1f92d80c67ca3ff40bc8aa7a2cd51d4c03fc33f9e99fa83bb8e77a38');
+ assert.equal(h.context.window.POKESLEEP_MASTER.pokemon.length,249);
+ assert.notEqual(h.initial,h.context.window.POKESLEEP_MASTER);
+ assert.deepEqual(JSON.parse(JSON.stringify(h.initial.pokemon)),JSON.parse(JSON.stringify(h.context.window.POKESLEEP_MASTER.pokemon)));
+});
+test('tampered AI master rejected; local master untouched',async()=>{
+ const h=harness({data:Buffer.from(asset.toString('utf8').replace('"2026-10-05"','"1900-01-01"'))});
+ const status=await h.bridge.load();
+ assert.equal(status.source,'legacy-fallback');
+ assert.strictEqual(h.context.window.POKESLEEP_MASTER,h.initial);
+});
+test('fetch failure preserves local master',async()=>{
+ const h=harness({failed:true}),status=await h.bridge.load();
+ assert.equal(status.source,'legacy-fallback');
+ assert.equal(status.reason,'HTTP 503');
+ assert.strictEqual(h.context.window.POKESLEEP_MASTER,h.initial);
+});
+test('missing crypto preserves local master',async()=>{
+ const h=harness({noCrypto:true}),status=await h.bridge.load();
+ assert.equal(status.source,'legacy-fallback');
+ assert.strictEqual(h.context.window.POKESLEEP_MASTER,h.initial);
+});
+const specimen=ai.pokemon.find(p=>p.name==='フシギダネ');
+const fields=['サンプル,"ポケモン"','フシギダネ','10','1',
+ specimen.ing1.name,specimen.ing1.name,specimen.ing1.name,
+ specimen.mainSkill,'てれや',...ai.subskills.slice(0,5).map(s=>s.ja),'0','0'];
+function inspect(fields,m=ai){const h=harness();return h.gate.inspect(h.gate.serialize([Array.from(h.gate.HEADER),fields]),m);}
+test('CSV 16 columns escaped fields, LF and round-trip',()=>{
+ const h=harness(),raw=h.gate.serialize([Array.from(h.gate.HEADER),fields]);
+ const r=h.gate.inspect(raw,ai);
+ assert.equal(r.ok,true,JSON.stringify(r.errors));
+ assert.equal(r.rows[1][0],fields[0]);
+ assert.ok(raw.includes('"サンプル,""ポケモン"""'));
+ assert.ok(!raw.includes('\r'));
+});
+test('unknown species, invalid food, empty nickname, bad controls and levels fail',()=>{
+ for(const [column,value] of [[1,'不存在種'],[4,'なし'],[0,''],[0,'AB\nCD'],[2,'150'],[3,'99']]){
+  const bad=[...fields];bad[column]=value;
+  const r=inspect(bad);
+  assert.equal(r.ok,false,'column '+column+' value '+value+' result '+JSON.stringify(r));
+ }
+});
+test('duplicate subskills, main skill mismatch and unknown nature fail',()=>{
+ for(const [column,value] of [[10,fields[9]],[7,'偽スキル'],[8,'偽せいかく']]){
+  const bad=[...fields];bad[column]=value;
+  assert.equal(inspect(bad).ok,false);
+ }
+});
+test('Mew slot3 and Darkrai slots2/3 blank accepted only for those species',()=>{
+ const mew=ai.pokemon.find(p=>p.name==='ミュウ'),dark=ai.pokemon.find(p=>p.name==='ダークライ');
+ const a=[...fields];a[1]='ミュウ';a[4]=mew.ing1.name;a[5]=mew.ing2.name;a[6]='';a[7]='食材ゲットS';
+ assert.equal(inspect(a).ok,true,JSON.stringify(inspect(a).errors));
+ const b=[...fields];b[1]='ダークライ';b[4]=dark.ing1.name;b[5]='';b[6]='';b[7]=dark.mainSkill;
+ assert.equal(inspect(b).ok,true,JSON.stringify(inspect(b).errors));
+ b[1]='フシギダネ';assert.equal(inspect(b).ok,false);
+});
+test('CSV parser rejects malformed quoting and BOM',()=>{
+ const h=harness();
+ for(const raw of ['\uFEFF'+h.gate.serialize([Array.from(h.gate.HEADER),fields]),'"a"z,b','"a']){
+  assert.equal(h.gate.inspect(raw,ai).ok,false);
+ }
+});
+test('filename is minute-granular and consecutive save uses _2',async()=>{
+ const h=harness(),date=new Date(2026,9,12,14,35,59);
+ const a=await h.gate.reserveFilename(date),b=await h.gate.reserveFilename(date);
+ assert.match(a,/20261012_1435\.csv$/);assert.match(b,/20261012_1435_2\.csv$/);
+ assert.doesNotMatch(a,/143559/);
+ const c=await h.gate.reserveFilename(new Date(2026,9,12,14,36,1));
+ assert.match(c,/20261012_1436\.csv$/);
+});
