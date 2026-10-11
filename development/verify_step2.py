@@ -104,8 +104,14 @@ def main():
         failures.append("STEP2 JS/SW cache versions are not aligned")
     if mask_install and ("versioned('./icons/icon-maskable-192.png')" not in sw or "versioned('./icons/icon-maskable-512.png')" not in sw or "step3-prod-multi-picker-v1" not in sw):
         failures.append("Installed Pixel icon is missing from the versioned PWA cache")
-    if "pick=multi-v1" not in sw or "u.searchParams.set('pick','multi-v1')" not in html or "step3-prod-multi-picker-v1" not in sw:
-        failures.append("Multi-batch picker deployment must bust PWA caches")
+    if "pick=multi-v1" not in sw or "u.searchParams.set('pick','multi-v1')" not in html or "step3-prod-multi-picker-v1-reviewclean-v1" not in sw:
+        failures.append("Review-cleanup release must refresh PWA script caches")
+    if "ui=review-clean-v1" not in sw or "u.searchParams.set('ui','review-clean-v1')" not in html:
+        failures.append("Review-cleanup UI cache key does not match Service Worker")
+    if any(x in app for x in ("reviewQueueCursor","reviewQueueSummary","#nextReview","pendingReviewItemCount")):
+        failures.append("Removed review navigator still has live JavaScript")
+    if any(x in html for x in ('id="reviewQueue"','id="nextReview"','id="reviewQueueSummary"')):
+        failures.append("Unrequested review count/navigation still appears in HTML")
     if "versioned('./android_roi.js')" not in sw or "step3=androidroi-v1" not in sw or "u.searchParams.set('step3','androidroi-v1')" not in html:
         failures.append("STEP3 Android ROI PWA version/cache is missing")
     if "window.POKESLEEP_ANDROID_ROI?.inspect(canvas)" not in app:
