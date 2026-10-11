@@ -1,7 +1,7 @@
 name: OCR revival STEP3 Android ROI + mobile review
 on:
   push:
-    branches: ['revival/step3-android-roi-review-20261012']
+    branches: ['revival/step3-android-roi-review-20261012', 'revival/pixel142-safety-audit-20261012']
   workflow_dispatch:
 
 permissions:
