@@ -1,0 +1,68 @@
+name: Pixel142 OCR main release regression
+
+on:
+  push:
+    branches:
+      - main
+      - revival/pixel142-main-promotion-20261012
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pixel142-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: JavaScript syntax and PWA release coherence
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in app.js sw.js master_data.js classifier.js food_matcher.js shared_master.js android_roi.js csv_gate.js; do
+            node --check "$f"
+          done
+          python - <<'PY'
+          import json,pathlib,re
+          release=json.loads(pathlib.Path('release.json').read_text(encoding='utf-8'))['id']
+          sw=pathlib.Path('sw.js').read_text(encoding='utf-8')
+          app=pathlib.Path('app.js').read_text(encoding='utf-8')
+          assert "const RELEASE_ID = '"+release+"';" in sw, 'Service worker cache/release mismatch'
+          assert "CHECKPOINT_RELEASE_ID='"+release+"'" in app, 'Checkpoint release mismatch'
+          assert 'pixel142-safety-joint-v1' in app and 'corroboratedJointMissingNatureRescue' in app
+          print('Release/cache/diagnostics OCR identity PASS:',release)
+          PY
+      - name: Runtime master and classifier smoke tests
+        run: node --test development/runtime_smoke.test.cjs
+      - name: Shared master and CSV compatibility
+        run: node --test development/step2_shared_csv.test.cjs
+      - name: Android ROI and review UX
+        run: node --test development/step3_android_roi.test.cjs
+      - name: Pixel142 false-acceptance safety
+        run: node --test development/step3_pixel142_safety.test.cjs
+      - name: Two-field corroborated OCR rescue
+        run: node --test development/step3_joint_rescue.test.cjs
+      - name: Prepare real Chromium browser tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Real Chromium UI boot and cache tests
+        run: python development/browser_boot_smoke.py
+      - name: Real Chromium Android review UX tests
+        run: python development/browser_step3_review_audit.py
+      - name: Real Chromium CSV download and preflight tests
+        run: python development/browser_csv_download_audit.py
