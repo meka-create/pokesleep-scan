@@ -76,6 +76,7 @@ def main():
                     foods:food
                   };
                   window.__STEP2_AUDIT__.setRows([fake]);
+                  document.querySelector('#resultsCard').hidden=false;
                   document.querySelector('#csv').disabled=false;
                 }""")
                 downloads=[]
