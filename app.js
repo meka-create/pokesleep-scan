@@ -960,12 +960,26 @@ function mainSkillForOutput(parsed,classification,speciesOverride=''){const mon=
 function reviewEditorActive(){if(!$('#choicePicker')?.hidden)return true;const a=document.activeElement;return !!(a&&a.matches&&a.matches('.nickedit,.foodedit,.subskilledit,.speciesedit,.speciessearch,.manual-editor-input'));}
 function flushPendingRender(){if(!renderPending||reviewEditorActive())return false;renderPending=false;render();return true;}
 function renderDuringAnalysis(){if(isRunning&&reviewEditorActive()){renderPending=true;return;}renderPending=false;render();}
+// Count actual unresolved slots, not only grouped Boolean field categories.
+// A screenshot with three uncertain foods and five subskills has eight
+// separate decisions; the old counter misleadingly reported just two.
+function pendingReviewItemCount(r){
+ const state=resultReviewState(r);
+ let count=Object.values(state).filter(Boolean).length;
+ if(state.foods){
+  const slots=[0,1,2].filter(i=>foodSlotNeedsReview(r,i)).length;
+  count+=Math.max(0,slots-1);
+ }
+ if(state.subskills)count+=Math.max(0,subskillReviewSlots(r).length-1);
+ if(r?.manualEditOpen&&count===0)return 1;
+ return count;
+}
 function render(){
  closeChoicePicker(false);
  const tb=$('#tbl tbody'),resultsCard=$('#resultsCard');if(resultsCard)resultsCard.hidden=!results.length;tb.innerHTML='';
  const ordered=results.map((r,ri)=>({r,ri,needsReview:resultNeedsReview(r),reviewResolved:!!r.reviewResolved})).sort((a,b)=>{const ap=a.needsReview?0:(a.reviewResolved?1:2),bp=b.needsReview?0:(b.reviewResolved?1:2);return (ap-bp)||(a.ri-b.ri);});
  const pendingRows=ordered.filter(x=>x.needsReview),pendingCount=pendingRows.length;
- const fieldCount=pendingRows.reduce((total,x)=>total+Object.values(resultReviewState(x.r)).filter(Boolean).length,0);
+ const fieldCount=pendingRows.reduce((total,x)=>total+pendingReviewItemCount(x.r),0);
  const queueSummary=$('#reviewQueueSummary'),queueNext=$('#nextReview');
  if(queueSummary)queueSummary.textContent=pendingCount?
    `要確認 ${pendingCount}枚・未確定項目 ${fieldCount}件（要確認を先頭に表示）`:
