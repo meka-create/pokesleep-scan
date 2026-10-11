@@ -1,0 +1,131 @@
+{
+  "package": "public-candidate125-carry-corroborated-first-food-runtime-only",
+  "releaseId": "2026-10-09-candidate125-carry-corroborated-first-food",
+  "basedOn": "public-candidate124-species-ocr-consensus-rescue-runtime-only (Candidate124 formal baseline)",
+  "recognitionLogicChanged": true,
+  "runtimeOnly": true,
+  "publicAllowlistPolicy": {
+    "mode": "explicit-allowlist",
+    "developmentIncluded": false,
+    "developerReadmeIncluded": false,
+    "localServerIncluded": false,
+    "unusedFoodFeaturesIncluded": false,
+    "complianceDocsIncluded": [
+      "THIRD_PARTY_NOTICES.md"
+    ],
+    "provenanceLedgerPublic": false
+  },
+  "maintenanceChanges": [
+    "Add review-only safety guards for observed false-confirm patterns without changing Candidate121 OCR/classifier recognition values.",
+    "Mark nicknames with unmatched closing punctuation for review instead of silently accepting the contaminated value.",
+    "When species is unresolved, mark low-confidence main-skill evidence for review and block CSV export until that review is resolved.",
+    "When species is unresolved and any subskill already carries uncertainty evidence, preserve/propagate review across the nonblank subskill chain instead of hiding it.",
+    "Reapply Candidate122 review-safety guards after checkpoint restore while respecting manual confirmations.",
+    "Keep Candidate121 ±1-second help-time tolerance, OCR engines, crop/threshold geometry, food matcher, species classifier matching, carry logic, checkpoint schema/compatibility, and iOS OCR memory guard unchanged.",
+    "Candidate123 numeric read-only review badges for missing SP/helpSeconds/carry or corroborated SP inconsistency.",
+    "Candidate124: strictly consensus-supported multi-field species rescue using already collected skill-line/header OCR evidence; only when classifier UNIQUE and carry-consistent; no additional OCR or classifier/food-matcher changes.",
+    "Candidate125: when an occluded first food icon has corroborated runner-up image evidence, a unique carry-consistent classifier candidate and a matching later-food profile, correct first food under explicit review and resolve species; no extra OCR or baseline regression."
+  ],
+  "validation": {
+    "candidate": "Candidate125",
+    "formalBaseline": "Candidate124",
+    "deviceValidation": "IPHONE_ANDROID_PRIORITY_CORPUS_GATE_PENDING",
+    "scope": "Carry- and food3-corroborated first-food image rescue; preserves review; no extra OCR calls, classifier/food matcher/CSV schema/memory guard changes"
+  },
+  "files": [
+    {
+      "path": ".nojekyll",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "app.js",
+      "bytes": 267467,
+      "sha256": "ae5f1e0a1896aab83a14d5ab3d42ad25641cd8bd1c95b9802517a57c5a28a66d"
+    },
+    {
+      "path": "assets/example-screenshot.png",
+      "bytes": 105755,
+      "sha256": "faf93b7dfeab7395ba20d5e296ef81da2a2df3b1b61e62f3ebb5674313fe8a06"
+    },
+    {
+      "path": "assets/ogp-card.png",
+      "bytes": 1083675,
+      "sha256": "461dd958fc6f4cd5ebe7fc1d2fd1fc1f8c86aad667562a858138120c16a4fd14"
+    },
+    {
+      "path": "classifier.js",
+      "bytes": 14129,
+      "sha256": "cc32653aecb43be416cf1bd3be09ac7bfca5c18e0a0c20d2f7f4206b7af723c1"
+    },
+    {
+      "path": "food_color_features.js",
+      "bytes": 497419,
+      "sha256": "e00286ae2e8fe96d6f0b49c93e03150469175382ba09c62b499e6f33d85ae444"
+    },
+    {
+      "path": "food_matcher.js",
+      "bytes": 6506,
+      "sha256": "68f20e2ce1ab45222824669514eaa62077add12dfe8949658caf0f6a9589c9a7"
+    },
+    {
+      "path": "icons/apple-touch-icon.png",
+      "bytes": 36171,
+      "sha256": "94efded712e48ea4d759f43f18638d57ba5ab0b306cf3acc7881b1125c2e08bc"
+    },
+    {
+      "path": "icons/favicon-32.png",
+      "bytes": 2353,
+      "sha256": "597f50ab41004b1e7bc9d67c886181c71c3dca528d89d7ffbe44ed77326468bc"
+    },
+    {
+      "path": "icons/icon-192.png",
+      "bytes": 40243,
+      "sha256": "52296a381af6c11f40b00ef73c1285f4dd0ba7b454a4b86d589aa8d4ea01d1de"
+    },
+    {
+      "path": "icons/icon-512.png",
+      "bytes": 232560,
+      "sha256": "87aef36407bfdfef3170b32bda7e695f283c22f0d5ba934137edb6913101baf4"
+    },
+    {
+      "path": "index.html",
+      "bytes": 65019,
+      "sha256": "5201fdcbe08922d696c8ecad5094d709a6b9a565e7b8d7df961078c57c4ec571"
+    },
+    {
+      "path": "manifest.webmanifest",
+      "bytes": 1096,
+      "sha256": "be65840e2fd893d19143ab7a19b991a5a323d935a619341ace3850db8df2d83d"
+    },
+    {
+      "path": "master_data.js",
+      "bytes": 131939,
+      "sha256": "b0f3bc100966de43dfdd4bd2d6b2036d8f7609b718b241a60674612aaf384ab4"
+    },
+    {
+      "path": "release.json",
+      "bytes": 68,
+      "sha256": "4aad2516039d66fc02cad9967e4ac51b902c11d39859ece05bb265dc041dca4d"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 2995,
+      "sha256": "7eaa16a4f38e2446ad6c1ee0c3bf3f94a1dbecc33d707e57b934695679187697"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 4318,
+      "sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
+    }
+  ],
+  "publicUrl": {
+    "page": "https://meka-create.github.io/pokesleep-scan/",
+    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-09-candidate125-carry-corroborated-first-food",
+    "configuredAt": "2026-10-05T13:08:29.379Z"
+  },
+  "masterDataChanged": false,
+  "formalBaseline": "Candidate124",
+  "provisional": true,
+  "checkpointCompatibilityId": "checkpoint-compat-2026-10-07-candidate109-v3"
+}
