@@ -1,7 +1,7 @@
 const RELEASE_ID = '2026-10-09-candidate125-carry-corroborated-first-food';
 // Separate the STEP2 dev cache from the published Candidate125 cache.
 const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}-step2-dev-shared-master-csv`;
-const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}`;
+const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}&step2=sharedcsv-v1`;
 const APP_SHELL = [
   './',
   './index.html',
