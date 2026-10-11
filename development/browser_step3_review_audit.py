@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+"""STEP3 Android-sized Chromium review-queue interaction audit.
+Synthetic failed analysis records only. No user images, OCR models, or uploads.
+"""
+from __future__ import annotations
+import functools
+import http.server
+import json
+import re
+import threading
+from pathlib import Path
+from playwright.sync_api import sync_playwright
+
+ROOT=Path(__file__).resolve().parents[1]
+RELEASE=json.loads((ROOT/"release.json").read_text(encoding="utf-8"))["id"]
+JS=(ROOT/"app.js").read_text(encoding="utf-8")
+HOOK="setTimeout(()=>{void initCheckpointRecovery();},0);"
+assert JS.count(HOOK)==1
+INSTRUMENTED=JS.replace(HOOK,"""window.__STEP3_REVIEW_AUDIT__={
+  paint:()=>{
+    results=[makeProcessingFailureResult({name:'audit-01.png'},'OCR',Error('simulated')),
+             makeProcessingFailureResult({name:'audit-02.png'},'OCR',Error('simulated'))];
+    render();
+  }
+};
+"""+HOOK)
+CDN="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"
+
+
+class Handler(http.server.SimpleHTTPRequestHandler):
+    def log_message(self,*args):pass
+
+
+def main():
+    server=http.server.ThreadingHTTPServer(("127.0.0.1",0),
+        functools.partial(Handler,directory=str(ROOT)))
+    threading.Thread(target=server.serve_forever,daemon=True).start()
+    checks=[]
+    try:
+        with sync_playwright() as p:
+            browser=p.chromium.launch(headless=True)
+            try:
+                ctx=browser.new_context(viewport={"width":412,"height":915},
+                                        device_scale_factor=2.625,is_mobile=True,
+                                        has_touch=True,service_workers="block")
+                page=ctx.new_page()
+                errors=[]
+                page.on("pageerror",lambda err:errors.append(str(err)))
+                page.route(CDN,lambda route:route.fulfill(
+                    status=200,content_type="application/javascript",
+                    body="window.Tesseract={};"))
+                page.route(re.compile(r"/app\.js\?"),lambda route:route.fulfill(
+                    status=200,content_type="application/javascript",body=INSTRUMENTED))
+                page.goto(f"http://127.0.0.1:{server.server_address[1]}/?release={RELEASE}",
+                          wait_until="domcontentloaded",timeout=20000)
+                page.wait_for_function("() => !!window.__STEP3_REVIEW_AUDIT__ && !!window.POKESLEEP_CSV_GATE",
+                                       timeout=20000)
+                if page.locator("#tipsDialog").evaluate("(e)=>e.open"):
+                    page.locator("#tipsClose").click()
+                page.evaluate("window.__STEP3_REVIEW_AUDIT__.paint()")
+                assert page.locator("#resultsCard").is_visible(),"Results not visible"
+                assert page.locator("#tbl tbody tr.needs-review").count()==2,"Expected two uncertain rows"
+                checks.append("two synthetic processing failures rendered")
+                summary=page.locator("#reviewQueueSummary").inner_text()
+                assert "要確認 2枚" in summary,summary
+                assert "未確定項目" in summary,summary
+                next_button=page.locator("#nextReview")
+                assert next_button.is_enabled(),"No navigation for unresolved fields"
+                next_button.click()
+                focused=page.evaluate("""() => ({
+                  id:document.activeElement?.id,
+                  cls:document.activeElement?.className
+                })""")
+                assert focused["id"]=="result-card-0",focused
+                next_button.click()
+                focused2=page.evaluate("document.activeElement?.id")
+                assert focused2=="result-card-1",(focused2,focused)
+                checks.append("mobile Next-review cycles through and focuses each uncertain row")
+                page.locator("#reviewOnly").check()
+                assert page.locator("#tbl tbody tr.needs-review").count()==2
+                assert all(tr.is_visible() for tr in page.locator("#tbl tbody tr.needs-review").all())
+                checks.append("filter preserves visible unresolved rows")
+                assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth+2"),\
+                    "Unexpected horizontal viewport overflow on Pixel-sized screen"
+                checks.append("Pixel-width page has no outer horizontal overflow")
+                assert not errors,errors
+                ctx.close()
+            finally:
+                browser.close()
+    finally:
+        server.shutdown()
+        server.server_close()
+    print(json.dumps({"status":"PASS","checks":checks,"scope":"synthetic UI only; no OCR"},ensure_ascii=False,indent=2))
+
+
+if __name__=="__main__":
+    main()
