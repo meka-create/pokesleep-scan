@@ -125,3 +125,21 @@ test('review queue summary and focusable next action are part of the app',()=>{
  assert.match(html,/id="androidRoiEnabled"/);
  assert.match(html,/id="nextReview"/);
 });
+
+test('review queue counts uncertain food/subskill slots individually, not grouped flags',()=>{
+ const app=fs.readFileSync(path.join(ROOT,'app.js'),'utf8');
+ const start=app.indexOf('function pendingReviewItemCount('),end=app.indexOf('function render(){',start);
+ assert.ok(start>=0&&end>start,'Review-count implementation missing');
+ const context={
+  resultReviewState:r=>({foods:!!r.foodBad,subskills:!!r.subBad,species:!!r.badSpecies}),
+  foodSlotNeedsReview:(r,i)=>(r.foodBad||[]).includes(i),
+  subskillReviewSlots:r=>r.subBad||[]
+ };
+ vm.createContext(context);
+ vm.runInContext(app.slice(start,end),context);
+ const r={foodBad:[0,1,2],subBad:[0,2,4]};
+ assert.equal(context.pendingReviewItemCount(r),6);
+ assert.equal(context.pendingReviewItemCount({badSpecies:true,foodBad:[1],subBad:[4]}),3);
+ assert.equal(context.pendingReviewItemCount({manualEditOpen:true}),1);
+ assert.equal(context.pendingReviewItemCount({}),0);
+});
