@@ -793,6 +793,58 @@ function trySkillLineConsensusSpeciesRescue(parsed,diag){
  applyStructuredValues(parsed,target);
  return {inference:inferred,applied:{reason:'candidate124-skill-line-ocr-consensus',...target,species:inferred.candidates[0]}};
 }
+// Retry OCR may independently corroborate TWO mistaken or missing fields.
+// A one-field classifier rescue cannot solve missing nature + a wrong main
+// skill/level. Never infer a value from the classifier by itself: require
+// explicit OCR text on each field and a unique carry-consistent species.
+function corroboratedJointMissingNatureRescue(parsed,diag){
+ if(String(parsed?.nature||'').trim()||!diag?.attempts)return null;
+ const a=diag.attempts,ns=(a.natureMissing||[]).filter(x=>
+  NATURES.includes(x?.value)&&Number(x.confidence)>=80&&norm(x.text||'').includes(norm(x.value)));
+ const nvals=uniqVals(ns.map(x=>x.value));
+ if(nvals.length!==1)return null;
+ const nature=nvals[0];
+ if((a.natureMissing||[]).some(x=>x?.value&&x.value!==nature&&Number(x.confidence)>=70))return null;
+ const proposals=[];
+ const skills=(a.mainSkill||[]).filter(x=>
+  typeof x?.value==='string'&&MAIN_SKILLS.includes(x.value)
+  &&Number(x.confidence)>=75&&norm(x.text||'').includes(norm(x.value)));
+ const skillVals=uniqVals(skills.map(x=>x.value));
+ if(skills.length>=2&&new Set(skills.map(x=>x.psm)).size>=2&&
+    skills.some(x=>Number(x.confidence)>=85)&&skillVals.length===1&&
+    !(a.mainSkill||[]).some(x=>x?.value&&x.value!==skillVals[0]&&Number(x.confidence)>=70)&&
+    skillVals[0]!==parsed.mainSkill){
+  proposals.push({mainSkill:skillVals[0]});
+ }
+ const headers=(a.profileHeader||[]).filter(x=>
+  Number.isInteger(x?.level)&&x.level>=1&&x.level<=MAX_POKEMON_LEVEL&&
+  Number(x?.sp)===parsed.sp&&Number(x.confidence)>=70&&
+  /Lv\\.?\\s*\\d+/i.test(String(x.text||'')));
+ const levels=uniqVals(headers.map(x=>x.level));
+ if(headers.length>=2&&new Set(headers.map(x=>x.psm)).size>=2&&
+    levels.length===1&&levels[0]!==parsed.level&&
+    !(a.profileHeader||[]).some(x=>Number.isInteger(x?.level)&&
+      x.level!==levels[0]&&Number(x.confidence)>=70)){
+  proposals.push({level:levels[0]});
+ }
+ const successful=[];
+ for(const alternative of proposals){
+  const vals={nature,...alternative},trial={...parsed,subs:(parsed.subs||[]).map(x=>({...x}))};
+  applyStructuredValues(trial,vals);
+  const inf=inferParsed(trial);
+  if(inf.status==='UNIQUE'&&inf.candidates?.length===1&&
+     inf.carryConsistentCandidates?.length===1&&
+     inf.carryConsistentCandidates[0]===inf.candidates[0]&&
+     inf.hits?.some(x=>x.carryMatch===true)){
+   successful.push({vals,inference:inf,species:inf.candidates[0]});
+  }
+ }
+ if(successful.length!==1)return null;
+ const accepted=successful[0];
+ applyStructuredValues(parsed,accepted.vals);
+ parsed.natureNeedsReview=false;
+ return accepted;
+}
 async function rescueStructured(canvas,raw,parsed,inference,idx,total){
  const diag={beforeStatus:inference.status,before:{sp:parsed.sp,helpSeconds:parsed.helpSeconds,skillLevel:parsed.skillLevel,mainSkill:parsed.mainSkill,nature:parsed.nature},attempts:{},applied:null,afterStatus:inference.status};
  const evidenceResolution=resolveNatureEvidenceByClassifier(parsed);if(evidenceResolution.tested){diag.attempts.natureEvidenceClassifier=evidenceResolution.successes.map(x=>({value:x.value,species:x.species}));if(evidenceResolution.resolved){inference=evidenceResolution.inference;diag.applied={reason:'nature-evidence-consistency',field:'nature',value:evidenceResolution.value,species:evidenceResolution.species};diag.afterStatus=inference.status;}}
