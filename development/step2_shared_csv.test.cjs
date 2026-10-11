@@ -200,3 +200,13 @@ test('all 249 supported species have at least one valid 16-column importer row',
  assert.equal(result.ok,true,JSON.stringify(result.errors.slice(0,25)));
  assert.equal(result.rows.length,250);
 });
+
+test('filename reservations survive alternating minutes and backward clock adjustments',async()=>{
+ const h=harness(),first=new Date(2026,9,12,14,35,59),next=new Date(2026,9,12,14,36,1);
+ const a=await h.gate.reserveFilename(first);
+ const b=await h.gate.reserveFilename(next);
+ const c=await h.gate.reserveFilename(first);
+ assert.match(a,/20261012_1435\.csv$/);
+ assert.match(b,/20261012_1436\.csv$/);
+ assert.match(c,/20261012_1435_2\.csv$/);
+});
