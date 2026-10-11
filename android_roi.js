@@ -66,19 +66,62 @@ function scanBars(canvas){
  }
  return segments;
 }
-function planFromBars(w,h,bars){
+// Wide orange border at the bottom of the main-skill card. Its position
+// follows wrapped skill descriptions, unlike the detail-header position.
+// On the private Android 142-image layout audit it was detectable on 142/142.
+function mainSkillCardBottom(canvas,mainY){
+ const w=canvas.width,h=canvas.height,sx=w/RAW_W,sy=h/RAW_H;
+ const x0=Math.round(70*sx),x1=Math.round(1010*sx);
+ const y0=Math.max(0,Math.round((mainY+280)*sy));
+ const y1=Math.min(h,Math.round((mainY+510)*sy));
+ const width=x1-x0,height=y1-y0;
+ if(width<100||height<30)return null;
+ const ctx=canvas.getContext('2d',{willReadFrequently:true});
+ if(!ctx)return null;
+ let pixels;
+ try{pixels=ctx.getImageData(x0,y0,width,height).data;}
+ catch(_){return null;}
+ let runStart=-1;
+ for(let y=0;y<=height;y++){
+  let matched=0,checked=0;
+  if(y<height){
+   for(let x=0;x<width;x+=3){
+    const i=(y*width+x)*4,r=pixels[i],g=pixels[i+1],b=pixels[i+2];
+    if(r>215&&g>96&&g<218&&b<153&&r-g>48)matched++;
+    checked++;
+   }
+  }
+  const on=checked>0&&matched/checked>.70;
+  if(on&&runStart<0)runStart=y;
+  if(!on&&runStart>=0){
+   const last=y-1;
+   if(last-runStart+1>=2){
+    const bottom=Math.round((last+y0)/sy);
+    if(bottom>=mainY+300&&bottom<=mainY+485)return bottom;
+   }
+   runStart=-1;
+  }
+ }
+ return null;
+}
+function planFromBars(w,h,bars,cardBottom=null){
  if(!isCandidateSize(w,h))return null;
  const anchor=pickAnchors(bars);
  if(!anchor)return null;
  const scale=w/RAW_W;
  if(Math.abs(h/scale-RAW_H)>23)return null;
  const deltaMain=anchor.main-BASE_MAIN,deltaDetail=anchor.detail-BASE_DETAIL;
+ const cardReliable=Number.isFinite(cardBottom)&&cardBottom>=anchor.main+300&&cardBottom<=anchor.main+485;
+ // The five subskills move with the orange card's actual bottom edge.
+ // Do not guess their coordinates from the green detail header: a wrapped
+ // three-line description shifts them by ~55px while detail shifts only ~27px.
+ const subShift=cardReliable?cardBottom-1225:null;
  function rect(coords,key){
   const isTop=['sp','nicklevel','time','carry'].includes(key)||key==='nick';
   const isNature=key==='nature';
   const sub=/^sub\d+/.test(key);
-  const dy=isTop?deltaMain:isNature?deltaDetail:sub?
-    deltaMain*.58+deltaDetail*.42:deltaMain;
+  if(sub&&subShift===null)return null; // fail closed to legacy OCR crop
+  const dy=isTop?deltaMain:isNature?deltaDetail:sub?subShift:deltaMain;
   return [Math.max(0,Math.round(coords[0]*scale)),
     Math.max(0,Math.round((coords[1]+dy)*scale)),
     Math.min(w,Math.round(coords[2]*scale)),
@@ -87,6 +130,7 @@ function planFromBars(w,h,bars){
  return Object.freeze({
   kind:'meka142-android-1080x2400',
   anchors:anchor,
+  mainSkillCardBottom:cardReliable?cardBottom:null,
   confidence:anchor.top===null?'strong-two-header':'strong-three-header',
   rectFor:(key)=>RECTS[key]?rect(RECTS[key],key):null,
   nickRect:(kind)=>rect(NICKS[kind]||NICKS.alt,'nick')
@@ -95,10 +139,12 @@ function planFromBars(w,h,bars){
 function inspect(canvas){
  if(!canvas||!isCandidateSize(canvas.width,canvas.height))return null;
  if(cache.has(canvas))return cache.get(canvas);
- const plan=planFromBars(canvas.width,canvas.height,scanBars(canvas));
+ const bars=scanBars(canvas),anchor=pickAnchors(bars);
+ const bottom=anchor?mainSkillCardBottom(canvas,anchor.main):null;
+ const plan=planFromBars(canvas.width,canvas.height,bars,bottom);
  cache.set(canvas,plan);
  return plan;
 }
-const api={inspect,scanBars,planFromBars,pickAnchors,isCandidateSize,reference:{width:RAW_W,height:RAW_H}};
+const api={inspect,scanBars,mainSkillCardBottom,planFromBars,pickAnchors,isCandidateSize,reference:{width:RAW_W,height:RAW_H}};
 window.POKESLEEP_ANDROID_ROI=Object.freeze(api);
 })();
