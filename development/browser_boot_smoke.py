@@ -156,8 +156,23 @@ def main():
 
 def _check_android_roi_toggle(page):
     option=page.locator("#androidRoiEnabled")
+    label=page.locator("label.android-roi-option")
+    _assert(label.inner_text().strip() == "Android(1080×2400)最適化",
+            "Android optimization label contains unexpected text")
+    _assert(option.get_attribute("role") == "switch",
+            "Android optimization control must expose accessible switch role")
+    rect=label.bounding_box()
+    knob=option.bounding_box()
+    _assert(rect is not None and rect["height"] >= 44,
+            "Touch target is too small for Pixel")
+    _assert(knob is not None and knob["width"] >= 44,
+            "Switch is not rendered as a full-size touch control")
     _assert(option.is_checked(), "Android ROI must default ON for this test session")
-    option.uncheck()
+    on_color=option.evaluate("(el)=>getComputedStyle(el).backgroundColor")
+    label.click()
+    _assert(not option.is_checked(), "Clicking the label did not turn switch OFF")
+    off_color=option.evaluate("(el)=>getComputedStyle(el).backgroundColor")
+    _assert(off_color != on_color, "Switch ON/OFF styles look identical")
     _assert(page.evaluate(
         "localStorage.getItem('pokesleep-ocr-android-roi-v1')") == "0",
         "Android opt-out was not persisted")
@@ -166,7 +181,10 @@ def _check_android_roi_toggle(page):
         "() => !!window.POKESLEEP_ANDROID_ROI && !!window.POKESLEEP_CSV_GATE",timeout=15000)
     _assert(not page.locator("#androidRoiEnabled").is_checked(),
             "Android opt-out was forgotten on reload")
-    page.locator("#androidRoiEnabled").check()
+    page.locator("#androidRoiEnabled").focus()
+    page.keyboard.press("Space")
+    _assert(page.locator("#androidRoiEnabled").is_checked(),
+            "Keyboard Space failed to turn switch ON")
     _assert(page.evaluate(
         "localStorage.getItem('pokesleep-ocr-android-roi-v1')") == "1",
         "Android ROI was not re-enabled")
