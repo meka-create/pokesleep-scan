@@ -267,7 +267,9 @@ async function prepareSelectedStableSources(files,generation){
  }
  return stable;
 }
-function selectionIdentity(f){return String(f?.name||'')+'\u0000'+String(f?.size||0)+'\u0000'+String(f?.lastModified||0);}
+// Android photo pickers may return a different lastModified on each pick.
+// Match the same named screenshot with the same byte size across batches.
+function selectionIdentity(f){return String(f?.name||'')+'\u0000'+String(f?.size||0);}
 function setSelectedFiles(fileList,{clearInput=false,append=false}={}){
  if(newSelectionBusy())return false;
  if(applyPendingReleaseBeforeNewSelection())return false;
