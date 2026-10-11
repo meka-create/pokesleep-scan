@@ -872,7 +872,7 @@ function validSkillLevelValue(value,species=''){const n=Number(value),max=manual
 function validMainSkillValue(value,species=''){const v=String(value||'').trim();if(!v)return false;if(!species)return true;const rows=speciesMasterRows(species);return !!rows.length&&rows.some(sp=>POKESLEEP_CLASSIFIER.mainSkillMatches(v,sp.mainSkill));}
 function validNatureValue(value){return NATURES.includes(String(value||'').trim());}
 function nicknameDataNeedsReview(r){return !!(r?.parsed?.nicknameNeedsReview||!String(r?.parsed?.nickname||'').trim());}
-function levelDataNeedsReview(r){return !validPokemonLevelValue(r?.parsed?.level);}
+function levelDataNeedsReview(r){return !!r?.parsed?.levelNeedsReview||!validPokemonLevelValue(r?.parsed?.level);}
 function skillLevelDataNeedsReview(r){return !validSkillLevelValue(r?.parsed?.skillLevel,chosenSpecies(r));}
 function mainSkillDataNeedsReview(r){const p=r?.parsed||{},species=chosenSpecies(r);if(p.mainSkillNeedsReview)return true;if(!validMainSkillValue(p.mainSkill,species))return true;return species==='ミュウ'&&p.mainSkill==='オールマイティー'&&!MEW_VERSATILE_KEYS.has(detailedMewVersatileSkill(p));}
 function natureDataNeedsReview(r){return !!r?.parsed?.natureNeedsReview||!validNatureValue(r?.parsed?.nature);}
