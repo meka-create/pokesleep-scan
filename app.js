@@ -86,8 +86,13 @@ const PADDLE_MODEL_SPECS={
 };
 const paddleModelBlobUrls=[];
 function uploadHint(){return 'PNG / JPG / JPEG · 複数選択可';}
-function updateUploadSelectionUI(count,{error=false,errorMessage=''}={}){const label=$('.filelabel'),icon=$('#uploadIcon'),main=$('#uploadMain'),sub=$('#uploadSub');label?.classList.toggle('is-selected',count>0&&!error);label?.classList.toggle('is-error',!!error);if(error){if(icon)icon.textContent='!';if(main)main.textContent='画像を選び直してください';if(sub)sub.textContent=errorMessage||'画像を選び直してください';syncRunActionButton();return;}if(count>0){if(icon)icon.textContent='✓';if(main)main.textContent=`${count}枚を選択しました`;if(sub)sub.textContent='クリックして選び直す';}else{if(icon)icon.textContent='＋';if(main)main.textContent='スクリーンショットを選ぶ';if(sub)sub.textContent=uploadHint();}syncRunActionButton();}
-function syncRunActionButton(){const run=$('#run');if(!run)return;if(analysisPause){const failure=analysisPause.result,busy=!!(isRunning||checkpointPreparing||checkpointRestoreRunning||analysisPause.manualCommitBusy||failure?.recoveryBusy);run.textContent=(analysisPause.manualCommitBusy||failure?.recoveryBusy)?'再開中…':'停止した画像から再開';run.disabled=busy||!failure?.processingError;run.setAttribute('aria-label','停止した画像を再解析して残りの解析を再開');return;}run.textContent='解析する';run.disabled=!!(isRunning||checkpointPreparing||selectionSnapshotPreparing||checkpointRestoreRunning||!selected.length);run.removeAttribute('aria-label');}
+function updateUploadSelectionUI(count,{error=false,errorMessage=''}={}){const label=$('.filelabel'),icon=$('#uploadIcon'),main=$('#uploadMain'),sub=$('#uploadSub');label?.classList.toggle('is-selected',count>0&&!error);label?.classList.toggle('is-error',!!error);if(error){if(icon)icon.textContent='!';if(main)main.textContent='画像を選び直してください';if(sub)sub.textContent=errorMessage||'画像を選び直してください';syncRunActionButton();return;}if(count>0){if(icon)icon.textContent='✓';if(main)main.textContent=`${count}枚を選択しました`;if(sub)sub.textContent='追加する場合は下の「画像を追加する」を押してください';}else{if(icon)icon.textContent='＋';if(main)main.textContent='スクリーンショットを選ぶ';if(sub)sub.textContent=uploadHint();}syncRunActionButton();}
+function syncAdditionalFileUi(){
+ const row=$('#addFilesRow'),btn=$('#addFilesButton'),canAdd=selected.length>0&&!results.length&&!analysisPause;
+ if(row)row.hidden=!canAdd;
+ if(btn)btn.disabled=!canAdd||newSelectionBusy();
+}
+function syncRunActionButton(){syncAdditionalFileUi();const run=$('#run');if(!run)return;if(analysisPause){const failure=analysisPause.result,busy=!!(isRunning||checkpointPreparing||checkpointRestoreRunning||analysisPause.manualCommitBusy||failure?.recoveryBusy);run.textContent=(analysisPause.manualCommitBusy||failure?.recoveryBusy)?'再開中…':'停止した画像から再開';run.disabled=busy||!failure?.processingError;run.setAttribute('aria-label','停止した画像を再解析して残りの解析を再開');return;}run.textContent='解析する';run.disabled=!!(isRunning||checkpointPreparing||selectionSnapshotPreparing||checkpointRestoreRunning||!selected.length);run.removeAttribute('aria-label');}
 function setProgressState(state,{done=0,total=0,message='',reviews=0}={}){const box=$('#progress'),bar=$('#bar'),stat=$('#stat');if(!box||!bar||!stat)return;box.classList.remove('is-idle','is-ready','is-running','is-complete','is-error');box.classList.add(`is-${state}`);const pct=total?Math.max(0,Math.min(100,Math.round(done/total*100))):(state==='complete'?100:0);if(state==='idle'||state==='ready'){localProgressMaxPct=0;}else if(state==='running'){if(localProgressState!=='running')localProgressMaxPct=0;localProgressMaxPct=Math.max(localProgressMaxPct,pct);}else if(state==='complete'){localProgressMaxPct=100;}else if(state==='error'){localProgressMaxPct=Math.max(localProgressMaxPct,pct);}localProgressState=state;bar.style.width=`${localProgressMaxPct}%`;if(message){stat.textContent=message;return;}if(state==='ready')stat.textContent='解析の準備ができました';else if(state==='running')stat.textContent=done>0?`${done}/${total}枚を解析中…`:'解析を開始します…';else if(state==='complete')stat.textContent=`解析が完了しました　${done} / ${total}${reviews?`　·　要確認 ${reviews}件`:''}`;else if(state==='error')stat.textContent=`解析できませんでした${total?`　${done} / ${total}`:''}`;else stat.textContent='画像を選択してください';}
 function cancelFloatingCompletionTimer(){if(floatingCompletionTimer){clearTimeout(floatingCompletionTimer);floatingCompletionTimer=null;}}
 function floatingProgressShouldShow(){if(localProgressVisible)return false;if(floatingProgressState==='running'||floatingProgressState==='error')return true;if(floatingProgressState==='complete'&&!floatingCompletionDismissed)return true;return false;}
@@ -262,9 +267,39 @@ async function prepareSelectedStableSources(files,generation){
  }
  return stable;
 }
-function setSelectedFiles(fileList,{clearInput=false}={}){if(newSelectionBusy())return false;if(applyPendingReleaseBeforeNewSelection())return false;const input=$('#files'),files=[...(fileList||[])];if(!files.length)return false;const invalid=files.filter(f=>!isAcceptedImageFile(f));if(invalid.length){if(input&&(clearInput||input.files===fileList))input.value='';void showAppDialog({title:'画像を選択できません',message:'PNG / JPG / JPEG の画像を選択してください。現在の解析結果は保持されています。',primaryLabel:'閉じる',tone:'error'});return false;}
+// Android photo pickers may return a different lastModified on each pick.
+// Match the same named screenshot with the same byte size across batches.
+function selectionIdentity(f){return String(f?.name||'')+'\u0000'+String(f?.size||0);}
+function setSelectedFiles(fileList,{clearInput=false,append=false}={}){
+ if(newSelectionBusy())return false;
+ if(applyPendingReleaseBeforeNewSelection())return false;
+ const input=append?$('#addFiles'):$('#files'),incoming=[...(fileList||[])];
+ if(!incoming.length)return false;
+ const invalid=incoming.filter(f=>!isAcceptedImageFile(f));
+ if(invalid.length){
+  if(input&&(clearInput||input.files===fileList))input.value='';
+  void showAppDialog({title:'画像を選択できません',message:'PNG / JPG / JPEG の画像を選択してください。現在の解析結果は保持されています。',primaryLabel:'閉じる',tone:'error'});
+  return false;
+ }
+ if(append&&results.length){
+  void showAppDialog({title:'画像を追加できません',message:'解析結果があるため追加できません。CSVなどを保存した後、画像を選び直してください。',primaryLabel:'閉じる',tone:'warning'});
+  return false;
+ }
+ const seen=new Set(append?selected.map(selectionIdentity):[]),toAdd=[];
+ for(const item of incoming){
+  const key=selectionIdentity(item);
+  if(append&&seen.has(key))continue;
+  seen.add(key);toAdd.push(item);
+ }
+ if(!toAdd.length){
+  void showAppDialog({title:'追加画像はありません',message:'選択済みの画像と同じファイルです。別の画像を選択してください。',primaryLabel:'閉じる',tone:'info'});
+  return false;
+ }
+ const files=append?[...selected,...toAdd]:toAdd;
  const generation=++selectionSnapshotGeneration,previousSelected=[...selected],previousCount=selected.length;
- selected=files;selectionSnapshotPreparing=true;syncSessionGuard();syncRunActionButton();updateUploadSelectionUI(files.length);setProgressState('running',{done:0,total:files.length,message:'選択画像を安全に準備しています…'});setFloatingProgress('running',{done:0,total:files.length});
+ selected=files;selectionSnapshotPreparing=true;syncSessionGuard();syncRunActionButton();updateUploadSelectionUI(files.length);
+ setProgressState('running',{done:0,total:files.length,message:'選択画像を安全に準備しています…'});
+ setFloatingProgress('running',{done:0,total:files.length});
  void (async()=>{try{
    const stable=await prepareSelectedStableSources(files,generation);
    if(generation!==selectionSnapshotGeneration)return;
@@ -276,6 +311,15 @@ function setSelectedFiles(fileList,{clearInput=false}={}){if(newSelectionBusy())
 const fileInput=$('#files'),dropZone=$('.filelabel');
 fileInput?.addEventListener('click',e=>{if(newSelectionBusy()){e.preventDefault();return;}if(applyPendingReleaseBeforeNewSelection())e.preventDefault();});
 fileInput?.addEventListener('change',e=>setSelectedFiles(e.target.files));
+const additionalInput=$('#addFiles'),additionalButton=$('#addFilesButton');
+additionalButton?.addEventListener('click',()=>{
+ if(newSelectionBusy()||results.length||!selected.length)return;
+ if(additionalInput){additionalInput.value='';additionalInput.click();}
+});
+additionalInput?.addEventListener('change',e=>{
+ const batch=[...e.target.files];e.target.value='';
+ if(batch.length)setSelectedFiles(batch,{append:true});
+});
 let dragDepth=0;
 function hasFileDrag(e){return Array.from(e.dataTransfer?.types||[]).includes('Files');}
 dropZone?.addEventListener('dragenter',e=>{if(!hasFileDrag(e))return;e.preventDefault();dragDepth++;dropZone.classList.add('is-dragover');});
@@ -988,7 +1032,7 @@ function pendingReviewItemCount(r){
  if(r?.manualEditOpen&&count===0)return 1;
  return count;
 }
-function render(){
+function render(){syncAdditionalFileUi();
  closeChoicePicker(false);
  const tb=$('#tbl tbody'),resultsCard=$('#resultsCard');if(resultsCard)resultsCard.hidden=!results.length;tb.innerHTML='';
  const ordered=results.map((r,ri)=>({r,ri,needsReview:resultNeedsReview(r),reviewResolved:!!r.reviewResolved})).sort((a,b)=>{const ap=a.needsReview?0:(a.reviewResolved?1:2),bp=b.needsReview?0:(b.reviewResolved?1:2);return (ap-bp)||(a.ri-b.ri);});
