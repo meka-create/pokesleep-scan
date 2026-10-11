@@ -143,3 +143,26 @@ test('review queue counts uncertain food/subskill slots individually, not groupe
  assert.equal(context.pendingReviewItemCount({manualEditOpen:true}),1);
  assert.equal(context.pendingReviewItemCount({}),0);
 });
+
+test('subskill verification and rescue use the Android card anchor, never obsolete header-relative coordinates',()=>{
+ const app=fs.readFileSync(path.join(ROOT,'app.js'),'utf8');
+ const from=app.indexOf('function sectionRelativeSubskillCrop(');
+ const to=app.indexOf('function adaptiveFallbackCrop(',from);
+ const fromRetry=app.indexOf('function subskillRetryCrops(');
+ const toRetry=app.indexOf('async function readSubskillRetry(',fromRetry);
+ assert.ok(from>=0&&to>from&&fromRetry>=0&&toRetry>fromRetry);
+ const selected=[77,888,456,999],canvas={width:691,height:1536};
+ const context={
+  androidRoiEnabled:true,
+  window:{POKESLEEP_ANDROID_ROI:{inspect:()=>({rectFor:()=>selected})}},
+  cropCanvasRect:(_c,rect)=>({rect}),
+  crop:()=>({rect:selected}),
+  layoutInfo:()=>{throw Error('Legacy relative crop must not run')},
+ };
+ vm.createContext(context);
+ vm.runInContext(app.slice(from,to)+app.slice(fromRetry,toRetry),context);
+ assert.deepEqual(Array.from(context.sectionRelativeSubskillCrop(canvas,'sub50').rect),selected);
+ const retry=context.subskillRetryCrops(canvas,'sub50');
+ assert.equal(retry.length,1,'Do not add stale or duplicate review evidence');
+ assert.equal(retry[0][0],'primary');
+});
