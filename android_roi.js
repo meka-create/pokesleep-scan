@@ -104,13 +104,40 @@ function mainSkillCardBottom(canvas,mainY){
  }
  return null;
 }
-function planFromBars(w,h,bars,cardBottom=null){
+// Profile card's coral top border is the reliable vertical anchor for
+// SP, nickname, time and carry. The green main-skill header may move by 60px
+// even when the top profile card remains at the same y=144 in all 142 samples.
+function profileCardTop(canvas){
+ const w=canvas.width,h=canvas.height,sx=w/RAW_W,sy=h/RAW_H;
+ const x0=Math.round(25*sx),x1=Math.round(635*sx);
+ const y0=Math.round(90*sy),y1=Math.round(220*sy);
+ const width=x1-x0,height=y1-y0;
+ if(width<100||height<30)return null;
+ const ctx=canvas.getContext('2d',{willReadFrequently:true});
+ if(!ctx)return null;
+ let data;
+ try{data=ctx.getImageData(x0,y0,width,height).data;}
+ catch(_){return null;}
+ for(let y=0;y<height;y++){
+  let matched=0,checked=0;
+  for(let x=0;x<width;x+=3){
+   const i=(y*width+x)*4,r=data[i],g=data[i+1],b=data[i+2];
+   if(r>225&&g>90&&g<190&&b<150&&r-g>55)matched++;
+   checked++;
+  }
+  if(checked>0&&matched/checked>.55)return Math.round((y+y0)/sy);
+ }
+ return null;
+}
+function planFromBars(w,h,bars,cardBottom=null,profileTop=null){
  if(!isCandidateSize(w,h))return null;
  const anchor=pickAnchors(bars);
  if(!anchor)return null;
  const scale=w/RAW_W;
  if(Math.abs(h/scale-RAW_H)>23)return null;
  const deltaMain=anchor.main-BASE_MAIN,deltaDetail=anchor.detail-BASE_DETAIL;
+ const profileReliable=Number.isFinite(profileTop)&&profileTop>=90&&profileTop<=220;
+ const topShift=profileReliable?profileTop-144:null;
  const cardReliable=Number.isFinite(cardBottom)&&cardBottom>=anchor.main+300&&cardBottom<=anchor.main+485;
  // The five subskills move with the orange card's actual bottom edge.
  // Do not guess their coordinates from the green detail header: a wrapped
@@ -121,7 +148,8 @@ function planFromBars(w,h,bars,cardBottom=null){
   const isNature=key==='nature';
   const sub=/^sub\d+/.test(key);
   if(sub&&subShift===null)return null; // fail closed to legacy OCR crop
-  const dy=isTop?deltaMain:isNature?deltaDetail:sub?subShift:deltaMain;
+  if(isTop&&topShift===null)return null; // profile header not verified
+  const dy=isTop?topShift:isNature?deltaDetail:sub?subShift:deltaMain;
   return [Math.max(0,Math.round(coords[0]*scale)),
     Math.max(0,Math.round((coords[1]+dy)*scale)),
     Math.min(w,Math.round(coords[2]*scale)),
@@ -131,6 +159,7 @@ function planFromBars(w,h,bars,cardBottom=null){
   kind:'meka142-android-1080x2400',
   anchors:anchor,
   mainSkillCardBottom:cardReliable?cardBottom:null,
+  profileCardTop:profileReliable?profileTop:null,
   confidence:anchor.top===null?'strong-two-header':'strong-three-header',
   rectFor:(key)=>RECTS[key]?rect(RECTS[key],key):null,
   nickRect:(kind)=>rect(NICKS[kind]||NICKS.alt,'nick')
@@ -141,10 +170,11 @@ function inspect(canvas){
  if(cache.has(canvas))return cache.get(canvas);
  const bars=scanBars(canvas),anchor=pickAnchors(bars);
  const bottom=anchor?mainSkillCardBottom(canvas,anchor.main):null;
- const plan=planFromBars(canvas.width,canvas.height,bars,bottom);
+ const top=anchor?profileCardTop(canvas):null;
+ const plan=planFromBars(canvas.width,canvas.height,bars,bottom,top);
  cache.set(canvas,plan);
  return plan;
 }
-const api={inspect,scanBars,mainSkillCardBottom,planFromBars,pickAnchors,isCandidateSize,reference:{width:RAW_W,height:RAW_H}};
+const api={inspect,scanBars,mainSkillCardBottom,profileCardTop,planFromBars,pickAnchors,isCandidateSize,reference:{width:RAW_W,height:RAW_H}};
 window.POKESLEEP_ANDROID_ROI=Object.freeze(api);
 })();
