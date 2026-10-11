@@ -1,0 +1,89 @@
+name: OCR revival STEP2 verified master and CSV
+on:
+  push:
+    branches:
+      - 'revival/step2-shared-master-csv-20261012'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ocr-revival-step2
+  cancel-in-progress: false
+
+jobs:
+  master-csv:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compare against Candidate125 frozen core
+        run: |
+          git diff --exit-code e64beae03a27a36e5c3de492d3b50b070e39fff8 HEAD -- \
+            classifier.js food_color_features.js food_matcher.js master_data.js \
+            sw.js manifest.webmanifest release.json public_package_manifest.json \
+            THIRD_PARTY_NOTICES.md assets/ icons/
+      - name: Independently verify STEP2 sources, 249 species and pinned SHA
+        run: |
+          python -m py_compile development/verify_step2.py
+          python development/verify_step2.py --report step2_reports/integrity.json
+      - name: Verify copied master against pinned AI v27 upstream
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --retry 3 \
+            "https://raw.githubusercontent.com/meka-create/pokesleep-ai-scan/c2c4761629783fb329e60b0ab237c6fc6e2448c9/release-kit-assets/MASTER_DATA.json" \
+            --output "$RUNNER_TEMP/upstream-master.json"
+          cmp shared/MASTER_DATA.json "$RUNNER_TEMP/upstream-master.json"
+      - name: Check all executable JavaScript syntax
+        run: |
+          for script in app.js classifier.js master_data.js food_matcher.js \
+            food_color_features.js sw.js shared_master.js csv_gate.js; do
+            node --check "$script"
+          done
+      - name: Run unchanged Candidate125 classifier test
+        run: node --test development/runtime_smoke.test.cjs
+      - name: Unit tests for shared master, failures and CSV
+        run: node --test development/step2_shared_csv.test.cjs
+      - name: Run real Chromium UI boot smoke, no OCR model
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+          mkdir -p step2_reports
+          python development/browser_boot_smoke.py | tee step2_reports/browser_boot.json
+      - name: Explicitly preserve upstream warning
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path('step2_reports/integrity.json')
+          if p.exists():
+              j=json.loads(p.read_text(encoding='utf-8'))
+              with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as o:
+                  o.write('### STEP2: '+j['status']+'\n')
+                  o.write('- Known legacy missing file: .nojekyll\n')
+                  o.write('- OCR image, mobile device, importer round-trip: NOT RUN\n')
+          print('::warning title=Known snapshot discrepancy::.nojekyll exists in old manifest but not Git tree')
+          PY
+      - name: Upload STEP2 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ocr-revival-step2-evidence
+          path: step2_reports/
+          retention-days: 30
+          if-no-files-found: warn
