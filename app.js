@@ -340,17 +340,6 @@ if(androidRoiControl){
  });
 }
 $('#reviewOnly')?.addEventListener('change',render);
-let reviewQueueCursor=-1;
-$('#nextReview')?.addEventListener('click',()=>{
- const rows=[...document.querySelectorAll('#tbl tbody tr.needs-review')].filter(tr=>tr.style.display!=='none');
- if(!rows.length)return;
- const target=rows.find(tr=>Number(tr.dataset.ri)>reviewQueueCursor)||rows[0];
- reviewQueueCursor=Number(target.dataset.ri);
- document.querySelectorAll('#tbl tbody tr.review-target').forEach(tr=>tr.classList.remove('review-target'));
- target.classList.add('review-target');
- target.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center',inline:'nearest'});
- target.focus({preventScroll:true});
-});
 $('#tbl')?.addEventListener('focusout',()=>setTimeout(flushPendingRender,0));
 function closeAppDialog(result=false){const d=$('#appDialog');if(!d)return;const resolve=appDialogResolver;appDialogResolver=null;if(d.open){if(typeof d.close==='function')d.close();else d.removeAttribute('open');}const f=appDialogReturnFocus;appDialogReturnFocus=null;if(f&&document.contains(f))f.focus();if(resolve)resolve(!!result);}
 function showAppDialog({title='お知らせ',message='',details=[],primaryLabel='OK',secondaryLabel='',tone='info'}={}){const d=$('#appDialog'),titleEl=$('#appDialogTitle'),messageEl=$('#appDialogMessage'),detailsEl=$('#appDialogDetails'),primary=$('#appDialogPrimary'),secondary=$('#appDialogSecondary'),icon=$('#appDialogIcon');if(!d)return Promise.resolve(true);if(appDialogResolver)closeAppDialog(false);appDialogReturnFocus=document.activeElement;d.classList.toggle('is-warning',tone==='warning');d.classList.toggle('is-error',tone==='error');if(icon)icon.textContent=tone==='warning'?'!':tone==='error'?'×':'✓';if(titleEl)titleEl.textContent=title;if(messageEl)messageEl.textContent=message;if(detailsEl){detailsEl.replaceChildren();for(const item of details){const li=document.createElement('li');if(item&&typeof item==='object'&&Number.isInteger(item.ri)){const btn=document.createElement('button');btn.type='button';btn.className='dialog-result-jump';btn.dataset.ri=String(item.ri);if(item.field)btn.dataset.field=String(item.field);const file=document.createElement('span');file.className='dialog-result-file';file.textContent=item.file||'該当画像';const issue=document.createElement('span');issue.className='dialog-result-issue';issue.textContent=item.issue||item.text||'';btn.append(file,issue);li.classList.add('has-result-jump');li.appendChild(btn);}else li.textContent=String(item??'');detailsEl.appendChild(li);}}if(primary)primary.textContent=primaryLabel;if(secondary){secondary.textContent=secondaryLabel;secondary.hidden=!secondaryLabel;}return new Promise(resolve=>{appDialogResolver=resolve;if(typeof d.showModal==='function')d.showModal();else d.setAttribute('open','');setTimeout(()=>primary?.focus(),0);});}
@@ -1018,32 +1007,10 @@ function mainSkillForOutput(parsed,classification,speciesOverride=''){const mon=
 function reviewEditorActive(){if(!$('#choicePicker')?.hidden)return true;const a=document.activeElement;return !!(a&&a.matches&&a.matches('.nickedit,.foodedit,.subskilledit,.speciesedit,.speciessearch,.manual-editor-input'));}
 function flushPendingRender(){if(!renderPending||reviewEditorActive())return false;renderPending=false;render();return true;}
 function renderDuringAnalysis(){if(isRunning&&reviewEditorActive()){renderPending=true;return;}renderPending=false;render();}
-// Count actual unresolved slots, not only grouped Boolean field categories.
-// A screenshot with three uncertain foods and five subskills has eight
-// separate decisions; the old counter misleadingly reported just two.
-function pendingReviewItemCount(r){
- const state=resultReviewState(r);
- let count=Object.values(state).filter(Boolean).length;
- if(state.foods){
-  const slots=[0,1,2].filter(i=>foodSlotNeedsReview(r,i)).length;
-  count+=Math.max(0,slots-1);
- }
- if(state.subskills)count+=Math.max(0,subskillReviewSlots(r).length-1);
- if(r?.manualEditOpen&&count===0)return 1;
- return count;
-}
 function render(){syncAdditionalFileUi();
  closeChoicePicker(false);
  const tb=$('#tbl tbody'),resultsCard=$('#resultsCard');if(resultsCard)resultsCard.hidden=!results.length;tb.innerHTML='';
  const ordered=results.map((r,ri)=>({r,ri,needsReview:resultNeedsReview(r),reviewResolved:!!r.reviewResolved})).sort((a,b)=>{const ap=a.needsReview?0:(a.reviewResolved?1:2),bp=b.needsReview?0:(b.reviewResolved?1:2);return (ap-bp)||(a.ri-b.ri);});
- const pendingRows=ordered.filter(x=>x.needsReview),pendingCount=pendingRows.length;
- const fieldCount=pendingRows.reduce((total,x)=>total+pendingReviewItemCount(x.r),0);
- const queueSummary=$('#reviewQueueSummary'),queueNext=$('#nextReview');
- if(queueSummary)queueSummary.textContent=pendingCount?
-   `要確認 ${pendingCount}枚・未確定項目 ${fieldCount}件（要確認を先頭に表示）`:
-   `要確認なし・全${results.length}枚`;
- if(queueNext)queueNext.disabled=!pendingCount||isRunning;
- if(!pendingCount)reviewQueueCursor=-1;
  for(const item of ordered){
   const {r,ri}=item,p=r.parsed,c=r.classification,[st,cl]=statusView(r),reviewState=resultReviewState(r),classificationNeedsReview=reviewState.species;
   const pokemon=chosenSpecies(r),manual=!!r.manualEditOpen,d=manual?(r.manualDraft||(r.manualDraft=makeManualDraft(r))):null,mp=r.manualPreviews||{},mpe=r.manualPreviewErrors||{};
