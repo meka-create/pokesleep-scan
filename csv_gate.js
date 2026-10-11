@@ -90,35 +90,43 @@ function minuteStamp(d){if(!d||typeof d.getTime!=='function'||!Number.isFinite(d
  const pad=n=>String(n).padStart(2,'0');
  return String(d.getFullYear())+pad(d.getMonth()+1)+pad(d.getDate())+'_'+pad(d.getHours())+pad(d.getMinutes());
 }
-function reserveNext(stamp){
+const EXPORT_KINDS=Object.freeze({
+ main:Object.freeze({prefix:'pokesleep_ocr_integrated_v12_',extension:'.csv'}),
+ raw:Object.freeze({prefix:'pokesleep_ocr_raw_before_review_',extension:'.csv'}),
+ diagnostics:Object.freeze({prefix:'pokesleep_ocr_v12_diagnostics_',extension:'.json'})
+});
+function reserveNext(stamp,kind){
+ const storageKey=kind==='main'?OWN_KEY:OWN_KEY+':'+kind;
+ const memoryKey=kind+':'+stamp;
  let saved=Object.create(null);
  try{
-  const state=JSON.parse(localStorage.getItem(OWN_KEY)||'null');
+  const state=JSON.parse(localStorage.getItem(storageKey)||'null');
   if(state&&state.ledger&&typeof state.ledger==='object'&&!Array.isArray(state.ledger))
    saved=state.ledger;
  }catch(_){}
- const old=Number.isSafeInteger(saved[stamp])&&saved[stamp]>=1?saved[stamp]:0;
- const inMemory=Number.isSafeInteger(memoryLedger[stamp])?memoryLedger[stamp]:0;
- const count=Math.max(old,inMemory)+1;
+ const previous=Number.isSafeInteger(saved[stamp])&&saved[stamp]>=1?saved[stamp]:0;
+ const inMemory=Number.isSafeInteger(memoryLedger[memoryKey])?memoryLedger[memoryKey]:0;
+ const count=Math.max(previous,inMemory)+1;
  if(!Number.isSafeInteger(count))throw Error('Download counter exhausted');
- memoryLedger[stamp]=count;
- // Preserve previous minute reservations across clock changes and later reloads.
+ memoryLedger[memoryKey]=count;
  const ledger=Object.assign(Object.create(null),saved,{[stamp]:count});
  const keys=Object.keys(ledger);
  if(keys.length>4096){
   keys.sort();
   for(const key of keys.slice(0,keys.length-4096))delete ledger[key];
  }
- try{localStorage.setItem(OWN_KEY,JSON.stringify({ledger}));}catch(_){}
- return 'pokesleep_ocr_integrated_v12_'+stamp+(count>1?'_'+count:'')+'.csv';
+ try{localStorage.setItem(storageKey,JSON.stringify({ledger}));}catch(_){}
+ const desc=EXPORT_KINDS[kind];
+ return desc.prefix+stamp+(count>1?'_'+count:'')+desc.extension;
 }
-async function reserveFilename(d=new Date()){
+async function reserveFilename(d=new Date(),kind='main'){
+ if(!Object.hasOwn(EXPORT_KINDS,kind))throw Error('Unknown download category');
  const stamp=minuteStamp(d);
  if(globalThis.navigator?.locks?.request){
-  try{return await navigator.locks.request('pokesleep-ocr-csv-download-counter',()=>reserveNext(stamp));}
+  try{return await navigator.locks.request('pokesleep-ocr-download-counter-'+kind,()=>reserveNext(stamp,kind));}
   catch(err){console.warn('Download filename lock not available; using local counter.',err);}
  }
- return reserveNext(stamp);
+ return reserveNext(stamp,kind);
 }
 const api=Object.freeze({HEADER,inspect,parse,serialize,minuteStamp,reserveFilename});
 window.POKESLEEP_CSV_GATE=api;
