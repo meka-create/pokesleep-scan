@@ -84,6 +84,34 @@ def main():
                 check("No uncaught JavaScript exceptions", lambda:
                       _assert(not errors, "Uncaught JS errors: " + repr(errors)))
                 context.close()
+                # Independent PWA cache test: preserve offline availability of
+                # the NEW local assets. CDN OCR binaries are deliberately out of
+                # scope and are not claimed as offline-capable.
+                pwa=browser.new_context(service_workers="allow")
+                try:
+                    live=pwa.new_page()
+                    live.route(TESSERACT_URL, lambda r: r.fulfill(
+                        status=200, content_type="application/javascript",
+                        body="window.Tesseract={createWorker:()=>{throw Error('OCR stub forbidden');}};"))
+                    live.goto(url,wait_until="domcontentloaded",timeout=20000)
+                    check("PWA caches STEP2 local master and CSV modules",lambda:
+                        live.wait_for_function("""async ()=>{
+                          if(!window.POKESLEEP_CSV_GATE)return false;
+                          const cacheNames=await caches.keys();
+                          const key=cacheNames.find(k=>k.endsWith('-step2-dev-shared-master-csv'));
+                          if(!key)return false;
+                          const cache=await caches.open(key);
+                          const release=window.__PUBLIC_RELEASE_ID__;
+                          for(const path of ['shared_master.js','shared/MASTER_DATA.json','csv_gate.js','app.js']){
+                            const req=new URL(path,location.href);
+                            req.searchParams.set('release',release);
+                            req.searchParams.set('step2','sharedcsv-v1');
+                            if(!(await cache.match(req.toString())))return false;
+                          }
+                          return true;
+                        }""",timeout=25000))
+                finally:
+                    pwa.close()
             finally:
                 browser.close()
     finally:
