@@ -65,6 +65,13 @@ def main():
                         "typeof window.POKESLEEP_CLASSIFIER?.classify==='function'&&"
                         "document.querySelector('#run')?.onclick===null",
                         timeout=20000))
+                check("Verified shared master adopted before classifier", lambda:
+                    page.wait_for_function(
+                        "()=>window.POKESLEEP_SHARED_MASTER?.getStatus().source==='pinned-ai-v27'&&"
+                        "window.POKESLEEP_MASTER?.pokemon.length===249&&"
+                        "typeof window.POKESLEEP_CSV_GATE?.inspect==='function'",
+                        timeout=15000))
+                check("CSV filename sequence is minute only", lambda: _check_names(page))
                 # Close the first-visit tips if present; this is not a test of tips styling.
                 if page.locator("#tipsDialog").evaluate("(el)=>el.open"):
                     page.locator("#tipsClose").click()
@@ -85,6 +92,15 @@ def main():
     results["status"] = "PASS" if not results["failures"] else "FAIL"
     print(json.dumps(results, ensure_ascii=False, indent=2))
     return results
+
+
+def _check_names(page):
+    names=page.evaluate("""async ()=>{
+      const d=new Date(2026,9,12,14,35,59),g=window.POKESLEEP_CSV_GATE;
+      return [await g.reserveFilename(d),await g.reserveFilename(d)];
+    }""")
+    _assert(names[0].endswith("20261012_1435.csv"), "Wrong minute stamp: "+repr(names))
+    _assert(names[1].endswith("20261012_1435_2.csv"), "Missing suffix: "+repr(names))
 
 
 def _assert(cond, msg):
