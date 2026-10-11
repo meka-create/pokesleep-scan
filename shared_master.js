@@ -28,7 +28,7 @@ function canonical(value){
 function valid(m){
  if(!m||typeof m!=='object'||Array.isArray(m)||m.cutoff!==PIN.cutoff)return false;
  if(!Array.isArray(m.pokemon)||m.pokemon.length!==PIN.species)return false;
- if(!Array.isArray(m.ingredients)||m.ingredients.length!==PIN.ingredients)return false;
+ if(!m.ingredients||typeof m.ingredients!=='object'||Array.isArray(m.ingredients)||Object.keys(m.ingredients).length!==PIN.ingredients)return false;
  if(!Array.isArray(m.natures)||m.natures.length!==PIN.natures)return false;
  if(!Array.isArray(m.subskills)||m.subskills.length!==PIN.subskills)return false;
  const names=m.pokemon.map(p=>p&&p.name);
