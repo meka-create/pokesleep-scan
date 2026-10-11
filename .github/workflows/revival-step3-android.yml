@@ -47,6 +47,10 @@ jobs:
       - name: Static source and pinned master integrity
         run: |
           python development/verify_step2.py --report step3_evidence/verified_sources.json
+      - name: Check Pixel maskable icon pack installer (synthetic PNGs only)
+        run: |
+          python -m py_compile development/install_pwa_icons.py development/test_maskable_installer.py
+          python -m unittest discover -s development -p 'test_maskable_installer.py' -v
       - name: Real Chromium UI boot, PWA cache, corrupted master fallback
         shell: bash
         run: |
