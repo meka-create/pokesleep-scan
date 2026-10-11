@@ -10,8 +10,8 @@ const ToxtricityAllowed={
  'ストリンダー (ロー)':new Set(['さみしがり','しんちょう','おとなしい','おだやか','ずぶとい','のんき','おっとり','れいせい','ひかえめ','おくびょう','てれや','まじめ'])
 };
 const SLEEP_VALUES=new Set([0,200,500,1000,2000]);
-const OWN_KEY='pokesleep-ocr-csv-download-counter-v1';
-let memorySequence={stamp:'',count:0};
+const OWN_KEY='pokesleep-ocr-csv-download-counter-v2';
+const memoryLedger=Object.create(null);
 function serialize(rows){return rows.map(r=>r.map(v=>{const s=String(v??'');return /[",\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}).join(',')).join('\n');}
 function parse(text){
  if(typeof text!=='string'||text.charCodeAt(0)===0xFEFF)throw Error('CSV must be UTF-8 without BOM');
@@ -91,12 +91,25 @@ function minuteStamp(d){if(!d||typeof d.getTime!=='function'||!Number.isFinite(d
  return String(d.getFullYear())+pad(d.getMonth()+1)+pad(d.getDate())+'_'+pad(d.getHours())+pad(d.getMinutes());
 }
 function reserveNext(stamp){
- let previous={stamp:'',count:0};try{previous=JSON.parse(localStorage.getItem(OWN_KEY)||'null')||previous;}catch(_){}
- const saved=previous.stamp===stamp&&Number.isSafeInteger(previous.count)&&previous.count>=1?previous.count:0;
- const inMemory=memorySequence.stamp===stamp?memorySequence.count:0;
- const count=Math.max(saved,inMemory)+1;
- memorySequence={stamp,count};
- try{localStorage.setItem(OWN_KEY,JSON.stringify(memorySequence));}catch(_){}
+ let saved=Object.create(null);
+ try{
+  const state=JSON.parse(localStorage.getItem(OWN_KEY)||'null');
+  if(state&&state.ledger&&typeof state.ledger==='object'&&!Array.isArray(state.ledger))
+   saved=state.ledger;
+ }catch(_){}
+ const old=Number.isSafeInteger(saved[stamp])&&saved[stamp]>=1?saved[stamp]:0;
+ const inMemory=Number.isSafeInteger(memoryLedger[stamp])?memoryLedger[stamp]:0;
+ const count=Math.max(old,inMemory)+1;
+ if(!Number.isSafeInteger(count))throw Error('Download counter exhausted');
+ memoryLedger[stamp]=count;
+ // Preserve previous minute reservations across clock changes and later reloads.
+ const ledger=Object.assign(Object.create(null),saved,{[stamp]:count});
+ const keys=Object.keys(ledger);
+ if(keys.length>4096){
+  keys.sort();
+  for(const key of keys.slice(0,keys.length-4096))delete ledger[key];
+ }
+ try{localStorage.setItem(OWN_KEY,JSON.stringify({ledger}));}catch(_){}
  return 'pokesleep_ocr_integrated_v12_'+stamp+(count>1?'_'+count:'')+'.csv';
 }
 async function reserveFilename(d=new Date()){
