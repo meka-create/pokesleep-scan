@@ -17,7 +17,9 @@ function harness(opts={}){
   location:{href:'http://localhost:8000/'},
   TextDecoder,AbortController,URL,setTimeout,clearTimeout,
   navigator:{locks:{request:async(_name,fn)=>fn()}},
-  localStorage:{getItem:k=>store.has(k)?store.get(k):null,setItem:(k,v)=>store.set(k,v)},
+  localStorage:opts.noStorage?
+   {getItem:()=>{throw Error('storage blocked')},setItem:()=>{throw Error('storage blocked')}}:
+   {getItem:k=>store.has(k)?store.get(k):null,setItem:(k,v)=>store.set(k,v)},
   console:{warn:()=>{}}
  };
  vm.createContext(context);
@@ -111,4 +113,12 @@ test('Toxtricity forms reject importer-incompatible natures without guessing',()
  v[8]='いじっぱり';assert.equal(inspect(v).ok,true,JSON.stringify(inspect(v).errors));
  v[1]=low.name;v[7]=low.mainSkill;v[8]='てれや';v[4]=low.ing1.name;v[5]=low.ing1.name;v[6]=low.ing1.name;
  assert.equal(inspect(v).ok,true,JSON.stringify(inspect(v).errors));
+});
+
+test('two saves in same minute remain unique if browser storage is blocked',async()=>{
+ const h=harness({noStorage:true}),dt=new Date(2026,9,12,9,4,2);
+ const first=await h.gate.reserveFilename(dt),second=await h.gate.reserveFilename(dt);
+ assert.notEqual(first,second);
+ assert.match(first,/20261012_0904\.csv$/);
+ assert.match(second,/20261012_0904_2\.csv$/);
 });
