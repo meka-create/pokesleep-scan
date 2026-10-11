@@ -62,21 +62,14 @@ def main():
                 assert page.locator("#resultsCard").is_visible(),"Results not visible"
                 assert page.locator("#tbl tbody tr.needs-review").count()==2,"Expected two uncertain rows"
                 checks.append("two synthetic processing failures rendered")
-                summary=page.locator("#reviewQueueSummary").inner_text()
-                assert "要確認 2枚" in summary,summary
-                assert "未確定項目" in summary,summary
-                next_button=page.locator("#nextReview")
-                assert next_button.is_enabled(),"No navigation for unresolved fields"
-                next_button.click()
-                focused=page.evaluate("""() => ({
-                  id:document.activeElement?.id,
-                  cls:document.activeElement?.className
-                })""")
-                assert focused["id"]=="result-card-0",focused
-                next_button.click()
-                focused2=page.evaluate("document.activeElement?.id")
-                assert focused2=="result-card-1",(focused2,focused)
-                checks.append("mobile Next-review cycles through and focuses each uncertain row")
+                # The user requested removal of the unsolicited summary/count
+                # and "Next review" button. Existing result rows and filter remain.
+                assert page.locator("#reviewQueue").count()==0
+                assert page.locator("#reviewQueueSummary").count()==0
+                assert page.locator("#nextReview").count()==0
+                assert page.locator("#csv").count()==1
+                assert page.locator("#copyCsv").count()==1
+                checks.append("unsolicited review summary and Next-review button are absent")
                 page.locator("#reviewOnly").check()
                 assert page.locator("#tbl tbody tr.needs-review").count()==2
                 assert all(tr.is_visible() for tr in page.locator("#tbl tbody tr.needs-review").all())
