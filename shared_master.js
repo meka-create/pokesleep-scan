@@ -46,12 +46,17 @@ async function load(){
   if(release)url.searchParams.set('release',release);
   const controller=new AbortController();
   // No long-lived timer: use finally to always clear timeout.
-  const timer=setTimeout(()=>controller.abort(),2200);
-  let resp;
-  try{resp=await fetch(url.toString(),{cache:'no-store',signal:controller.signal});}
-  finally{clearTimeout(timer);}
-  if(!resp.ok)throw Error('HTTP '+resp.status);
-  const bytes=await resp.arrayBuffer();
+  const timer=setTimeout(()=>controller.abort(),8000);
+  let bytes;
+  try{
+   const resp=await fetch(url.toString(),{cache:'no-store',signal:controller.signal});
+   if(!resp.ok)throw Error('HTTP '+resp.status);
+   if(Number(resp.headers?.get('content-length'))>1024*1024)
+     throw Error('AI master unexpectedly large');
+   bytes=await resp.arrayBuffer();
+   if(bytes.byteLength<1000||bytes.byteLength>1024*1024)
+     throw Error('AI master size out of bounds');
+  }finally{clearTimeout(timer);}
   const digest=hex(await crypto.subtle.digest('SHA-256',bytes));
   if(digest!==PIN.sha256)throw Error('Pinned SHA-256 mismatch');
   const master=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));
