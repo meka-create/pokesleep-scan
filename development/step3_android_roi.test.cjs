@@ -9,22 +9,34 @@ function api(){
  return c.window.POKESLEEP_ANDROID_ROI;
 }
 const patterns=[
- {weight:80,bars:[[3,60],[863,921],[1876,1933]]},
- {weight:28,bars:[[0,48],[852,910],[1866,1922]]},
- {weight:20,bars:[[3,60],[863,921],[1903,1961]]},
- {weight:4,bars:[[11,67],[871,928],[1883,1941]]},
- {weight:2,bars:[[804,862],[1886,1943]]},
- {weight:2,bars:[[0,48],[852,910],[1892,1950]]}
+ {weight:80,bars:[[3,60],[863,921],[1876,1933]],cardBottom:1225},
+ {weight:28,bars:[[0,48],[852,910],[1866,1922]],cardBottom:1214},
+ {weight:20,bars:[[3,60],[863,921],[1903,1961]],cardBottom:1281},
+ {weight:4,bars:[[11,67],[871,928],[1883,1941]],cardBottom:1232},
+ {weight:2,bars:[[804,862],[1886,1943]],cardBottom:1263},
+ {weight:2,bars:[[0,48],[852,910],[1892,1950]],cardBottom:1270}
 ];
-function canvasFor(bars){
+function canvasFor(bars,cardBottom=null){
  const w=691,h=1536,data=new Uint8ClampedArray(w*h*4),sx=w/1080,sy=h/2400;
- for(const [start,end] of bars){
-  const y0=Math.floor(start*sy),y1=Math.ceil(end*sy);
-  for(let y=y0;y<y1;y++)for(let x=Math.floor(52*sx);x<Math.ceil(1020*sx);x++){
-   const at=(y*w+x)*4;data[at]=10;data[at+1]=215;data[at+2]=86;data[at+3]=255;
+ const paint=(x1,x2,y1,y2,r,g,b)=>{
+  const ix1=Math.max(0,Math.floor(x1*sx)),ix2=Math.min(w,Math.ceil(x2*sx));
+  const iy1=Math.max(0,Math.floor(y1*sy)),iy2=Math.min(h,Math.ceil(y2*sy));
+  for(let y=iy1;y<iy2;y++)for(let x=ix1;x<ix2;x++){
+   const at=(y*w+x)*4;data[at]=r;data[at+1]=g;data[at+2]=b;data[at+3]=255;
   }
- }
- return {width:w,height:h,getContext:()=>({getImageData:()=>({data})})};
+ };
+ for(const [start,end] of bars)paint(52,1020,start,end+1,10,215,86);
+ if(cardBottom!==null)paint(70,1010,cardBottom-6,cardBottom+1,239,160,58);
+ return {width:w,height:h,getContext:()=>({
+  getImageData:(x=0,y=0,width=w,height=h)=>{
+   if(x===0&&y===0&&width===w&&height===h)return {data};
+   const part=new Uint8ClampedArray(width*height*4);
+   for(let row=0;row<height;row++){
+    part.set(data.subarray(((y+row)*w+x)*4,((y+row)*w+x+width)*4),row*width*4);
+   }
+   return {data:part};
+  }
+ })};
 }
 test('Android candidate size needs portrait 1080:2400 aspect ratio',()=>{
  const a=api();
@@ -35,7 +47,7 @@ test('Android candidate size needs portrait 1080:2400 aspect ratio',()=>{
 test('green section-bar detection enables all representative meka142 variants',()=>{
  const a=api();
  for(const pattern of patterns){
-  const c=canvasFor(pattern.bars);
+  const c=canvasFor(pattern.bars,pattern.cardBottom);
   const result=a.inspect(c);
   assert.ok(result,'Valid screenshot pattern rejected '+JSON.stringify(pattern));
   const crop=result.rectFor('mainskill');
@@ -46,7 +58,7 @@ test('green section-bar detection enables all representative meka142 variants',(
  }
 });
 test('rescue crops stay inside expected green-bound sections',()=>{
- const a=api(),p=a.planFromBars(691,1536,[{start:3,end:60},{start:863,end:921},{start:1903,end:1961}]);
+ const a=api(),p=a.planFromBars(691,1536,[{start:3,end:60},{start:863,end:921},{start:1903,end:1961}],1281);
  assert.ok(p);
  for(const key of ['sp','nicklevel','time','carry','mainskill','sub10','sub25','sub50','sub70','sub80','nature']){
   const r=p.rectFor(key);
@@ -58,6 +70,26 @@ test('rescue crops stay inside expected green-bound sections',()=>{
   const r=p.nickRect(kind);
   assert.ok(r[2]>r[0]&&r[3]>r[1]);
  }
+});
+test('three-line main skill card moves subskill crops by the complete card-bottom shift',()=>{
+ const a=api(),regular=a.inspect(canvasFor(patterns[0].bars,1225));
+ const long=a.inspect(canvasFor(patterns[2].bars,1281));
+ assert.equal(regular.mainSkillCardBottom,1225);
+ assert.equal(long.mainSkillCardBottom,1281);
+ for(const key of ['sub10','sub25','sub50','sub70','sub80']){
+  const y0=regular.rectFor(key),y1=long.rectFor(key);
+  assert.ok(y1[1]-y0[1]>=35,'Cut off OCR on long main skill: '+key);
+  assert.ok(y1[3]-y0[3]>=35,'Text bottom missing on long main skill: '+key);
+ }
+ const compact=a.inspect(canvasFor(patterns[1].bars,1214));
+ assert.ok(compact.rectFor('sub10')[1]<regular.rectFor('sub10')[1]);
+});
+test('subskill detection fails closed when main-skill orange card cannot be verified',()=>{
+ const a=api(),candidate=a.inspect(canvasFor(patterns[0].bars));
+ assert.ok(candidate,'Green headers should still activate safe profile crops');
+ assert.equal(candidate.mainSkillCardBottom,null);
+ assert.equal(candidate.rectFor('sub10'),null);
+ assert.ok(candidate.rectFor('sp'));
 });
 test('missing or ill-placed section anchors fail closed to original crops',()=>{
  const a=api();
