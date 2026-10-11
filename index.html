@@ -138,9 +138,18 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
 .android-roi-option input[type="checkbox"]::before{content:"";position:absolute;
  top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;
  box-shadow:0 1px 2px rgba(0,0,0,.13);transition:transform .17s ease}
-.android-roi-option input[type="checkbox"]:checked{background:#7297bf}
+.android-roi-option input[type="checkbox"]:checked{background:#5d60ed;
+ background-image:linear-gradient(135deg,#5d60ed,#4b4ed9)}
 .android-roi-option input[type="checkbox"]:checked::before{transform:translateX(16px)}
 .android-roi-option input[type="checkbox"]:focus-visible{outline:2px solid #317bc5;outline-offset:3px}
+.additional-files-row{display:flex;justify-content:flex-end;align-items:center;margin:4px 0 0}
+.additional-files-row[hidden],#addFiles[hidden]{display:none!important}
+.additional-files-btn{min-height:44px;appearance:none;background:transparent;border:0;padding:8px 6px;
+ color:#656c83;font:inherit;font-size:12px;font-weight:650;cursor:pointer;border-radius:8px}
+.additional-files-btn:hover:not(:disabled){color:#4b4ed9;text-decoration:underline}
+.additional-files-btn:focus-visible{outline:2px solid #4b4ed9;outline-offset:2px}
+.additional-files-btn:disabled{opacity:.48;cursor:not-allowed}
+
 @media(prefers-reduced-motion:reduce){.android-roi-option input[type="checkbox"],
  .android-roi-option input[type="checkbox"]::before{transition:none}}
 /* STEP3 mobile-first review queue; does not hide automatically confirmed rows. */
@@ -194,6 +203,10 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
             <span id="uploadSub" class="upload-sub">PNG / JPG / JPEG · 複数選択可</span>
           </span>
         </label>
+        <div id="addFilesRow" class="additional-files-row" hidden>
+          <button id="addFilesButton" class="additional-files-btn" type="button">＋ 画像を追加する</button>
+          <input id="addFiles" type="file" accept="image/png,image/jpeg,.png,.jpg,.jpeg" multiple hidden aria-label="追加する画像を選ぶ">
+        </div>
         <div class="action-row">
           <button id="run" class="btn btn-primary" type="button" disabled>解析する</button>
         </div>
@@ -382,6 +395,7 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
       // Separate STEP2 development assets from the published Candidate125 SW cache.
       u.searchParams.set('step2','sharedcsv-v1');
       u.searchParams.set('step3','androidroi-v1');
+      u.searchParams.set('pick','multi-v1');
       await loadScript(u.toString());
       // Classifier closes over POKESLEEP_MASTER at load time. Finish selection
       // before classifier.js executes; never change master mid-session.
