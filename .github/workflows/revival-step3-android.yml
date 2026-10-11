@@ -38,6 +38,9 @@ jobs:
             food_color_features.js food_matcher.js shared_master.js sw.js; do
             node --check "$f"
           done
+      - name: Verify user-provided Pixel maskable icon bytes, manifest and SW
+        run: |
+          python development/verify_installed_pixel_icons.py
       - name: Android green-anchor ROI and review UX regression
         run: node --test development/step3_android_roi.test.cjs
       - name: STEP2 preserved master, CSV safety and classifier tests

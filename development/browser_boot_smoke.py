@@ -72,6 +72,18 @@ def main():
                         "typeof window.POKESLEEP_CSV_GATE?.inspect==='function'",
                         timeout=15000))
                 check("CSV filename sequence is minute only", lambda: _check_names(page))
+                check("PWA manifest includes exact 192/512 Pixel maskable icons", lambda:
+                    _assert(page.evaluate("""async () => {
+                      const response=await fetch('./manifest.webmanifest',{cache:'no-store'});
+                      if(!response.ok)return false;
+                      const data=await response.json();
+                      const entries=data.icons||[];
+                      const ok=dimension=>entries.some(x=>
+                        x.sizes===dimension+'x'+dimension &&
+                        x.purpose==='maskable' &&
+                        x.src==='./icons/icon-maskable-'+dimension+'.png');
+                      return ok(192)&&ok(512);
+                    }"""),"Manifest lacks independently declared maskable icons"))
                 # Close the first-visit tips if present; this is not a test of tips styling.
                 if page.locator("#tipsDialog").evaluate("(el)=>el.open"):
                     page.locator("#tipsClose").click()
@@ -102,7 +114,7 @@ def main():
                           if(!key)return false;
                           const cache=await caches.open(key);
                           const release=window.__PUBLIC_RELEASE_ID__;
-                          for(const path of ['shared_master.js','shared/MASTER_DATA.json','android_roi.js','csv_gate.js','app.js']){
+                          for(const path of ['shared_master.js','shared/MASTER_DATA.json','android_roi.js','csv_gate.js','app.js','icons/icon-maskable-192.png','icons/icon-maskable-512.png']){
                             const req=new URL(path,location.href);
                             req.searchParams.set('release',release);
                             req.searchParams.set('step2','sharedcsv-v1');
