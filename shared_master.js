@@ -47,6 +47,7 @@ async function load(){
   url.searchParams.set('step2','sharedcsv-v1');
   url.searchParams.set('step3','androidroi-v1');
   url.searchParams.set('pick','multi-v1');
+  url.searchParams.set('ui','review-clean-v1');
   const controller=new AbortController();
   // No long-lived timer: use finally to always clear timeout.
   const timer=setTimeout(()=>controller.abort(),8000);
