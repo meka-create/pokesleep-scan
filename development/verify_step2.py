@@ -102,7 +102,7 @@ def main():
         if pre not in sw:failures.append("Missing STEP2 PWA precache: "+pre)
     if "step2=sharedcsv-v1" not in sw or "u.searchParams.set('step2','sharedcsv-v1')" not in html:
         failures.append("STEP2 JS/SW cache versions are not aligned")
-    if mask_install and ("versioned('./icons/icon-maskable-192.png')" not in sw or "versioned('./icons/icon-maskable-512.png')" not in sw or "iconsv1" not in sw):
+    if mask_install and ("versioned('./icons/icon-maskable-192.png')" not in sw or "versioned('./icons/icon-maskable-512.png')" not in sw or "step3-prod-multi-picker-v1" not in sw):
         failures.append("Installed Pixel icon is missing from the versioned PWA cache")
     if "pick=multi-v1" not in sw or "u.searchParams.set('pick','multi-v1')" not in html or "step3-prod-multi-picker-v1" not in sw:
         failures.append("Multi-batch picker deployment must bust PWA caches")
