@@ -377,7 +377,11 @@ function adaptiveHeaderCrop(canvas,scale=1){const L=layoutInfo(canvas);if(!L.ada
 function adaptiveNatureRescueCrop(canvas,scale=1){const L=layoutInfo(canvas);if(!L.adaptive||!L.detail)return null;const d=L.detail,h=canvas.height;return cropCanvasRect(canvas,[100,d.end+69,340,Math.min(h,d.end+189)],scale);}
 function adaptiveSkillLevelCrop(canvas,scale=1){const L=layoutInfo(canvas);if(!L.adaptive)return null;const h=canvas.height,m=L.main,d=L.detail,section=Math.max(420,d.start-m.end);return cropCanvasRect(canvas,[530,m.end+section*.07,685,Math.min(h,m.end+section*.25)],scale);}
 function adaptiveSkillLevelCropLegacy(canvas,scale=1){const L=layoutInfo(canvas);if(!L.adaptive)return null;const h=canvas.height,m=L.main,d=L.detail,section=Math.max(420,d.start-m.end);return cropCanvasRect(canvas,[535,m.end+section*.045,680,Math.min(h,m.end+section*.19)],scale);}
-function sectionRelativeSubskillCrop(canvas,key){const L=layoutInfo(canvas);if(!L.main||!L.detail)return null;const h=canvas.height,m=L.main,d=L.detail,section=Math.max(420,d.start-m.end),row=(a,b,x1,x2)=>[x1,m.end+section*a,x2,Math.min(h,m.end+section*b)];const map={sub10:row(.39,.56,45,340),sub25:row(.39,.56,350,665),sub50:row(.57,.74,45,340),sub70:row(.57,.74,350,665),sub80:row(.75,.94,45,340)};return map[key]?cropCanvasRect(canvas,map[key]):null;}
+function sectionRelativeSubskillCrop(canvas,key){
+ const android=androidRoiEnabled?window.POKESLEEP_ANDROID_ROI?.inspect(canvas):null;
+ const androidRect=android?.rectFor(key);
+ if(androidRect)return cropCanvasRect(canvas,androidRect);
+ const L=layoutInfo(canvas);if(!L.main||!L.detail)return null;const h=canvas.height,m=L.main,d=L.detail,section=Math.max(420,d.start-m.end),row=(a,b,x1,x2)=>[x1,m.end+section*a,x2,Math.min(h,m.end+section*b)];const map={sub10:row(.39,.56,45,340),sub25:row(.39,.56,350,665),sub50:row(.57,.74,45,340),sub70:row(.57,.74,350,665),sub80:row(.75,.94,45,340)};return map[key]?cropCanvasRect(canvas,map[key]):null;}
 function adaptiveFallbackCrop(canvas,key,legacyRegion){const r=adaptiveRect(canvas,key);return layoutInfo(canvas).adaptive&&r?cropCanvasRect(canvas,r):cropByRegion(canvas,legacyRegion);}
 function preprocess(src,scale=4,threshold=null){const out=document.createElement('canvas');out.width=src.width*scale;out.height=src.height*scale;const ctx=out.getContext('2d',{willReadFrequently:true});ctx.drawImage(src,0,0,out.width,out.height);const im=ctx.getImageData(0,0,out.width,out.height),d=im.data;let min=255,max=0;for(let i=0;i<d.length;i+=4){const y=Math.round(.299*d[i]+.587*d[i+1]+.114*d[i+2]);d[i]=d[i+1]=d[i+2]=y;min=Math.min(min,y);max=Math.max(max,y)}const span=Math.max(20,max-min);for(let i=0;i<d.length;i+=4){let y=Math.max(0,Math.min(255,Math.round((d[i]-min)*255/span)));if(threshold!=null)y=y<threshold?0:255;d[i]=d[i+1]=d[i+2]=y}ctx.putImageData(im,0,0);return out;}
 const FOOD_EMPTY_REFERENCE_SHA256='1c7826401c5aac45fec3ad67e96f31eb91b865c4ad26ce380670289ef75ad1cc';
@@ -714,7 +718,16 @@ function blockClassifierOnlyNatureSuggestion(parsed,diag){const suggestion=choos
 async function readRetry(canvas,region,label,idx,total,parser,key=''){const rs=[];for(const opt of [{psm:'7'},{psm:'11'}]){const src=key&&layoutInfo(canvas).adaptive?adaptiveFallbackCrop(canvas,key,region):cropByRegion(canvas,region),r=await ocrSingle(src,label,idx,total,opt),v=parser(r.text);rs.push({...r,value:v,threshold:null,psm:opt.psm});}return rs;}
 async function readAdaptiveSkillLevelRetry(canvas,idx,total){const rs=[];for(const [name,cropper] of [['current',adaptiveSkillLevelCrop],['legacy',adaptiveSkillLevelCropLegacy]])for(const opt of [{psm:'7'},{psm:'11'}]){const r=await ocrSingle(cropper(canvas),`スキルLv再確認(${name})`,idx,total,opt),v=parseSkillLevelText(r.text);rs.push({...r,value:v,threshold:null,psm:opt.psm,crop:name});}return rs;}
 async function readProfileHeaderRetry(canvas,idx,total){const src=profileHeaderCrop(canvas);if(!src)return [];const rs=[];for(const opt of [{psm:'6'},{psm:'11'}]){const r=await ocrSingle(src,'上部カード整合性',idx,total,opt);rs.push({...r,level:parseLevel(r.text),sp:parseSpText(r.text),psm:opt.psm});}return rs;}
-function subskillRetryCrops(canvas,key){const out=[['primary',crop(canvas,key)]],rel=sectionRelativeSubskillCrop(canvas,key);if(rel)out.push(['section-relative',rel]);return out;}
+function subskillRetryCrops(canvas,key){
+ const out=[['primary',crop(canvas,key)]];
+ // The verification crop is already identical to the Android card-anchored
+ // primary. Never add old header-relative evidence as if independent.
+ const android=androidRoiEnabled?window.POKESLEEP_ANDROID_ROI?.inspect(canvas):null;
+ if(android?.rectFor(key))return out;
+ const rel=sectionRelativeSubskillCrop(canvas,key);
+ if(rel)out.push(['section-relative',rel]);
+ return out;
+}
 async function readSubskillRetry(canvas,key,idx,total){const rs=[];for(const [name,src] of subskillRetryCrops(canvas,key))for(const opt of [{psm:'7'},{psm:'11'}]){const r=await ocrSingle(src,`${key}整合性(${name})`,idx,total,opt),b=bestSubskill(r.text),v=b.score>=.55?b.value:null;rs.push({...r,value:v,score:b.score,psm:opt.psm,crop:name});}return rs;}
 // Candidate124: conservative rescue using the existing skill-level retry OCR only.
 // Never guess a missing level, skill level, or main skill from the classifier alone.
