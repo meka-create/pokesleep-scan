@@ -5,6 +5,10 @@
 const HEADER=Object.freeze(["ニックネーム","ポケモン","レベル","スキルレベル","食材1","食材2","食材3","メインスキル","せいかく","Lv10","Lv25","Lv50","Lv70","Lv80","一緒に眠った時間","色違い"]);
 const MEW_LABELS=new Set(["きのみバースト","げんきチャージS","エナジーチャージM","エナジーチャージS (ランダム)","料理パワーアップS","ゆめのかけらゲットS (ランダム)","げんきエールS","げんきオールS","おてつだいサポートS","食材ゲットS","ゆびをふる","料理チャンスS"]);
 const BLANK=Object.freeze({"ダークライ":[2,3],"ミュウ":[3]});
+const ToxtricityAllowed={
+ 'ストリンダー (ハイ)':new Set(['いじっぱり','やんちゃ','ゆうかん','なまいき','うっかりや','わんぱく','のうてんき','ようき','せっかち','むじゃき','がんばりや','きまぐれ','すなお']),
+ 'ストリンダー (ロー)':new Set(['さみしがり','しんちょう','おとなしい','おだやか','ずぶとい','のんき','おっとり','れいせい','ひかえめ','おくびょう','てれや','まじめ'])
+};
 const SLEEP_VALUES=new Set([0,200,500,1000,2000]);
 const OWN_KEY='pokesleep-ocr-csv-download-counter-v1';
 function serialize(rows){return rows.map(r=>r.map(v=>{const s=String(v??'');return /[",\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}).join(',')).join('\n');}
@@ -67,6 +71,7 @@ function inspect(text,master){
    if(!MEW_LABELS.has(csvMain))errors.push(prefix+'Mew versatile skill not resolved');
   }else if(csvMain!==poke.mainSkill)errors.push(prefix+'main skill differs from species master');
   if(!natures.has(row[8]))errors.push(prefix+'unsupported nature');
+  if(ToxtricityAllowed[species]&&!ToxtricityAllowed[species].has(row[8]))errors.push(prefix+'Toxtricity form/nature incompatible with importer');
   const occupied=[];
   for(let j=9;j<14;j++){
    const v=row[j];if(!v){warnings.push(prefix+'empty subskill at column '+(j+1));continue;}
