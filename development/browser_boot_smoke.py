@@ -171,6 +171,11 @@ def _check_android_roi_toggle(page):
     on_color=option.evaluate("(el)=>getComputedStyle(el).backgroundColor")
     label.click()
     _assert(not option.is_checked(), "Clicking the label did not turn switch OFF")
+    # The knob/track animates for 170ms; wait until the OFF colour settles
+    # instead of testing an animation frame immediately after the click.
+    page.wait_for_function(
+        "() => getComputedStyle(document.querySelector('#androidRoiEnabled')).backgroundColor === 'rgb(165, 180, 198)'",
+        timeout=3000)
     off_color=option.evaluate("(el)=>getComputedStyle(el).backgroundColor")
     _assert(off_color != on_color, "Switch ON/OFF styles look identical")
     _assert(page.evaluate(
