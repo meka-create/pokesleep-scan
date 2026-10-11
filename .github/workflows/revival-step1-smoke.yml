@@ -5,6 +5,7 @@ on:
       - 'revival/step1-dev-baseline-20261011'
     paths:
       - 'development/**'
+      - 'start_server.bat'
       - '.github/workflows/revival-step1-smoke.yml'
   workflow_dispatch:
 
@@ -18,7 +19,7 @@ concurrency:
 jobs:
   source-and-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
@@ -41,6 +42,8 @@ jobs:
         run: |
           python -m py_compile development/verify_baseline.py
           python development/verify_baseline.py --report step1_reports/ocr_source.json
+      - name: Test verifier rejects malicious and regressive changes
+        run: python -m unittest discover -s development -p 'test_verifier_negative.py' -v
       - name: Node JavaScript syntax
         run: |
           node --check app.js
@@ -61,6 +64,32 @@ jobs:
           python development/verify_baseline.py \
             --ai-master "$RUNNER_TEMP/ai-v27-MASTER_DATA.json" \
             --report step1_reports/ai_master_parity.json
+      - name: Real Chromium UI boot test (Tesseract stub; NO OCR)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+          mkdir -p step1_reports
+          python development/browser_boot_smoke.py | tee step1_reports/browser_boot.log
+      - name: Summarize known manifest discrepancy explicitly
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path('step1_reports/ocr_source.json')
+          if p.exists():
+              r=json.loads(p.read_text(encoding='utf-8'))
+              with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as o:
+                  o.write('### OCR STEP1 baseline\\n\\n')
+                  o.write('- Baseline validation: '+r['status']+'\\n')
+                  o.write('- Known missing files: '+repr(r['missingRuntimeFiles'])+'\\n')
+                  o.write('- Full Dev, 172-image and device gates: NOT RUN\\n')
+              for warning in r['warnings']:
+                  print('::warning title=STEP1 known gap::'+warning)
+          PY
       - name: Preserve smoke evidence
         if: always()
         uses: actions/upload-artifact@v4
