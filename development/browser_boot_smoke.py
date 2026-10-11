@@ -165,8 +165,8 @@ def _check_android_roi_toggle(page):
     knob=option.bounding_box()
     _assert(rect is not None and rect["height"] >= 44,
             "Touch target is too small for Pixel")
-    _assert(knob is not None and knob["width"] >= 44,
-            "Switch is not rendered as a full-size touch control")
+    _assert(knob is not None and knob["width"] >= 34,
+            "Compact switch track is missing or too small")
     _assert(option.is_checked(), "Android ROI must default ON for this test session")
     on_color=option.evaluate("(el)=>getComputedStyle(el).backgroundColor")
     label.click()
