@@ -337,6 +337,8 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
     for(const file of localFiles){
       const u=new URL(file,location.href);
       u.searchParams.set('release',releaseId);
+      // Separate STEP2 development assets from the published Candidate125 SW cache.
+      u.searchParams.set('step2','sharedcsv-v1');
       await loadScript(u.toString());
       // Classifier closes over POKESLEEP_MASTER at load time. Finish selection
       // before classifier.js executes; never change master mid-session.
