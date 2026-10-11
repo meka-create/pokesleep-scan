@@ -359,6 +359,7 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
       u.searchParams.set('release',releaseId);
       // Separate STEP2 development assets from the published Candidate125 SW cache.
       u.searchParams.set('step2','sharedcsv-v1');
+      u.searchParams.set('step3','androidroi-v1');
       await loadScript(u.toString());
       // Classifier closes over POKESLEEP_MASTER at load time. Finish selection
       // before classifier.js executes; never change master mid-session.
