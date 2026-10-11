@@ -132,9 +132,11 @@ test('ROI code never removes legacy crop path or classifier',()=>{
 test('PWA includes Android adapter in new versioned app shell',()=>{
  const sw=fs.readFileSync(path.join(ROOT,'sw.js'),'utf8');
  const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
- assert.match(sw,/step3-dev-android-roi-review/);
+ assert.match(sw,/step3-prod-multi-picker-v1/);
  assert.match(sw,/versioned\('\.\/android_roi\.js'\)/);
  assert.match(sw,/step3=androidroi-v1/);
+ assert.match(sw,/pick=multi-v1/);
+ assert.match(html,/set\('pick','multi-v1'\)/);
  assert.match(html,/set\('step3','androidroi-v1'\)/);
 });
 test('review queue summary and focusable next action are part of the app',()=>{
