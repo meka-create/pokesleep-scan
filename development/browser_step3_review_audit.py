@@ -95,6 +95,13 @@ def main():
                 assert geometry["background"] in ("rgba(0, 0, 0, 0)","transparent"),geometry
                 assert geometry["touchHeight"]>=44,geometry
                 checks.append("gray unboxed right-aligned switch above picker inside white workspace")
+                picker=page.evaluate("""() => {
+                  const drop=document.querySelector('.filelabel');
+                  const cs=getComputedStyle(drop),r=drop.getBoundingClientRect();
+                  return {height:r.height,minHeight:parseFloat(cs.minHeight)};
+                }""")
+                assert picker["height"]>=184 and picker["minHeight"]>=184,picker
+                checks.append("screenshot picker restored to full-size touch target")
                 import base64
                 png=base64.b64decode(
                     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/C9sAAAAASUVORK5CYII="
@@ -109,6 +116,15 @@ def main():
                   !document.querySelector('#run')?.disabled""",timeout=45000)
                 add=page.locator("#addFilesButton")
                 assert add.is_visible() and add.is_enabled(),"Add images option missing after first batch"
+                button_style=add.evaluate("""(el) => {
+                  const cs=getComputedStyle(el),icon=el.querySelector('.add-file-icon');
+                  return {border:cs.borderTopWidth,radius:parseFloat(cs.borderTopLeftRadius),
+                          background:cs.backgroundColor,hasIcon:!!icon,text:el.innerText.trim()};
+                }""")
+                assert button_style["border"]!="0px" and button_style["radius"]>=10,button_style
+                assert button_style["hasIcon"] and "画像を追加する" in button_style["text"],button_style
+                assert page.locator("#uploadSub").inner_text()=="" ,"Redundant add-image instructions not removed"
+                checks.append("compact professional add-images button and no redundant instruction")
                 with page.expect_file_chooser() as chooser_info:
                     add.click()
                 chooser_info.value.set_files(second)

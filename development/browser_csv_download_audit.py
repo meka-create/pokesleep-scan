@@ -23,7 +23,26 @@ INSTRUMENTED=JS.replace(HOOK,'''window.__STEP2_AUDIT__={
   runExport:()=>downloadCSV(),
   runCopy:()=>copyCSV(),
   check:()=>({name:typeof diagnosticsJsonFilename(new Date()),
-              raw:typeof diagnosticRawCsvFilename(new Date())})
+              raw:typeof diagnosticRawCsvFilename(new Date())}),
+  testMew:()=>{
+    const species='ミュウ',profile=manualProfilesForSpecies(species)[0];
+    const r={
+     file:'synthetic-mew.png',speciesManualOverride:species,
+     classification:{status:'UNIQUE',candidates:[species],hits:[],profiles:[],stages:{mainSkill:[species]}},
+     inference:{status:'UNIQUE',candidates:[species],hits:[],profiles:[],stages:{mainSkill:[species]}},
+     parsed:{nickname:'テストミュウ',nicknameNeedsReview:false,level:10,skillLevel:1,
+      mainSkill:'オールマイティー',versatileSkill:MEW_VERSATILE_SKILLS[0].key,
+      nature:'てれや',subs:[{value:POKESLEEP_MASTER.subskills[0].ja,needsReview:false},
+       ...Array.from({length:4},()=>({value:'',needsReview:false}))]},
+     foods:profile.map(name=>({name,needsReview:false})),raw:{}
+    };
+    results=[r];r.manualDraft=makeManualDraft(r);r.manualEditOpen=true;
+    document.querySelector('#resultsCard').hidden=false;
+    render();
+    const csv=toPokesleepToolCsvRow(r);
+    return {csv,errors:manualDraftErrors(r.manualDraft),
+     gate:POKESLEEP_CSV_GATE.inspect(buildCsvText(),POKESLEEP_MASTER).ok};
+  }
 };
 '''+HOOK)
 
@@ -121,6 +140,17 @@ def main():
                       "Unexpected gate failure reason")
                 page.locator("#appDialogPrimary").click()
                 evidence["checks"].append("invalid level blocked at actual UI export action")
+
+                # Mew's visible em dash is UI-only; blank 16-column importer values remain empty.
+                mew=page.evaluate("window.__STEP2_AUDIT__.testMew()")
+                check(not mew["errors"],"Mew manual draft unexpectedly invalid: "+str(mew["errors"]))
+                check(mew["gate"],"Mew 16-column importer CSV failed validation")
+                check(mew["csv"][10:14]==["","","",""],"Mew missing subskills were not blank CSV cells")
+                check("―" not in mew["csv"],"UI dash leaked into Mew CSV")
+                labels=page.locator("select.manual-sub option[value='']").all_text_contents()
+                check(len(labels)==5 and all(v=="―" for v in labels),
+                      "Mew's editable empty subskills should display em dash")
+                evidence["checks"].append("Mew manual empty subskills display dash but export blank CSV cells")
                 context.close()
             finally:
                 browser.close()
