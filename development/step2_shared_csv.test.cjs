@@ -178,3 +178,25 @@ test('species-canonical CSV skill normalizes random and legendary screen aliases
  assert.equal(context.mainSkillCsvValue({mainSkill:'食材ゲットS'},null,'フシギダネ'),
               '食材ゲットS');
 });
+
+test('all 249 supported species have at least one valid 16-column importer row',()=>{
+ const context={window:{}};
+ vm.createContext(context);
+ vm.runInContext(legacy,context,{filename:'master_data.js'});
+ vm.runInContext(fs.readFileSync(path.join(root,'classifier.js'),'utf8'),context,{filename:'classifier.js'});
+ const cls=context.window.POKESLEEP_CLASSIFIER;
+ const rows=ai.pokemon.map(p=>{
+  const pr=cls.profiles(p)[0];
+  assert.ok(pr&&pr.items&&pr.items.length===3,'No food profile for '+p.name);
+  const foods=pr.items.map(item=>item.name==='―'?'':item.name);
+  const nature=p.name==='ストリンダー (ハイ)'?'いじっぱり':'てれや';
+  return ['検証用_'+p.name,p.name,'10','1',...foods,
+    p.name==='ミュウ'?'きのみバースト':p.mainSkill,nature,
+    ...ai.subskills.slice(0,5).map(x=>x.ja),'0','0'];
+ });
+ assert.equal(rows.length,249);
+ const h=harness(),csv=h.gate.serialize([Array.from(h.gate.HEADER),...rows]);
+ const result=h.gate.inspect(csv,ai);
+ assert.equal(result.ok,true,JSON.stringify(result.errors.slice(0,25)));
+ assert.equal(result.rows.length,250);
+});
