@@ -43,6 +43,8 @@ jobs:
           python development/verify_installed_pixel_icons.py
       - name: Android green-anchor ROI and review UX regression
         run: node --test development/step3_android_roi.test.cjs
+      - name: Pixel142 false-acceptance safety regression
+        run: node --test development/step3_pixel142_safety.test.cjs
       - name: STEP2 preserved master, CSV safety and classifier tests
         run: |
           node --test development/runtime_smoke.test.cjs
