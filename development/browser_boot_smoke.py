@@ -98,14 +98,15 @@ def main():
                         live.wait_for_function("""async ()=>{
                           if(!window.POKESLEEP_CSV_GATE)return false;
                           const cacheNames=await caches.keys();
-                          const key=cacheNames.find(k=>k.endsWith('-step2-dev-shared-master-csv'));
+                          const key=cacheNames.find(k=>k.endsWith('-step3-dev-android-roi-review'));
                           if(!key)return false;
                           const cache=await caches.open(key);
                           const release=window.__PUBLIC_RELEASE_ID__;
-                          for(const path of ['shared_master.js','shared/MASTER_DATA.json','csv_gate.js','app.js']){
+                          for(const path of ['shared_master.js','shared/MASTER_DATA.json','android_roi.js','csv_gate.js','app.js']){
                             const req=new URL(path,location.href);
                             req.searchParams.set('release',release);
                             req.searchParams.set('step2','sharedcsv-v1');
+                            req.searchParams.set('step3','androidroi-v1');
                             if(!(await cache.match(req.toString())))return false;
                           }
                           return true;
