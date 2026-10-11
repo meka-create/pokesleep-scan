@@ -14,6 +14,11 @@ import sys
 from pathlib import Path
 
 
+PINNED_SOURCE_COMMIT = "e64beae03a27a36e5c3de492d3b50b070e39fff8"
+PINNED_RELEASE_ID = "2026-10-09-candidate125-carry-corroborated-first-food"
+PINNED_AI_COMMIT = "c2c4761629783fb329e60b0ab237c6fc6e2448c9"
+PINNED_AI_RAW_SHA = "d60410ba1f92d80c67ca3ff40bc8aa7a2cd51d4c03fc33f9e99fa83bb8e77a38"
+
 CSV_HEADER = [
     "ニックネーム", "ポケモン", "レベル", "スキルレベル",
     "食材1", "食材2", "食材3", "メインスキル", "せいかく",
@@ -49,19 +54,52 @@ def main() -> int:
     require(manifest.get("formalBaseline") == "Candidate124", "Formal baseline changed")
     require(manifest.get("provisional") is True, "Candidate125 wrongly promoted")
     require(source["provisional"] is True, "Lock must remain provisional")
+    require(lock.get("formalBaseline", {}).get("candidate") == "Candidate124",
+            "Lock formal baseline changed")
+    require(lock.get("formalBaseline", {}).get("sourceRecovered") is False,
+            "Unverified Full Dev archive marked recovered")
+    require(source.get("sourceCommit") == PINNED_SOURCE_COMMIT,
+            "Frozen source commit changed")
+    require(source.get("sourceRepo") == "meka-create/pokesleep-scan",
+            "Frozen repository changed")
+    require(source.get("releaseId") == PINNED_RELEASE_ID,
+            "Frozen Candidate125 release ID changed")
+    require(source.get("fullDevArchiveRecovered") is False,
+            "Unverified Candidate125 Full Dev marked recovered")
+    require(source.get("runtimeFilesPreserved") is True,
+            "Runtime preservation flag disabled")
+    require(lock.get("noProductionWrites") is True,
+            "Unapproved production modification indicated")
+    require(lock.get("aiReference", {}).get("commit") == PINNED_AI_COMMIT,
+            "AI reference commit changed")
+    require(lock.get("aiReference", {}).get("masterRawSha256") == PINNED_AI_RAW_SHA,
+            "AI reference master pin changed")
     require(release.get("id") == source["releaseId"], "Release ID changed")
     require(manifest.get("releaseId") == source["releaseId"], "Manifest release differs")
     require(manifest.get("checkpointCompatibilityId") == source["checkpointCompatibilityId"],
             "Checkpoint ID changed")
     require(manifest.get("validation", {}).get("deviceValidation") ==
             "IPHONE_ANDROID_PRIORITY_CORPUS_GATE_PENDING", "Unverified device gate altered")
+    require(source.get("deviceGate") == "IPHONE_ANDROID_PRIORITY_CORPUS_GATE_PENDING",
+            "Lock device gate altered")
     require(lock["stage"] == "STEP1_STAGING_NOT_A_FORMAL_CANDIDATE_OR_RELEASE",
             "Development branch must not masquerade as approved release")
 
+    entries = manifest.get("files", [])
+    names = [entry["path"] for entry in entries]
+    require(len(names) == len(set(names)), "Duplicate manifest path")
+    require(set(names) == set(lock["sourceManifest"]["fileHashes"]),
+            "Manifest file inventory differs from frozen baseline")
+    require(all(not name.startswith("/") and "\\" not in name and
+                ".." not in Path(name).parts for name in names),
+            "Manifest contains unsafe path")
     missing = []
-    for entry in manifest.get("files", []):
+    for entry in entries:
         name = entry["path"]
         file_path = root / name
+        if name.startswith("/") or "\\" in name or ".." in Path(name).parts:
+            failures.append("Unsafe manifest file path: " + name)
+            continue
         if not file_path.is_file():
             missing.append(name)
             if name == ".nojekyll" and name in lock["sourceManifest"]["missingFromRepository"]:
