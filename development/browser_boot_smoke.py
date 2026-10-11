@@ -87,6 +87,8 @@ def main():
                 # Close the first-visit tips if present; this is not a test of tips styling.
                 if page.locator("#tipsDialog").evaluate("(el)=>el.open"):
                     page.locator("#tipsClose").click()
+                check("Android ROI toggle survives reload and can be re-enabled", lambda:
+                      _check_android_roi_toggle(page))
                 check("Initially CSV export is disabled", lambda:
                       _assert(page.locator("#csv").is_disabled(), "CSV is enabled with no records"))
                 check("Reject unsupported attachment with visible error", lambda:
@@ -150,6 +152,24 @@ def main():
     results["status"] = "PASS" if not results["failures"] else "FAIL"
     print(json.dumps(results, ensure_ascii=False, indent=2))
     return results
+
+
+def _check_android_roi_toggle(page):
+    option=page.locator("#androidRoiEnabled")
+    _assert(option.is_checked(), "Android ROI must default ON for this test session")
+    option.uncheck()
+    _assert(page.evaluate(
+        "localStorage.getItem('pokesleep-ocr-android-roi-v1')") == "0",
+        "Android opt-out was not persisted")
+    page.reload(wait_until="domcontentloaded",timeout=20000)
+    page.wait_for_function(
+        "() => !!window.POKESLEEP_ANDROID_ROI && !!window.POKESLEEP_CSV_GATE",timeout=15000)
+    _assert(not page.locator("#androidRoiEnabled").is_checked(),
+            "Android opt-out was forgotten on reload")
+    page.locator("#androidRoiEnabled").check()
+    _assert(page.evaluate(
+        "localStorage.getItem('pokesleep-ocr-android-roi-v1')") == "1",
+        "Android ROI was not re-enabled")
 
 
 def _check_names(page):
