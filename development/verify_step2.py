@@ -62,7 +62,7 @@ def main():
                 if not same:failures.append("AI/OCR master is no longer structurally identical")
     html=(root/"index.html").read_text(encoding="utf-8")
     app=(root/"app.js").read_text(encoding="utf-8")
-    scripts="['master_data.js','shared_master.js','classifier.js','food_color_features.js','food_matcher.js','csv_gate.js','app.js']"
+    scripts="['master_data.js','shared_master.js','classifier.js','food_color_features.js','food_matcher.js','android_roi.js','csv_gate.js','app.js']"
     if scripts not in html:failures.append("Script load order altered")
     if "await window.POKESLEEP_SHARED_MASTER.load()" not in html:
         failures.append("Shared master verification must finish before classifier")
@@ -77,6 +77,13 @@ def main():
         if pre not in sw:failures.append("Missing STEP2 PWA precache: "+pre)
     if "step2=sharedcsv-v1" not in sw or "u.searchParams.set('step2','sharedcsv-v1')" not in html:
         failures.append("STEP2 JS/SW cache versions are not aligned")
+    if "versioned('./android_roi.js')" not in sw or "step3=androidroi-v1" not in sw or "u.searchParams.set('step3','androidroi-v1')" not in html:
+        failures.append("STEP3 Android ROI PWA version/cache is missing")
+    if "window.POKESLEEP_ANDROID_ROI?.inspect(canvas)" not in app:
+        failures.append("Android crop adapter was disconnected from OCR")
+    if "const pendingRows=ordered.filter(x=>x.needsReview)" not in app:
+        failures.append("Unresolved review-first UI is not connected")
+
     if "await safeExportText()" not in app or "await gate.reserveFilename(new Date())" not in app:
         failures.append("CSV gate/download hook missing")
     if re.search(r"function csvDownloadTimestamp|function csvDownloadFilename",app):
