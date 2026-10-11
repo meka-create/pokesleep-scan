@@ -132,42 +132,29 @@ test('ROI code never removes legacy crop path or classifier',()=>{
 test('PWA includes Android adapter in new versioned app shell',()=>{
  const sw=fs.readFileSync(path.join(ROOT,'sw.js'),'utf8');
  const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
- assert.match(sw,/step3-prod-multi-picker-v1/);
+ assert.match(sw,/step3-prod-multi-picker-v1-reviewclean-v1/);
  assert.match(sw,/versioned\('\.\/android_roi\.js'\)/);
  assert.match(sw,/step3=androidroi-v1/);
  assert.match(sw,/pick=multi-v1/);
+ assert.match(sw,/ui=review-clean-v1/);
+ assert.match(html,/set\('ui','review-clean-v1'\)/);
  assert.match(html,/set\('pick','multi-v1'\)/);
  assert.match(html,/set\('step3','androidroi-v1'\)/);
 });
-test('review queue summary and focusable next action are part of the app',()=>{
+test('unrequested review counter and Next Review UI are removed, review filter and row priority remain',()=>{
  const app=fs.readFileSync(path.join(ROOT,'app.js'),'utf8');
  const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
- assert.match(app,/const pendingRows=ordered\.filter\(x=>x\.needsReview\)/);
- assert.match(app,/reviewQueueCursor/);
- assert.match(app,/target\.focus\(\{preventScroll:true\}\)/);
- assert.match(html,/id="reviewQueueSummary"/);
- assert.match(html,/id="androidRoiEnabled"/);
- assert.match(html,/id="nextReview"/);
+ for(const token of ['reviewQueueSummary','nextReview','reviewQueueCursor','pendingReviewItemCount','review-queue']){
+  assert.ok(!app.includes(token),'Stale review-queue JS: '+token);
+  assert.ok(!html.includes(token),'Stale review-queue markup: '+token);
+ }
+ assert.match(html,/id="reviewOnly"/);
+ assert.match(html,/id="csv"/);
+ assert.match(html,/id="copyCsv"/);
+ assert.match(app,/\$\('#reviewOnly'\)\?\.addEventListener\('change',render\)/);
+ assert.match(app,/const ordered=results\.map/);
+ assert.match(app,/ap=a\.needsReview\?0/);
 });
-
-test('review queue counts uncertain food/subskill slots individually, not grouped flags',()=>{
- const app=fs.readFileSync(path.join(ROOT,'app.js'),'utf8');
- const start=app.indexOf('function pendingReviewItemCount('),end=app.indexOf('function render(){',start);
- assert.ok(start>=0&&end>start,'Review-count implementation missing');
- const context={
-  resultReviewState:r=>({foods:!!r.foodBad,subskills:!!r.subBad,species:!!r.badSpecies}),
-  foodSlotNeedsReview:(r,i)=>(r.foodBad||[]).includes(i),
-  subskillReviewSlots:r=>r.subBad||[]
- };
- vm.createContext(context);
- vm.runInContext(app.slice(start,end),context);
- const r={foodBad:[0,1,2],subBad:[0,2,4]};
- assert.equal(context.pendingReviewItemCount(r),6);
- assert.equal(context.pendingReviewItemCount({badSpecies:true,foodBad:[1],subBad:[4]}),3);
- assert.equal(context.pendingReviewItemCount({manualEditOpen:true}),1);
- assert.equal(context.pendingReviewItemCount({}),0);
-});
-
 test('subskill verification and rescue use the Android card anchor, never obsolete header-relative coordinates',()=>{
  const app=fs.readFileSync(path.join(ROOT,'app.js'),'utf8');
  const from=app.indexOf('function sectionRelativeSubskillCrop(');
