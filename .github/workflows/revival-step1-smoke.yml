@@ -3,10 +3,8 @@ on:
   push:
     branches:
       - 'revival/step1-dev-baseline-20261011'
-    paths:
-      - 'development/**'
-      - 'start_server.bat'
-      - '.github/workflows/revival-step1-smoke.yml'
+    # IMPORTANT: no paths filter. Runtime-only edits must also trigger the frozen
+    # Candidate125 comparison; otherwise a regression can silently bypass CI.
   workflow_dispatch:
 
 permissions:
