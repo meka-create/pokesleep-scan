@@ -80,7 +80,7 @@ function inspect(text,master){
  if(!errors.length&&serialize(rows)!==text)errors.push('CSV is not a stable LF round-trip');
  return {ok:errors.length===0,errors,warnings,rows};
 }
-function minuteStamp(d){if(!(d instanceof Date)||!Number.isFinite(d.getTime()))throw Error('Invalid date');
+function minuteStamp(d){if(!d||typeof d.getTime!=='function'||!Number.isFinite(d.getTime()))throw Error('Invalid date');
  const pad=n=>String(n).padStart(2,'0');
  return String(d.getFullYear())+pad(d.getMonth()+1)+pad(d.getDate())+'_'+pad(d.getHours())+pad(d.getMinutes());
 }
