@@ -115,9 +115,9 @@ def main():
                 }""")
                 page.locator("#csv").click()
                 page.locator("#appDialog").wait_for(state="visible",timeout=10000)
-                check("CSV検証に失敗しました" in page.locator("#appDialogTitle").inner_text(),
+                check("CSV出力前の確認が必要です" in page.locator("#appDialogTitle").inner_text(),
                       "Invalid CSV not rejected through real download click")
-                check("invalid level" in page.locator("#appDialogDetails").inner_text(),
+                check("レベルを再確認してください" in page.locator("#appDialogDetails").inner_text(),
                       "Unexpected gate failure reason")
                 page.locator("#appDialogPrimary").click()
                 evidence["checks"].append("invalid level blocked at actual UI export action")
