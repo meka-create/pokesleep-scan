@@ -274,7 +274,7 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
 (async()=>{
   window.__BUKKOMI_SESSION_ACTIVE__=false;
   window.__BUKKOMI_PENDING_RELEASE_ID__='';
-  const localFiles=['master_data.js','classifier.js','food_color_features.js','food_matcher.js','app.js'];
+  const localFiles=['master_data.js','shared_master.js','classifier.js','food_color_features.js','food_matcher.js','csv_gate.js','app.js'];
   const loadScript=src=>new Promise((resolve,reject)=>{
     const el=document.createElement('script');
     el.src=src;
@@ -338,6 +338,11 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
       const u=new URL(file,location.href);
       u.searchParams.set('release',releaseId);
       await loadScript(u.toString());
+      // Classifier closes over POKESLEEP_MASTER at load time. Finish selection
+      // before classifier.js executes; never change master mid-session.
+      if(file==='shared_master.js'){
+        await window.POKESLEEP_SHARED_MASTER.load();
+      }
     }
     if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')){
       const swUrl=new URL('sw.js',location.href);
