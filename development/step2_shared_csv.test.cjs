@@ -122,3 +122,36 @@ test('two saves in same minute remain unique if browser storage is blocked',asyn
  assert.match(first,/20261012_0904\.csv$/);
  assert.match(second,/20261012_0904_2\.csv$/);
 });
+
+test('diagnostic CSV/JSON names are executable after removing old timestamp helper',()=>{
+ const app=fs.readFileSync(path.join(root,'app.js'),'utf8');
+ const begin=app.indexOf('function diagnosticDownloadTimestamp(');
+ const end=app.indexOf('function diagnosticSnapshotStatus(',begin);
+ assert.ok(begin>=0&&end>begin,'Diagnostic timestamp definitions missing');
+ const local={Date};vm.createContext(local);
+ vm.runInContext(app.slice(begin,end),local);
+ const dt=new Date(2026,9,12,17,46,52);
+ assert.match(local.diagnosticRawCsvFilename(dt),/20261012_1746\.csv$/);
+ assert.match(local.diagnosticsJsonFilename(dt),/20261012_1746\.json$/);
+ assert.ok(!app.includes('csvDownloadTimestamp('),'Dangling pre-STEP2 timestamp call');
+});
+test('unseen together-sleep hours use user-policy 0, not ribbon threshold',()=>{
+ const app=fs.readFileSync(path.join(root,'app.js'),'utf8');
+ const source=app.match(/function ribbonCsvValue\([^)]*\)\{[^}]*\}/)?.[0];
+ assert.ok(source,'Missing together-sleep CSV function');
+ const context={};vm.createContext(context);vm.runInContext(source,context);
+ assert.equal(context.ribbonCsvValue({status:'UNIQUE',hits:[{ribbonTier:4}]}),0);
+});
+test('ordinary species cannot export unresolved blank subskills',()=>{
+ const bad=[...fields];bad[9]='';
+ const v=inspect(bad);
+ assert.equal(v.ok,false,JSON.stringify(v));
+ assert.ok(v.errors.some(x=>x.includes('empty subskill')));
+});
+test('mythical subskills may be blank, with explicit CSV gate warnings',()=>{
+ const dark=ai.pokemon.find(p=>p.name==='ダークライ');
+ const v=[...fields];v[1]=dark.name;v[4]=dark.ing1.name;v[5]='';v[6]='';v[7]=dark.mainSkill;v[9]='';
+ const r=inspect(v);
+ assert.equal(r.ok,true,JSON.stringify(r.errors));
+ assert.ok(r.warnings.some(x=>x.includes('empty mythical subskill')));
+});
