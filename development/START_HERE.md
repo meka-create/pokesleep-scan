@@ -50,6 +50,12 @@ AIマスターの生SHA-256を照合し、OCRマスター5項目のJSON構造が
 - public_package_manifest.jsonに載る .nojekyll が実Git treeにない。既知の不一致として報告し、公開Runtimeを勝手に補修しない。
 - Candidate124_FINAL_HANDOFF.zip、candidate124_device_regression_runner_v1_FILENAME_FIXED_NO_IMAGES.zip、Candidate125_RETURN_BUNDLE.zipは今回の作業環境から未回収。
 
+## STEP2への切替時の注意
+
+開発ブランチへのすべてのpushは、STEP1の凍結Runtime比較を実行します。app.js等の変更だけでもCIが発火し、Candidate125との差異があればFAILになります。STEP2でRuntimeを意図的に改修する場合は、新しい検証ゲートと新基準の整備を同じ変更内で行い、無監査状態を作らないでください。
+
+GitHubのmainには現在ブランチ保護ルールがありません。明示的なユーザー承認を得るまではmainへ直接反映せず、必要ならリポジトリ設定側でbranch rules/rulesetを別途導入してください。
+
 ## 指示された監査まで
 
 STEP1完了時点で次のSTEP実装には進まず、ユーザーの独立監査指示を待つ。監査合格後にSTEP2（共通マスター・CSV基盤実装）へ移る。
