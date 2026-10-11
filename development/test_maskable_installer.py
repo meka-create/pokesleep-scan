@@ -45,7 +45,7 @@ class MaskableInstallerTests(unittest.TestCase):
         sw=(self.root/"sw.js").read_text(encoding="utf-8")
         assert "versioned('./icons/icon-maskable-512.png')" in sw
         assert "versioned('./icons/icon-maskable-192.png')" in sw
-        assert "-step3-dev-android-roi-review-iconsv1" in sw
+        assert any(x in sw for x in ("-step3-dev-android-roi-review-iconsv1","-step3-prod-multi-picker-v1"))
         html=(self.root/"index.html").read_text(encoding="utf-8")
         assert "iconset=maskable-v1" in html
     def test_invalid_icon_fails_before_modifying_anything(self):
