@@ -1,7 +1,7 @@
 const RELEASE_ID = '2026-10-09-candidate125-carry-corroborated-first-food';
 // Separate the STEP2 dev cache from the published Candidate125 cache.
-const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}-step2-dev-shared-master-csv`;
-const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}&step2=sharedcsv-v1`;
+const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}-step3-dev-android-roi-review`;
+const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}&step2=sharedcsv-v1&step3=androidroi-v1`;
 const APP_SHELL = [
   './',
   './index.html',
@@ -11,6 +11,7 @@ const APP_SHELL = [
   versioned('./shared_master.js'),
   versioned('./shared/MASTER_DATA.json'),
   versioned('./csv_gate.js'),
+  versioned('./android_roi.js'),
   versioned('./classifier.js'),
   versioned('./food_color_features.js'),
   versioned('./food_matcher.js'),
