@@ -1140,9 +1140,32 @@ function ribbonCsvValue(classification){const v=sleepTogetherValue(classificatio
 function shinyCsvValue(r){return r?.parsed?.shiny===true||r?.shiny===true?1:0;}
 function toPokesleepToolCsvRow(r){const p=r.parsed,c=r.classification,species=chosenSpecies(r),foods=[0,1,2].map(i=>foodCsvValue(r.foods?.[i]||{})),subReview=new Set(subskillReviewSlots(r)),subs=[0,1,2,3,4].map(i=>subReview.has(i)?'':(p.subs?.[i]?.value||''));return [p.nickname,species,p.level??'',p.skillLevel??'',...foods,mainSkillCsvValue(p,c,r.speciesManualOverride||''),p.nature,...subs,ribbonCsvValue(c),shinyCsvValue(r)];}
 function buildCsvText(){const rows=[POKESLEEP_TOOL_CSV_HEADER,...results.map(toPokesleepToolCsvRow)];return rows.map(row=>row.map(csvCell).join(',')).join('\n');}
-function csvDownloadTimestamp(d=new Date()){const pad=(n,w=2)=>String(n).padStart(w,'0');return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;}
-function csvDownloadFilename(d=new Date()){return `pokesleep_ocr_integrated_v12_${csvDownloadTimestamp(d)}.csv`;}
-async function downloadCSV(){if(isRunning||analysisPause||!results.length||!await confirmCsvAction('保存'))return;triggerBlobDownload(new Blob([buildCsvText()],{type:'text/csv;charset=utf-8'}),csvDownloadFilename());}
-async function copyCSV(){if(isRunning||analysisPause||!results.length||!await confirmCsvAction('コピー'))return;const text=buildCsvText(),btn=$('#copyCsv');try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(text);else throw new Error('Clipboard API unavailable');}catch(_){const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();if(!ok){await showAppDialog({title:'コピーできませんでした',message:'ブラウザのクリップボード機能を利用できませんでした。CSV保存を利用してください。',primaryLabel:'閉じる',tone:'error'});return;}}const old=btn.textContent;btn.textContent='コピーしました';btn.classList.add('copied');setTimeout(()=>{btn.textContent=old;btn.classList.remove('copied');},1500);}
+function validatedCsvText(){
+ const gate=window.POKESLEEP_CSV_GATE;
+ if(!gate)throw Error('CSV検証プログラムを読み込めませんでした');
+ const text=buildCsvText(),audit=gate.inspect(text,window.POKESLEEP_MASTER);
+ if(!audit.ok)throw Error(audit.errors.slice(0,6).join(' / '));
+ return text;
+}
+async function safeExportText(){
+ try{return validatedCsvText();}
+ catch(err){
+  await showAppDialog({title:'CSV検証に失敗しました',message:'CSVの整合性を確認できないため、出力を停止しました。値を再確認してください。',details:[String(err?.message||err)],primaryLabel:'閉じる',tone:'error'});
+  return null;
+ }
+}
+async function downloadCSV(){
+ if(isRunning||analysisPause||!results.length||!await confirmCsvAction('保存'))return;
+ const text=await safeExportText();
+ if(text===null)return;
+ const gate=window.POKESLEEP_CSV_GATE;
+ try{
+  const filename=await gate.reserveFilename(new Date());
+  triggerBlobDownload(new Blob([text],{type:'text/csv;charset=utf-8'}),filename);
+ }catch(err){
+  await showAppDialog({title:'CSVを保存できませんでした',message:'保存ファイル名を安全に確定できませんでした。',details:[String(err?.message||err)],primaryLabel:'閉じる',tone:'error'});
+ }
+}
+async function copyCSV(){if(isRunning||analysisPause||!results.length||!await confirmCsvAction('コピー'))return;const text=await safeExportText();if(text===null)return;const btn=$('#copyCsv');try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(text);else throw new Error('Clipboard API unavailable');}catch(_){const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();if(!ok){await showAppDialog({title:'コピーできませんでした',message:'ブラウザのクリップボード機能を利用できませんでした。CSV保存を利用してください。',primaryLabel:'閉じる',tone:'error'});return;}}const old=btn.textContent;btn.textContent='コピーしました';btn.classList.add('copied');setTimeout(()=>{btn.textContent=old;btn.classList.remove('copied');},1500);}
 setTimeout(()=>{void initCheckpointRecovery();},0);
 })();
