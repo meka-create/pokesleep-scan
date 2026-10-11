@@ -112,6 +112,23 @@ def main():
                         }""",timeout=25000))
                 finally:
                     pwa.close()
+                degraded=browser.new_context(service_workers="block")
+                try:
+                    fallback_page=degraded.new_page()
+                    fallback_page.route(TESSERACT_URL,lambda r:r.fulfill(
+                        status=200,content_type="application/javascript",body="window.Tesseract={};"))
+                    # Simulate a tampered or incomplete local master response.
+                    fallback_page.route("**/shared/MASTER_DATA.json*",lambda r:r.fulfill(
+                        status=200,content_type="application/json",body='{"cutoff":"1900-01-01"}'))
+                    fallback_page.goto(url,wait_until="domcontentloaded",timeout=20000)
+                    check("Corrupt shared master safely falls back to complete legacy classifier",lambda:
+                        fallback_page.wait_for_function(
+                            "()=>window.POKESLEEP_SHARED_MASTER?.getStatus().source==='legacy-fallback'&&"
+                            "window.POKESLEEP_MASTER?.pokemon.length===249&&"
+                            "typeof window.POKESLEEP_CLASSIFIER?.classify==='function'",
+                            timeout=20000))
+                finally:
+                    degraded.close()
             finally:
                 browser.close()
     finally:
