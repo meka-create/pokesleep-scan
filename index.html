@@ -125,6 +125,12 @@ html,body{overscroll-behavior:none}
 html.analysis-pull-guard,html.analysis-pull-guard body,body.analysis-pull-guard{overscroll-behavior-y:none}
 body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
 
+.android-roi-option{display:flex;align-items:center;gap:12px;padding:11px 14px;
+ border:1px solid #d3e7f9;background:#f3faff;border-radius:12px;color:#19496e;cursor:pointer;
+ font-size:.88rem}
+.android-roi-option input{flex:0 0 auto;accent-color:#197ad6;width:20px;height:20px}
+.android-roi-option span{display:flex;flex-direction:column;gap:3px}
+.android-roi-option small{color:#4a6278;font-weight:450;line-height:1.45}
 /* STEP3 mobile-first review queue; does not hide automatically confirmed rows. */
 .review-queue{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
   padding:9px 12px;border:1px solid #cce8ff;border-radius:12px;background:#eff8ff;
@@ -171,6 +177,11 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
             <span id="uploadMain" class="upload-main">スクリーンショットを選ぶ</span>
             <span id="uploadSub" class="upload-sub">PNG / JPG / JPEG · 複数選択可</span>
           </span>
+        </label>
+        <label class="android-roi-option">
+          <input id="androidRoiEnabled" type="checkbox" checked>
+          <span><strong>Androidスクショ専用の読み取り範囲</strong>
+            <small>1080×2400を優先。うまく読めない場合はOFFにして再解析できます。</small></span>
         </label>
         <div class="action-row">
           <button id="run" class="btn btn-primary" type="button" disabled>解析する</button>
