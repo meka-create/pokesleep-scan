@@ -63,6 +63,12 @@ jobs:
           python -m playwright install --with-deps chromium
           mkdir -p step2_reports
           python development/browser_boot_smoke.py | tee step2_reports/browser_boot.json
+      - name: Test real Chromium Blob CSV downloads and invalid-data blocking
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile development/browser_csv_download_audit.py
+          python development/browser_csv_download_audit.py | tee step2_reports/browser_csv_download.json
       - name: Explicitly preserve upstream warning
         if: always()
         shell: bash
