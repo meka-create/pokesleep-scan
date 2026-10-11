@@ -369,7 +369,8 @@ function crop(canvas,key,scale=1){
 }
 function cropNick(canvas,kind,scale=1){
  const android=androidRoiEnabled?window.POKESLEEP_ANDROID_ROI?.inspect(canvas):null;
- if(android)return cropCanvasRect(canvas,android.nickRect(kind),scale);
+ const androidNick=android?.nickRect(kind);
+ if(androidNick)return cropCanvasRect(canvas,androidNick,scale);
  const L=layoutInfo(canvas);if(!L.adaptive){const m={alt:NICK_ALT,narrow:NICK_NARROW,wrap:NICK_WRAP,eng:NICK_ENGWIDE,paddle:NICK_PADDLE,star:NICK_STAR};return cropByRegion(canvas,m[kind]||NICK_ALT,scale);}const card=profileCardInfo(canvas),t=L.time,h=canvas.height;let x1=195,x2=410,y1=card?card.start+45:Math.max(0,t.start-160),y2=card?card.end-3:Math.min(h,t.start-45);if(kind==='narrow'){x1=195;x2=390;}if(kind==='wrap'){x1=175;x2=420;if(!card){y1=Math.max(0,t.start-180);y2=Math.min(h,t.start-25);}}if(kind==='star'){x1=190;x2=300;y1=Math.max(0,t.start-75);y2=Math.min(h,t.start-25);}return cropCanvasRect(canvas,[x1,y1,x2,y2],scale);}
 function nicknameReviewPreviewCrop(canvas,scale=1){const card=profileCardInfo(canvas);if(!card)return cropNick(canvas,'wrap',scale);const sx=canvas.width/REF_W,ch=Math.max(1,Number(card.height)||card.end-card.start+1),y1=card.start+ch*.42,y2=Math.min(canvas.height,card.start+ch*.92);return cropCanvasRect(canvas,[135*sx,y1,430*sx,y2],scale);}
 function profileHeaderCrop(canvas,scale=1){const card=profileCardInfo(canvas);if(card)return cropCanvasRect(canvas,[105,card.start,430,card.end],scale);const L=layoutInfo(canvas);return L.adaptive?cropCanvasRect(canvas,[105,0,430,Math.max(90,L.time.start-30)],scale):null;}
