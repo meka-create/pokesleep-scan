@@ -11,6 +11,7 @@ const ToxtricityAllowed={
 };
 const SLEEP_VALUES=new Set([0,200,500,1000,2000]);
 const OWN_KEY='pokesleep-ocr-csv-download-counter-v1';
+let memorySequence={stamp:'',count:0};
 function serialize(rows){return rows.map(r=>r.map(v=>{const s=String(v??'');return /[",\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}).join(',')).join('\n');}
 function parse(text){
  if(typeof text!=='string'||text.charCodeAt(0)===0xFEFF)throw Error('CSV must be UTF-8 without BOM');
@@ -91,9 +92,11 @@ function minuteStamp(d){if(!d||typeof d.getTime!=='function'||!Number.isFinite(d
 }
 function reserveNext(stamp){
  let previous={stamp:'',count:0};try{previous=JSON.parse(localStorage.getItem(OWN_KEY)||'null')||previous;}catch(_){}
- const count=previous.stamp===stamp&&Number.isSafeInteger(previous.count)&&previous.count>=1?
-  previous.count+1:1;
- try{localStorage.setItem(OWN_KEY,JSON.stringify({stamp,count}));}catch(_){}
+ const saved=previous.stamp===stamp&&Number.isSafeInteger(previous.count)&&previous.count>=1?previous.count:0;
+ const inMemory=memorySequence.stamp===stamp?memorySequence.count:0;
+ const count=Math.max(saved,inMemory)+1;
+ memorySequence={stamp,count};
+ try{localStorage.setItem(OWN_KEY,JSON.stringify(memorySequence));}catch(_){}
  return 'pokesleep_ocr_integrated_v12_'+stamp+(count>1?'_'+count:'')+'.csv';
 }
 async function reserveFilename(d=new Date()){
