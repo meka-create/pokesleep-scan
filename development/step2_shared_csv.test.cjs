@@ -155,3 +155,26 @@ test('mythical subskills may be blank, with explicit CSV gate warnings',()=>{
  assert.equal(r.ok,true,JSON.stringify(r.errors));
  assert.ok(r.warnings.some(x=>x.includes('empty mythical subskill')));
 });
+
+test('species-canonical CSV skill normalizes random and legendary screen aliases',()=>{
+ const app=fs.readFileSync(path.join(root,'app.js'),'utf8');
+ const start=app.indexOf('function mainSkillCsvValue('),end=app.indexOf('function ribbonCsvValue(',start);
+ assert.ok(start>=0&&end>start);
+ // Keep this test tied to the real existing Candidate125 comparator.
+ const context={window:{},POKESLEEP_MASTER:ai,
+  mainSkillForOutput:(p)=>p.mainSkill,
+  detailedMewVersatileSkill:()=>'',mewVersatileCsvLabel:()=>''};
+ vm.createContext(context);
+ vm.runInContext(legacy,context);
+ vm.runInContext(fs.readFileSync(path.join(root,'classifier.js'),'utf8'),context);
+ context.POKESLEEP_CLASSIFIER=context.window.POKESLEEP_CLASSIFIER;
+ vm.runInContext(app.slice(start,end),context);
+ assert.equal(context.mainSkillCsvValue({mainSkill:'エナジーチャージS'},null,'コダック'),
+              'エナジーチャージS (ランダム)');
+ assert.equal(context.mainSkillCsvValue({mainSkill:'ゆめのかけらゲットS'},null,'ヤミラミ'),
+              'ゆめのかけらゲットS (ランダム)');
+ assert.equal(context.mainSkillCsvValue({mainSkill:'おてつだいブースト (でんき)'},null,'ライコウ'),
+              'おてつだいブースト');
+ assert.equal(context.mainSkillCsvValue({mainSkill:'食材ゲットS'},null,'フシギダネ'),
+              '食材ゲットS');
+});
