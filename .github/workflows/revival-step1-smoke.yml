@@ -83,10 +83,10 @@ jobs:
           if p.exists():
               r=json.loads(p.read_text(encoding='utf-8'))
               with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as o:
-                  o.write('### OCR STEP1 baseline\\n\\n')
-                  o.write('- Baseline validation: '+r['status']+'\\n')
-                  o.write('- Known missing files: '+repr(r['missingRuntimeFiles'])+'\\n')
-                  o.write('- Full Dev, 172-image and device gates: NOT RUN\\n')
+                  o.write('### OCR STEP1 baseline\n\n')
+                  o.write('- Baseline validation: '+r['status']+'\n')
+                  o.write('- Known missing files: '+repr(r['missingRuntimeFiles'])+'\n')
+                  o.write('- Full Dev, 172-image and device gates: NOT RUN\n')
               for warning in r['warnings']:
                   print('::warning title=STEP1 known gap::'+warning)
           PY
