@@ -116,8 +116,8 @@ def main():
         failures.append("STEP3 Android ROI PWA version/cache is missing")
     if "window.POKESLEEP_ANDROID_ROI?.inspect(canvas)" not in app:
         failures.append("Android crop adapter was disconnected from OCR")
-    if "const pendingRows=ordered.filter(x=>x.needsReview)" not in app:
-        failures.append("Unresolved review-first UI is not connected")
+    if "const ordered=results.map" not in app or "a.needsReview?0" not in app or "id=\"reviewOnly\"" not in html:
+        failures.append("Existing review-only filter or review-prioritized sorting was lost")
 
     if "await safeExportText()" not in app or "await gate.reserveFilename(new Date())" not in app:
         failures.append("CSV gate/download hook missing")
