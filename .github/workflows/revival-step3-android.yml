@@ -1,0 +1,70 @@
+name: OCR revival STEP3 Android ROI + mobile review
+on:
+  push:
+    branches: ['revival/step3-android-roi-review-20261012']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ocr-revival-step3
+  cancel-in-progress: false
+
+jobs:
+  android-layout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Preserve OCR recognition/classifier and verified CSV gate
+        run: |
+          git diff --exit-code 6024eaa03147af63c6e3b5f643dd2ac2113e68de HEAD -- \
+            classifier.js food_color_features.js food_matcher.js master_data.js \
+            csv_gate.js shared/MASTER_DATA.json release.json public_package_manifest.json
+      - name: Syntax check
+        shell: bash
+        run: |
+          for f in app.js android_roi.js classifier.js csv_gate.js master_data.js \
+            food_color_features.js food_matcher.js shared_master.js sw.js; do
+            node --check "$f"
+          done
+      - name: Android green-anchor ROI and review UX regression
+        run: node --test development/step3_android_roi.test.cjs
+      - name: STEP2 preserved master, CSV safety and classifier tests
+        run: |
+          node --test development/runtime_smoke.test.cjs
+          node --test development/step2_shared_csv.test.cjs
+      - name: Static source and pinned master integrity
+        run: |
+          python development/verify_step2.py --report step3_evidence/verified_sources.json
+      - name: Real Chromium UI boot, PWA cache, corrupted master fallback
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+          mkdir -p step3_evidence
+          python development/browser_boot_smoke.py | tee step3_evidence/chromium_boot.json
+      - name: Real Chromium CSV two downloads and invalid row block
+        shell: bash
+        run: |
+          set -euo pipefail
+          python development/browser_csv_download_audit.py | tee step3_evidence/chromium_csv.json
+      - name: Preserve validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ocr-revival-step3-targeted-tests
+          path: step3_evidence/
+          retention-days: 30
+          if-no-files-found: warn
