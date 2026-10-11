@@ -1,0 +1,46 @@
+{
+  "schema": "android-ocr-layout-audit-v1",
+  "source": "User-supplied private meka142.zip; screenshot contents not uploaded to GitHub",
+  "count": 142,
+  "sizes": {
+    "1080x2400": 142
+  },
+  "android_roi_geometry_detection": {
+    "matched": 142,
+    "rejected": 0,
+    "method": "green main-skill and detail-status bars on a 691x1536 canvas; not text OCR accuracy"
+  },
+  "main_detail_patterns": [
+    {
+      "main": 862,
+      "detail": 1875,
+      "count": 80
+    },
+    {
+      "main": 852,
+      "detail": 1864,
+      "count": 28
+    },
+    {
+      "main": 862,
+      "detail": 1902,
+      "count": 20
+    },
+    {
+      "main": 870,
+      "detail": 1883,
+      "count": 4
+    }
+  ],
+  "footer_ignores": "raw y>=2160",
+  "key_variations": [
+    "top banner can be clipped",
+    "detailed-status section may shift ~27px due to variable-height text"
+  ],
+  "scope_excluded": [
+    "full Tesseract/PaddleOCR 142-image recognition benchmark",
+    "manually adjudicated 142-image Golden labels",
+    "iPhone regression",
+    "real Pixel install after icon deployment"
+  ]
+}
