@@ -152,19 +152,9 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
 
 @media(prefers-reduced-motion:reduce){.android-roi-option input[type="checkbox"],
  .android-roi-option input[type="checkbox"]::before{transition:none}}
-/* STEP3 mobile-first review queue; does not hide automatically confirmed rows. */
-.review-queue{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-  padding:9px 12px;border:1px solid #cce8ff;border-radius:12px;background:#eff8ff;
-  color:#164c77;font-size:.86rem;font-weight:650}
-.review-next{border:1px solid #3d83c9;background:#fff;color:#115084;min-height:44px;
-  border-radius:10px;padding:8px 14px;font:inherit;font-weight:750;cursor:pointer}
-.review-next:disabled{opacity:.45;cursor:not-allowed}
-.review-next:focus-visible,#reviewQueue:focus-visible{outline:3px solid #317bc5;outline-offset:3px}
-#tbl tbody tr.review-target{outline:3px solid #3e9bff;outline-offset:-3px}
+/* Mobile touch targets remain large without the extra review navigator. */
 @media(max-width:760px){
  .results-head{flex-wrap:wrap;gap:10px}
- .review-queue{order:2;width:100%;justify-content:space-between}
- .review-next{flex-shrink:0}
  .file-open,.nickconfirm,.subskillconfirm,.foodconfirm,.speciesconfirm,.manual-open{min-height:44px}
 }
 </style>
@@ -223,10 +213,6 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
       <div class="results-head">
         <h2 class="results-title">解析結果</h2>
         <label class="filter-toggle"><input id="reviewOnly" type="checkbox">要確認のみ</label>
-        <div id="reviewQueue" class="review-queue" role="status" aria-live="polite">
-          <span id="reviewQueueSummary">解析結果から要確認項目を抽出します</span>
-          <button id="nextReview" class="review-next" type="button" disabled>次の要確認へ</button>
-        </div>
         <div class="result-actions">
           <button id="csv" class="export-btn" type="button" disabled>CSVを保存</button>
           <button id="copyCsv" class="export-btn copy" type="button" disabled>CSVをコピー</button>
@@ -396,6 +382,7 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
       u.searchParams.set('step2','sharedcsv-v1');
       u.searchParams.set('step3','androidroi-v1');
       u.searchParams.set('pick','multi-v1');
+      u.searchParams.set('ui','review-clean-v1');
       await loadScript(u.toString());
       // Classifier closes over POKESLEEP_MASTER at load time. Finish selection
       // before classifier.js executes; never change master mid-session.
