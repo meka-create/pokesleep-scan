@@ -819,7 +819,7 @@ function corroboratedJointMissingNatureRescue(parsed,diag){
  const headers=(a.profileHeader||[]).filter(x=>
   Number.isInteger(x?.level)&&x.level>=1&&x.level<=MAX_POKEMON_LEVEL&&
   Number(x?.sp)===parsed.sp&&Number(x.confidence)>=70&&
-  /Lv\\.?\\s*\\d+/i.test(String(x.text||'')));
+  /Lv\.?\s*\d+/i.test(String(x.text||'')));
  const levels=uniqVals(headers.map(x=>x.level));
  if(headers.length>=2&&new Set(headers.map(x=>x.psm)).size>=2&&
     levels.length===1&&levels[0]!==parsed.level&&
@@ -874,6 +874,8 @@ async function rescueStructured(canvas,raw,parsed,inference,idx,total){
   const timeA=await readRetry(canvas,TIME_FALLBACK,'おてつだい時間整合性',idx,total,parseHelpSeconds,'time');
   const headerA=await getProfile();
   diag.attempts.sp=spA;diag.attempts.nature=natureA;diag.attempts.mainSkill=skillA;diag.attempts.helpSecondsConsistency=timeA;if(headerA.length)diag.attempts.profileHeader=headerA;
+  const joint=corroboratedJointMissingNatureRescue(parsed,diag);
+  if(joint){inference=joint.inference;diag.applied={reason:'corroborated-joint-missing-nature-rescue',...joint.vals,species:joint.species};diag.afterStatus=inference.status;parsed.structuredRescue=diag;return {parsed,inference};}
   const trials=[];
   const addTrial=(field,value,mutate=null)=>{if(value==null||value===''||(field!=='subskill'&&value===parsed[field]))return;const p={...parsed,subs:parsed.subs.map(x=>({...x}))};if(mutate)mutate(p,value);else applyStructuredValues(p,{[field]:value});const inf=inferParsed(p);if(inf.status==='UNIQUE')trials.push({field,value,inference:inf,species:inf.candidates[0],mutate});};
   for(const v of uniqVals(spA.map(x=>x.value)))addTrial('sp',v);
