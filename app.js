@@ -1142,7 +1142,20 @@ function csvCompatibilityBlockers(){let speciesRows=0,foodSlots=0,versatileRows=
  }const summary=[];if(speciesRows)summary.push(`ポケモン種族未確定 ${speciesRows}件`);if(versatileRows)summary.push(`ミュウの具体スキル未確定 ${versatileRows}件`);if(mainSkillRows)summary.push(`メインスキル未確定 ${mainSkillRows}件`);if(natureRows)summary.push(`せいかく未確定 ${natureRows}件`);if(foodSlots)summary.push(`食材未確定 ${foodSlots}枠`);if(subskillSlots)summary.push(`サブスキル未確定 ${subskillSlots}枠`);const maxDetails=12,shown=details.slice(0,maxDetails);if(details.length>maxDetails)shown.push(`ほか ${details.length-maxDetails}件`);return {blocked:speciesRows>0||versatileRows>0||mainSkillRows>0||natureRows>0||foodSlots>0||subskillSlots>0,speciesRows,versatileRows,mainSkillRows,natureRows,foodSlots,subskillSlots,summary,details:shown};}
 async function confirmCsvAction(action){const blockers=csvCompatibilityBlockers();if(blockers.blocked){await showAppDialog({title:'CSV出力前の確認が必要です',message:`pokesleep-toolで意味が変わる未確定項目が残っているため、この状態ではCSVを${action}できません。該当項目を確定してから再度お試しください。画像ファイル名をタップすると、そのカードへ移動できます。値の自動補完は行いません。解析失敗データはカードの「削除」から明示的に除外できます。`,details:[...blockers.summary,...blockers.details],primaryLabel:'閉じる',tone:'error'});return false;}const warns=csvWarnings();if(!warns.length)return true;return showAppDialog({title:'要確認の項目があります',message:`pokesleep-toolで安全に表現できる未確認項目があります。現在の状態のままCSVを${action}する場合は「このまま${action}」を押してください。`,details:warns,primaryLabel:`このまま${action}`,secondaryLabel:'キャンセル',tone:'warning'});}
 function foodCsvValue(x){return x.needsReview||x.name===NO_FOOD?'':x.name;}
-function mainSkillCsvValue(parsed,classification,speciesOverride=''){const mon=speciesOverride||(classification?.candidates?.length===1?classification.candidates[0]:'');if(mon==='ミュウ'&&parsed.mainSkill==='オールマイティー'){const key=detailedMewVersatileSkill(parsed);return mewVersatileCsvLabel(key);}const shown=mainSkillForOutput(parsed,classification,speciesOverride);return parsed.mainSkill||shown||'';}
+function mainSkillCsvValue(parsed,classification,speciesOverride=''){
+ const mon=speciesOverride||(classification?.candidates?.length===1?classification.candidates[0]:'');
+ if(mon==='ミュウ'&&parsed.mainSkill==='オールマイティー'){
+  const key=detailedMewVersatileSkill(parsed);return mewVersatileCsvLabel(key);
+ }
+ // Screen text can omit "(ランダム)" or add a legendary type suffix.
+ // Once the species is confirmed, serialize its canonical importer master label.
+ const observed=String(parsed.mainSkill||'').trim();
+ const master=POKESLEEP_MASTER.pokemon.find(p=>p.name===mon);
+ if(master&&observed&&POKESLEEP_CLASSIFIER.mainSkillMatches(observed,master.mainSkill))
+  return master.mainSkill;
+ const shown=mainSkillForOutput(parsed,classification,speciesOverride);
+ return observed||shown||'';
+}
 // Ribbon-tier inference gives only a minimum threshold, not measured hours. An unobserved CSV field must use the user's 0 default.
 function ribbonCsvValue(_classification){return 0;}
 function shinyCsvValue(r){return r?.parsed?.shiny===true||r?.shiny===true?1:0;}
