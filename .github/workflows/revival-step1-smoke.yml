@@ -1,0 +1,71 @@
+name: OCR revival STEP1 smoke (read only)
+on:
+  push:
+    branches:
+      - 'revival/step1-dev-baseline-20261011'
+    paths:
+      - 'development/**'
+      - '.github/workflows/revival-step1-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ocr-revival-step1
+  cancel-in-progress: false
+
+jobs:
+  source-and-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Assert runtime code remains exactly identical to Candidate125 source
+        run: |
+          git diff --exit-code e64beae03a27a36e5c3de492d3b50b070e39fff8 HEAD -- \
+            app.js classifier.js food_color_features.js food_matcher.js \
+            master_data.js index.html sw.js manifest.webmanifest \
+            release.json public_package_manifest.json THIRD_PARTY_NOTICES.md \
+            assets/ icons/
+      - name: Python source baseline and immutable runtime SHA check
+        run: |
+          python -m py_compile development/verify_baseline.py
+          python development/verify_baseline.py --report step1_reports/ocr_source.json
+      - name: Node JavaScript syntax
+        run: |
+          node --check app.js
+          node --check classifier.js
+          node --check master_data.js
+          node --check food_matcher.js
+          node --check food_color_features.js
+          node --check sw.js
+      - name: Basic classifier headless smoke
+        run: node --test development/runtime_smoke.test.cjs
+      - name: Verify pinned AI v27 master bytes and complete OCR equivalence
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --retry 3 \
+            "https://raw.githubusercontent.com/meka-create/pokesleep-ai-scan/c2c4761629783fb329e60b0ab237c6fc6e2448c9/release-kit-assets/MASTER_DATA.json" \
+            --output "$RUNNER_TEMP/ai-v27-MASTER_DATA.json"
+          python development/verify_baseline.py \
+            --ai-master "$RUNNER_TEMP/ai-v27-MASTER_DATA.json" \
+            --report step1_reports/ai_master_parity.json
+      - name: Preserve smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ocr-revival-step1-smoke-evidence
+          path: step1_reports/
+          retention-days: 30
+          if-no-files-found: warn
