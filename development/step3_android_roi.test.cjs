@@ -16,7 +16,7 @@ const patterns=[
  {weight:2,bars:[[804,862],[1886,1943]],cardBottom:1263},
  {weight:2,bars:[[0,48],[852,910],[1892,1950]],cardBottom:1270}
 ];
-function canvasFor(bars,cardBottom=null){
+function canvasFor(bars,cardBottom=null,profile=true){
  const w=691,h=1536,data=new Uint8ClampedArray(w*h*4),sx=w/1080,sy=h/2400;
  const paint=(x1,x2,y1,y2,r,g,b)=>{
   const ix1=Math.max(0,Math.floor(x1*sx)),ix2=Math.min(w,Math.ceil(x2*sx));
@@ -27,6 +27,7 @@ function canvasFor(bars,cardBottom=null){
  };
  for(const [start,end] of bars)paint(52,1020,start,end+1,10,215,86);
  if(cardBottom!==null)paint(70,1010,cardBottom-6,cardBottom+1,239,160,58);
+ if(profile)paint(25,635,144,147,239,150,90);
  return {width:w,height:h,getContext:()=>({
   getImageData:(x=0,y=0,width=w,height=h)=>{
    if(x===0&&y===0&&width===w&&height===h)return {data};
@@ -58,7 +59,7 @@ test('green section-bar detection enables all representative meka142 variants',(
  }
 });
 test('rescue crops stay inside expected green-bound sections',()=>{
- const a=api(),p=a.planFromBars(691,1536,[{start:3,end:60},{start:863,end:921},{start:1903,end:1961}],1281);
+ const a=api(),p=a.planFromBars(691,1536,[{start:3,end:60},{start:863,end:921},{start:1903,end:1961}],1281,144);
  assert.ok(p);
  for(const key of ['sp','nicklevel','time','carry','mainskill','sub10','sub25','sub50','sub70','sub80','nature']){
   const r=p.rectFor(key);
@@ -90,6 +91,27 @@ test('subskill detection fails closed when main-skill orange card cannot be veri
  assert.equal(candidate.mainSkillCardBottom,null);
  assert.equal(candidate.rectFor('sub10'),null);
  assert.ok(candidate.rectFor('sp'));
+});
+test('partially clipped top green banner must not shift SP and nickname away from stable coral profile',()=>{
+ const a=api();
+ const normal=a.inspect(canvasFor(patterns[0].bars,1225));
+ const clipped=a.inspect(canvasFor(patterns[4].bars,1263));
+ assert.equal(normal.profileCardTop,144);
+ assert.equal(clipped.profileCardTop,144);
+ for(const key of ['sp','nicklevel','time','carry']){
+  const stable=normal.rectFor(key),candidate=clipped.rectFor(key);
+  assert.equal(candidate[1],stable[1],'Top OCR field incorrectly shifted by main header: '+key);
+  assert.equal(candidate[3],stable[3],'Top crop bottom changed: '+key);
+ }
+ assert.ok(clipped.nickRect('alt'));
+});
+test('unverified top profile safely returns to legacy top and nickname crops',()=>{
+ const a=api(),p=a.inspect(canvasFor(patterns[0].bars,1225,false));
+ assert.ok(p,'Main and detail anchors still support safely detected subskills');
+ assert.equal(p.profileCardTop,null);
+ assert.equal(p.rectFor('sp'),null);
+ assert.equal(p.nickRect('alt'),null);
+ assert.ok(p.rectFor('sub10'));
 });
 test('missing or ill-placed section anchors fail closed to original crops',()=>{
  const a=api();
