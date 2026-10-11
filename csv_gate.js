@@ -75,7 +75,7 @@ function inspect(text,master){
   if(ToxtricityAllowed[species]&&!ToxtricityAllowed[species].has(row[8]))errors.push(prefix+'Toxtricity form/nature incompatible with importer');
   const occupied=[];
   for(let j=9;j<14;j++){
-   const v=row[j];if(!v){warnings.push(prefix+'empty subskill at column '+(j+1));continue;}
+   const v=row[j];if(!v){if(!poke.mythIng)errors.push(prefix+'unconfirmed empty subskill at column '+(j+1));else warnings.push(prefix+'empty mythical subskill at column '+(j+1));continue;}
    if(!subs.has(v))errors.push(prefix+'unsupported subskill '+v);
    else occupied.push(v);
   }
