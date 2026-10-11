@@ -40,7 +40,7 @@ def run():
                    i.get("purpose")=="maskable" and
                    i.get("type")=="image/png" for i in icons),"maskable absent "+name
     sw=(ROOT/"sw.js").read_text(encoding="utf-8")
-    assert "-step3-dev-android-roi-review-iconsv1" in sw, "PWA cache was not bumped"
+    assert "-step3-prod-multi-picker-v1" in sw, "PWA cache must deliver updated multi-batch picker"
     for size in (192,512):
         assert f"versioned('./icons/icon-maskable-{size}.png')" in sw, "SW missing maskable cache"
     html=(ROOT/"index.html").read_text(encoding="utf-8")
