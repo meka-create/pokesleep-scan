@@ -68,7 +68,9 @@ def prepare(root:Path, icon_zip:Path):
         sw=sw.replace(anchor,anchor+
             "\n  versioned('./icons/icon-maskable-192.png'),"+
             "\n  versioned('./icons/icon-maskable-512.png'),")
-    if "-step3-dev-android-roi-review" in sw:
+    if "-step3-dev-android-roi-review-iconsv1" not in sw:
+        if "-step3-dev-android-roi-review" not in sw:
+            raise ValueError("Unexpected Service Worker version")
         sw=sw.replace("-step3-dev-android-roi-review",
             "-step3-dev-android-roi-review-iconsv1")
     html=html_path.read_text(encoding="utf-8")
