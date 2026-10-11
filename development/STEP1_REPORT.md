@@ -46,7 +46,9 @@ CI結果はGitHub Actionsのartifactに保存。エラーがあればSTEP2に進
 4. **Windows起動用バッチ欠落（開発用に補充）**: start_server.batを開発ブランチだけに追加。元の公開mainの不一致は保留。
 5. **.nojekyll欠落と成功表示の誤解の余地（表示改善）**: PASS_WITH_WARNINGSのまま実CIを通し、workflow warningとSummaryで既知欠落を必ず顕在化。
 6. **画像認識精度・iPhone/Android回帰なし（未解消）**: 画像コーパスと旧Full Dev ZIPを未回収。今後の専用ゲートが必要。
-7. **外部Tesseract CDNの初期依存（既存制約）**: CDN不達なら元のindex.htmlでRuntimeロードを開始しない。OCRのオフライン完結性や外部依存除去はSTEP3の設計課題。STEP1では元コードを変更しない。
+7. **CI発火条件の保護漏れ（修正）**: 当初はdevelopment/だけを監視していたため、app.js等Runtimeだけの改変ではCIが起動しなかった。pathsフィルターを廃止し、開発ブランチへの全pushを必ず監査する。STEP2でRuntimeを意図的に変更するとCIがFAILとなるため、STEP2の監査付きの新基準へ切り替えるまで保護を解除しない。
+8. **本番mainのGitHubブランチ保護未設定（未解消）**: API確認ではmainのprotectedがfalse。今回は開発ブランチ限定の変更で保護したが、GitHub側の管理者向けbranch rules/rulesetの追加は別途必要。
+9. **外部Tesseract CDNの初期依存（既存制約）**: CDN不達なら元のindex.htmlでRuntimeロードを開始しない。OCRのオフライン完結性や外部依存除去はSTEP3の設計課題。STEP1では元コードを変更しない。
 
 ## 5. 旧開発資料の未回収リスト
 
