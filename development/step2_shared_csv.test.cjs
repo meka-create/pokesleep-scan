@@ -101,3 +101,14 @@ test('filename is minute-granular and consecutive save uses _2',async()=>{
  const c=await h.gate.reserveFilename(new Date(2026,9,12,14,36,1));
  assert.match(c,/20261012_1436\.csv$/);
 });
+
+test('Toxtricity forms reject importer-incompatible natures without guessing',()=>{
+ const high=ai.pokemon.find(p=>p.name==='ストリンダー (ハイ)');
+ const low=ai.pokemon.find(p=>p.name==='ストリンダー (ロー)');
+ assert.ok(high&&low);
+ const v=[...fields];v[1]=high.name;v[4]=high.ing1.name;v[5]=high.ing1.name;v[6]=high.ing1.name;v[7]=high.mainSkill;
+ v[8]='てれや';assert.equal(inspect(v).ok,false);
+ v[8]='いじっぱり';assert.equal(inspect(v).ok,true,JSON.stringify(inspect(v).errors));
+ v[1]=low.name;v[7]=low.mainSkill;v[8]='てれや';v[4]=low.ing1.name;v[5]=low.ing1.name;v[6]=low.ing1.name;
+ assert.equal(inspect(v).ok,true,JSON.stringify(inspect(v).errors));
+});
