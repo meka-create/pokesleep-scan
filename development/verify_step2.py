@@ -20,6 +20,28 @@ def main():
     failures=[]
     audited=[]
     allowed_modified={"app.js","index.html","sw.js"}
+    # The user-provided maskable set is optional until explicitly uploaded to the
+    # STEP3 development branch. Never accept an unrecognized icon replacement.
+    user_icons={
+      "icon-maskable-512.png":"fafc1a3be39aee764127d29eeb2d8cbffdaf0f81abd7ab5eb77291c3a37ae8f7",
+      "icon-maskable-192.png":"d80de0922bb8be973cce16a0cb1b8d6a2119b9848dec996a271132de65ff29d5",
+      "icon-192.png":"75550a30c39818f43cd39157544bb1d64d8bd1d77e5a88067c270f127d0d37e5",
+      "apple-touch-icon.png":"878b81f376b474f19e61ab86724934c00e8cb3058517b65dc0872aabd22e0688",
+      "favicon-32.png":"87c006c09b99b58864777e8aa566fc4fed066c5423191c476835357ac97b1760",
+      "icon-512.png":"dd0f157cf81aed9325f5208e54caa03626c29854ae69751e511667951215c418"
+    }
+    mask_install=(root/"icons/icon-maskable-512.png").is_file()
+    if mask_install:
+        allowed_modified.add("manifest.webmanifest")
+        for name,expected_hash in user_icons.items():
+            p=root/"icons"/name
+            if not p.is_file() or hashlib.sha256(p.read_bytes()).hexdigest()!=expected_hash:
+                failures.append("Maskable set does not match user-provided bytes: "+name)
+        icon_manifest=json.loads((root/"manifest.webmanifest").read_text(encoding="utf-8"))
+        mask_paths={x.get("src") for x in icon_manifest.get("icons",[]) if x.get("purpose")=="maskable"}
+        if mask_paths!={"./icons/icon-maskable-192.png","./icons/icon-maskable-512.png"}:
+            failures.append("Pixel maskable manifest is incomplete")
+
     required=["shared/MASTER_DATA.json","shared_master.js","csv_gate.js","development/step2_shared_csv.test.cjs"]
     for path in required:
         if not (root/path).is_file():failures.append("Missing STEP2 asset: "+path)
@@ -34,7 +56,10 @@ def main():
             continue
         data=target.read_bytes()
         hash=hashlib.sha256(data).hexdigest()
-        if name not in allowed_modified:
+        if mask_install and name.startswith("icons/"):
+            if hash!=user_icons.get(Path(name).name):
+                failures.append("Unauthorized icon regression: "+name)
+        elif name not in allowed_modified:
             if hash!=entry["sha256"] or hash!=old_hashes.get(name):
                 failures.append("Regressed frozen runtime: "+name)
             audited.append(name)
@@ -77,6 +102,8 @@ def main():
         if pre not in sw:failures.append("Missing STEP2 PWA precache: "+pre)
     if "step2=sharedcsv-v1" not in sw or "u.searchParams.set('step2','sharedcsv-v1')" not in html:
         failures.append("STEP2 JS/SW cache versions are not aligned")
+    if mask_install and ("versioned('./icons/icon-maskable-192.png')" not in sw or "versioned('./icons/icon-maskable-512.png')" not in sw or "iconsv1" not in sw):
+        failures.append("Installed Pixel icon is missing from the versioned PWA cache")
     if "versioned('./android_roi.js')" not in sw or "step3=androidroi-v1" not in sw or "u.searchParams.set('step3','androidroi-v1')" not in html:
         failures.append("STEP3 Android ROI PWA version/cache is missing")
     if "window.POKESLEEP_ANDROID_ROI?.inspect(canvas)" not in app:
