@@ -21,7 +21,8 @@ INSTRUMENTED=JS.replace(HOOK,"""window.__STEP3_REVIEW_AUDIT__={
     results=[makeProcessingFailureResult({name:'audit-01.png'},'OCR',Error('simulated')),
              makeProcessingFailureResult({name:'audit-02.png'},'OCR',Error('simulated'))];
     render();
-  }
+  },
+  names:()=>selected.map(f=>f.name)
 };
 """+HOOK)
 CDN="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"
@@ -105,15 +106,38 @@ def main():
                 png=base64.b64decode(
                     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/C9sAAAAASUVORK5CYII="
                 )
-                files=[{"name":f"IMG_{i:04d}.png","mimeType":"image/png","buffer":png}
-                       for i in range(1,143)]
-                page.locator("#files").set_input_files(files,timeout=30000)
+                first=[{"name":f"IMG_{i:04d}.png","mimeType":"image/png","buffer":png}
+                       for i in range(1,101)]
+                second=[{"name":f"IMG_{i:04d}.png","mimeType":"image/png","buffer":png}
+                        for i in range(101,143)]
+                page.locator("#files").set_input_files(first,timeout=30000)
+                page.wait_for_function("""() =>
+                  document.querySelector('#uploadMain')?.textContent==='100枚を選択しました' &&
+                  !document.querySelector('#run')?.disabled""",timeout=45000)
+                add=page.locator("#addFilesButton")
+                assert add.is_visible() and add.is_enabled(),"Add images option missing after first batch"
+                with page.expect_file_chooser() as chooser_info:
+                    add.click()
+                chooser_info.value.set_files(second)
                 page.wait_for_function("""() =>
                   document.querySelector('#uploadMain')?.textContent==='142枚を選択しました' &&
                   !document.querySelector('#run')?.disabled""",timeout=45000)
+                assert page.evaluate("window.__STEP3_REVIEW_AUDIT__.names().length")==142
+                assert page.evaluate(
+                    "new Set(window.__STEP3_REVIEW_AUDIT__.names()).size")==142
                 assert page.locator("#run").is_enabled()
                 assert not page.locator("#appDialog").is_visible()
-                checks.append("142 distinct PNG files accepted and snapshot preparation completed; OCR not run")
+                checks.append("Pixel photo picker 100+42 batches preserved as 142 unique images; OCR not run")
+                # Attempting to add an already-selected screenshot is not permitted
+                # to duplicate the CSV row or alter the original 142-image list.
+                with page.expect_file_chooser() as dup_chooser:
+                    add.click()
+                dup_chooser.value.set_files([first[0]])
+                page.locator("#appDialog").wait_for(state="visible",timeout=10000)
+                assert "追加画像はありません" in page.locator("#appDialogTitle").inner_text()
+                assert page.evaluate("window.__STEP3_REVIEW_AUDIT__.names().length")==142
+                page.locator("#appDialogPrimary").click()
+                checks.append("duplicate second-batch selection blocked without losing earlier 142 images")
                 assert not errors,errors
                 ctx.close()
             finally:
