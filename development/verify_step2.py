@@ -70,6 +70,8 @@ def main():
         failures.append("Diagnostic raw CSV/JSON timestamp regression")
     if "function ribbonCsvValue(_classification){return 0;}" not in app:
         failures.append("Unobserved together-sleep time is not protected by 0 default")
+    if "reserveFilename(new Date(),'raw')" not in app or "reserveFilename(new Date(),'diagnostics')" not in app:
+        failures.append("Diagnostic downloads must use collision-resistant names")
     sw=(root/"sw.js").read_text(encoding="utf-8")
     for pre in ("versioned('./shared_master.js')","versioned('./shared/MASTER_DATA.json')","versioned('./csv_gate.js')"):
         if pre not in sw:failures.append("Missing STEP2 PWA precache: "+pre)
