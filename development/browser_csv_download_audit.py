@@ -28,7 +28,8 @@ INSTRUMENTED=JS.replace(HOOK,'''window.__STEP2_AUDIT__={
     const species='ミュウ',profile=manualProfilesForSpecies(species)[0];
     const r={
      file:'synthetic-mew.png',speciesManualOverride:species,
-     classification:{status:'UNIQUE',candidates:[species],hits:[]},
+     classification:{status:'UNIQUE',candidates:[species],hits:[],profiles:[],stages:{mainSkill:[species]}},
+     inference:{status:'UNIQUE',candidates:[species],hits:[],profiles:[],stages:{mainSkill:[species]}},
      parsed:{nickname:'テストミュウ',nicknameNeedsReview:false,level:10,skillLevel:1,
       mainSkill:'オールマイティー',versatileSkill:MEW_VERSATILE_SKILLS[0].key,
       nature:'てれや',subs:[{value:POKESLEEP_MASTER.subskills[0].ja,needsReview:false},
