@@ -8,7 +8,7 @@
   "scope": "./",
   "display": "standalone",
   "background_color": "#f6f7fb",
-  "theme_color": "#5558e8",
+  "theme_color": "#2f6ce8",
   "orientation": "any",
   "categories": [
     "utilities",
@@ -16,19 +16,31 @@
   ],
   "icons": [
     {
-      "src": "./icons/icon-192.png?release=2026-10-09-candidate125-carry-corroborated-first-food",
+      "src": "./icons/icon-192.png?iconset=maskable-v1",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-512.png?release=2026-10-09-candidate125-carry-corroborated-first-food",
+      "src": "./icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icons/icon-512.png?iconset=maskable-v1",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/apple-touch-icon.png?release=2026-10-09-candidate125-carry-corroborated-first-food",
+      "src": "./icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icons/apple-touch-icon.png?iconset=maskable-v1",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"

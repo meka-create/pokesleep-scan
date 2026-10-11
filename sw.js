@@ -1,12 +1,17 @@
 const RELEASE_ID = '2026-10-09-candidate125-carry-corroborated-first-food';
-const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}`;
-const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}`;
+// Separate the STEP2 dev cache from the published Candidate125 cache.
+const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}-step3-dev-android-roi-review-iconsv1`;
+const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}&step2=sharedcsv-v1&step3=androidroi-v1`;
 const APP_SHELL = [
   './',
   './index.html',
   './release.json',
   './manifest.webmanifest',
   versioned('./master_data.js'),
+  versioned('./shared_master.js'),
+  versioned('./shared/MASTER_DATA.json'),
+  versioned('./csv_gate.js'),
+  versioned('./android_roi.js'),
   versioned('./classifier.js'),
   versioned('./food_color_features.js'),
   versioned('./food_matcher.js'),
@@ -15,6 +20,8 @@ const APP_SHELL = [
   versioned('./icons/apple-touch-icon.png'),
   versioned('./icons/icon-192.png'),
   versioned('./icons/icon-512.png'),
+  versioned('./icons/icon-maskable-192.png'),
+  versioned('./icons/icon-maskable-512.png'),
   versioned('./assets/example-screenshot.png'),
   versioned('./assets/ogp-card.png')
 ];
