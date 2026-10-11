@@ -1,0 +1,71 @@
+name: STEP3 import exact Pixel maskable icon ZIP
+on:
+  push:
+    branches: ['revival/step3-android-roi-review-20261012']
+    paths:
+      - 'icons-pwa-maskable-set.zip'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: step3-maskable-import
+  cancel-in-progress: false
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: revival/step3-android-roi-review-20261012
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact user-supplied icon archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f icons-pwa-maskable-set.zip
+          echo '75489d34571d8b4ca522f9956c603e9434a3caa6b84142d7898ab997129ffdfa  icons-pwa-maskable-set.zip' | sha256sum --check -
+      - name: Install exact maskable image bytes and PWA references
+        run: python development/install_pwa_icons.py icons-pwa-maskable-set.zip
+      - name: Verify immutable OCR code, pinned icon SHA and syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          python development/verify_step2.py
+          node --check app.js
+          node --check android_roi.js
+          node --check shared_master.js
+          node --check sw.js
+          node --test development/step3_android_roi.test.cjs
+          node --test development/runtime_smoke.test.cjs
+          node --test development/step2_shared_csv.test.cjs
+      - name: Verify Chrome PWA cache with newly installed maskable icons
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+          python development/browser_boot_smoke.py
+      - name: Commit only the verified icon and PWA files to STEP3 development branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add icons/icon-192.png icons/icon-512.png icons/icon-maskable-192.png \
+            icons/icon-maskable-512.png icons/apple-touch-icon.png icons/favicon-32.png \
+            manifest.webmanifest sw.js index.html
+          if git diff --cached --quiet; then
+            echo "Exact Pixel icon set already installed."
+            exit 0
+          fi
+          git commit -m "assets(step3): install verified user Pixel maskable PWA icon set"
+          git push origin HEAD:revival/step3-android-roi-review-20261012
