@@ -68,6 +68,8 @@ test('missing or ill-placed section anchors fail closed to original crops',()=>{
 test('ROI code never removes legacy crop path or classifier',()=>{
  const app=fs.readFileSync(path.join(ROOT,'app.js'),'utf8');
  assert.match(app,/window\.POKESLEEP_ANDROID_ROI\?\.inspect\(canvas\)/);
+ assert.match(app,/androidRoiEnabled\?window\.POKESLEEP_ANDROID_ROI\?\.inspect\(canvas\):null/);
+ assert.match(app,/localStorage\.setItem\(STEP3_ANDROID_ROI_STORAGE_KEY/);
  assert.match(app,/return r\?cropCanvasRect\(canvas,r,scale\):cropByRegion\(canvas,REGIONS\[key\],scale\)/);
  assert.match(app,/function cropNick\(canvas,kind,scale=1\)/);
  const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
@@ -88,5 +90,6 @@ test('review queue summary and focusable next action are part of the app',()=>{
  assert.match(app,/reviewQueueCursor/);
  assert.match(app,/target\.focus\(\{preventScroll:true\}\)/);
  assert.match(html,/id="reviewQueueSummary"/);
+ assert.match(html,/id="androidRoiEnabled"/);
  assert.match(html,/id="nextReview"/);
 });
