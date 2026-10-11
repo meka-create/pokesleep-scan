@@ -210,3 +210,20 @@ test('filename reservations survive alternating minutes and backward clock adjus
  assert.match(b,/20261012_1436\.csv$/);
  assert.match(c,/20261012_1435_2\.csv$/);
 });
+
+test('raw diagnostic CSV and JSON maintain independent minute counters',async()=>{
+ const h=harness(),when=new Date(2026,9,12,18,5,43);
+ const csv=await h.gate.reserveFilename(when);
+ const raw1=await h.gate.reserveFilename(when,'raw');
+ const json1=await h.gate.reserveFilename(when,'diagnostics');
+ const raw2=await h.gate.reserveFilename(when,'raw');
+ const json2=await h.gate.reserveFilename(when,'diagnostics');
+ const csv2=await h.gate.reserveFilename(when);
+ assert.match(csv,/20261012_1805\.csv$/);
+ assert.match(raw1,/raw_before_review_20261012_1805\.csv$/);
+ assert.match(raw2,/raw_before_review_20261012_1805_2\.csv$/);
+ assert.match(json1,/diagnostics_20261012_1805\.json$/);
+ assert.match(json2,/diagnostics_20261012_1805_2\.json$/);
+ assert.match(csv2,/20261012_1805_2\.csv$/);
+ await assert.rejects(h.gate.reserveFilename(when,'bad-kind'),/Unknown download category/);
+});
