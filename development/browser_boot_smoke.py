@@ -109,11 +109,8 @@ def _select_png(page):
     })
     page.wait_for_function(
         "()=>!document.querySelector('#run').disabled", timeout=15000)
-    _assert("1" in page.locator("#uploadMain").inner_text()
-            or "1" in page.locator("#uploadSub").inner_text()
-            or "1" in page.locator("#stat").inner_text()
-            or not page.locator("#run").is_disabled(),
-            "PNG selection did not reach ready state")
+    _assert(page.locator("#uploadMain").inner_text() == "1枚を選択しました",
+            "PNG selection count not reflected in the upload UI")
     _assert(page.locator("#csv").is_disabled(),
             "CSV should remain blocked until analysis")
 
