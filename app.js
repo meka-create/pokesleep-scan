@@ -1,6 +1,11 @@
 (() => {
 const BUILD_ID='v12-final';
 'use strict';
+const STEP3_ANDROID_ROI_STORAGE_KEY='pokesleep-ocr-android-roi-v1';
+let androidRoiEnabled=(()=>{
+ try{return localStorage.getItem(STEP3_ANDROID_ROI_STORAGE_KEY)!=='0';}
+ catch(_){return true;}
+})();
 const REF_W=691,REF_H=1536,ANCHORS={top:10,main:559,detail:1212},TOP_HEADER_MIN_GREEN=260,COMPACT_TOP_SPLIT_Y=215;
 const REGIONS={sp:[180,105,300,150,'top'],nicklevel:[135,145,355,195,'top'],time:[285,340,520,410,'top'],carry:[290,425,390,490,'top'],mainskill:[165,650,640,715,'main'],sub10:[65,845,320,915,'main'],sub25:[370,845,645,915,'main'],sub50:[65,950,320,1020,'main'],sub70:[370,950,645,1020,'main'],sub80:[65,1060,320,1135,'main'],nature:[70,1310,325,1375,'detail']};
 // Variable-height skill descriptions can push locked subskill text down. These wider fallback crops
@@ -280,7 +285,28 @@ dropZone?.addEventListener('drop',e=>{if(!hasFileDrag(e))return;e.preventDefault
 // Prevent the browser from navigating to an image when a file is accidentally dropped just outside the drop zone.
 document.addEventListener('dragover',e=>{if(hasFileDrag(e))e.preventDefault();});
 document.addEventListener('drop',e=>{if(hasFileDrag(e)&&!e.target.closest?.('.filelabel'))e.preventDefault();});
-$('#run').addEventListener('click',e=>{e.preventDefault();void runPrimaryAnalysisAction();});$('#csv').addEventListener('click',e=>{e.preventDefault();downloadCSV();});$('#copyCsv').addEventListener('click',e=>{e.preventDefault();copyCSV();});$('#diag').addEventListener('click',e=>{e.preventDefault();downloadDiagnostics();});$('#diagRawCsv')?.addEventListener('click',e=>{e.preventDefault();downloadDiagnosticRawCSV();});$('#reviewOnly')?.addEventListener('change',render);
+$('#run').addEventListener('click',e=>{e.preventDefault();void runPrimaryAnalysisAction();});$('#csv').addEventListener('click',e=>{e.preventDefault();downloadCSV();});$('#copyCsv').addEventListener('click',e=>{e.preventDefault();copyCSV();});$('#diag').addEventListener('click',e=>{e.preventDefault();downloadDiagnostics();});$('#diagRawCsv')?.addEventListener('click',e=>{e.preventDefault();downloadDiagnosticRawCSV();});const androidRoiControl=$('#androidRoiEnabled');
+if(androidRoiControl){
+ androidRoiControl.checked=androidRoiEnabled;
+ androidRoiControl.addEventListener('change',e=>{
+  if(isRunning||analysisPause){e.currentTarget.checked=androidRoiEnabled;return;}
+  androidRoiEnabled=!!e.currentTarget.checked;
+  try{localStorage.setItem(STEP3_ANDROID_ROI_STORAGE_KEY,androidRoiEnabled?'1':'0');}
+  catch(_){}
+ });
+}
+$('#reviewOnly')?.addEventListener('change',render);
+let reviewQueueCursor=-1;
+$('#nextReview')?.addEventListener('click',()=>{
+ const rows=[...document.querySelectorAll('#tbl tbody tr.needs-review')].filter(tr=>tr.style.display!=='none');
+ if(!rows.length)return;
+ const target=rows.find(tr=>Number(tr.dataset.ri)>reviewQueueCursor)||rows[0];
+ reviewQueueCursor=Number(target.dataset.ri);
+ document.querySelectorAll('#tbl tbody tr.review-target').forEach(tr=>tr.classList.remove('review-target'));
+ target.classList.add('review-target');
+ target.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center',inline:'nearest'});
+ target.focus({preventScroll:true});
+});
 $('#tbl')?.addEventListener('focusout',()=>setTimeout(flushPendingRender,0));
 function closeAppDialog(result=false){const d=$('#appDialog');if(!d)return;const resolve=appDialogResolver;appDialogResolver=null;if(d.open){if(typeof d.close==='function')d.close();else d.removeAttribute('open');}const f=appDialogReturnFocus;appDialogReturnFocus=null;if(f&&document.contains(f))f.focus();if(resolve)resolve(!!result);}
 function showAppDialog({title='お知らせ',message='',details=[],primaryLabel='OK',secondaryLabel='',tone='info'}={}){const d=$('#appDialog'),titleEl=$('#appDialogTitle'),messageEl=$('#appDialogMessage'),detailsEl=$('#appDialogDetails'),primary=$('#appDialogPrimary'),secondary=$('#appDialogSecondary'),icon=$('#appDialogIcon');if(!d)return Promise.resolve(true);if(appDialogResolver)closeAppDialog(false);appDialogReturnFocus=document.activeElement;d.classList.toggle('is-warning',tone==='warning');d.classList.toggle('is-error',tone==='error');if(icon)icon.textContent=tone==='warning'?'!':tone==='error'?'×':'✓';if(titleEl)titleEl.textContent=title;if(messageEl)messageEl.textContent=message;if(detailsEl){detailsEl.replaceChildren();for(const item of details){const li=document.createElement('li');if(item&&typeof item==='object'&&Number.isInteger(item.ri)){const btn=document.createElement('button');btn.type='button';btn.className='dialog-result-jump';btn.dataset.ri=String(item.ri);if(item.field)btn.dataset.field=String(item.field);const file=document.createElement('span');file.className='dialog-result-file';file.textContent=item.file||'該当画像';const issue=document.createElement('span');issue.className='dialog-result-issue';issue.textContent=item.issue||item.text||'';btn.append(file,issue);li.classList.add('has-result-jump');li.appendChild(btn);}else li.textContent=String(item??'');detailsEl.appendChild(li);}}if(primary)primary.textContent=primaryLabel;if(secondary){secondary.textContent=secondaryLabel;secondary.hidden=!secondaryLabel;}return new Promise(resolve=>{appDialogResolver=resolve;if(typeof d.showModal==='function')d.showModal();else d.setAttribute('open','');setTimeout(()=>primary?.focus(),0);});}
@@ -334,15 +360,29 @@ function regionOffset(canvas,region){const [,y1,,,a]=region,h=canvas.height,sy=h
 function cropCanvasRect(canvas,rect,scale=1){const [x1,y1,x2,y2]=rect,h=canvas.height,w=canvas.width,ax=Math.max(0,Math.min(w,Math.round(x1))),ay=Math.max(0,Math.min(h,Math.round(y1))),bx=Math.max(ax+1,Math.min(w,Math.round(x2))),by=Math.max(ay+1,Math.min(h,Math.round(y2))),out=document.createElement('canvas');out.width=Math.max(1,(bx-ax)*scale);out.height=Math.max(1,(by-ay)*scale);out.getContext('2d').drawImage(canvas,ax,ay,bx-ax,by-ay,0,0,out.width,out.height);return out;}
 function adaptiveRect(canvas,key){const L=layoutInfo(canvas);if(!L.adaptive)return null;const h=canvas.height,t=L.time,c=L.carry,m=L.main,d=L.detail,card=profileCardInfo(canvas),section=Math.max(420,d.start-m.end),row=(a,b,x1,x2)=>[x1,m.end+section*a,x2,m.end+section*b];switch(key){case 'sp':return card?[135,card.start+4,370,Math.min(card.end-42,card.start+64)]:[145,Math.max(0,t.start-210),360,Math.max(55,t.start-110)];case 'nicklevel':return card?[135,card.start+45,410,card.end-3]:[125,Math.max(0,t.start-155),410,Math.max(70,t.start-50)];case 'time':return [255,Math.max(0,t.start-14),655,Math.min(h,t.end+20)];case 'carry':return [270,Math.max(0,c.start-14),500,Math.min(h,c.end+20)];case 'mainskill':return [140,m.end+section*.06,670,Math.min(h,m.end+section*.24)];case 'sub10':return row(.39,.56,45,340);case 'sub25':return row(.39,.56,350,665);case 'sub50':return row(.57,.74,45,340);case 'sub70':return row(.57,.74,350,665);case 'sub80':return row(.75,.94,45,340);case 'nature':return [45,d.end+30,350,Math.min(h,d.end+115)];default:return null;}}
 function cropByRegion(canvas,region,scale=1){const [x1,y1,x2,y2]=region,h=canvas.height,sy=h/REF_H,dy=regionOffset(canvas,region),sx=canvas.width/REF_W;const ax=Math.max(0,Math.round(x1*sx)),ay=Math.max(0,Math.round(y1*sy+dy)),bx=Math.min(canvas.width,Math.round(x2*sx)),by=Math.min(h,Math.round(y2*sy+dy)),out=document.createElement('canvas');out.width=Math.max(1,(bx-ax)*scale);out.height=Math.max(1,(by-ay)*scale);out.getContext('2d').drawImage(canvas,ax,ay,bx-ax,by-ay,0,0,out.width,out.height);return out;}
-function crop(canvas,key,scale=1){const r=layoutInfo(canvas).adaptive?adaptiveRect(canvas,key):null;return r?cropCanvasRect(canvas,r,scale):cropByRegion(canvas,REGIONS[key],scale)}
-function cropNick(canvas,kind,scale=1){const L=layoutInfo(canvas);if(!L.adaptive){const m={alt:NICK_ALT,narrow:NICK_NARROW,wrap:NICK_WRAP,eng:NICK_ENGWIDE,paddle:NICK_PADDLE,star:NICK_STAR};return cropByRegion(canvas,m[kind]||NICK_ALT,scale);}const card=profileCardInfo(canvas),t=L.time,h=canvas.height;let x1=195,x2=410,y1=card?card.start+45:Math.max(0,t.start-160),y2=card?card.end-3:Math.min(h,t.start-45);if(kind==='narrow'){x1=195;x2=390;}if(kind==='wrap'){x1=175;x2=420;if(!card){y1=Math.max(0,t.start-180);y2=Math.min(h,t.start-25);}}if(kind==='star'){x1=190;x2=300;y1=Math.max(0,t.start-75);y2=Math.min(h,t.start-25);}return cropCanvasRect(canvas,[x1,y1,x2,y2],scale);}
+function crop(canvas,key,scale=1){
+ const android=androidRoiEnabled?window.POKESLEEP_ANDROID_ROI?.inspect(canvas):null;
+ const androidRect=android?.rectFor(key);
+ if(androidRect)return cropCanvasRect(canvas,androidRect,scale);
+ const r=layoutInfo(canvas).adaptive?adaptiveRect(canvas,key):null;
+ return r?cropCanvasRect(canvas,r,scale):cropByRegion(canvas,REGIONS[key],scale);
+}
+function cropNick(canvas,kind,scale=1){
+ const android=androidRoiEnabled?window.POKESLEEP_ANDROID_ROI?.inspect(canvas):null;
+ const androidNick=android?.nickRect(kind);
+ if(androidNick)return cropCanvasRect(canvas,androidNick,scale);
+ const L=layoutInfo(canvas);if(!L.adaptive){const m={alt:NICK_ALT,narrow:NICK_NARROW,wrap:NICK_WRAP,eng:NICK_ENGWIDE,paddle:NICK_PADDLE,star:NICK_STAR};return cropByRegion(canvas,m[kind]||NICK_ALT,scale);}const card=profileCardInfo(canvas),t=L.time,h=canvas.height;let x1=195,x2=410,y1=card?card.start+45:Math.max(0,t.start-160),y2=card?card.end-3:Math.min(h,t.start-45);if(kind==='narrow'){x1=195;x2=390;}if(kind==='wrap'){x1=175;x2=420;if(!card){y1=Math.max(0,t.start-180);y2=Math.min(h,t.start-25);}}if(kind==='star'){x1=190;x2=300;y1=Math.max(0,t.start-75);y2=Math.min(h,t.start-25);}return cropCanvasRect(canvas,[x1,y1,x2,y2],scale);}
 function nicknameReviewPreviewCrop(canvas,scale=1){const card=profileCardInfo(canvas);if(!card)return cropNick(canvas,'wrap',scale);const sx=canvas.width/REF_W,ch=Math.max(1,Number(card.height)||card.end-card.start+1),y1=card.start+ch*.42,y2=Math.min(canvas.height,card.start+ch*.92);return cropCanvasRect(canvas,[135*sx,y1,430*sx,y2],scale);}
 function profileHeaderCrop(canvas,scale=1){const card=profileCardInfo(canvas);if(card)return cropCanvasRect(canvas,[105,card.start,430,card.end],scale);const L=layoutInfo(canvas);return L.adaptive?cropCanvasRect(canvas,[105,0,430,Math.max(90,L.time.start-30)],scale):null;}
 function adaptiveHeaderCrop(canvas,scale=1){const L=layoutInfo(canvas);if(!L.adaptive)return null;return profileHeaderCrop(canvas,scale);}
 function adaptiveNatureRescueCrop(canvas,scale=1){const L=layoutInfo(canvas);if(!L.adaptive||!L.detail)return null;const d=L.detail,h=canvas.height;return cropCanvasRect(canvas,[100,d.end+69,340,Math.min(h,d.end+189)],scale);}
 function adaptiveSkillLevelCrop(canvas,scale=1){const L=layoutInfo(canvas);if(!L.adaptive)return null;const h=canvas.height,m=L.main,d=L.detail,section=Math.max(420,d.start-m.end);return cropCanvasRect(canvas,[530,m.end+section*.07,685,Math.min(h,m.end+section*.25)],scale);}
 function adaptiveSkillLevelCropLegacy(canvas,scale=1){const L=layoutInfo(canvas);if(!L.adaptive)return null;const h=canvas.height,m=L.main,d=L.detail,section=Math.max(420,d.start-m.end);return cropCanvasRect(canvas,[535,m.end+section*.045,680,Math.min(h,m.end+section*.19)],scale);}
-function sectionRelativeSubskillCrop(canvas,key){const L=layoutInfo(canvas);if(!L.main||!L.detail)return null;const h=canvas.height,m=L.main,d=L.detail,section=Math.max(420,d.start-m.end),row=(a,b,x1,x2)=>[x1,m.end+section*a,x2,Math.min(h,m.end+section*b)];const map={sub10:row(.39,.56,45,340),sub25:row(.39,.56,350,665),sub50:row(.57,.74,45,340),sub70:row(.57,.74,350,665),sub80:row(.75,.94,45,340)};return map[key]?cropCanvasRect(canvas,map[key]):null;}
+function sectionRelativeSubskillCrop(canvas,key){
+ const android=androidRoiEnabled?window.POKESLEEP_ANDROID_ROI?.inspect(canvas):null;
+ const androidRect=android?.rectFor(key);
+ if(androidRect)return cropCanvasRect(canvas,androidRect);
+ const L=layoutInfo(canvas);if(!L.main||!L.detail)return null;const h=canvas.height,m=L.main,d=L.detail,section=Math.max(420,d.start-m.end),row=(a,b,x1,x2)=>[x1,m.end+section*a,x2,Math.min(h,m.end+section*b)];const map={sub10:row(.39,.56,45,340),sub25:row(.39,.56,350,665),sub50:row(.57,.74,45,340),sub70:row(.57,.74,350,665),sub80:row(.75,.94,45,340)};return map[key]?cropCanvasRect(canvas,map[key]):null;}
 function adaptiveFallbackCrop(canvas,key,legacyRegion){const r=adaptiveRect(canvas,key);return layoutInfo(canvas).adaptive&&r?cropCanvasRect(canvas,r):cropByRegion(canvas,legacyRegion);}
 function preprocess(src,scale=4,threshold=null){const out=document.createElement('canvas');out.width=src.width*scale;out.height=src.height*scale;const ctx=out.getContext('2d',{willReadFrequently:true});ctx.drawImage(src,0,0,out.width,out.height);const im=ctx.getImageData(0,0,out.width,out.height),d=im.data;let min=255,max=0;for(let i=0;i<d.length;i+=4){const y=Math.round(.299*d[i]+.587*d[i+1]+.114*d[i+2]);d[i]=d[i+1]=d[i+2]=y;min=Math.min(min,y);max=Math.max(max,y)}const span=Math.max(20,max-min);for(let i=0;i<d.length;i+=4){let y=Math.max(0,Math.min(255,Math.round((d[i]-min)*255/span)));if(threshold!=null)y=y<threshold?0:255;d[i]=d[i+1]=d[i+2]=y}ctx.putImageData(im,0,0);return out;}
 const FOOD_EMPTY_REFERENCE_SHA256='1c7826401c5aac45fec3ad67e96f31eb91b865c4ad26ce380670289ef75ad1cc';
@@ -679,7 +719,16 @@ function blockClassifierOnlyNatureSuggestion(parsed,diag){const suggestion=choos
 async function readRetry(canvas,region,label,idx,total,parser,key=''){const rs=[];for(const opt of [{psm:'7'},{psm:'11'}]){const src=key&&layoutInfo(canvas).adaptive?adaptiveFallbackCrop(canvas,key,region):cropByRegion(canvas,region),r=await ocrSingle(src,label,idx,total,opt),v=parser(r.text);rs.push({...r,value:v,threshold:null,psm:opt.psm});}return rs;}
 async function readAdaptiveSkillLevelRetry(canvas,idx,total){const rs=[];for(const [name,cropper] of [['current',adaptiveSkillLevelCrop],['legacy',adaptiveSkillLevelCropLegacy]])for(const opt of [{psm:'7'},{psm:'11'}]){const r=await ocrSingle(cropper(canvas),`スキルLv再確認(${name})`,idx,total,opt),v=parseSkillLevelText(r.text);rs.push({...r,value:v,threshold:null,psm:opt.psm,crop:name});}return rs;}
 async function readProfileHeaderRetry(canvas,idx,total){const src=profileHeaderCrop(canvas);if(!src)return [];const rs=[];for(const opt of [{psm:'6'},{psm:'11'}]){const r=await ocrSingle(src,'上部カード整合性',idx,total,opt);rs.push({...r,level:parseLevel(r.text),sp:parseSpText(r.text),psm:opt.psm});}return rs;}
-function subskillRetryCrops(canvas,key){const out=[['primary',crop(canvas,key)]],rel=sectionRelativeSubskillCrop(canvas,key);if(rel)out.push(['section-relative',rel]);return out;}
+function subskillRetryCrops(canvas,key){
+ const out=[['primary',crop(canvas,key)]];
+ // The verification crop is already identical to the Android card-anchored
+ // primary. Never add old header-relative evidence as if independent.
+ const android=androidRoiEnabled?window.POKESLEEP_ANDROID_ROI?.inspect(canvas):null;
+ if(android?.rectFor(key))return out;
+ const rel=sectionRelativeSubskillCrop(canvas,key);
+ if(rel)out.push(['section-relative',rel]);
+ return out;
+}
 async function readSubskillRetry(canvas,key,idx,total){const rs=[];for(const [name,src] of subskillRetryCrops(canvas,key))for(const opt of [{psm:'7'},{psm:'11'}]){const r=await ocrSingle(src,`${key}整合性(${name})`,idx,total,opt),b=bestSubskill(r.text),v=b.score>=.55?b.value:null;rs.push({...r,value:v,score:b.score,psm:opt.psm,crop:name});}return rs;}
 // Candidate124: conservative rescue using the existing skill-level retry OCR only.
 // Never guess a missing level, skill level, or main skill from the classifier alone.
@@ -925,10 +974,32 @@ function mainSkillForOutput(parsed,classification,speciesOverride=''){const mon=
 function reviewEditorActive(){if(!$('#choicePicker')?.hidden)return true;const a=document.activeElement;return !!(a&&a.matches&&a.matches('.nickedit,.foodedit,.subskilledit,.speciesedit,.speciessearch,.manual-editor-input'));}
 function flushPendingRender(){if(!renderPending||reviewEditorActive())return false;renderPending=false;render();return true;}
 function renderDuringAnalysis(){if(isRunning&&reviewEditorActive()){renderPending=true;return;}renderPending=false;render();}
+// Count actual unresolved slots, not only grouped Boolean field categories.
+// A screenshot with three uncertain foods and five subskills has eight
+// separate decisions; the old counter misleadingly reported just two.
+function pendingReviewItemCount(r){
+ const state=resultReviewState(r);
+ let count=Object.values(state).filter(Boolean).length;
+ if(state.foods){
+  const slots=[0,1,2].filter(i=>foodSlotNeedsReview(r,i)).length;
+  count+=Math.max(0,slots-1);
+ }
+ if(state.subskills)count+=Math.max(0,subskillReviewSlots(r).length-1);
+ if(r?.manualEditOpen&&count===0)return 1;
+ return count;
+}
 function render(){
  closeChoicePicker(false);
  const tb=$('#tbl tbody'),resultsCard=$('#resultsCard');if(resultsCard)resultsCard.hidden=!results.length;tb.innerHTML='';
  const ordered=results.map((r,ri)=>({r,ri,needsReview:resultNeedsReview(r),reviewResolved:!!r.reviewResolved})).sort((a,b)=>{const ap=a.needsReview?0:(a.reviewResolved?1:2),bp=b.needsReview?0:(b.reviewResolved?1:2);return (ap-bp)||(a.ri-b.ri);});
+ const pendingRows=ordered.filter(x=>x.needsReview),pendingCount=pendingRows.length;
+ const fieldCount=pendingRows.reduce((total,x)=>total+pendingReviewItemCount(x.r),0);
+ const queueSummary=$('#reviewQueueSummary'),queueNext=$('#nextReview');
+ if(queueSummary)queueSummary.textContent=pendingCount?
+   `要確認 ${pendingCount}枚・未確定項目 ${fieldCount}件（要確認を先頭に表示）`:
+   `要確認なし・全${results.length}枚`;
+ if(queueNext)queueNext.disabled=!pendingCount||isRunning;
+ if(!pendingCount)reviewQueueCursor=-1;
  for(const item of ordered){
   const {r,ri}=item,p=r.parsed,c=r.classification,[st,cl]=statusView(r),reviewState=resultReviewState(r),classificationNeedsReview=reviewState.species;
   const pokemon=chosenSpecies(r),manual=!!r.manualEditOpen,d=manual?(r.manualDraft||(r.manualDraft=makeManualDraft(r))):null,mp=r.manualPreviews||{},mpe=r.manualPreviewErrors||{};
@@ -975,7 +1046,7 @@ function render(){
   else{const shown=mainSkillForOutput(p,c,r.speciesManualOverride||'')||p.mainSkill||'—';mainSkillHtml=`<div class="review-value${reviewState.mainSkill?' is-unresolved':''}"><span class="main-skill-value">${esc(shown)}</span>${reviewState.mainSkill?'<span class="review-badge">要確認</span>':''}</div>`;}
   const manualNatureReview=manual&&!validNatureValue(d.nature);
   const natureHtml=manual?`<div class="manual-inline-field${manualNatureReview?' is-unresolved':''}"><div class="manual-inline-label"><span>せいかく</span>${manualNatureReview?'<span class="review-badge">要確認</span>':''}</div><select class="manual-editor-input manual-nature" data-ri="${ri}" aria-label="せいかく"><option value="" ${d.nature?'':'selected'} disabled>せいかくを選択</option>${NATURES.map(n=>`<option value="${esc(n)}" ${n===d.nature?'selected':''}>${esc(n)}</option>`).join('')}</select>${manualNatureReview?manualPreviewHtml(mp.nature,'せいかく',ri,mpe.nature):''}</div>`:`<div class="review-value${reviewState.nature?' is-unresolved':''}"><span class="nature-value">${esc(p.nature||'—')}</span>${reviewState.nature?'<span class="review-badge">要確認</span>':''}${natureNote}</div>`;
-  const needsReview=item.needsReview,tr=document.createElement('tr');tr.dataset.ri=String(ri);tr.id=`result-card-${ri}`;if(needsReview)tr.classList.add('needs-review');if(r.processingError)tr.classList.add('processing-failed');
+  const needsReview=item.needsReview,tr=document.createElement('tr');tr.dataset.ri=String(ri);tr.id=`result-card-${ri}`;tr.tabIndex=-1;if(needsReview)tr.classList.add('needs-review');if(r.processingError)tr.classList.add('processing-failed');
   const manualEligible=c.status!=='UNIQUE'||reviewState.level||reviewState.skillLevel||reviewState.mainSkill||reviewState.nature||subskillNeedsReview(r)||r.manualCompleted||r.manualEditOpen||!!r.processingError,recoveryBusy=!!r.recoveryBusy;
   const manualAction=manualEligible?(manual?`<div class="manual-inline-actions"><button type="button" class="manual-confirm" data-ri="${ri}" ${recoveryBusy?'disabled':''}>${r.recoveryBusy==='manual'?'保存して再開中…':'入力を確定'}</button><button type="button" class="manual-cancel" data-ri="${ri}" ${recoveryBusy?'disabled':''}>キャンセル</button></div>${(r.manualValidationErrors||[]).length?`<div class="manual-errors inline">${r.manualValidationErrors.map(x=>`<div>・${esc(x)}</div>`).join('')}</div>`:''}`:`<button type="button" class="manual-open" data-ri="${ri}" ${recoveryBusy?'disabled':''}>${r.recoveryBusy==='manual'?'保存して再開中…':r.manualCompleted?'手動入力を変更':'手動で補完する'}</button>`):'';
   const pausedHere=!!analysisPause&&results[ri]===analysisPause.result;
@@ -1116,33 +1187,94 @@ function renderBenchmark(){
 function diagnosticRawFoodCsvValue(food){const name=String(food?.name||'').trim();return !name||name===NO_FOOD?'':name;}
 function diagnosticRawSpeciesValue(r){if(!r)return'';const manual=String(r.speciesManualOverride||'').trim();if(manual)return manual;const c=r.classification?.candidates||[];return c.length===1?c[0]:'';}
 function toDiagnosticRawCsvRow(r){if(!r||r.processingError||!r.parsed)return null;const p=r.parsed,c=r.classification||r.inference||{},species=diagnosticRawSpeciesValue(r),foods=[0,1,2].map(i=>diagnosticRawFoodCsvValue(r.foods?.[i])),subs=[0,1,2,3,4].map(i=>p.subs?.[i]?.value||'');return [p.nickname||'',species,p.level??'',p.skillLevel??'',...foods,mainSkillCsvValue(p,c,r.speciesManualOverride||''),p.nature||'',...subs,ribbonCsvValue(c),shinyCsvValue(r)];}
-function diagnosticRawCsvFilename(d=new Date()){return `pokesleep_ocr_raw_before_review_${csvDownloadTimestamp(d)}.csv`;}
-function diagnosticsJsonFilename(d=new Date()){return `pokesleep_ocr_v12_diagnostics_${csvDownloadTimestamp(d)}.json`;}
+function diagnosticDownloadTimestamp(d=new Date()){const pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;}
+function diagnosticRawCsvFilename(d=new Date()){return `pokesleep_ocr_raw_before_review_${diagnosticDownloadTimestamp(d)}.csv`;}
+function diagnosticsJsonFilename(d=new Date()){return `pokesleep_ocr_v12_diagnostics_${diagnosticDownloadTimestamp(d)}.json`;}
 function diagnosticSnapshotStatus(r,row){if(!r)return'未処理';if(r.processingError)return `解析失敗: ${r.processingError.stage||'解析'}`;if(row)return'解析成功';return `未修正値なし: ${r.preManualCsvUnavailableReason||'no-successful-analysis-row'}`;}
 function capturePreManualCsvSnapshot(options){const force=!!options?.force;if(preManualCsvSnapshot&&!force)return preManualCsvSnapshot;const rawRows=[],rows=[],skipped=[],derivedRows=[],rowMap=[],byIndex=new Map();for(const r of results){if(Number.isInteger(r?.sourceIndex))byIndex.set(r.sourceIndex,r);}const total=Math.max(selected.length,...[...byIndex.keys()].map(i=>i+1),0);for(let sourceIndex=0;sourceIndex<total;sourceIndex++){const r=byIndex.get(sourceIndex)||null,file=selected[sourceIndex]?.name||r?.file||'',sourceNumber=sourceIndex+1;let row=Array.isArray(r?.preManualCsvRow)?[...r.preManualCsvRow]:null;if(!row&&r&&!r.processingError&&!r.preManualCsvUnavailableReason){row=toDiagnosticRawCsvRow(r);if(row){r.preManualCsvRow=[...row];r.preManualCsvRowDerivedFromCurrentState=true;}}const status=diagnosticSnapshotStatus(r,row),data=row||Array(POKESLEEP_TOOL_CSV_HEADER.length).fill('');rows.push([sourceNumber,file,status,...data]);rowMap.push({csvRow:rows.length+1,sourceIndex,file,status,hasRawRow:!!row});if(row){rawRows.push([...row]);if(r?.preManualCsvRowDerivedFromCheckpoint||r?.preManualCsvRowDerivedFromCurrentState)derivedRows.push({sourceIndex,file,reason:r.preManualCsvRowDerivedFromCheckpoint?'legacy-checkpoint-state':'missing-baseline-fallback'});}else skipped.push({sourceIndex,file,reason:r?.preManualCsvUnavailableReason||r?.processingError?.stage||(r?'no-successful-analysis-row':'not-yet-processed')});}const capturedAt=new Date(),header=['元画像番号','元画像ファイル名','診断状態',...POKESLEEP_TOOL_CSV_HEADER],csvText=[header,...rows].map(row=>row.map(csvCell).join(',')).join('\n');preManualCsvSnapshot={schema:2,capturedAt:capturedAt.toISOString(),filename:diagnosticRawCsvFilename(capturedAt),header:[...header],pokesleepToolHeader:[...POKESLEEP_TOOL_CSV_HEADER],rowCount:rows.length,successfulRowCount:rawRows.length,rows:rows.map(row=>[...row]),rawRows:rawRows.map(row=>[...row]),rowMap:rowMap.map(x=>({...x})),skipped,derivedRows,csvText};return preManualCsvSnapshot;}
 function diagnosticPreManualCsvSnapshot(){const s=capturePreManualCsvSnapshot();return {schema:s.schema,capturedAt:s.capturedAt,filename:s.filename,header:[...s.header],pokesleepToolHeader:[...s.pokesleepToolHeader],rowCount:s.rowCount,successfulRowCount:s.successfulRowCount,rows:s.rows.map(row=>[...row]),rawRows:s.rawRows.map(row=>[...row]),rowMap:s.rowMap.map(x=>({...x})),skipped:s.skipped.map(x=>({...x})),derivedRows:s.derivedRows.map(x=>({...x})),csvText:s.csvText};}
-function downloadDiagnosticRawCSV(){if(isRunning||!results.length)return;const snapshot=capturePreManualCsvSnapshot();triggerBlobDownload(new Blob([snapshot.csvText],{type:'text/csv;charset=utf-8'}),snapshot.filename);}
+async function downloadDiagnosticRawCSV(){
+ if(isRunning||!results.length)return;
+ const snapshot=capturePreManualCsvSnapshot();
+ try{
+  const filename=await window.POKESLEEP_CSV_GATE.reserveFilename(new Date(),'raw');
+  triggerBlobDownload(new Blob([snapshot.csvText],{type:'text/csv;charset=utf-8'}),filename);
+ }catch(err){
+  await showAppDialog({title:'診断CSVを保存できませんでした',message:String(err?.message||err),primaryLabel:'閉じる',tone:'error'});
+ }
+}
 function diagnosticObject(){
  const b=benchmarkSummary();
  return {version:'v12-final',buildId:BUILD_ID,foodReviewMargin:FOOD_REVIEW_MARGIN,mintGreenRatioThreshold:MINT_GREEN_RATIO_MIN,noFoodTemplateConfig:{schema:1,scoreMin:NO_FOOD_EMPTY_SCORE_MIN,marginMin:NO_FOOD_EMPTY_MARGIN_MIN,requiresUniqueSpecies:true,requiresLegalSpeciesSlot:true,emptyReference:'embedded-data-url',emptyReferenceSha256:FOOD_EMPTY_REFERENCE_SHA256},paddleRuntime:{...paddleInitDiagnostics,attempts:[...paddleInitDiagnostics.attempts]},checkpointPersistence:{sessionActive:typeof checkpointSessionActive!=='undefined'?!!checkpointSessionActive:false,failures:typeof checkpointFailureLog!=='undefined'?checkpointFailureLog.map(x=>({...x})):[]},ocrMemoryGuard:{...(typeof ocrMemoryGuardSnapshot==='function'?ocrMemoryGuardSnapshot():{}),restoredFromCheckpoint:typeof ocrMemoryGuardRestoredSnapshot!=='undefined'&&ocrMemoryGuardRestoredSnapshot?{...ocrMemoryGuardRestoredSnapshot}:null},createdAt:new Date().toISOString(),preManualCsvSnapshot:diagnosticPreManualCsvSnapshot(),userAgent:navigator.userAgent,hardwareConcurrency:navigator.hardwareConcurrency||null,deviceMemory:navigator.deviceMemory||null,selectedFiles:selected.map(x=>({name:x.name,size:x.size,type:x.type})),benchmark:b,results:results.map(r=>({file:r.file,sourceIndex:Number.isInteger(r.sourceIndex)?r.sourceIndex:null,elapsedMs:r.elapsedMs,layout:r.layout||null,rawFirstPass:r.rawFirstPass||null,rawFinal:cloneRaw(r.raw),structuredRescue:r.parsed.structuredRescue||null,parsed:{nickname:r.parsed.nickname,nicknameBeforePaddle:r.parsed.nicknameBeforePaddle,nicknameNeedsReview:r.parsed.nicknameNeedsReview,nicknameResolvedBy:r.parsed.nicknameResolvedBy||'',nicknameReviewReason:r.parsed.nicknameReviewReason||'',nicknamePaddleUnavailable:!!r.parsed.nicknamePaddleUnavailable,nicknameCandidates:r.parsed.nicknameCandidates||[],nicknamePaddle:r.parsed.nicknamePaddle||null,nicknameReviewAtAnalysis:r.nicknameReviewAtAnalysis||null,nicknameManualConfirmed:!!r.parsed.nicknameManualConfirmed,level:r.parsed.level,sp:r.parsed.sp,helpSeconds:r.parsed.helpSeconds,carry:r.parsed.carry,skillLevel:r.parsed.skillLevel,mainSkill:r.parsed.mainSkill,mainSkillNeedsReview:!!r.parsed.mainSkillNeedsReview,mainSkillReviewReason:r.parsed.mainSkillReviewReason||'',versatileSkill:r.parsed.versatileSkill||'',versatileSkillLabel:mewVersatileSkillLabel(r.parsed.versatileSkill),mainSkillOutput:mainSkillForOutput(r.parsed,r.classification,r.speciesManualOverride||''),nature:r.parsed.nature,natureNeedsReview:!!r.parsed.natureNeedsReview,natureEvidence:r.parsed.natureEvidence||null,natureEffect:r.parsed.natureEffect||'normal',mintDetection:r.parsed.mintDetection||null,subskills:r.parsed.subs.map(x=>x.value),subskillEvidence:r.parsed.subs.map(x=>({value:x.value,needsReview:!!x.needsReview,reviewReason:x.reviewReason||'',reviewCandidates:x.reviewCandidates||[],evidence:x.evidence||[]})),subskillDuplicateRejects:r.parsed.subskillDuplicateRejects||[],subskillReviewSlots:subskillReviewSlots(r).map(i=>LEVELS[i]),sleepTogetherValue:sleepTogetherValue(r.classification)},inference:{status:r.inference.status,natureEffect:r.inference.natureEffect||r.parsed.natureEffect||'normal',missing:r.inference.missing||[],stages:r.inference.stages||null,candidates:r.inference.candidates||[],carryConsistentCandidates:r.inference.carryConsistentCandidates||[]},foods:r.foods,classification:{status:r.classification.status,candidates:r.classification.candidates,speciesManualOverride:r.speciesManualOverride||'',ribbonTier:sleepTogetherTier(r.classification),sleepTogetherValue:sleepTogetherValue(r.classification),foodConflictPreserved:!!r.classification.foodConflictPreserved,foodConflictSlots:r.foodConflictSlots||[]},reviewState:resultReviewState(r),processingError:r.processingError||null,processingErrorResolved:r.processingErrorResolved||null,manualPreviewErrors:r.manualPreviewErrors||null,manualPreviewSourceError:r.manualPreviewSourceError||null,manualCompletion:r.manualCompletion||null}))};
 }
 function triggerBlobDownload(blob,filename){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;a.rel='noopener';a.style.display='none';document.body.appendChild(a);try{a.click();}finally{setTimeout(()=>{a.remove();URL.revokeObjectURL(url);},1500);}}
-function downloadDiagnostics(){if(isRunning||!results.length)return;const now=new Date();triggerBlobDownload(new Blob([JSON.stringify(diagnosticObject(),null,2)],{type:'application/json;charset=utf-8'}),diagnosticsJsonFilename(now));}
+async function downloadDiagnostics(){
+ if(isRunning||!results.length)return;
+ try{
+  const filename=await window.POKESLEEP_CSV_GATE.reserveFilename(new Date(),'diagnostics');
+  triggerBlobDownload(new Blob([JSON.stringify(diagnosticObject(),null,2)],{type:'application/json;charset=utf-8'}),filename);
+ }catch(err){
+  await showAppDialog({title:'診断JSONを保存できませんでした',message:String(err?.message||err),primaryLabel:'閉じる',tone:'error'});
+ }
+}
 function csvCell(v){v=String(v??'');return /[",\n]/.test(v)?'"'+v.replaceAll('"','""')+'"':v;}
 const POKESLEEP_TOOL_CSV_HEADER=['ニックネーム','ポケモン','レベル','スキルレベル','食材1','食材2','食材3','メインスキル','せいかく','Lv10','Lv25','Lv50','Lv70','Lv80','一緒に眠った時間','色違い'];
 function csvWarnings(){const nw=results.filter(x=>x.parsed.nicknameNeedsReview).length,sw=results.reduce((n,r)=>n+subskillReviewSlots(r).length,0),mw=results.filter(x=>x.manualEditOpen&&!x.manualCompleted).length;return [nw?`ニックネーム要確認 ${nw}件（現在の読み取り値を出力）`:'',sw?`サブスキル要確認 ${sw}枠（pokesleep-toolでは未設定として読み込まれます）`:'',mw?`手動補完中 ${mw}件（確定前の編集内容はCSVに反映されません）`:'' ].filter(Boolean);}
 function csvFoodResolvedForPokesleepTool(species,food,index){if(!food||food.needsReview)return false;const name=String(food.name||'').trim();if(!name)return false;if(name===NO_FOOD)return noneFoodAllowed(species,index);if(typeof manualProfilesForSpecies==='function')return manualProfilesForSpecies(species).some(p=>p[index]===name);return true;}
-function csvCompatibilityBlockers(){let speciesRows=0,foodSlots=0,versatileRows=0,natureRows=0,mainSkillRows=0;const details=[];for(let ri=0;ri<results.length;ri++){const r=results[ri],label=r.file||r.parsed?.nickname||'名称不明';const species=chosenSpecies(r);if(!species){speciesRows++;details.push({ri,file:label,issue:'ポケモン種族を確定してください',field:'species'});continue;}if(species==='ミュウ'){const versatileKey=detailedMewVersatileSkill(r.parsed);if(!MEW_VERSATILE_KEYS.has(versatileKey)||!mewVersatileCsvLabel(versatileKey)){versatileRows++;details.push({ri,file:label,issue:'オールマイティーの具体スキルを確定してください',field:'mainSkill'});}}if(mainSkillDataNeedsReview(r)){mainSkillRows++;details.push({ri,file:label,issue:'メインスキルを確定してください',field:'mainSkill'});}const natureUnsafe=typeof natureDataNeedsReview==='function'?natureDataNeedsReview(r):!!r?.parsed?.natureNeedsReview||!String(r?.parsed?.nature||'').trim();if(natureUnsafe){natureRows++;details.push({ri,file:label,issue:'せいかくを確定してください',field:'nature'});}const illegal=new Set(typeof speciesFoodReviewSlots==='function'?speciesFoodReviewSlots(species,r.foods):[]),bad=[];for(let i=0;i<3;i++)if(illegal.has(i)||!csvFoodResolvedForPokesleepTool(species,r.foods?.[i],i))bad.push(i);if(bad.length){foodSlots+=bad.length;details.push({ri,file:label,issue:`${bad.map(i=>`食材${i+1}`).join('・')}を確定してください`,field:`food${bad[0]+1}`});}}const summary=[];if(speciesRows)summary.push(`ポケモン種族未確定 ${speciesRows}件`);if(versatileRows)summary.push(`ミュウの具体スキル未確定 ${versatileRows}件`);if(mainSkillRows)summary.push(`メインスキル未確定 ${mainSkillRows}件`);if(natureRows)summary.push(`せいかく未確定 ${natureRows}件`);if(foodSlots)summary.push(`食材未確定 ${foodSlots}枠`);const maxDetails=12,shown=details.slice(0,maxDetails);if(details.length>maxDetails)shown.push(`ほか ${details.length-maxDetails}件`);return {blocked:speciesRows>0||versatileRows>0||mainSkillRows>0||natureRows>0||foodSlots>0,speciesRows,versatileRows,mainSkillRows,natureRows,foodSlots,summary,details:shown};}
+function csvCompatibilityBlockers(){let speciesRows=0,foodSlots=0,versatileRows=0,natureRows=0,mainSkillRows=0,subskillSlots=0;const details=[];for(let ri=0;ri<results.length;ri++){const r=results[ri],label=r.file||r.parsed?.nickname||'名称不明';const species=chosenSpecies(r);if(!species){speciesRows++;details.push({ri,file:label,issue:'ポケモン種族を確定してください',field:'species'});continue;}if(species==='ミュウ'){const versatileKey=detailedMewVersatileSkill(r.parsed);if(!MEW_VERSATILE_KEYS.has(versatileKey)||!mewVersatileCsvLabel(versatileKey)){versatileRows++;details.push({ri,file:label,issue:'オールマイティーの具体スキルを確定してください',field:'mainSkill'});}}if(mainSkillDataNeedsReview(r)){mainSkillRows++;details.push({ri,file:label,issue:'メインスキルを確定してください',field:'mainSkill'});}const natureUnsafe=typeof natureDataNeedsReview==='function'?natureDataNeedsReview(r):!!r?.parsed?.natureNeedsReview||!String(r?.parsed?.nature||'').trim();if(natureUnsafe){natureRows++;details.push({ri,file:label,issue:'せいかくを確定してください',field:'nature'});}const illegal=new Set(typeof speciesFoodReviewSlots==='function'?speciesFoodReviewSlots(species,r.foods):[]),bad=[];for(let i=0;i<3;i++)if(illegal.has(i)||!csvFoodResolvedForPokesleepTool(species,r.foods?.[i],i))bad.push(i);if(bad.length){foodSlots+=bad.length;details.push({ri,file:label,issue:`${bad.map(i=>`食材${i+1}`).join('・')}を確定してください`,field:`food${bad[0]+1}`});}
+ const subBad=speciesIsMythical(species)?[]:subskillReviewSlots(r);
+ if(subBad.length){
+  subskillSlots+=subBad.length;
+  details.push({ri,file:label,issue:`サブスキル ${subBad.map(i=>'Lv'+LEVELS[i]).join('・')} を確認・確定してください`,field:'subskills'});
+ }
+ }const summary=[];if(speciesRows)summary.push(`ポケモン種族未確定 ${speciesRows}件`);if(versatileRows)summary.push(`ミュウの具体スキル未確定 ${versatileRows}件`);if(mainSkillRows)summary.push(`メインスキル未確定 ${mainSkillRows}件`);if(natureRows)summary.push(`せいかく未確定 ${natureRows}件`);if(foodSlots)summary.push(`食材未確定 ${foodSlots}枠`);if(subskillSlots)summary.push(`サブスキル未確定 ${subskillSlots}枠`);const maxDetails=12,shown=details.slice(0,maxDetails);if(details.length>maxDetails)shown.push(`ほか ${details.length-maxDetails}件`);return {blocked:speciesRows>0||versatileRows>0||mainSkillRows>0||natureRows>0||foodSlots>0||subskillSlots>0,speciesRows,versatileRows,mainSkillRows,natureRows,foodSlots,subskillSlots,summary,details:shown};}
 async function confirmCsvAction(action){const blockers=csvCompatibilityBlockers();if(blockers.blocked){await showAppDialog({title:'CSV出力前の確認が必要です',message:`pokesleep-toolで意味が変わる未確定項目が残っているため、この状態ではCSVを${action}できません。該当項目を確定してから再度お試しください。画像ファイル名をタップすると、そのカードへ移動できます。値の自動補完は行いません。解析失敗データはカードの「削除」から明示的に除外できます。`,details:[...blockers.summary,...blockers.details],primaryLabel:'閉じる',tone:'error'});return false;}const warns=csvWarnings();if(!warns.length)return true;return showAppDialog({title:'要確認の項目があります',message:`pokesleep-toolで安全に表現できる未確認項目があります。現在の状態のままCSVを${action}する場合は「このまま${action}」を押してください。`,details:warns,primaryLabel:`このまま${action}`,secondaryLabel:'キャンセル',tone:'warning'});}
 function foodCsvValue(x){return x.needsReview||x.name===NO_FOOD?'':x.name;}
-function mainSkillCsvValue(parsed,classification,speciesOverride=''){const mon=speciesOverride||(classification?.candidates?.length===1?classification.candidates[0]:'');if(mon==='ミュウ'&&parsed.mainSkill==='オールマイティー'){const key=detailedMewVersatileSkill(parsed);return mewVersatileCsvLabel(key);}const shown=mainSkillForOutput(parsed,classification,speciesOverride);return parsed.mainSkill||shown||'';}
-function ribbonCsvValue(classification){const v=sleepTogetherValue(classification);return v===''?0:v;}
+function mainSkillCsvValue(parsed,classification,speciesOverride=''){
+ const mon=speciesOverride||(classification?.candidates?.length===1?classification.candidates[0]:'');
+ if(mon==='ミュウ'&&parsed.mainSkill==='オールマイティー'){
+  const key=detailedMewVersatileSkill(parsed);return mewVersatileCsvLabel(key);
+ }
+ // Screen text can omit "(ランダム)" or add a legendary type suffix.
+ // Once the species is confirmed, serialize its canonical importer master label.
+ const observed=String(parsed.mainSkill||'').trim();
+ const master=POKESLEEP_MASTER.pokemon.find(p=>p.name===mon);
+ if(master&&observed&&POKESLEEP_CLASSIFIER.mainSkillMatches(observed,master.mainSkill))
+  return master.mainSkill;
+ const shown=mainSkillForOutput(parsed,classification,speciesOverride);
+ return observed||shown||'';
+}
+// Ribbon-tier inference gives only a minimum threshold, not measured hours. An unobserved CSV field must use the user's 0 default.
+function ribbonCsvValue(_classification){return 0;}
 function shinyCsvValue(r){return r?.parsed?.shiny===true||r?.shiny===true?1:0;}
 function toPokesleepToolCsvRow(r){const p=r.parsed,c=r.classification,species=chosenSpecies(r),foods=[0,1,2].map(i=>foodCsvValue(r.foods?.[i]||{})),subReview=new Set(subskillReviewSlots(r)),subs=[0,1,2,3,4].map(i=>subReview.has(i)?'':(p.subs?.[i]?.value||''));return [p.nickname,species,p.level??'',p.skillLevel??'',...foods,mainSkillCsvValue(p,c,r.speciesManualOverride||''),p.nature,...subs,ribbonCsvValue(c),shinyCsvValue(r)];}
 function buildCsvText(){const rows=[POKESLEEP_TOOL_CSV_HEADER,...results.map(toPokesleepToolCsvRow)];return rows.map(row=>row.map(csvCell).join(',')).join('\n');}
-function csvDownloadTimestamp(d=new Date()){const pad=(n,w=2)=>String(n).padStart(w,'0');return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;}
-function csvDownloadFilename(d=new Date()){return `pokesleep_ocr_integrated_v12_${csvDownloadTimestamp(d)}.csv`;}
-async function downloadCSV(){if(isRunning||analysisPause||!results.length||!await confirmCsvAction('保存'))return;triggerBlobDownload(new Blob([buildCsvText()],{type:'text/csv;charset=utf-8'}),csvDownloadFilename());}
-async function copyCSV(){if(isRunning||analysisPause||!results.length||!await confirmCsvAction('コピー'))return;const text=buildCsvText(),btn=$('#copyCsv');try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(text);else throw new Error('Clipboard API unavailable');}catch(_){const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();if(!ok){await showAppDialog({title:'コピーできませんでした',message:'ブラウザのクリップボード機能を利用できませんでした。CSV保存を利用してください。',primaryLabel:'閉じる',tone:'error'});return;}}const old=btn.textContent;btn.textContent='コピーしました';btn.classList.add('copied');setTimeout(()=>{btn.textContent=old;btn.classList.remove('copied');},1500);}
+function validatedCsvText(){
+ const gate=window.POKESLEEP_CSV_GATE;
+ if(!gate)throw Error('CSV検証プログラムを読み込めませんでした');
+ const text=buildCsvText(),audit=gate.inspect(text,window.POKESLEEP_MASTER);
+ if(!audit.ok)throw Error(audit.errors.slice(0,6).join(' / '));
+ return text;
+}
+async function safeExportText(){
+ try{return validatedCsvText();}
+ catch(err){
+  await showAppDialog({title:'CSV検証に失敗しました',message:'CSVの整合性を確認できないため、出力を停止しました。値を再確認してください。',details:[String(err?.message||err)],primaryLabel:'閉じる',tone:'error'});
+  return null;
+ }
+}
+async function downloadCSV(){
+ if(isRunning||analysisPause||!results.length||!await confirmCsvAction('保存'))return;
+ const text=await safeExportText();
+ if(text===null)return;
+ const gate=window.POKESLEEP_CSV_GATE;
+ try{
+  const filename=await gate.reserveFilename(new Date());
+  triggerBlobDownload(new Blob([text],{type:'text/csv;charset=utf-8'}),filename);
+ }catch(err){
+  await showAppDialog({title:'CSVを保存できませんでした',message:'保存ファイル名を安全に確定できませんでした。',details:[String(err?.message||err)],primaryLabel:'閉じる',tone:'error'});
+ }
+}
+async function copyCSV(){if(isRunning||analysisPause||!results.length||!await confirmCsvAction('コピー'))return;const text=await safeExportText();if(text===null)return;const btn=$('#copyCsv');try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(text);else throw new Error('Clipboard API unavailable');}catch(_){const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();if(!ok){await showAppDialog({title:'コピーできませんでした',message:'ブラウザのクリップボード機能を利用できませんでした。CSV保存を利用してください。',primaryLabel:'閉じる',tone:'error'});return;}}const old=btn.textContent;btn.textContent='コピーしました';btn.classList.add('copied');setTimeout(()=>{btn.textContent=old;btn.classList.remove('copied');},1500);}
 setTimeout(()=>{void initCheckpointRecovery();},0);
 })();

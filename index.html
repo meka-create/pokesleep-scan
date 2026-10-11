@@ -22,9 +22,9 @@
 <meta name="twitter:image" content="https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-09-candidate125-carry-corroborated-first-food">
 <!-- 正式公開前に: node development/configure_public_url.mjs https://example.com/path/ で canonical / og:url / OGP画像URLを絶対URL化してください。 -->
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png?release=2026-10-09-candidate125-carry-corroborated-first-food">
-<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png?release=2026-10-09-candidate125-carry-corroborated-first-food">
-<meta name="theme-color" content="#5558e8">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png?release=2026-10-09-candidate125-carry-corroborated-first-food&iconset=maskable-v1">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png?release=2026-10-09-candidate125-carry-corroborated-first-food&iconset=maskable-v1">
+<meta name="theme-color" content="#2f6ce8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="ぶっこみスキャン">
@@ -124,6 +124,28 @@ body.modal-open{overflow:hidden}.image-modal[hidden]{display:none}.image-modal{p
 html,body{overscroll-behavior:none}
 html.analysis-pull-guard,html.analysis-pull-guard body,body.analysis-pull-guard{overscroll-behavior-y:none}
 body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
+
+.android-roi-option{display:flex;align-items:center;gap:12px;padding:11px 14px;
+ border:1px solid #d3e7f9;background:#f3faff;border-radius:12px;color:#19496e;cursor:pointer;
+ font-size:.88rem}
+.android-roi-option input{flex:0 0 auto;accent-color:#197ad6;width:20px;height:20px}
+.android-roi-option span{display:flex;flex-direction:column;gap:3px}
+.android-roi-option small{color:#4a6278;font-weight:450;line-height:1.45}
+/* STEP3 mobile-first review queue; does not hide automatically confirmed rows. */
+.review-queue{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:9px 12px;border:1px solid #cce8ff;border-radius:12px;background:#eff8ff;
+  color:#164c77;font-size:.86rem;font-weight:650}
+.review-next{border:1px solid #3d83c9;background:#fff;color:#115084;min-height:44px;
+  border-radius:10px;padding:8px 14px;font:inherit;font-weight:750;cursor:pointer}
+.review-next:disabled{opacity:.45;cursor:not-allowed}
+.review-next:focus-visible,#reviewQueue:focus-visible{outline:3px solid #317bc5;outline-offset:3px}
+#tbl tbody tr.review-target{outline:3px solid #3e9bff;outline-offset:-3px}
+@media(max-width:760px){
+ .results-head{flex-wrap:wrap;gap:10px}
+ .review-queue{order:2;width:100%;justify-content:space-between}
+ .review-next{flex-shrink:0}
+ .file-open,.nickconfirm,.subskillconfirm,.foodconfirm,.speciesconfirm,.manual-open{min-height:44px}
+}
 </style>
 </head>
 <body>
@@ -156,6 +178,11 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
             <span id="uploadSub" class="upload-sub">PNG / JPG / JPEG · 複数選択可</span>
           </span>
         </label>
+        <label class="android-roi-option">
+          <input id="androidRoiEnabled" type="checkbox" checked>
+          <span><strong>Androidスクショ専用の読み取り範囲</strong>
+            <small>1080×2400を優先。うまく読めない場合はOFFにして再解析できます。</small></span>
+        </label>
         <div class="action-row">
           <button id="run" class="btn btn-primary" type="button" disabled>解析する</button>
         </div>
@@ -172,6 +199,10 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
       <div class="results-head">
         <h2 class="results-title">解析結果</h2>
         <label class="filter-toggle"><input id="reviewOnly" type="checkbox">要確認のみ</label>
+        <div id="reviewQueue" class="review-queue" role="status" aria-live="polite">
+          <span id="reviewQueueSummary">解析結果から要確認項目を抽出します</span>
+          <button id="nextReview" class="review-next" type="button" disabled>次の要確認へ</button>
+        </div>
         <div class="result-actions">
           <button id="csv" class="export-btn" type="button" disabled>CSVを保存</button>
           <button id="copyCsv" class="export-btn copy" type="button" disabled>CSVをコピー</button>
@@ -274,7 +305,7 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
 (async()=>{
   window.__BUKKOMI_SESSION_ACTIVE__=false;
   window.__BUKKOMI_PENDING_RELEASE_ID__='';
-  const localFiles=['master_data.js','classifier.js','food_color_features.js','food_matcher.js','app.js'];
+  const localFiles=['master_data.js','shared_master.js','classifier.js','food_color_features.js','food_matcher.js','android_roi.js','csv_gate.js','app.js'];
   const loadScript=src=>new Promise((resolve,reject)=>{
     const el=document.createElement('script');
     el.src=src;
@@ -337,7 +368,15 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
     for(const file of localFiles){
       const u=new URL(file,location.href);
       u.searchParams.set('release',releaseId);
+      // Separate STEP2 development assets from the published Candidate125 SW cache.
+      u.searchParams.set('step2','sharedcsv-v1');
+      u.searchParams.set('step3','androidroi-v1');
       await loadScript(u.toString());
+      // Classifier closes over POKESLEEP_MASTER at load time. Finish selection
+      // before classifier.js executes; never change master mid-session.
+      if(file==='shared_master.js'){
+        await window.POKESLEEP_SHARED_MASTER.load();
+      }
     }
     if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')){
       const swUrl=new URL('sw.js',location.href);
