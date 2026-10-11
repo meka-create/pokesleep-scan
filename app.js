@@ -281,6 +281,17 @@ dropZone?.addEventListener('drop',e=>{if(!hasFileDrag(e))return;e.preventDefault
 document.addEventListener('dragover',e=>{if(hasFileDrag(e))e.preventDefault();});
 document.addEventListener('drop',e=>{if(hasFileDrag(e)&&!e.target.closest?.('.filelabel'))e.preventDefault();});
 $('#run').addEventListener('click',e=>{e.preventDefault();void runPrimaryAnalysisAction();});$('#csv').addEventListener('click',e=>{e.preventDefault();downloadCSV();});$('#copyCsv').addEventListener('click',e=>{e.preventDefault();copyCSV();});$('#diag').addEventListener('click',e=>{e.preventDefault();downloadDiagnostics();});$('#diagRawCsv')?.addEventListener('click',e=>{e.preventDefault();downloadDiagnosticRawCSV();});$('#reviewOnly')?.addEventListener('change',render);
+let reviewQueueCursor=-1;
+$('#nextReview')?.addEventListener('click',()=>{
+ const rows=[...document.querySelectorAll('#tbl tbody tr.needs-review')].filter(tr=>tr.style.display!=='none');
+ if(!rows.length)return;
+ const target=rows.find(tr=>Number(tr.dataset.ri)>reviewQueueCursor)||rows[0];
+ reviewQueueCursor=Number(target.dataset.ri);
+ document.querySelectorAll('#tbl tbody tr.review-target').forEach(tr=>tr.classList.remove('review-target'));
+ target.classList.add('review-target');
+ target.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center',inline:'nearest'});
+ target.focus({preventScroll:true});
+});
 $('#tbl')?.addEventListener('focusout',()=>setTimeout(flushPendingRender,0));
 function closeAppDialog(result=false){const d=$('#appDialog');if(!d)return;const resolve=appDialogResolver;appDialogResolver=null;if(d.open){if(typeof d.close==='function')d.close();else d.removeAttribute('open');}const f=appDialogReturnFocus;appDialogReturnFocus=null;if(f&&document.contains(f))f.focus();if(resolve)resolve(!!result);}
 function showAppDialog({title='お知らせ',message='',details=[],primaryLabel='OK',secondaryLabel='',tone='info'}={}){const d=$('#appDialog'),titleEl=$('#appDialogTitle'),messageEl=$('#appDialogMessage'),detailsEl=$('#appDialogDetails'),primary=$('#appDialogPrimary'),secondary=$('#appDialogSecondary'),icon=$('#appDialogIcon');if(!d)return Promise.resolve(true);if(appDialogResolver)closeAppDialog(false);appDialogReturnFocus=document.activeElement;d.classList.toggle('is-warning',tone==='warning');d.classList.toggle('is-error',tone==='error');if(icon)icon.textContent=tone==='warning'?'!':tone==='error'?'×':'✓';if(titleEl)titleEl.textContent=title;if(messageEl)messageEl.textContent=message;if(detailsEl){detailsEl.replaceChildren();for(const item of details){const li=document.createElement('li');if(item&&typeof item==='object'&&Number.isInteger(item.ri)){const btn=document.createElement('button');btn.type='button';btn.className='dialog-result-jump';btn.dataset.ri=String(item.ri);if(item.field)btn.dataset.field=String(item.field);const file=document.createElement('span');file.className='dialog-result-file';file.textContent=item.file||'該当画像';const issue=document.createElement('span');issue.className='dialog-result-issue';issue.textContent=item.issue||item.text||'';btn.append(file,issue);li.classList.add('has-result-jump');li.appendChild(btn);}else li.textContent=String(item??'');detailsEl.appendChild(li);}}if(primary)primary.textContent=primaryLabel;if(secondary){secondary.textContent=secondaryLabel;secondary.hidden=!secondaryLabel;}return new Promise(resolve=>{appDialogResolver=resolve;if(typeof d.showModal==='function')d.showModal();else d.setAttribute('open','');setTimeout(()=>primary?.focus(),0);});}
@@ -938,6 +949,14 @@ function render(){
  closeChoicePicker(false);
  const tb=$('#tbl tbody'),resultsCard=$('#resultsCard');if(resultsCard)resultsCard.hidden=!results.length;tb.innerHTML='';
  const ordered=results.map((r,ri)=>({r,ri,needsReview:resultNeedsReview(r),reviewResolved:!!r.reviewResolved})).sort((a,b)=>{const ap=a.needsReview?0:(a.reviewResolved?1:2),bp=b.needsReview?0:(b.reviewResolved?1:2);return (ap-bp)||(a.ri-b.ri);});
+ const pendingRows=ordered.filter(x=>x.needsReview),pendingCount=pendingRows.length;
+ const fieldCount=pendingRows.reduce((total,x)=>total+Object.values(resultReviewState(x.r)).filter(Boolean).length,0);
+ const queueSummary=$('#reviewQueueSummary'),queueNext=$('#nextReview');
+ if(queueSummary)queueSummary.textContent=pendingCount?
+   `要確認 ${pendingCount}枚・未確定項目 ${fieldCount}件（要確認を先頭に表示）`:
+   `要確認なし・全${results.length}枚`;
+ if(queueNext)queueNext.disabled=!pendingCount||isRunning;
+ if(!pendingCount)reviewQueueCursor=-1;
  for(const item of ordered){
   const {r,ri}=item,p=r.parsed,c=r.classification,[st,cl]=statusView(r),reviewState=resultReviewState(r),classificationNeedsReview=reviewState.species;
   const pokemon=chosenSpecies(r),manual=!!r.manualEditOpen,d=manual?(r.manualDraft||(r.manualDraft=makeManualDraft(r))):null,mp=r.manualPreviews||{},mpe=r.manualPreviewErrors||{};
@@ -984,7 +1003,7 @@ function render(){
   else{const shown=mainSkillForOutput(p,c,r.speciesManualOverride||'')||p.mainSkill||'—';mainSkillHtml=`<div class="review-value${reviewState.mainSkill?' is-unresolved':''}"><span class="main-skill-value">${esc(shown)}</span>${reviewState.mainSkill?'<span class="review-badge">要確認</span>':''}</div>`;}
   const manualNatureReview=manual&&!validNatureValue(d.nature);
   const natureHtml=manual?`<div class="manual-inline-field${manualNatureReview?' is-unresolved':''}"><div class="manual-inline-label"><span>せいかく</span>${manualNatureReview?'<span class="review-badge">要確認</span>':''}</div><select class="manual-editor-input manual-nature" data-ri="${ri}" aria-label="せいかく"><option value="" ${d.nature?'':'selected'} disabled>せいかくを選択</option>${NATURES.map(n=>`<option value="${esc(n)}" ${n===d.nature?'selected':''}>${esc(n)}</option>`).join('')}</select>${manualNatureReview?manualPreviewHtml(mp.nature,'せいかく',ri,mpe.nature):''}</div>`:`<div class="review-value${reviewState.nature?' is-unresolved':''}"><span class="nature-value">${esc(p.nature||'—')}</span>${reviewState.nature?'<span class="review-badge">要確認</span>':''}${natureNote}</div>`;
-  const needsReview=item.needsReview,tr=document.createElement('tr');tr.dataset.ri=String(ri);tr.id=`result-card-${ri}`;if(needsReview)tr.classList.add('needs-review');if(r.processingError)tr.classList.add('processing-failed');
+  const needsReview=item.needsReview,tr=document.createElement('tr');tr.dataset.ri=String(ri);tr.id=`result-card-${ri}`;tr.tabIndex=-1;if(needsReview)tr.classList.add('needs-review');if(r.processingError)tr.classList.add('processing-failed');
   const manualEligible=c.status!=='UNIQUE'||reviewState.level||reviewState.skillLevel||reviewState.mainSkill||reviewState.nature||subskillNeedsReview(r)||r.manualCompleted||r.manualEditOpen||!!r.processingError,recoveryBusy=!!r.recoveryBusy;
   const manualAction=manualEligible?(manual?`<div class="manual-inline-actions"><button type="button" class="manual-confirm" data-ri="${ri}" ${recoveryBusy?'disabled':''}>${r.recoveryBusy==='manual'?'保存して再開中…':'入力を確定'}</button><button type="button" class="manual-cancel" data-ri="${ri}" ${recoveryBusy?'disabled':''}>キャンセル</button></div>${(r.manualValidationErrors||[]).length?`<div class="manual-errors inline">${r.manualValidationErrors.map(x=>`<div>・${esc(x)}</div>`).join('')}</div>`:''}`:`<button type="button" class="manual-open" data-ri="${ri}" ${recoveryBusy?'disabled':''}>${r.recoveryBusy==='manual'?'保存して再開中…':r.manualCompleted?'手動入力を変更':'手動で補完する'}</button>`):'';
   const pausedHere=!!analysisPause&&results[ri]===analysisPause.result;
