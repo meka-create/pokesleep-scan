@@ -83,6 +83,37 @@ def main():
                 assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth+2"),\
                     "Unexpected horizontal viewport overflow on Pixel-sized screen"
                 checks.append("Pixel-width page has no outer horizontal overflow")
+                geometry=page.evaluate("""() => {
+                  const toggle=document.querySelector('.android-roi-option');
+                  const drop=document.querySelector('.filelabel');
+                  const card=document.querySelector('.workspace');
+                  const a=toggle.getBoundingClientRect(),b=drop.getBoundingClientRect(),c=card.getBoundingClientRect();
+                  const css=getComputedStyle(toggle);
+                  return {label:toggle.innerText.trim(),above:a.bottom<=b.top+1,
+                    right:a.right>=b.right-12,inCard:a.left>=c.left&&a.right<=c.right,
+                    font:parseFloat(css.fontSize),background:css.backgroundColor,
+                    border:css.borderTopWidth,touchHeight:a.height,
+                    order:toggle.compareDocumentPosition(drop)};
+                }""")
+                assert geometry["label"]=="Android(1080×2400)最適化",geometry
+                assert geometry["above"] and geometry["right"] and geometry["inCard"],geometry
+                assert geometry["font"]<=12 and geometry["border"]=="0px",geometry
+                assert geometry["background"] in ("rgba(0, 0, 0, 0)","transparent"),geometry
+                assert geometry["touchHeight"]>=44,geometry
+                checks.append("gray unboxed right-aligned switch above picker inside white workspace")
+                import base64
+                png=base64.b64decode(
+                    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/C9sAAAAASUVORK5CYII="
+                )
+                files=[{"name":f"IMG_{i:04d}.png","mimeType":"image/png","buffer":png}
+                       for i in range(1,143)]
+                page.locator("#files").set_input_files(files,timeout=30000)
+                page.wait_for_function("""() =>
+                  document.querySelector('#uploadMain')?.textContent==='142枚を選択しました' &&
+                  !document.querySelector('#run')?.disabled""",timeout=45000)
+                assert page.locator("#run").is_enabled()
+                assert not page.locator("#appDialog").is_visible()
+                checks.append("142 distinct PNG files accepted and snapshot preparation completed; OCR not run")
                 assert not errors,errors
                 ctx.close()
             finally:
