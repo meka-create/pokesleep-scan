@@ -45,6 +45,7 @@ async function load(){
   const release=String(window.__PUBLIC_RELEASE_ID__||'');
   if(release)url.searchParams.set('release',release);
   url.searchParams.set('step2','sharedcsv-v1');
+  url.searchParams.set('step3','androidroi-v1');
   const controller=new AbortController();
   // No long-lived timer: use finally to always clear timeout.
   const timer=setTimeout(()=>controller.abort(),8000);
