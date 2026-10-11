@@ -19,7 +19,7 @@ def main():
     old_hashes=lock["sourceManifest"]["fileHashes"]
     failures=[]
     audited=[]
-    allowed_modified={"app.js","index.html"}
+    allowed_modified={"app.js","index.html","sw.js"}
     required=["shared/MASTER_DATA.json","shared_master.js","csv_gate.js","development/step2_shared_csv.test.cjs"]
     for path in required:
         if not (root/path).is_file():failures.append("Missing STEP2 asset: "+path)
@@ -66,6 +66,15 @@ def main():
     if scripts not in html:failures.append("Script load order altered")
     if "await window.POKESLEEP_SHARED_MASTER.load()" not in html:
         failures.append("Shared master verification must finish before classifier")
+    if "diagnosticDownloadTimestamp(d)" not in app or "csvDownloadTimestamp" in app:
+        failures.append("Diagnostic raw CSV/JSON timestamp regression")
+    if "function ribbonCsvValue(_classification){return 0;}" not in app:
+        failures.append("Unobserved together-sleep time is not protected by 0 default")
+    sw=(root/"sw.js").read_text(encoding="utf-8")
+    for pre in ("versioned('./shared_master.js')","versioned('./shared/MASTER_DATA.json')","versioned('./csv_gate.js')"):
+        if pre not in sw:failures.append("Missing STEP2 PWA precache: "+pre)
+    if "step2=sharedcsv-v1" not in sw or "u.searchParams.set('step2','sharedcsv-v1')" not in html:
+        failures.append("STEP2 JS/SW cache versions are not aligned")
     if "await safeExportText()" not in app or "await gate.reserveFilename(new Date())" not in app:
         failures.append("CSV gate/download hook missing")
     if re.search(r"function csvDownloadTimestamp|function csvDownloadFilename",app):
