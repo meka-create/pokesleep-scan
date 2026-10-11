@@ -62,6 +62,12 @@ jobs:
           python -m playwright install --with-deps chromium
           mkdir -p step3_evidence
           python development/browser_boot_smoke.py | tee step3_evidence/chromium_boot.json
+      - name: Pixel mobile real Chromium review queue interaction regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile development/browser_step3_review_audit.py
+          python development/browser_step3_review_audit.py | tee step3_evidence/chromium_mobile_review.json
       - name: Real Chromium CSV two downloads and invalid row block
         shell: bash
         run: |
