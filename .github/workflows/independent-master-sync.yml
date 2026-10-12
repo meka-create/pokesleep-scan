@@ -1,0 +1,49 @@
+name: Independent master auto-update
+on:
+  schedule:
+    - cron: '15 19 * * *' # 04:15 JST; GitHub may delay scheduled jobs
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: pokesleep-scan-master-sync
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Clone upstream at a single SHA; do not execute untrusted code
+        run: git clone --depth 1 --single-branch https://github.com/nitoyon/pokesleep-tool.git "$RUNNER_TEMP/upstream"
+      - name: Stage, validate, test and refresh self-owned release metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          python development/master_auto_update.py --upstream "$RUNNER_TEMP/upstream" --apply
+          python development/generate_public_package_manifest.py --write
+          node --check app.js
+          node --check classifier.js
+          node --check food_matcher.js
+          node --test development/runtime_smoke.test.cjs development/step2_shared_csv.test.cjs development/master_auto_update.test.cjs
+          python development/generate_public_package_manifest.py --check
+      - name: Commit only validated master + release assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- shared/MASTER_DATA.json shared/master_release.json app.js sw.js release.json public_package_manifest.json
+          if git diff --cached --quiet; then echo 'No upstream master changes'; exit 0; fi
+          git diff --cached --check
+          git commit -m 'data: sync upstream independently'
+          git push origin HEAD:main
