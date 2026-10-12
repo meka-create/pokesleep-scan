@@ -26,4 +26,6 @@ test('unrecognized ingredient graphic never classified as one of existing images
 test('unknown food energy coefficients never become automatic classifier candidates',()=>{
  const text=fs.readFileSync(path.join(root,'classifier.js'),'utf8');
  assert.equal(text.split('Object.hasOwn(ING_BASE,it.key)').length,3);
+ assert.equal(text.split('Object.hasOwn(BERRY_BASE,sp.type)').length,3);
+ assert.equal(text.split('POKESLEEP_BASELINE_SKILLS.has(sp.skill)').length,3);
 });

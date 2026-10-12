@@ -5,6 +5,8 @@
 (()=>{'use strict';
 const MASTER_PATH='shared/MASTER_DATA.json',META_PATH='shared/master_release.json';
 const fallback=window.POKESLEEP_MASTER;
+// Unreviewed newly introduced main skill keys must never use generic SP defaults.
+window.POKESLEEP_BASELINE_SKILLS=new Set((fallback?.pokemon||[]).map(p=>p.skill));
 let state={source:'legacy-fallback',reason:'not-loaded',sha256:'',commit:''};
 const signature=m=>({cutoff:m.cutoff,pokemon:m.pokemon,ingredients:m.ingredients,
  natures:m.natures,subskills:m.subskills});
