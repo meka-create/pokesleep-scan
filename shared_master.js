@@ -39,7 +39,8 @@ function valid(m,meta){
   if(!p.name_en||!p.skill||!p.mainSkill||!Number.isFinite(p.frequency)||p.frequency<=0||
    !Number.isInteger(p.carryLimit)||p.carryLimit<=0||p.carryLimit>999||
    !['ingRate','skillRate'].every(k=>Number.isFinite(p[k])&&p[k]>=0&&p[k]<=100)||
-   !['evolutionCount','evolutionLeft'].every(k=>Number.isInteger(p[k])&&p[k]>=0&&p[k]<=5)||
+   !Number.isInteger(p.evolutionCount)||p.evolutionCount< -1||p.evolutionCount>5||
+   !Number.isInteger(p.evolutionLeft)||p.evolutionLeft<0||p.evolutionLeft>5||
    !['Berries','Ingredients','Skills','All'].includes(p.specialty)||
    !/^\d{4}-\d{2}-\d{2}$/.test(p.arrival||''))return false;
   for(const v of [p.ing1,p.ing2,p.ing3,...(p.mythIng||[])])

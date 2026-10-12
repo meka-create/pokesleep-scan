@@ -109,7 +109,8 @@ def project(src,prior,commit=None):
               and type(row['carryLimit']) is int and 0<row['carryLimit']<=999
               and all(isinstance(row[k],(float,int)) and not isinstance(row[k],bool)
                       and math.isfinite(row[k]) and 0<=row[k]<=100 for k in ('ingRate','skillRate'))
-              and all(type(row[k]) is int and 0<=row[k]<=5 for k in ('evolutionCount','evolutionLeft'))
+              and type(row['evolutionCount']) is int and -1<=row['evolutionCount']<=5
+              and type(row['evolutionLeft']) is int and 0<=row['evolutionLeft']<=5
               and row['specialty'] in ('Berries','Ingredients','Skills','All')
               and isinstance(row['type'],str) and bool(row['type'])
               and isinstance(row['arrival'],str) and re.fullmatch(r'\d{4}-\d{2}-\d{2}',row['arrival']),
