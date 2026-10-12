@@ -23,3 +23,6 @@ Intermediate audit: future first-food values cannot be auto-confirmed during spe
 selection or manual draft initialization; CSV export requires an explicit manual
 confirmation. Approved new food sprites provide advisory image rankings only,
 not automatic authorization for export.
+
+### Master update warning
+Daily 04:00 JST check (GitHub may delay) writes `master-update-status.json` on success or failure. Stale/missing status older than 50 hours or locally rejected master activates bare ⚠️ immediately before TIPS. It only opens on tap and uses a top-right × without bottom controls. A failed update retains the old master; no automatic modal.
