@@ -55,7 +55,7 @@ test('pending is quiet until 50-hour deadline',async()=>{
 test('workflow records failure after resetting unverified candidate',()=>{
  const wf=fs.readFileSync(path.join(root,'.github/workflows/independent-master-sync.yml'),'utf8');
  assert.match(wf,/if: always\(\)/);
- assert.match(wf,/git reset --hard origin\/main/);
- assert.match(wf,/git add -- master-update-status.json/);
- assert.match(wf,/development\/write_master_update_status.py/);
+ assert.match(wf,/needs: \[sync\]/);
+ assert.match(wf,/git add -- master-update-status.json public_package_manifest.json/);
+ assert.match(wf,/development\/publish_master_status.py/);
 });
