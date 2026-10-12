@@ -150,6 +150,7 @@ test('carry review UI provides custom entry even if classifier has no guesses',(
  assert.match(source,/class="carrymanual"/);
  assert.match(source,/inputmode="numeric"/);
  assert.match(source,/class="review-confirm carryconfirm"/);
+ assert.match(source,/has-carry-review/);
 });
 test('shape second opinion is explicitly non-authoritative',()=>{
  assert.match(fm,/function reviewShapeOpinion\(/);
