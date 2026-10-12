@@ -180,6 +180,12 @@ def _seed_v7_checkpoint(page):
     encoded=base64.b64encode(PNG).decode("ascii")
     page.evaluate("""async encoded => {
       const req=indexedDB.open('bukkomi-scan-checkpoint-v1',2);
+      // New test contexts have no DB yet. Create the exact v7/v10 store schema.
+      req.onupgradeneeded=()=>{
+        const db=req.result;
+        for(const [name,keyPath] of [['meta','key'],['files','index'],['results','sourceIndex']])
+          if(!db.objectStoreNames.contains(name))db.createObjectStore(name,{keyPath});
+      };
       const db=await new Promise((resolve,reject)=>{
         req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
       });

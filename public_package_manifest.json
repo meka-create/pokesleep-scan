@@ -56,8 +56,8 @@
     },
     {
       "path": "development/browser_boot_smoke.py",
-      "bytes": 16316,
-      "sha256": "51e7aadf0b6af504c478b95e294c373ee9149e411ae08763c9728d0a6749ce4a"
+      "bytes": 16652,
+      "sha256": "e293023ce283e03cb284a5092811c7ade264517e971c5732a62cb4cc9756d072"
     },
     {
       "path": "development/browser_csv_download_audit.py",
