@@ -43,6 +43,11 @@ function valid(m,meta){
    !Number.isInteger(p.evolutionLeft)||p.evolutionLeft<0||p.evolutionLeft>5||
    !['Berries','Ingredients','Skills','All'].includes(p.specialty)||
    !/^\d{4}-\d{2}-\d{2}$/.test(p.arrival||''))return false;
+  if(!p.ing1||!p.ing2)return false;
+  for(let i=1;i<=3;i++){const v=p['ing'+i];
+   if(v&&!String(v.key).startsWith('unknown')&&
+      (!Number.isInteger(v['c'+i])||v['c'+i]<=0||v['c'+i]>999))return false;
+  }
   for(const v of [p.ing1,p.ing2,p.ing3,...(p.mythIng||[])])
    if(v&&(!v.key||(v.key!=='unknown'&&!ingredients.has(v.key)&&!/^unknown\d$/.test(v.key))||
        !['c1','c2','c3'].every(k=>v[k]===null||v[k]===undefined||

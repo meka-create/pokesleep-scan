@@ -121,6 +121,14 @@ class OctoberFifthTest(unittest.TestCase):
         with self.assertRaises(Hold):
             project(self.dir,self.pre,commit='a'*40)
 
+    def test_missing_required_food_count_holds_release(self):
+        src=self.dir/'src/data/pokemon.json'
+        doc=json.loads(src.read_text(encoding='utf-8'))
+        doc[0]['ing1']['c1']=None
+        save(src,doc)
+        with self.assertRaises(Hold):
+            project(self.dir,self.pre,commit='a'*40)
+
     def test_duplicate_food_display_names_hold_release(self):
         src=self.dir/'src/i18n/ja/data.json'
         doc=json.loads(src.read_text(encoding='utf-8'))

@@ -124,7 +124,10 @@ def project(src,prior,commit=None):
                 k=item['name']
                 check(k in ingredients or (p.get('mythIng') and k in ('unknown','unknown1','unknown2','unknown3')),
                       f'unknown ingredient {en}:{k}')
-                check(all(item.get(q) is None or (type(item.get(q)) is int and 0<=item[q]<=999) for q in ('c1','c2','c3')),'invalid ingredient quantities')
+                check(all(item.get(q) is None or (type(item.get(q)) is int and 0<=item[q]<=999) for q in ('c1','c2','c3'))
+                      and (str(k).startswith('unknown') or
+                           (type(item.get('c'+str(n))) is int and item['c'+str(n)]>0)),
+                      'invalid ingredient quantities')
                 row['ing'+str(n)]={'key':k,'name':ingredients.get(k,k),
                                   **{c:item.get(c) for c in ('c1','c2','c3')}}
         if p.get('mythIng'):
