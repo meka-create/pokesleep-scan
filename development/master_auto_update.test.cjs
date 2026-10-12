@@ -56,7 +56,7 @@ test('species/manual review and CSV paths cannot bypass unreviewed future first-
   assert.ok(source,'missing '+name);
   return source;
  }).join('\n');
- const ctx={window:{POKESLEEP_BASELINE_FOODS:new Set(['あじわいキノコ'])},
+ const ctx={window:{POKESLEEP_BASELINE_FOODS:new Set(['あじわいキノコ'])},NO_FOOD:'―',
   manualFoodOptions:name=>[name==='future'?'未来の食材':'あじわいキノコ'],
   chosenSpecies:()=> 'future',speciesFoodReviewSlots:()=>[],
   manualProfilesForSpecies:()=>[['未来の食材','未来の食材','未来の食材']]};
