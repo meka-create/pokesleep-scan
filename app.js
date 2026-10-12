@@ -766,9 +766,10 @@ async function retryMissingCarryFromVisibleCard(canvas,parsed,inference,idx,tota
   readings.push({...r,value:parseExplicitCarryEvidence(r),crop:name==='wide-alt'?'wide':name,psm:options.psm});
  }
  const recovered=corroboratedCarryRetry(readings,inference);
- parsed.carryRetry={status:recovered==null?'unresolved':'independent-visible-ocr-confirmed',readings};
+ parsed.carryRetry={status:recovered==null?'unresolved':'corroborated-needs-user-verification',readings};
  if(recovered!=null){
   parsed.carry=recovered;
+  parsed.carryNeedsReview=true; // Do not auto-accept overlapping crops as independent screenshots.
   inference=inferParsed(parsed);
  }
  return inference;
@@ -1001,6 +1002,7 @@ function numericDataNeedsReview(r,key){
  if(r?.processingError)return false;
  const p=r?.parsed||{},value=p[key];
  if(!Number.isInteger(value)||value<=0)return true;
+ if(key==='carry'&&p.carryNeedsReview&&!p.carryManualConfirmed)return true;
  return key==='sp'&&numericSpEvidenceConflict(p);
 }
 // A missing carry cannot be deduced without the Pokemon's unseen sleep-ribbon
@@ -1017,7 +1019,7 @@ function applyManuallyVerifiedCarry(r,value){
  const n=Number(value);
  if(!Number.isInteger(n)||!carryManualChoices(r).includes(n))return false;
  const p=r.parsed;
- p.carry=n;p.carryManualConfirmed=true;
+ p.carry=n;p.carryManualConfirmed=true;p.carryNeedsReview=false;
  p.carryRetry={...(p.carryRetry||{}),manualVerified:true};
  r.inference=inferParsed(p);recomputeClassificationFromFoods(r);
  r.reviewResolved=true;
