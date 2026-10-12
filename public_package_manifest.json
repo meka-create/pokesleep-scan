@@ -91,8 +91,8 @@
     },
     {
       "path": "development/master_auto_update.test.cjs",
-      "bytes": 2814,
-      "sha256": "769c14a0ea2f87438b78f2de5e77e2c9f573eade91578fdf7241afb0aeb70db0"
+      "bytes": 2824,
+      "sha256": "0561299c25978c2e5148479fc815fa604b8625bc4c35a91c6bd9ea8b284d9344"
     },
     {
       "path": "development/register_food_icons.py",
@@ -106,8 +106,8 @@
     },
     {
       "path": "development/step2_shared_csv.test.cjs",
-      "bytes": 12657,
-      "sha256": "6f5e826edc55213640d21586baf2a4797627ba3a8b24cd1fd504c924f0be41bd"
+      "bytes": 14588,
+      "sha256": "0bab1bf630525b99c3121b3a400ed5906fdfe45d678ec5f9c7794c6e21d4ef0b"
     },
     {
       "path": "development/step3_android_roi.test.cjs",
