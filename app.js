@@ -1071,13 +1071,19 @@ function carryManualChoices(r){
   .map(h=>h.calculatedCarry).filter(n=>Number.isInteger(n)&&n>=1&&n<=250))]
   .sort((a,b)=>a-b);
 }
-function applyManuallyVerifiedCarry(r,value){
- if(!r||r.processingError)return false;
- const n=Number(value);
- if(!Number.isInteger(n)||!carryManualChoices(r).includes(n))return false;
+function applyManuallyVerifiedCarry(r,value,manualNumericEntry=false){
+ if(!r||r.processingError||!r.parsed)return false;
+ const n=Number(value),compatible=carryManualChoices(r);
+ // Explicit manual values are necessary: on five Golden-correct screenshots
+ // the classifier's hidden ribbon state does not contain the displayed carry.
+ // This path is ONLY reachable through the user's confirmation control.
+ if(!Number.isInteger(n)||n<1||n>250||
+    (!compatible.includes(n)&&manualNumericEntry!==true))return false;
  const p=r.parsed;
  p.carry=n;p.carryManualConfirmed=true;p.carryNeedsReview=false;
- p.carryRetry={...(p.carryRetry||{}),manualVerified:true};
+ p.carryVerificationOutOfModel=!compatible.includes(n);
+ p.carryRetry={...(p.carryRetry||{}),manualVerified:true,
+    manuallyEnteredOutsideClassifier:p.carryVerificationOutOfModel};
  r.inference=inferParsed(p);recomputeClassificationFromFoods(r);
  r.reviewResolved=true;
  return true;
@@ -1260,9 +1266,9 @@ function render(){syncAdditionalFileUi();
   }).join('');
   const stage=`メインスキル:${r.inference.stages.mainSkill.length} → 時間+SP:${r.inference.candidates.length}種 / ${r.inference.profiles.length}食材候補 → 食材後:${c.candidates.length}種${p.natureEffect==='neutralized'?' / まっしろミント補正':''}${p.structuredRescue?.applied?` / 再OCR補正:${p.structuredRescue.applied.field||p.structuredRescue.applied.reason}`:''}`;
   const raw=esc(JSON.stringify(Object.fromEntries(Object.entries(r.raw).map(([k,v])=>[k,v.text])),null,2));
-  const carryWarn=p.carry!=null&&c.status==='UNIQUE'&&!c.hits.some(h=>h.carryMatch===true),carryText=`${p.carry??''}${carryWarn?' ⚠':''}`;
+  const carryWarn=p.carry!=null&&c.status==='UNIQUE'&&!p.carryManualConfirmed&&!c.hits.some(h=>h.carryMatch===true),carryText=`${p.carry??''}${carryWarn?' ⚠':''}`;
   const carryValues=reviewState.carry&&!manual?carryManualChoices(r):[];
-  const carryReviewHtml=carryValues.length?`<div class="review-control carry-review-control"><select class="carryedit" data-ri="${ri}" aria-label="最大所持数をゲーム画面で確認"><option value="" selected disabled>所持数を確認</option>${carryValues.map(n=>`<option value="${n}">${n}個</option>`).join('')}</select><button type="button" class="review-confirm carryconfirm" data-ri="${ri}" disabled>確定</button></div>`:'';
+  const carryReviewHtml=reviewState.carry&&!manual?`<div class="review-control carry-review-control"><select class="carryedit" data-ri="${ri}" aria-label="最大所持数をゲーム画面で確認"><option value="" selected disabled>所持数を確認</option>${carryValues.map(n=>`<option value="${n}">${n}個</option>`).join('')}<option value="manual">その他（画面の数値を入力）</option></select><input type="number" inputmode="numeric" min="1" max="250" step="1" class="carrymanual" data-ri="${ri}" aria-label="画像で確認した最大所持数" placeholder="1〜250" hidden><button type="button" class="review-confirm carryconfirm" data-ri="${ri}" disabled>確定</button></div>`:'';
   const carryConfirmed=p.carryManualConfirmed?'<span class="verified-badge">確認済み</span>':'';
   const carryOcrHint=reviewState.carry&&Number.isInteger(p.carryRetry?.advisoryValue)
    ?`<span class="candidate-label">画像再読取候補: ${p.carryRetry.advisoryValue}個（元画像で確認）</span>`:'';const numericReviewBadge=key=>reviewState[key]?'<span class="review-badge" title="認識数値を元画像・ゲーム画面で確認してください。">要確認</span>':'';
@@ -1316,13 +1322,22 @@ function render(){syncAdditionalFileUi();
  for(const b of tb.querySelectorAll('.speciesconfirm'))b.addEventListener('click',async e=>{const r=results[+e.currentTarget.dataset.ri],v=String(r.speciesReviewSelection||'').trim(),opts=speciesAllowedCandidates(r);if(!v||!opts.includes(v))return;r.speciesManualOverride=v;autoResolveFirstFoodForSpecies(r,v);revalidateFoodsForSpecies(r,v);r.reviewResolved=true;delete r.speciesReviewSelection;delete r.speciesBrowseAll;delete r.speciesSearchQuery;scheduleCheckpointResultSave(r);await ensureFoodReviewPreviews(r);await ensureSubskillReviewPreviews(r);scheduleCheckpointResultSave(r);render();});
  for(const b of tb.querySelectorAll('.speciesreopen'))b.addEventListener('click',e=>{const r=results[+e.currentTarget.dataset.ri];reopenSpeciesSelection(r);scheduleCheckpointResultSave(r);render();});
  for(const sel of tb.querySelectorAll('.carryedit'))sel.addEventListener('change',e=>{
-   const b=e.target.closest('.carry-cell')?.querySelector('.carryconfirm');
-   if(b)b.disabled=!e.target.value;
+   const cell=e.target.closest('.carry-cell'),input=cell?.querySelector('.carrymanual'),
+         b=cell?.querySelector('.carryconfirm'),manual=e.target.value==='manual';
+   if(input)input.hidden=!manual;
+   if(b)b.disabled=manual
+     ? !(input&&Number.isInteger(Number(input.value))&&Number(input.value)>=1&&Number(input.value)<=250)
+     : !e.target.value;
+ });
+ for(const input of tb.querySelectorAll('.carrymanual'))input.addEventListener('input',e=>{
+   const b=e.target.closest('.carry-cell')?.querySelector('.carryconfirm'),n=Number(e.target.value);
+   if(b)b.disabled=!e.target.value||!Number.isInteger(n)||n<1||n>250;
  });
  for(const b of tb.querySelectorAll('.carryconfirm'))b.addEventListener('click',e=>{
    const ri=+e.currentTarget.dataset.ri,r=results[ri],
-         sel=e.currentTarget.closest('.carry-cell')?.querySelector('.carryedit');
-   if(!sel||!applyManuallyVerifiedCarry(r,sel.value))return;
+         cell=e.currentTarget.closest('.carry-cell'),
+         sel=cell?.querySelector('.carryedit'),input=cell?.querySelector('.carrymanual');
+   if(!sel||!applyManuallyVerifiedCarry(r,sel.value==='manual'?input?.value:sel.value,sel.value==='manual'))return;
    scheduleCheckpointResultSave(r);render();
  });
  for(const el of tb.querySelectorAll('.foodedit'))el.addEventListener('change',e=>{const r=results[+e.target.dataset.ri],f=r.foods[+e.target.dataset.fi];f.reviewSelection=e.target.value;const b=e.target.closest('.food-review-block')?.querySelector('.foodconfirm');if(b)b.disabled=!f.reviewSelection;});
