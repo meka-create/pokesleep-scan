@@ -7,17 +7,17 @@
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 41,
+  "fileCount": 47,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
-      "bytes": 2304,
-      "sha256": "069c09d641310424c9dff678d6f908970de0cc0dbb504f71a6a7ddb68cfce37b"
+      "bytes": 3476,
+      "sha256": "ac2e091f73aaf59f81830df86083bd64a1f9605ab12ea7c54c7448f4a3fc63cd"
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 4197,
-      "sha256": "252428fd16d82c357ad6a5e096d09d29f1bb3148f727983f9b05ec2ab408d84d"
+      "bytes": 4320,
+      "sha256": "9ff7c04cb05badd6ca2fedec7553fe1170b3b6bdac4e11e8891b0597c914470b"
     },
     {
       "path": ".nojekyll",
@@ -61,8 +61,8 @@
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
-      "bytes": 1587,
-      "sha256": "1797a36e09b324072039debcfd1fe5b5dac4cfbbebb29a3181c151fb0cbdf4b2"
+      "bytes": 1958,
+      "sha256": "399b7beef69cdbb5fa506237373aee20f47efe67d6d7773f095207d92b3480e8"
     },
     {
       "path": "development/browser_boot_smoke.py",
@@ -93,6 +93,16 @@
       "path": "development/master_auto_update.test.cjs",
       "bytes": 7200,
       "sha256": "1a89e1b8fc06964a2b8e4a5e4006fc7f619993e5e2452aff0db5c1af40a44db0"
+    },
+    {
+      "path": "development/master_update_status.test.cjs",
+      "bytes": 3540,
+      "sha256": "933d4437f365f2b78efa46d22eacc48f8dd9779de1aeb9d7c65dfc1c1346b4ae"
+    },
+    {
+      "path": "development/publish_master_status.py",
+      "bytes": 1479,
+      "sha256": "331b4f08a0f41f52fb88ac70d6ac7525d53b8ad7431eadc01d05c1099a8c99f7"
     },
     {
       "path": "development/register_food_icons.py",
@@ -133,6 +143,16 @@
       "path": "development/test_master_auto_update.py",
       "bytes": 10824,
       "sha256": "7a29973b6b686ea66c680fd79e4f0f0de530df244e446de1a3bd87e42a9a0080"
+    },
+    {
+      "path": "development/test_master_status.py",
+      "bytes": 1566,
+      "sha256": "21fbdbd4b45919acb7e0c26f4a51ac9f68344c6c1320bf39e2ccdaa872bbdeb8"
+    },
+    {
+      "path": "development/write_master_update_status.py",
+      "bytes": 1324,
+      "sha256": "dc0b793a12875a6166ccc08dea8204891047018a25b79fc532e1e432905c3073"
     },
     {
       "path": "food_color_features.js",
@@ -176,13 +196,23 @@
     },
     {
       "path": "index.html",
-      "bytes": 69588,
-      "sha256": "5bb4b5cf48405a80e141e77a8f715a345dd50eb4ea76144768479efdfd1b3246"
+      "bytes": 70822,
+      "sha256": "ed1c0df8a08ec09c4e62eff350cab4a262178094e1212840a01cf99ac9ea95e3"
     },
     {
       "path": "manifest.webmanifest",
       "bytes": 1250,
       "sha256": "8b3751a6c224f95dd9435284e28273c6a94066f351256b1c74958506eb8b918c"
+    },
+    {
+      "path": "master-update-status.js",
+      "bytes": 2547,
+      "sha256": "3ed2bfd84e10f9225e82b949af5e119ea8b9aaa4523b81337b5076a11bc95c05"
+    },
+    {
+      "path": "master-update-status.json",
+      "bytes": 177,
+      "sha256": "ca90ed7c7af314427c8007f1729838070072caf5e8cbf33bf8a4fde0c7e38cc9"
     },
     {
       "path": "master_data.js",
@@ -206,13 +236,13 @@
     },
     {
       "path": "shared_master.js",
-      "bytes": 5871,
-      "sha256": "d0087dc76f16ca184c277e2c6c52d04895a16eb9055a80dc056a16079c5fd409"
+      "bytes": 5981,
+      "sha256": "af188293f7a5abbf37f8d67e67692d51150d225980f2c2d1d39df13d535c774f"
     },
     {
       "path": "sw.js",
-      "bytes": 3460,
-      "sha256": "aa1c209ddd7daff792d6a589094effa91d4af51d67b054a59b13085313433687"
+      "bytes": 3736,
+      "sha256": "4b934d162f9c9a804358c37f0919d6d48789bc35c75d63bcf7a23b650700e0bf"
     }
   ]
 }
