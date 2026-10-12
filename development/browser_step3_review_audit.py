@@ -101,31 +101,37 @@ def main():
                 page.wait_for_function("""() =>
                   document.querySelector('#uploadMain')?.textContent==='100枚を選択しました' &&
                   !document.querySelector('#run')?.disabled""",timeout=45000)
-                add=page.locator("#addFilesButton")
-                assert add.is_visible() and add.is_enabled(),"Add images option missing after first batch"
-                button_style=add.evaluate("""(el) => {
-                  const r=el.getBoundingClientRect();
-                  const frame=document.querySelector('.file-picker-shell');
-                  const f=frame.getBoundingClientRect(),drop=document.querySelector('.filelabel').getBoundingClientRect();
-                  const cs=getComputedStyle(el),svg=el.querySelector('svg');
-                  return {width:r.width,height:r.height,radius:parseFloat(cs.borderTopLeftRadius),
-                    blue:cs.backgroundColor,hasIcon:!!svg,aria:el.getAttribute('aria-label'),
-                    inFrame:r.left>=f.left&&r.right<=f.right+1&&r.top>=f.top&&r.bottom<=f.bottom+1,
-                    inPicker:r.left>=drop.left&&r.right<=drop.right+1&&r.top>=drop.top&&r.bottom<=drop.bottom+1,
-                    rightGap:drop.right-r.right,bottomGap:drop.bottom-r.bottom,
-                    oldLabel:!!frame.querySelector('.android-roi-option')};
+                assert page.locator("#addFilesButton").count()==0
+                assert page.locator("#addFilesRow").count()==0
+                assert page.locator("#imageSelectDialog").is_hidden()
+                appearance=page.evaluate("""() => {
+                  const el=document.querySelector('.filelabel');
+                  const icon=document.querySelector('#uploadIcon svg');
+                  const css=getComputedStyle(el);
+                  const i=getComputedStyle(document.querySelector('#uploadIcon'));
+                  return {border:css.borderTopWidth,style:css.borderTopStyle,
+                    background:css.backgroundColor,radius:parseFloat(css.borderTopLeftRadius),
+                    icon:!!icon,rect:!!icon?.querySelector('rect'),
+                    circle:!!icon?.querySelector('circle'),path:!!icon?.querySelector('path'),
+                    iconSize:i.width,label:el.getAttribute('aria-label')};
                 }""")
-                assert button_style["width"]>=44 and button_style["height"]>=44,button_style
-                assert button_style["radius"]>=button_style["width"]/2-1,button_style
-                assert button_style["hasIcon"] and button_style["aria"]=="画像を追加する",button_style
-                assert button_style["inFrame"] and button_style["inPicker"],button_style
-                assert 0<=button_style["rightGap"]<=20 and 0<=button_style["bottomGap"]<=20,button_style
-                assert not button_style["oldLabel"],button_style
-                assert button_style["blue"].startswith("rgb("),button_style
-                assert page.locator("#uploadSub").inner_text()=="","Redundant add-image instructions returned"
-                checks.append("blue circular plus is inside lower-right of 100-image selected frame")
+                assert appearance["border"]=="2px" and appearance["style"]=="dashed",appearance
+                assert appearance["radius"]>=16 and appearance["background"]=="rgb(248, 251, 255)",appearance
+                assert appearance["icon"] and appearance["rect"] and appearance["circle"] and appearance["path"],appearance
+                assert appearance["iconSize"]=="56px",appearance
+                assert page.locator("#uploadSub").inner_text()==""
+                checks.append("AI Scan picture icon, blue dashed frame and original large picker")
+                drop=page.locator(".filelabel")
+                drop.click()
+                assert page.locator("#imageSelectDialog").is_visible()
+                assert page.locator("#imageSelectReplace").is_visible()
+                assert page.locator("#imageSelectAppend").is_enabled()
+                page.locator("#imageSelectClose").click()
+                assert page.locator("#imageSelectDialog").is_hidden()
+                checks.append("selected picker opens modal; top-right X closes it")
+                drop.click()
                 with page.expect_file_chooser() as chooser_info:
-                    add.click()
+                    page.locator("#imageSelectAppend").click()
                 chooser_info.value.set_files(second)
                 page.wait_for_function("""() =>
                   document.querySelector('#uploadMain')?.textContent==='142枚を選択しました' &&
@@ -138,14 +144,28 @@ def main():
                 checks.append("Pixel photo picker 100+42 batches preserved as 142 unique images; OCR not run")
                 # Attempting to add an already-selected screenshot is not permitted
                 # to duplicate the CSV row or alter the original 142-image list.
+                drop.click()
+                assert page.locator("#imageSelectDialog").is_visible()
                 with page.expect_file_chooser() as dup_chooser:
-                    add.click()
+                    page.locator("#imageSelectAppend").click()
                 dup_chooser.value.set_files([first[0]])
                 page.locator("#appDialog").wait_for(state="visible",timeout=10000)
                 assert "追加画像はありません" in page.locator("#appDialogTitle").inner_text()
                 assert page.evaluate("window.__STEP3_REVIEW_AUDIT__.names().length")==142
                 page.locator("#appDialogPrimary").click()
                 checks.append("duplicate second-batch selection blocked without losing earlier 142 images")
+                # Replacing 142 photos from the selected-image modal replaces
+                # the complete list rather than accidentally appending.
+                drop.click()
+                with page.expect_file_chooser() as replace_picker:
+                    page.locator("#imageSelectReplace").click()
+                replace_picker.value.set_files([first[0]])
+                page.wait_for_function("""() =>
+                  document.querySelector('#uploadMain')?.textContent==='1枚を選択しました' &&
+                  !document.querySelector('#run')?.disabled""",timeout=45000)
+                assert page.evaluate("window.__STEP3_REVIEW_AUDIT__.names()")==["IMG_0001.png"]
+                checks.append("choose-again replaces entire 142-image selection without invoking OCR")
+
                 assert not errors,errors
                 ctx.close()
             finally:
