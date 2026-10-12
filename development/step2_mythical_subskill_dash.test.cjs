@@ -28,9 +28,11 @@ function roi(kind='dash',column=70){
 }
 function screenshot(kind='dash',index=4,detail=1217){
  return {width:691,height:1536,getContext:()=>({getImageData:(x,y,w,h)=>{
-  assert.equal(x,index===3?425:120);assert.equal(y,Math.round(detail+(index===3?-205:-100))-14);
+  const slot=x===425?3:x===120?4:-1;
+  assert.ok(slot===3||slot===4);
+  assert.equal(y,Math.round(detail+(slot===3?-205:-100))-14);
   assert.equal(w,140);assert.equal(h,28);
-  return {data:roi(kind,index===3?77:69)};
+  return {data:roi(slot===index?kind:'blank',slot===3?77:69)};
  }})};
 }
 function record(){return {subs:[0,1,2,3,4].map(i=>({value:i<3?'スキル確率アップS':'きのみの数S',needsReview:i>=3,score:0.2})),visibleEmptySubskillProofs:undefined};}
