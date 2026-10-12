@@ -97,6 +97,10 @@ def main():
                        for i in range(1,101)]
                 second=[{"name":f"IMG_{i:04d}.png","mimeType":"image/png","buffer":png}
                         for i in range(101,143)]
+                # Move the synthetic pointer away and suppress transient hover transitions
+                # so this test asserts the actual stable idle/selected CSS colors.
+                page.locator(".filelabel").evaluate("(el)=>el.style.transition='none'")
+                page.mouse.move(0,0)
                 idle_color=page.locator(".filelabel").evaluate("(el)=>getComputedStyle(el).backgroundColor")
                 assert idle_color=="rgb(248, 251, 255)",idle_color
                 page.locator("#files").set_input_files(first,timeout=30000)
@@ -117,6 +121,7 @@ def main():
                     circle:!!icon?.querySelector('circle'),path:!!icon?.querySelector('path'),
                     iconSize:i.width,label:el.getAttribute('aria-label')};
                 }""")
+                page.mouse.move(0,0)
                 assert appearance["border"]=="2px" and appearance["style"]=="solid",appearance
                 assert appearance["radius"]>=16 and appearance["background"]=="rgb(234, 243, 255)",appearance
                 assert appearance["background"]!=idle_color,appearance
