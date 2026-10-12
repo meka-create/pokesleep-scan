@@ -123,7 +123,7 @@ test('visible card corroboration updates parsed carry and inference',async()=>{
  assert.equal(got.status,'UNIQUE');assert.equal(p.carryRetry.readings.length,3);
 });
 test('missing or ambiguous carry never blocks exportable review status',()=>{
- const r={parsed:{carry:null,carryNeedsReview:true}};
+ const r={parsed:{carry:null,carryNeedsReview:true,sp:1000,helpSeconds:2500}};
  assert.equal(ctx.numericDataNeedsReview(r,'carry'),false);
  assert.equal(ctx.resultReviewState(r).carry,false);
  assert.equal(Object.values(ctx.resultReviewState(r)).some(Boolean),false);
