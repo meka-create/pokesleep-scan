@@ -722,7 +722,7 @@ function inferParsed(parsed){return POKESLEEP_CLASSIFIER.inferWithoutFoods(obser
 // independently corroborated raw '<number> 個' OCR consistent with the master.
 function parseExplicitCarryEvidence(reading){
  const text=String(reading?.text||'').normalize('NFKC');
- const matches=[...text.matchAll(/([0-9]{1,3})\\s*個/g)];
+ const matches=[...text.matchAll(/([0-9]{1,3})\s*個/g)];
  if(matches.length!==1)return null;
  const n=Number(matches[0][1]);
  return Number.isInteger(n)&&n>=1&&n<=250?n:null;
@@ -763,7 +763,7 @@ async function retryMissingCarryFromVisibleCard(canvas,parsed,inference,idx,tota
   ['wide-alt',wide,{psm:'7'}]
  ]){
   const r=await ocrSingle(src,'所持数・画像再確認',idx,total,options);
-  readings.push({...r,value:parseExplicitCarryEvidence(r),crop:name,psm:options.psm});
+  readings.push({...r,value:parseExplicitCarryEvidence(r),crop:name==='wide-alt'?'wide':name,psm:options.psm});
  }
  const recovered=corroboratedCarryRetry(readings,inference);
  parsed.carryRetry={status:recovered==null?'unresolved':'independent-visible-ocr-confirmed',readings};
