@@ -11,7 +11,11 @@ test('image viewing button retains subtle compact base layout',()=>{
  assert.match(css,/font-size:9\.5px/);
 });
 test('phone layout keeps its original compact 30px image button height',()=>{
- assert.match(html,/@media\(max-width:680px\)\{[^}]*?(?:\}[^{}]*)*?\.file-open\{width:auto;min-height:30px;padding:4px 7px/);
+ const mobileStart=html.indexOf('@media(max-width:680px){.pokemon-cell');
+ const compactRule=html.indexOf('.file-open{width:auto;min-height:30px;padding:4px 7px',mobileStart);
+ const lateTouchRule=html.lastIndexOf('@media(max-width:760px){');
+ assert.ok(mobileStart>=0&&compactRule>mobileStart&&compactRule<lateTouchRule,
+   'The 30px button must be in the mobile stylesheet before other touch rules');
 });
 test('large 44px touch targets remain on review controls, not the image button',()=>{
  const block=html.match(/\/\* Mobile touch targets remain large without the extra review navigator\. \*\/\s*@media\(max-width:760px\)\{([\s\S]*?)\}\s*<\/style>/);
