@@ -52,7 +52,8 @@ test('visible card corroboration updates parsed carry and inference',async()=>{
    time:{start:309,end:344},carry:{start:395,end:430},main:{start:512,end:550}
  }};
  const got=await ctx.retryMissingCarryFromVisibleCard(c,p,inference,0,1);
- assert.equal(p.carry,44);assert.equal(p.carryRetry.status,'independent-visible-ocr-confirmed');
+ assert.equal(p.carry,44);assert.equal(p.carryRetry.status,'corroborated-needs-user-verification');
+ assert.equal(p.carryNeedsReview,true);
  assert.equal(got.status,'UNIQUE');assert.equal(p.carryRetry.readings.length,3);
 });
 test('only legal classifier carry values can be manually confirmed',()=>{
@@ -62,6 +63,7 @@ test('only legal classifier carry values can be manually confirmed',()=>{
  assert.equal(r.parsed.carry,null);
  assert.equal(ctx.applyManuallyVerifiedCarry(r,44),true);
  assert.equal(r.parsed.carry,44);assert.equal(r.parsed.carryManualConfirmed,true);
+ assert.equal(r.parsed.carryNeedsReview,false);
  assert.equal(r.recomputed,true);
 });
 test('shape second opinion is explicitly non-authoritative',()=>{
@@ -72,4 +74,6 @@ test('shape second opinion is explicitly non-authoritative',()=>{
  assert.match(source,/third\?\.needsReview&&third\?\.method==='image'/);
  assert.doesNotMatch(source,/third\.name\s*=\s*opinion\.name/);
  assert.match(source,/形状照合の参考候補/);
+ assert.match(source,/parsed\.carryNeedsReview=true/);
+ assert.match(source,/p\.carryNeedsReview=false/);
 });
