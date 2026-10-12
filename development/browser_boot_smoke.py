@@ -87,8 +87,8 @@ def main():
                 # Close the first-visit tips if present; this is not a test of tips styling.
                 if page.locator("#tipsDialog").evaluate("(el)=>el.open"):
                     page.locator("#tipsClose").click()
-                check("Android ROI toggle survives reload and can be re-enabled", lambda:
-                      _check_android_roi_toggle(page))
+                check("Android ROI remains standard despite an old OFF preference", lambda:
+                      _check_android_roi_standard(page))
                 check("Initially CSV export is disabled", lambda:
                       _assert(page.locator("#csv").is_disabled(), "CSV is enabled with no records"))
                 check("Reject unsupported attachment with visible error", lambda:
@@ -156,45 +156,30 @@ def main():
     return results
 
 
-def _check_android_roi_toggle(page):
-    option=page.locator("#androidRoiEnabled")
-    label=page.locator("label.android-roi-option")
-    _assert(label.inner_text().strip() == "Android(1080×2400)最適化",
-            "Android optimization label contains unexpected text")
-    _assert(option.get_attribute("role") == "switch",
-            "Android optimization control must expose accessible switch role")
-    rect=label.bounding_box()
-    knob=option.bounding_box()
-    _assert(rect is not None and rect["height"] >= 44,
-            "Touch target is too small for Pixel")
-    _assert(knob is not None and knob["width"] >= 34,
-            "Compact switch track is missing or too small")
-    _assert(option.is_checked(), "Android ROI must default ON for this test session")
-    on_color=option.evaluate("(el)=>getComputedStyle(el).backgroundColor")
-    label.click()
-    _assert(not option.is_checked(), "Clicking the label did not turn switch OFF")
-    # The knob/track animates for 170ms; wait until the OFF colour settles
-    # instead of testing an animation frame immediately after the click.
-    page.wait_for_function(
-        "(onColor) => getComputedStyle(document.querySelector('#androidRoiEnabled')).backgroundColor !== onColor",
-        arg=on_color,timeout=3000)
-    off_color=option.evaluate("(el)=>getComputedStyle(el).backgroundColor")
-    _assert(off_color != on_color, "Switch ON/OFF styles look identical")
-    _assert(page.evaluate(
-        "localStorage.getItem('pokesleep-ocr-android-roi-v1')") == "0",
-        "Android opt-out was not persisted")
+def _check_android_roi_standard(page):
+    _assert(page.locator("#androidRoiEnabled").count()==0,
+            "Deprecated Android optimization toggle is still in the DOM")
+    _assert(page.locator(".android-roi-option").count()==0,
+            "Deprecated Android optimization label is still visible")
+    _assert(page.locator(".file-picker-shell>.filelabel").count()==1,
+            "Screenshot picker is no longer inside its expected container")
+    # Important: users who had switched this setting OFF must get the
+    # optimized engine without touching their saved preferences.
+    page.evaluate("localStorage.setItem('pokesleep-ocr-android-roi-v1','0')")
     page.reload(wait_until="domcontentloaded",timeout=20000)
     page.wait_for_function(
-        "() => !!window.POKESLEEP_ANDROID_ROI && !!window.POKESLEEP_CSV_GATE",timeout=15000)
-    _assert(not page.locator("#androidRoiEnabled").is_checked(),
-            "Android opt-out was forgotten on reload")
-    page.locator("#androidRoiEnabled").focus()
-    page.keyboard.press("Space")
-    _assert(page.locator("#androidRoiEnabled").is_checked(),
-            "Keyboard Space failed to turn switch ON")
+        "() => !!window.POKESLEEP_ANDROID_ROI && !!window.POKESLEEP_CSV_GATE",
+        timeout=15000)
+    _assert(page.locator("#androidRoiEnabled").count()==0,
+            "Deprecated switch reappeared after reload")
     _assert(page.evaluate(
-        "localStorage.getItem('pokesleep-ocr-android-roi-v1')") == "1",
-        "Android ROI was not re-enabled")
+        "localStorage.getItem('pokesleep-ocr-android-roi-v1')")=="0",
+        "Old OFF preference disappeared; regression no longer covers migration")
+    _assert(page.evaluate(
+        "typeof window.POKESLEEP_ANDROID_ROI.inspect==='function'"),
+        "Standard Android crop adapter was not loaded")
+    _assert(page.locator("#addFilesRow").is_hidden(),
+            "Image-append plus should not appear before choosing screenshots")
 
 
 def _check_names(page):
