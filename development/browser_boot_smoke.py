@@ -117,6 +117,32 @@ def main():
                           lambda: _check_v7_checkpoint_migrated(old_page))
                 finally:
                     migration.close()
+                # Old checkpoint bytes must survive a verified master SHA change.
+                stale_master=browser.new_context(service_workers="block")
+                try:
+                    stale=stale_master.new_page()
+                    stale.route(TESSERACT_URL,lambda r:r.fulfill(
+                        status=200,content_type="application/javascript",body="window.Tesseract={};"))
+                    stale.goto(url,wait_until="domcontentloaded",timeout=20000)
+                    stale.wait_for_function("() => !!window.POKESLEEP_CSV_GATE",timeout=20000)
+                    _seed_v7_checkpoint(stale)
+                    stale.evaluate("""async () => {
+                      const req=indexedDB.open('bukkomi-scan-checkpoint-v1',2);
+                      const db=await new Promise((yes,no)=>{req.onsuccess=()=>yes(req.result);req.onerror=()=>no(req.error)});
+                      const tx=db.transaction('meta','readwrite');
+                      const store=tx.objectStore('meta');
+                      const get=store.get('active');
+                      const meta=await new Promise((yes,no)=>{get.onsuccess=()=>yes(get.result);get.onerror=()=>no(get.error)});
+                      meta.masterSha256='f'.repeat(64);
+                      store.put(meta);
+                      await new Promise((yes,no)=>{tx.oncomplete=yes;tx.onerror=()=>no(tx.error)});
+                      db.close();
+                    }""")
+                    stale.reload(wait_until="domcontentloaded",timeout=20000)
+                    check("Stale-master checkpoint retains images and requests re-analysis",
+                          lambda:_check_master_change_checkpoint(stale))
+                finally:
+                    stale_master.close()
                 # Independent PWA cache test: preserve offline availability of
                 # the NEW local assets. CDN OCR binaries are deliberately out of
                 # scope and are not claimed as offline-capable.
@@ -238,6 +264,24 @@ def _check_v7_checkpoint_migrated(page):
             "v7 checkpoint compatibility ID was not migrated")
     _assert(meta.get("migratedFrom",{}).get("releaseId")=="2026-10-12-android-roi-standard-inline-add-v7",
             "Original v7 checkpoint provenance not retained")
+
+
+def _check_master_change_checkpoint(page):
+    page.locator("#appDialog").wait_for(state="visible",timeout=20000)
+    _assert(page.locator("#appDialogTitle").inner_text()=="新しいマスターで再解析が必要です",
+            "Stale master data was silently accepted instead of requesting reanalysis")
+    data=page.evaluate("""async () => {
+       const req=indexedDB.open('bukkomi-scan-checkpoint-v1',2);
+       const db=await new Promise((yes,no)=>{req.onsuccess=()=>yes(req.result);req.onerror=()=>no(req.error)});
+       const tx=db.transaction(['meta','files'],'readonly');
+       const q=tx.objectStore('meta').get('active'),files=tx.objectStore('files').getAll();
+       const out=await Promise.all([
+          new Promise(yes=>q.onsuccess=()=>yes(q.result)),
+          new Promise(yes=>files.onsuccess=()=>yes(files.result))]);
+       db.close();return {sha:out[0]?.masterSha256,count:out[1]?.length,bytes:out[1]?.[0]?.data?.byteLength};
+    }""")
+    _assert(data["sha"]=="f"*64 and data["count"]==1 and data["bytes"]==len(PNG),
+            "Mismatch check prematurely deleted the user's checkpoint bytes")
 
 
 def _check_android_roi_standard(page):
