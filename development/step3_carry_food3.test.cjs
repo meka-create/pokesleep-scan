@@ -18,6 +18,67 @@ vm.createContext(ctx);vm.runInContext(A+B,ctx);
 const observed=(n,opts={})=>({text:n+' 個',value:n,crop:opts.crop||'tight',psm:opts.psm||'7',confidence:opts.conf||90});
 const inference={status:'UNIQUE',candidates:['ミュウ'],
  hits:[38,39,41,44,46].map(n=>({pokemon:'ミュウ',calculatedCarry:n}))};
+test('four-line Latias layout diagnostic geometry triggers shifted carry band search',()=>{
+ for(const heading of [514,518]){
+  const c={height:1536,width:691,layout:{
+   main:{start:0,end:heading===514?1:5},detail:{start:heading,end:heading+38},
+   time:null,carry:null}};
+  const zones=ctx.shiftedCarrySearchRects(c);
+  assert.equal(zones.length,4);
+  assert.equal(zones[0].rect[1],heading-394);
+  assert.equal(zones[3].rect[3],heading-18);
+  assert.equal(zones[3].rect[0],255);
+  assert.ok(zones.every(z=>z.rect[3]<heading));
+ }
+ const normal={height:1536,width:691,layout:{
+   main:{start:552},detail:{start:1205},time:{start:350,end:386},
+   carry:{start:435,end:470}}};
+ assert.equal(ctx.shiftedCarrySearchRects(normal).length,0);
+});
+test('shifted Latias carry 20 or 19 is a reviewed OCR candidate, never auto-confirmed',async()=>{
+ const original=ctx.ocrSingle;
+ try{
+  for(const [heading,carry] of [[514,20],[518,19]]){
+   const c={height:1536,width:691,layout:{
+    main:{start:0,end:3},detail:{start:heading,end:heading+38},time:null,carry:null}};
+   ctx.ocrSingle=async(src,_lbl,_i,_total,opt)=>{
+    const [x1,y1]=src.rect;
+    const isLast=y1===heading-127,correct=isLast&&
+       (x1===255||x1===285);
+    return {text:correct?carry+' 個':'',confidence:correct?92:0};
+   };
+   const inf={status:'UNIQUE',candidates:['ラティアス'],
+    hits:[19,20,22,25,27].map(n=>({pokemon:'ラティアス',calculatedCarry:n}))};
+   const parsed={carry:null};
+   const next=await ctx.retryMissingCarryFromVisibleCard(c,parsed,inf,0,1);
+   assert.equal(parsed.carry,carry);
+   assert.equal(parsed.carryNeedsReview,true);
+   assert.equal(parsed.carryRetry.status,'shifted-ocr-needs-user-verification');
+   assert.equal(parsed.carryManualConfirmed,undefined);
+   assert.equal(next.status,'UNIQUE');
+  }
+ }finally{ctx.ocrSingle=original;}
+});
+test('disagreeing or missing shifted OCR cannot supply an unverified carry number',async()=>{
+ const original=ctx.ocrSingle;
+ try{
+  const heading=514,c={height:1536,width:691,layout:{
+   main:{start:0,end:1},detail:{start:heading,end:heading+38},time:null,carry:null}};
+  const inf={status:'UNIQUE',candidates:['ラティアス'],
+   hits:[19,20,22,25,27].map(n=>({pokemon:'ラティアス',calculatedCarry:n}))};
+  ctx.ocrSingle=async()=>({text:'',confidence:0});
+  const missing={carry:null};
+  await ctx.retryMissingCarryFromVisibleCard(c,missing,inf,0,1);
+  assert.equal(missing.carry,null);
+  assert.equal(missing.carryRetry.status,'unresolved-shifted-ocr');
+  let n=0;
+  ctx.ocrSingle=async()=>{n++;return {text:n===2?'19個':n===3?'20個':'',confidence:93};};
+  const conflict={carry:null};
+  await ctx.retryMissingCarryFromVisibleCard(c,conflict,inf,0,1);
+  assert.equal(conflict.carry,null);
+  assert.equal(conflict.carryRetry.status,'conflicting-shifted-ocr');
+ }finally{ctx.ocrSingle=original;}
+});
 test('parse exact and unambiguous number with unit 個 only',()=>{
  assert.equal(ctx.parseExplicitCarryEvidence({text:'44 個'}),44);
  assert.equal(ctx.parseExplicitCarryEvidence({text:'44個'}),44);
