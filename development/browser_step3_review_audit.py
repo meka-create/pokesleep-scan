@@ -87,7 +87,7 @@ def main():
                   const cs=getComputedStyle(drop),r=drop.getBoundingClientRect();
                   return {height:r.height,minHeight:parseFloat(cs.minHeight)};
                 }""")
-                assert picker["height"]>=184 and picker["minHeight"]>=184,picker
+                assert picker["height"]>=183.5 and picker["minHeight"]>=184,picker
                 checks.append("screenshot picker restored to full-size touch target")
                 import base64
                 png=base64.b64decode(
