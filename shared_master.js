@@ -7,6 +7,8 @@ const MASTER_PATH='shared/MASTER_DATA.json',META_PATH='shared/master_release.jso
 const fallback=window.POKESLEEP_MASTER;
 // Unreviewed newly introduced main skill keys must never use generic SP defaults.
 window.POKESLEEP_BASELINE_SKILLS=new Set((fallback?.pokemon||[]).map(p=>p.skill));
+window.POKESLEEP_BASELINE_FOODS=new Set(Object.values(fallback?.ingredients||{}));
+window.POKESLEEP_EXTRA_INGREDIENT_STRENGTH={};
 let state={source:'legacy-fallback',reason:'not-loaded',sha256:'',commit:''};
 const signature=m=>({cutoff:m.cutoff,pokemon:m.pokemon,ingredients:m.ingredients,
  natures:m.natures,subskills:m.subskills});
@@ -25,6 +27,12 @@ function valid(m,meta){
   meta.natureCount!==m.natures.length||meta.subskillCount!==m.subskills.length||
   meta.cutoff!==m.cutoff))return false;
  const ingredients=new Set(Object.keys(m.ingredients));
+ const added=[...ingredients].filter(k=>!Object.hasOwn(fallback.ingredients,k));
+ const extra=m.ingredientStrength||{};
+ if(!extra||typeof extra!=='object'||Array.isArray(extra)||
+    Object.keys(extra).length!==added.length||added.some(k=>
+       !Object.hasOwn(extra,k)||!Number.isInteger(extra[k])||extra[k]<=0||extra[k]>3000)||
+    Object.keys(extra).some(k=>!added.includes(k)))return false;
  for(const p of m.pokemon){
   if(!p.name_en||!p.skill||!p.mainSkill||!Number.isFinite(p.frequency)||p.frequency<=0||
    !Number.isFinite(p.carryLimit)||p.carryLimit<0)return false;
@@ -59,9 +67,11 @@ async function load(){
   const {bytes,json:master}=await jsonAndBytes(MASTER_PATH);
   if(hex(await crypto.subtle.digest('SHA-256',bytes))!==meta.sha256)throw Error('Pinned master SHA-256 mismatch');
   if(!valid(master,meta))throw Error('Invalid master schema');
+  window.POKESLEEP_EXTRA_INGREDIENT_STRENGTH={...(master.ingredientStrength||{})};
   window.POKESLEEP_MASTER=signature(master);
   state={source:'verified-local-master',reason:'verified',sha256:meta.sha256,commit:meta.sourceCommit};
  }catch(err){
+  window.POKESLEEP_EXTRA_INGREDIENT_STRENGTH={};
   window.POKESLEEP_MASTER=fallback;
   state={source:'legacy-fallback',reason:String(err?.message||err),sha256:'',commit:''};
   console.warn('Independent master unavailable; preserving legacy fallback',err);

@@ -51,8 +51,8 @@
     },
     {
       "path": "classifier.js",
-      "bytes": 15043,
-      "sha256": "cbd154e69cf272513b2061a25260570430cf0229ccf2b05fe214fd2c88972068"
+      "bytes": 15275,
+      "sha256": "7a32d295c0154e550b8e79efc870e5f6b2ceac65ca3466e6b0640f1ab1e0a02b"
     },
     {
       "path": "csv_gate.js",
@@ -61,8 +61,8 @@
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
-      "bytes": 989,
-      "sha256": "ddf27af9a5c875f67aee98ab7ae103b0bec2f95f327fd3e14f8c112d145528c6"
+      "bytes": 1302,
+      "sha256": "f2fc43146daa04ce81cadba899fb9826af6428e3bfd407a52131f696b1d0266f"
     },
     {
       "path": "development/browser_boot_smoke.py",
@@ -86,13 +86,13 @@
     },
     {
       "path": "development/master_auto_update.py",
-      "bytes": 9752,
-      "sha256": "f57acbb1d093edccd6a96c8652ff448e9293235570ef82c958e566e08bae7fc7"
+      "bytes": 11700,
+      "sha256": "fe4d269bc0952f75030e0fdcd27197d8a3eae7f157622a4c9933833419b77751"
     },
     {
       "path": "development/master_auto_update.test.cjs",
-      "bytes": 1903,
-      "sha256": "27f9f50ca6edd0c2fb540d568578d6696f6bf54ff519631b990c72fdd67f319b"
+      "bytes": 2814,
+      "sha256": "769c14a0ea2f87438b78f2de5e77e2c9f573eade91578fdf7241afb0aeb70db0"
     },
     {
       "path": "development/register_food_icons.py",
@@ -106,8 +106,8 @@
     },
     {
       "path": "development/step2_shared_csv.test.cjs",
-      "bytes": 12636,
-      "sha256": "88b7a8cf2781795fcec32c0bce9d72e1e1fffa5f431aae78559a2babb6c73743"
+      "bytes": 12657,
+      "sha256": "6f5e826edc55213640d21586baf2a4797627ba3a8b24cd1fd504c924f0be41bd"
     },
     {
       "path": "development/step3_android_roi.test.cjs",
@@ -131,8 +131,8 @@
     },
     {
       "path": "development/test_master_auto_update.py",
-      "bytes": 8423,
-      "sha256": "eb902e838a12500c619e9e8ce0c1204dfbce1ce1db111714d1cfed8a631db3d0"
+      "bytes": 9867,
+      "sha256": "72eb02158dd14062b1e9b8f10a23c2d4ed76f8866ea3e2da32ba0728468dd5b4"
     },
     {
       "path": "food_color_features.js",
@@ -141,8 +141,8 @@
     },
     {
       "path": "food_matcher.js",
-      "bytes": 7497,
-      "sha256": "1b53b7f1508e1412f085f5a63e0723ccd524c638c0c24a021259d6691be0ec6c"
+      "bytes": 7749,
+      "sha256": "0559d700fae724aed678c2792870519a76c8aa88cd73337ca0af13ed46531d97"
     },
     {
       "path": "icons/apple-touch-icon.png",
@@ -206,8 +206,8 @@
     },
     {
       "path": "shared_master.js",
-      "bytes": 4349,
-      "sha256": "b558f1d69d18861bdfeced9960b48e4676aeaa4d2a7acd647eefbb978dafb1fc"
+      "bytes": 5008,
+      "sha256": "925b2c3dead2eefa920bed007ce849ec5604ce8460de12ecac0635db2f15a796"
     },
     {
       "path": "sw.js",

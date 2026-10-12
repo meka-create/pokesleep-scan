@@ -9,7 +9,8 @@ import argparse, hashlib, json, pathlib, re, subprocess
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 INPUTS = {'pokemon':'src/data/pokemon.json','names':'src/i18n/ja/pokemons.json',
           'data':'src/i18n/ja/data.json','skills':'src/i18n/ja/skills.json',
-          'subskill':'src/util/SubSkill.ts'}
+          'subskill':'src/util/SubSkill.ts',
+          'ingredientStrength':'src/util/PokemonRp.ts'}
 FIELDS=('arrival','frequency','carryLimit','ingRate','skillRate',
         'evolutionCount','evolutionLeft','specialty','type')
 class Hold(ValueError): pass
@@ -44,13 +45,44 @@ def selectable(code):
           re.findall(r'\.\.\.this\.(\w+)',a.group(1))==[x[1] for x in groups] and
           len(set(result))==len(result),'subskill aggregation changed')
     return result
+# Fixed coefficients are the independently reviewed legacy classifier values.
+# Any upstream revision to existing coefficients must be audited rather than
+# silently changing OCR's calculation and risking false-positive species.
+BASE_FOOD_STRENGTH = {
+    "leek":185,"mushroom":167,"egg":115,"potato":124,"apple":90,
+    "herb":130,"sausage":103,"milk":98,"honey":101,"oil":121,
+    "ginger":109,"tomato":110,"cacao":151,"tail":342,"soy":100,
+    "corn":140,"coffee":153,"pumpkin":250,"avocado":162
+}
+def read_strength(source):
+    block=re.search(r"export\s+const\s+ingredientStrength\s*:\s*\{[^}]+\}\s*=\s*\{(.*?)\}\s*;",
+                    source,re.S)
+    check(bool(block),"upstream ingredient coefficient layout changed")
+    result={}
+    for line in block.group(1).splitlines():
+        part=line.strip()
+        if not part:continue
+        parsed=re.fullmatch(r"([a-zA-Z]\w*)\s*:\s*(\d+)\s*,?",part)
+        check(bool(parsed),"unrecognized ingredient coefficient line")
+        key,num=parsed.group(1),int(parsed.group(2))
+        check(key not in result and 0<=num<=3000,"duplicate/out-of-range coefficient")
+        result[key]=num
+    check(all(result.get(k)==value for k,value in BASE_FOOD_STRENGTH.items()),
+          "legacy ingredient energy changed; manual OCR recalibration required")
+    return result
+
 def project(src,prior,commit=None):
     src=pathlib.Path(src)
     paths={k:src/v for k,v in INPUTS.items()}
     check(all(p.is_file() for p in paths.values()),'missing upstream file')
-    inp={k:(p.read_text(encoding='utf-8') if k=='subskill' else read(p)) for k,p in paths.items()}
+    inp={k:(p.read_text(encoding='utf-8') if k in ('subskill','ingredientStrength') else read(p)) for k,p in paths.items()}
     pokemon=inp['pokemon'];names=inp['names']['pokemons'];jp=inp['data'];skills=inp['skills']['skills']
     ingredients=jp['ingredients'];natures=jp['natures'];ss=selectable(inp['subskill'])
+    strengths=read_strength(inp['ingredientStrength'])
+    newly_supported=set(ingredients)-set(BASE_FOOD_STRENGTH)
+    check(all(k in strengths and strengths[k]>0 for k in newly_supported),
+          'new ingredient requires a verified upstream energy coefficient')
+    extra={k:strengths[k] for k in sorted(newly_supported)}
     old_n={x['en']:x for x in prior['natures']}
     old_s={x['en']:x for x in prior['subskills']}
     check(isinstance(pokemon,list) and len(pokemon)>=240 and
@@ -110,7 +142,10 @@ def project(src,prior,commit=None):
                           'sourceCommit':commit,
                           'sourceFilesSha256':{k:digest(p.read_bytes()) for k,p in paths.items()},
                           'verification':'source structure checked; real importer E2E in STEP 3'}}
-    signature=lambda m:{k:m[k] for k in ('cutoff','ingredients','natures','pokemon','subskills')}
+    # Dynamic extras are included only when required; this keeps today's
+    # 249-species / 19-ingredient source projection byte-equivalent.
+    if extra:master['ingredientStrength']=extra
+    signature=lambda m:{k:m.get(k) for k in ('cutoff','ingredients','natures','pokemon','subskills','ingredientStrength')}
     result={'sourceCommit':commit,
             'addedSpecies':sorted(set(updated_by)-set(old_by)),
             'changedSpecies':sorted(k for k in old_by if old_by[k]!=updated_by[k]),

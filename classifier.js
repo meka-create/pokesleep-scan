@@ -3,6 +3,9 @@
 const M = window.POKESLEEP_MASTER;
 const BERRY_BASE={normal:28,fire:27,water:31,electric:25,grass:30,ice:32,fighting:27,poison:32,ground:29,flying:24,psychic:26,bug:24,rock:30,ghost:26,dragon:35,dark:31,steel:33,fairy:26};
 const ING_BASE={leek:185,mushroom:167,egg:115,potato:124,apple:90,herb:130,sausage:103,milk:98,honey:101,oil:121,ginger:109,tomato:110,cacao:151,tail:342,soy:100,corn:140,coffee:153,pumpkin:250,avocado:162};
+// Extend only with verified new food coefficients; bundled 19 known values
+// stay frozen. The hash-verified master loader sets these before this script runs.
+Object.assign(ING_BASE,window.POKESLEEP_EXTRA_INGREDIENT_STRENGTH||{});
 const ING_G=[1.0,1.003,1.007,1.011,1.016,1.021,1.027,1.033,1.039,1.046,1.053,1.061,1.069,1.077,1.085,1.094,1.104,1.114,1.124,1.134,1.145,1.156,1.168,1.18,1.192,1.205,1.218,1.231,1.245,1.259,1.274,1.288,1.303,1.319,1.335,1.351,1.368,1.385,1.402,1.42,1.439,1.457,1.477,1.496,1.517,1.537,1.558,1.58,1.602,1.625,1.648,1.671,1.696,1.72,1.745,1.771,1.798,1.824,1.852,1.88,1.927,1.975,2.024,2.075,2.127,2.18,2.235,2.29,2.348,2.406];
 const SP_SKILL={
 'Charge Strength S':[400,569,785,1083,1496,2066,2842],

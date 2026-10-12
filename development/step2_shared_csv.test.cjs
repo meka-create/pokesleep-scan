@@ -30,7 +30,7 @@ function harness(opts={}){
  return {context,initial,gate:context.window.POKESLEEP_CSV_GATE,
          bridge:context.window.POKESLEEP_SHARED_MASTER};
 }
-test('verified v27 master selected, preserving classifier inputs',async()=>{
+test('independent verified master selected, preserving old classifier inputs',async()=>{
  const h=harness(),status=await h.bridge.load();
  assert.equal(status.source,'verified-local-master');
  assert.equal(status.sha256,JSON.parse(fs.readFileSync(path.join(root,'shared/master_release.json'))).sha256);
@@ -38,7 +38,7 @@ test('verified v27 master selected, preserving classifier inputs',async()=>{
  assert.notEqual(h.initial,h.context.window.POKESLEEP_MASTER);
  assert.ok(h.initial.pokemon.every(p=>h.context.window.POKESLEEP_MASTER.pokemon.some(x=>x.name_en===p.name_en)), 'Valid updates may append species but must not lose existing ones');
 });
-test('tampered AI master rejected; local master untouched',async()=>{
+test('tampered independent master rejected; local master untouched',async()=>{
  const h=harness({data:Buffer.from(asset.toString('utf8').replace(/"cutoff"\s*:\s*"[^"]+"/,'"cutoff":"1900-01-01"'))});
  const status=await h.bridge.load();
  assert.equal(status.source,'legacy-fallback');
