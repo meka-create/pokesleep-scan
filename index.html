@@ -59,8 +59,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
  min-height:212px;border:2px dashed #abc4eb;border-radius:16px;background:#f8fbff;
  cursor:pointer;transition:background .15s,border-color .15s;padding:18px;text-align:center}
 .filelabel:hover,.filelabel.is-dragover{border-color:#286bdd;background:#f0f6ff;transform:none}
-.filelabel.is-selected{border-color:#abc4eb;background:#f8fbff}
-.filelabel.is-selected:hover{border-color:#286bdd;background:#f0f6ff}
+.filelabel.is-selected{border:2px solid #5b8fe6;background:#eaf3ff;box-shadow:inset 0 0 0 1px rgba(49,104,208,.06)}
+.filelabel.is-selected:hover{border-color:#286bdd;background:#deedff}
 .filelabel.is-error{border-color:#e2a7ad;background:#fff7f8}
 .filelabel.is-error .upload-main{color:var(--danger)}
 .filelabel:focus-visible{outline:3px solid #286bdd;outline-offset:3px}
@@ -72,7 +72,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 .upload-icon svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;
  stroke-linecap:round;stroke-linejoin:round}
 .upload-main{display:block;font-weight:850;font-size:17px;color:#14263b;letter-spacing:-.015em}
-.filelabel.is-selected .upload-main{color:#14263b;font-size:17px}
+.filelabel.is-selected .upload-main{color:#2056aa;font-size:17px}
+.filelabel.is-selected .upload-icon{background:#d7e7ff;color:#255dc2}
 .upload-sub{display:block;color:#6c7c8c;font-size:12px;letter-spacing:0;font-weight:650}
 .action-row{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}.btn{min-height:50px;border-radius:13px;padding:0 16px;font-weight:800;transition:.16s ease}.btn-primary{background:linear-gradient(135deg,#5d60ed,#4b4ed9);color:#fff;box-shadow:0 10px 22px rgba(85,88,232,.18)}.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 13px 26px rgba(85,88,232,.25)}.btn:disabled{opacity:.42;cursor:default;box-shadow:none;transform:none}
 #progress{margin-top:16px;transition:padding .2s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease}.status-row{display:flex;align-items:center;gap:12px}.status-text{font-size:13px;color:#566074;font-weight:650}.bar{height:7px;background:#edf0f5;border-radius:999px;overflow:hidden;margin-top:9px}.bar>div{height:100%;width:0;background:linear-gradient(90deg,#6265ee,#50a4d7);border-radius:inherit;transition:width .18s ease}#progress.is-complete{margin-left:-12px;margin-right:-12px;padding:12px 13px 13px;border:1px solid rgba(85,88,232,.16);border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.99),rgba(246,247,255,.98));box-shadow:0 12px 30px rgba(39,47,83,.08),inset 0 1px 0 rgba(255,255,255,.92)}#progress.is-complete .status-row{position:relative;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px}#progress.is-complete .status-row::before{content:'';width:28px;height:28px;border-radius:50%;background:linear-gradient(145deg,#5a5dea,#6f79f5);box-shadow:0 6px 14px rgba(85,88,232,.22),inset 0 1px 0 rgba(255,255,255,.35)}#progress.is-complete .status-row::after{content:'';position:absolute;left:9px;top:7px;width:7px;height:11px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg);border-radius:1px}#progress.is-complete .status-text{color:#2f374b;font-size:13.5px;font-weight:800;letter-spacing:-.01em}#progress.is-complete .bar{height:6px;background:#e9ebf5;margin-top:10px}#progress.is-complete .bar>div{background:linear-gradient(90deg,#5558e8,#7a83f5);box-shadow:0 0 12px rgba(85,88,232,.18)}#progress.is-error .status-text{color:var(--danger);font-weight:800}#progress.is-error .bar>div{background:var(--danger)}
@@ -157,7 +158,6 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
  cursor:pointer;display:grid;place-items:center}
 .image-select-dialog-close:hover{background:#e3eaf3}
 .image-select-dialog-body{padding:18px;display:grid;gap:11px}
-.image-select-dialog-hint{margin:0 0 6px;color:#64758f;font-size:13px;line-height:1.65}
 .image-select-choice{display:flex;justify-content:space-between;align-items:center;
  min-height:54px;width:100%;padding:12px 15px;gap:10px;border:1px solid #cad9ee;
  border-radius:12px;background:#f8fbff;color:#245fc0;font:inherit;font-weight:800;
@@ -291,13 +291,12 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
   </div>
 </dialog>
 
-<dialog id="imageSelectDialog" class="image-select-dialog" aria-labelledby="imageSelectDialogTitle" aria-describedby="imageSelectDialogHint">
+<dialog id="imageSelectDialog" class="image-select-dialog" aria-labelledby="imageSelectDialogTitle">
   <div class="image-select-dialog-head">
     <h2 id="imageSelectDialogTitle" class="image-select-dialog-title">画像の選択</h2>
     <button id="imageSelectClose" class="image-select-dialog-close" type="button" aria-label="閉じる" title="閉じる">×</button>
   </div>
   <div class="image-select-dialog-body">
-    <p id="imageSelectDialogHint" class="image-select-dialog-hint">選択済みの画像をどうしますか？</p>
     <button id="imageSelectReplace" class="image-select-choice" type="button">
       <span>画像を選び直す</span>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h12M4 17h9"/></svg>
