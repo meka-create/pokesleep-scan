@@ -7,17 +7,17 @@
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 48,
+  "fileCount": 49,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
-      "bytes": 3559,
-      "sha256": "5ad7b320e1a9a1f6141e8609f05dad8ab773756f410b0a790a6d0cc5c6efc621"
+      "bytes": 4653,
+      "sha256": "09dde3f748f9cd4b748dc79d5bc960a9c91e0375ee84927adceedb8c25e79b93"
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 4535,
-      "sha256": "7a480607e85f9d756bf2e8c392ac8a5481fd47f156d5f16af07fe1014b58a079"
+      "bytes": 4672,
+      "sha256": "3a8dfbd09b3b686d68aec5ecd786849c0877676d088bf4e1897734fe193782dc"
     },
     {
       "path": ".nojekyll",
@@ -98,6 +98,11 @@
       "path": "development/master_auto_update.test.cjs",
       "bytes": 5828,
       "sha256": "1d3694189db85d7169df4b784687d91e9a9c4c4814142091aa32f6893272bb23"
+    },
+    {
+      "path": "development/master_deploy_workflow.test.cjs",
+      "bytes": 1915,
+      "sha256": "6b78d796672f55f92e92e896192aa316b21e4a18bd074fb261358a77ceb56658"
     },
     {
       "path": "development/master_update_status.test.cjs",

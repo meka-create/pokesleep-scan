@@ -60,6 +60,8 @@ jobs:
           python development/master_auto_update.py --upstream "$RUNNER_TEMP/upstream"
       - name: Compact source-image button regression
         run: node --test development/image_button_compact.test.cjs
+      - name: Independent updater production Pages deployment tests
+        run: node --test development/master_deploy_workflow.test.cjs
       - name: Master warning and health publisher tests
         run: |
           node --test development/master_update_status.test.cjs

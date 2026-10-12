@@ -2,6 +2,11 @@ name: Independent master auto-update
 on:
   schedule:
     - cron: '0 19 * * *' # 毎日午前4:00 JST (19:00 UTC); GitHub Actions may start later
+  # On STEP 1's initial merge, bootstrap the first status and deployed master.
+  # Bot-made commits do not recursively trigger this event.
+  push:
+    branches: [main]
+    paths: ['.github/workflows/independent-master-sync.yml']
   workflow_dispatch:
 permissions:
   contents: write
@@ -82,3 +87,30 @@ jobs:
           if git diff --cached --quiet; then exit 0; fi
           git commit -m 'chore: record independent master update health'
           git push origin HEAD:main
+
+  deploy-pages:
+    needs: [sync, publish-status]
+    if: always() && needs.publish-status.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Verify the final public state and its release hashes
+        run: python development/generate_public_package_manifest.py --check
+      - name: Upload the latest published tree after updating health
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy the synchronized master and health JSON
+        id: deployment
+        uses: actions/deploy-pages@v4
