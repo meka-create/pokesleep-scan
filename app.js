@@ -1204,7 +1204,7 @@ function render(){syncAdditionalFileUi();
   const carryWarn=p.carry!=null&&c.status==='UNIQUE'&&!c.hits.some(h=>h.carryMatch===true),carryText=`${p.carry??''}${carryWarn?' ⚠':''}`;
   const carryValues=reviewState.carry&&!manual?carryManualChoices(r):[];
   const carryReviewHtml=carryValues.length?`<div class="review-control carry-review-control"><select class="carryedit" data-ri="${ri}" aria-label="最大所持数をゲーム画面で確認"><option value="" selected disabled>所持数を確認</option>${carryValues.map(n=>`<option value="${n}">${n}個</option>`).join('')}</select><button type="button" class="review-confirm carryconfirm" data-ri="${ri}" disabled>確定</button></div>`:'';
-  const carryConfirmed=p.carryManualConfirmed?'<span class="verified-badge">確認済み</span>':'';const numericReviewBadge=key=>reviewState[key]?'<span class="review-badge" title="${key==='carry'?'所持数は候補から選び、ゲーム画面で確認してください。':'認識数値を元画像で確認してください。数値の手動補正は未対応です。'}">要確認</span>':'';
+  const carryConfirmed=p.carryManualConfirmed?'<span class="verified-badge">確認済み</span>':'';const numericReviewBadge=key=>reviewState[key]?'<span class="review-badge" title="認識数値を元画像・ゲーム画面で確認してください。">要確認</span>':'';
   const nickDraft=p.nicknameReviewDraft??p.nickname;
   const nickPreview=reviewState.nickname&&r.nicknamePreview?`<img class="reviewpreview nickpreview preview-open" data-ri="${ri}" tabindex="0" role="button" title="元のスクリーンショットを表示" src="${r.nicknamePreview}" alt="ニックネームの切り出し">`:'';
   const nickAltNames=nicknameAlternativeRows(r,p,nickDraft);
