@@ -84,7 +84,34 @@ const PADDLE_MODEL_SPECS={
 };
 const paddleModelBlobUrls=[];
 function uploadHint(){return 'PNG / JPG / JPEG · 複数選択可';}
-function updateUploadSelectionUI(count,{error=false,errorMessage=''}={}){const label=$('.filelabel'),icon=$('#uploadIcon'),main=$('#uploadMain'),sub=$('#uploadSub');label?.classList.toggle('is-selected',count>0&&!error);label?.classList.toggle('is-error',!!error);if(error){if(icon)icon.textContent='!';if(main)main.textContent='画像を選び直してください';if(sub)sub.textContent=errorMessage||'画像を選び直してください';syncRunActionButton();return;}if(count>0){if(icon)icon.textContent='✓';if(main)main.textContent=`${count}枚を選択しました`;if(sub)sub.textContent='';}else{if(icon)icon.textContent='＋';if(main)main.textContent='スクリーンショットを選ぶ';if(sub)sub.textContent=uploadHint();}syncRunActionButton();}
+// Preserve the AI-style picture SVG in the empty picker. Never overwrite its
+// markup when transitioning to the existing selected/error status glyph.
+function setUploadIconMode(mode){
+ const picture=$('#uploadPhotoIcon'),glyph=$('#uploadStatusGlyph');
+ if(picture)picture.hidden=mode!=='empty';
+ if(glyph){glyph.hidden=mode==='empty';glyph.textContent=mode==='selected'?'✓':'!';}
+}
+function updateUploadSelectionUI(count,{error=false,errorMessage=''}={}){
+ const label=$('.filelabel'),main=$('#uploadMain'),sub=$('#uploadSub');
+ label?.classList.toggle('is-selected',count>0&&!error);
+ label?.classList.toggle('is-error',!!error);
+ if(error){
+  setUploadIconMode('error');
+  if(main)main.textContent='画像を選び直してください';
+  if(sub)sub.textContent=errorMessage||'画像を選び直してください';
+  syncRunActionButton();return;
+ }
+ if(count>0){
+  setUploadIconMode('selected');
+  if(main)main.textContent=`${count}枚を選択しました`;
+  if(sub)sub.textContent='';
+ }else{
+  setUploadIconMode('empty');
+  if(main)main.textContent='画像を選択する';
+  if(sub)sub.textContent=uploadHint();
+ }
+ syncRunActionButton();
+}
 function syncAdditionalFileUi(){
  const row=$('#addFilesRow'),btn=$('#addFilesButton'),canAdd=selected.length>0&&!results.length&&!analysisPause;
  if(row)row.hidden=!canAdd;
