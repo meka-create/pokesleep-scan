@@ -98,6 +98,25 @@ def main():
                 check("No uncaught JavaScript exceptions", lambda:
                       _assert(not errors, "Uncaught JS errors: " + repr(errors)))
                 context.close()
+                # Browser-level v7 -> current IndexedDB checkpoint migration.
+                # Use a dedicated origin-isolated context with a synthetic file.
+                # No OCR occurs and no user data can be touched.
+                migration=browser.new_context(service_workers="block")
+                try:
+                    old_page=migration.new_page()
+                    old_page.route(TESSERACT_URL, lambda r: r.fulfill(
+                        status=200, content_type="application/javascript",
+                        body="window.Tesseract={createWorker:()=>{throw Error('OCR stub forbidden');}};"))
+                    old_page.goto(url,wait_until="domcontentloaded",timeout=20000)
+                    old_page.wait_for_function(
+                        "()=>!!window.POKESLEEP_CSV_GATE && !!window.POKESLEEP_ANDROID_ROI",
+                        timeout=20000)
+                    _seed_v7_checkpoint(old_page)
+                    old_page.reload(wait_until="domcontentloaded",timeout=20000)
+                    check("v7 IndexedDB checkpoint offers resume instead of deleting saved images",
+                          lambda: _check_v7_checkpoint_migrated(old_page))
+                finally:
+                    migration.close()
                 # Independent PWA cache test: preserve offline availability of
                 # the NEW local assets. CDN OCR binaries are deliberately out of
                 # scope and are not claimed as offline-capable.
@@ -154,6 +173,71 @@ def main():
     results["status"] = "PASS" if not results["failures"] else "FAIL"
     print(json.dumps(results, ensure_ascii=False, indent=2))
     return results
+
+
+def _seed_v7_checkpoint(page):
+    """Insert a valid *synthetic* v7 running checkpoint, one unprocessed PNG."""
+    encoded=base64.b64encode(PNG).decode("ascii")
+    page.evaluate("""async encoded => {
+      const req=indexedDB.open('bukkomi-scan-checkpoint-v1',2);
+      // New test contexts have no DB yet. Create the exact v7/v10 store schema.
+      req.onupgradeneeded=()=>{
+        const db=req.result;
+        for(const [name,keyPath] of [['meta','key'],['files','index'],['results','sourceIndex']])
+          if(!db.objectStoreNames.contains(name))db.createObjectStore(name,{keyPath});
+      };
+      const db=await new Promise((resolve,reject)=>{
+        req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
+      });
+      const raw=atob(encoded),data=Uint8Array.from(raw,c=>c.charCodeAt(0));
+      const tx=db.transaction(['meta','files','results'],'readwrite');
+      tx.objectStore('meta').put({
+        key:'active',schema:1,releaseId:'2026-10-12-android-roi-standard-inline-add-v7',
+        compatibilityId:'checkpoint-compat-2026-10-12-android-roi-standard-inline-add-v7',
+        buildId:'v12-android-roi-standard-inline-add-v7',savedAt:Date.now(),
+        status:'running',total:1,nextIndex:0,pauseIndex:null,
+        selectedMeta:[{name:'synthetic-v7.png',size:data.byteLength,type:'image/png',lastModified:123456}]
+      });
+      tx.objectStore('files').put({
+        index:0,name:'synthetic-v7.png',type:'image/png',lastModified:123456,data:data.buffer
+      });
+      await new Promise((resolve,reject)=>{
+        tx.oncomplete=resolve;tx.onabort=()=>reject(tx.error);
+        tx.onerror=()=>reject(tx.error);
+      });
+      db.close();
+    }""",encoded)
+
+
+def _check_v7_checkpoint_migrated(page):
+    page.locator("#appDialog").wait_for(state="visible",timeout=20000)
+    _assert(page.locator("#appDialogTitle").inner_text()=="前回の解析を復元しますか？",
+            "Valid v7 checkpoint should trigger the resume dialog, not get discarded")
+    snapshot=page.evaluate("""async () => {
+      const req=indexedDB.open('bukkomi-scan-checkpoint-v1',2);
+      const db=await new Promise((resolve,reject)=>{
+        req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
+      });
+      const tx=db.transaction(['meta','files'],'readonly');
+      const metaReq=tx.objectStore('meta').get('active');
+      const filesReq=tx.objectStore('files').getAll();
+      const [meta,files]=await Promise.all([
+        new Promise((resolve,reject)=>{metaReq.onsuccess=()=>resolve(metaReq.result);
+          metaReq.onerror=()=>reject(metaReq.error);}),
+        new Promise((resolve,reject)=>{filesReq.onsuccess=()=>resolve(filesReq.result);
+          filesReq.onerror=()=>reject(filesReq.error);})
+      ]);
+      db.close();
+      return {meta,fileCount:files.length,firstFile:files[0]?.name,
+        bytes:files[0]?.data?.byteLength||0};
+    }""")
+    _assert(snapshot["fileCount"]==1 and snapshot["firstFile"]=="synthetic-v7.png"
+            and snapshot["bytes"]==len(PNG),"v7 image bytes were lost during migration")
+    meta=snapshot["meta"]
+    _assert(meta and meta.get("compatibilityId")=="checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8",
+            "v7 checkpoint compatibility ID was not migrated")
+    _assert(meta.get("migratedFrom",{}).get("releaseId")=="2026-10-12-android-roi-standard-inline-add-v7",
+            "Original v7 checkpoint provenance not retained")
 
 
 def _check_android_roi_standard(page):
