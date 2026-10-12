@@ -123,7 +123,7 @@ def main():
                             warning=q.locator('#masterUpdateWarning')
                             dialog=q.locator('#masterUpdateDialog')
                             _assert(warning.is_visible()==should_warn,'Unexpected warning visibility')
-                            _assert(warning.bounding_box()['x']<q.locator('#tipsBtn').bounding_box()['x'], 'Warning must be left of TIPS')
+                            _assert(not should_warn or warning.bounding_box()['x']<q.locator('#tipsBtn').bounding_box()['x'], 'Warning must be left of TIPS')
                             css=warning.evaluate("el=>({border:getComputedStyle(el).borderTopWidth,background:getComputedStyle(el).backgroundColor})")
                             _assert(css['border']=='0px' and css['background'] in ('rgba(0, 0, 0, 0)','transparent'), 'Warning has border/background')
                             _assert(not dialog.evaluate('(el)=>el.open'),'Modal appeared without tap')
