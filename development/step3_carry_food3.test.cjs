@@ -149,7 +149,7 @@ test('carry review UI provides custom entry even if classifier has no guesses',(
  assert.match(source,/その他（画面の数値を入力）/);
  assert.match(source,/class="carrymanual"/);
  assert.match(source,/inputmode="numeric"/);
- assert.match(source,/class="carryconfirm"/);
+ assert.match(source,/class="review-confirm carryconfirm"/);
 });
 test('shape second opinion is explicitly non-authoritative',()=>{
  assert.match(fm,/function reviewShapeOpinion\(/);
