@@ -69,6 +69,39 @@ class OctoberFifthTest(unittest.TestCase):
         new,report=project(self.dir,self.pre,commit='a'*40)
         self.assertIn('futureFood',report['newIngredients'])
         self.assertEqual(new['ingredients']['futureFood'],'未来の食材')
+    def test_approved_sprite_is_registered_and_updates_receipt(self):
+        from PIL import Image
+        import shutil
+        from register_food_icons import run
+        temp_root=self.dir/'image-registry-test'
+        (temp_root/'shared').mkdir(parents=True,exist_ok=True)
+        (temp_root/'assets/food-icons').mkdir(parents=True,exist_ok=True)
+        original=copy.deepcopy(self.full)
+        original['ingredients']['futureFood']='未来の食材'
+        save(temp_root/'shared/MASTER_DATA.json',original)
+        save(temp_root/'shared/master_release.json',{
+            'schema':1,'sourceRepo':'nitoyon/pokesleep-tool',
+            'sourceCommit':'a'*40,'sha256':'a'*64,
+            'speciesCount':249,'ingredientCount':20,'natureCount':25,
+            'subskillCount':17,'cutoff':original['cutoff'],
+            'missingFoodTemplates':['未来の食材']})
+        shutil.copy(ROOT/'food_color_features.js',temp_root/'food_color_features.js')
+        shutil.copy(ROOT/'app.js',temp_root/'app.js')
+        shutil.copy(ROOT/'sw.js',temp_root/'sw.js')
+        shutil.copy(ROOT/'release.json',temp_root/'release.json')
+        img=Image.new('RGBA',(24,24),(0,0,0,0))
+        for x in range(5,19):
+            for y in range(5,19):
+                img.putpixel((x,y),(140,90,40,255))
+        img.save(temp_root/'assets/food-icons/futureFood.png')
+        self.assertTrue(run(temp_root))
+        new_source=(temp_root/'food_color_features.js').read_text(encoding='utf-8')
+        d=json.loads(new_source.split('=',1)[1].strip().rstrip(';'))
+        self.assertIn('未来の食材',d['foods'])
+        receipt=json.loads((temp_root/'shared/master_release.json').read_text(encoding='utf-8'))
+        self.assertNotIn('未来の食材',receipt['missingFoodTemplates'])
+        self.assertTrue((temp_root/'release.json').read_text(encoding='utf-8').find('food-icons-')>=0)
+        self.assertFalse(run(temp_root),'Repeated registration should be idempotent')
     def test_bad_source_rejected_before_writing_any_product_file(self):
         data=self.dir/'src/i18n/ja/data.json'
         doc=json.loads(data.read_text(encoding='utf-8'))

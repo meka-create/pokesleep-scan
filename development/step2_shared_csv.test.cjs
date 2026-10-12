@@ -36,10 +36,10 @@ test('verified v27 master selected, preserving classifier inputs',async()=>{
  assert.equal(status.sha256,JSON.parse(fs.readFileSync(path.join(root,'shared/master_release.json'))).sha256);
  assert.equal(h.context.window.POKESLEEP_MASTER.pokemon.length,ai.pokemon.length);
  assert.notEqual(h.initial,h.context.window.POKESLEEP_MASTER);
- assert.deepEqual(JSON.parse(JSON.stringify(h.initial.pokemon)),JSON.parse(JSON.stringify(h.context.window.POKESLEEP_MASTER.pokemon)));
+ assert.ok(h.initial.pokemon.every(p=>h.context.window.POKESLEEP_MASTER.pokemon.some(x=>x.name_en===p.name_en)), 'Valid updates may append species but must not lose existing ones');
 });
 test('tampered AI master rejected; local master untouched',async()=>{
- const h=harness({data:Buffer.from(asset.toString('utf8').replace('"2026-10-05"','"1900-01-01"'))});
+ const h=harness({data:Buffer.from(asset.toString('utf8').replace(/"cutoff"\s*:\s*"[^"]+"/,'"cutoff":"1900-01-01"'))});
  const status=await h.bridge.load();
  assert.equal(status.source,'legacy-fallback');
  assert.strictEqual(h.context.window.POKESLEEP_MASTER,h.initial);
@@ -179,7 +179,7 @@ test('species-canonical CSV skill normalizes random and legendary screen aliases
               '食材ゲットS');
 });
 
-test('all 249 supported species have at least one valid 16-column importer row',()=>{
+test('all active master species have at least one valid 16-column importer row',()=>{
  const context={window:{}};
  vm.createContext(context);
  vm.runInContext(legacy,context,{filename:'master_data.js'});
@@ -194,11 +194,11 @@ test('all 249 supported species have at least one valid 16-column importer row',
     p.name==='ミュウ'?'きのみバースト':p.mainSkill,nature,
     ...ai.subskills.slice(0,5).map(x=>x.ja),'0','0'];
  });
- assert.equal(rows.length,249);
+ assert.equal(rows.length,ai.pokemon.length);
  const h=harness(),csv=h.gate.serialize([Array.from(h.gate.HEADER),...rows]);
  const result=h.gate.inspect(csv,ai);
  assert.equal(result.ok,true,JSON.stringify(result.errors.slice(0,25)));
- assert.equal(result.rows.length,250);
+ assert.equal(result.rows.length,ai.pokemon.length+1);
 });
 
 test('filename reservations survive alternating minutes and backward clock adjustments',async()=>{
