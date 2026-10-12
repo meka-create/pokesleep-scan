@@ -751,11 +751,68 @@ function corroboratedCarryRetry(readings,inference){
  if(!matched.length||matched.some(h=>h.pokemon!==inference.candidates?.[0]))return null;
  return vals[0];
 }
+// Some four-line skill descriptions produce a top green strip only 1-6 pixels
+// high and a real section heading around y=514. Then layoutInfo cannot assign
+// the normal time/carry bands, even though the carry number IS visible.
+// Use that observed green heading as an anchor for a small, upper-card OCR
+// search. Never apply this to normal screenshots or infer a missing ribbon.
+function shiftedCarrySearchRects(canvas){
+ const L=layoutInfo(canvas),m=L?.main,d=L?.detail;
+ if(L?.carry||L?.time||!m||!d||m.start>12||
+   d.start<400||d.start>690||canvas.height<1000)return [];
+ const h=d.start,sx=canvas.width/REF_W;
+ return [[-394,-300],[-303,-209],[-212,-118],[-127,-18]].map((span,i)=>{
+  const y1=Math.max(0,h+span[0]),y2=Math.min(canvas.height,h+span[1]);
+  return {name:'shifted-band-'+i,rect:[255*sx,y1,610*sx,y2]};
+ }).filter(x=>x.rect[3]-x.rect[1]>=50);
+}
+function carryCompatibleWithClassifier(inference,value){
+ return inference?.status==='UNIQUE'&&Array.isArray(inference?.hits)
+   &&inference.hits.some(h=>h.pokemon===inference.candidates?.[0]
+     &&h.calculatedCarry===value);
+}
+async function retryShiftedCarryFromScreen(canvas,parsed,inference,idx,total){
+ const zones=shiftedCarrySearchRects(canvas),readings=[];
+ if(!zones.length)return {inference,readings,status:'no-shifted-layout-evidence'};
+ // The initial image OCR lacks the visible carry field. Search only above
+ // the green main-skill heading; do not inspect food or subskill values.
+ for(const z of zones){
+  const src=cropCanvasRect(canvas,z.rect);
+  const r=await ocrSingle(src,'所持数・ずれた表示位置を再確認',idx,total,{psm:'7'});
+  const value=parseExplicitCarryEvidence(r);
+  readings.push({...r,value,crop:z.name,psm:'7'});
+ }
+ const supported=readings.filter(r=>r.value!==null
+   &&Number(r.confidence)>=62&&carryCompatibleWithClassifier(inference,r.value));
+ const choices=[...new Set(supported.map(x=>x.value))];
+ if(choices.length!==1)return {inference,readings,
+   status:choices.length>1?'conflicting-shifted-ocr':'unresolved-shifted-ocr'};
+ const first=supported.sort((a,b)=>b.confidence-a.confidence)[0];
+ if(first.confidence<72)return {inference,readings,status:'weak-shifted-ocr'};
+ const z=zones.find(x=>x.name===first.crop);
+ const narrow=[285*canvas.width/REF_W,z.rect[1],510*canvas.width/REF_W,z.rect[3]];
+ const confirmation=await ocrSingle(cropCanvasRect(canvas,narrow),
+   '所持数・再確認',idx,total,{psm:'11'});
+ const confirmedValue=parseExplicitCarryEvidence(confirmation);
+ readings.push({...confirmation,value:confirmedValue,crop:'shifted-confirmation',psm:'11'});
+ if(confirmedValue!==first.value||Number(confirmation.confidence)<62)
+  return {inference,readings,status:'shifted-ocr-candidate-needs-verification',
+    advisoryValue:first.value};
+ parsed.carry=first.value;
+ parsed.carryNeedsReview=true; // Two overlapping crops never count as independent visible facts.
+ return {inference:inferParsed(parsed),readings,status:'shifted-ocr-needs-user-verification',
+   advisoryValue:first.value};
+}
 async function retryMissingCarryFromVisibleCard(canvas,parsed,inference,idx,total){
  if(Number.isInteger(parsed?.carry)&&parsed.carry>0)return inference;
  const tight=verifiedCarryRetryCrop(canvas,'tight'),
        wide=verifiedCarryRetryCrop(canvas,'wide');
- if(!tight||!wide){parsed.carryRetry={status:'not-visible-or-no-verified-carry-band'};return inference;}
+ if(!tight||!wide){
+  const fallback=await retryShiftedCarryFromScreen(canvas,parsed,inference,idx,total);
+  parsed.carryRetry={status:fallback.status,readings:fallback.readings,
+    advisoryValue:fallback.advisoryValue??null};
+  return fallback.inference;
+ }
  const readings=[];
  for(const [name,src,options] of [
   ['tight',tight,{psm:'7'}],
@@ -1206,7 +1263,9 @@ function render(){syncAdditionalFileUi();
   const carryWarn=p.carry!=null&&c.status==='UNIQUE'&&!c.hits.some(h=>h.carryMatch===true),carryText=`${p.carry??''}${carryWarn?' ⚠':''}`;
   const carryValues=reviewState.carry&&!manual?carryManualChoices(r):[];
   const carryReviewHtml=carryValues.length?`<div class="review-control carry-review-control"><select class="carryedit" data-ri="${ri}" aria-label="最大所持数をゲーム画面で確認"><option value="" selected disabled>所持数を確認</option>${carryValues.map(n=>`<option value="${n}">${n}個</option>`).join('')}</select><button type="button" class="review-confirm carryconfirm" data-ri="${ri}" disabled>確定</button></div>`:'';
-  const carryConfirmed=p.carryManualConfirmed?'<span class="verified-badge">確認済み</span>':'';const numericReviewBadge=key=>reviewState[key]?'<span class="review-badge" title="認識数値を元画像・ゲーム画面で確認してください。">要確認</span>':'';
+  const carryConfirmed=p.carryManualConfirmed?'<span class="verified-badge">確認済み</span>':'';
+  const carryOcrHint=reviewState.carry&&Number.isInteger(p.carryRetry?.advisoryValue)
+   ?`<span class="candidate-label">画像再読取候補: ${p.carryRetry.advisoryValue}個（元画像で確認）</span>`:'';const numericReviewBadge=key=>reviewState[key]?'<span class="review-badge" title="認識数値を元画像・ゲーム画面で確認してください。">要確認</span>':'';
   const nickDraft=p.nicknameReviewDraft??p.nickname;
   const nickPreview=reviewState.nickname&&r.nicknamePreview?`<img class="reviewpreview nickpreview preview-open" data-ri="${ri}" tabindex="0" role="button" title="元のスクリーンショットを表示" src="${r.nicknamePreview}" alt="ニックネームの切り出し">`:'';
   const nickAltNames=nicknameAlternativeRows(r,p,nickDraft);
@@ -1242,7 +1301,7 @@ function render(){syncAdditionalFileUi();
   const pausedHere=!!analysisPause&&results[ri]===analysisPause.result;
   const statusBadge=st==='要確認'?'':`<span class="status-pill ${cl}">${st}</span>`,processingErrorHtml=r.processingError?`<div class="processing-error-note"><strong>${esc(r.processingError.stage||'解析')}</strong><span>${esc(r.processingError.message||'解析処理に失敗しました')}</span>${pausedHere?'<span class="processing-pause-note">この画像で解析を一時停止しています。上部の「停止した画像から再開」からも再開できます。</span>':''}<div class="processing-recovery-actions"><button type="button" class="processing-retry" data-ri="${ri}" ${recoveryBusy?'disabled':''}>${r.recoveryBusy==='retry'?'再解析中…':pausedHere?'再解析して再開':'再解析'}</button><button type="button" class="processing-reselect" data-ri="${ri}" ${recoveryBusy?'disabled':''}>${r.recoveryBusy==='reselect'?'読込中…':'画像を再選択'}</button><button type="button" class="processing-delete" data-ri="${ri}" ${recoveryBusy?'disabled':''}>削除</button></div></div>`:'';
   const imageButton=(extraClass='')=>`<button type="button" class="file-open ${extraClass}" data-ri="${ri}" title="元のスクリーンショットを表示" aria-label="${esc(r.file)} の元画像を表示"><span class="file-open-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"></rect><circle cx="8.5" cy="9" r="1.5"></circle><path d="m5.5 17 4.3-4.2 3.2 3 2.2-2.1 3.3 3.3"></path></svg></span><span class="file-open-label">画像を見る</span></button>`;
-  tr.innerHTML=`<td class="file-cell"><div class="file-source">${imageButton('file-open-desktop')}</div></td><td class="status-cell"><div class="card-meta-row"><span class="card-status-slot">${statusBadge}</span>${imageButton('file-open-mobile')}</div>${processingErrorHtml}${manualAction}</td><td class="nickname-cell">${nicknameHtml}</td><td class="pokemon-cell ${classificationNeedsReview?'review-cell':''}">${pokemonHtml}</td><td class="level-cell">${levelHtml}</td><td class="sp-cell"><div class="review-value${reviewState.sp?' is-unresolved':''}">${p.sp??'—'}${numericReviewBadge('sp')}</div></td><td class="help-time-cell"><div class="review-value${reviewState.helpSeconds?' is-unresolved':''}">${esc(fmtTime(p.helpSeconds))}${numericReviewBadge('helpSeconds')}</div></td><td class="carry-cell ${carryWarn?'warn':''}"><div class="review-value${reviewState.carry?' is-unresolved':''}">${esc(carryText||'—')}${numericReviewBadge('carry')}${carryConfirmed}</div>${carryReviewHtml}</td><td class="skill-level-cell">${skillLevelHtml}</td><td class="foods">${foods}</td><td class="main-skill-cell">${mainSkillHtml}</td><td class="nature-cell">${natureHtml}</td><td class="subs">${subs}</td><td class="stage-cell">${esc(stage)}</td><td class="raw"><details><summary>表示</summary><pre>${raw}</pre></details></td>`;
+  tr.innerHTML=`<td class="file-cell"><div class="file-source">${imageButton('file-open-desktop')}</div></td><td class="status-cell"><div class="card-meta-row"><span class="card-status-slot">${statusBadge}</span>${imageButton('file-open-mobile')}</div>${processingErrorHtml}${manualAction}</td><td class="nickname-cell">${nicknameHtml}</td><td class="pokemon-cell ${classificationNeedsReview?'review-cell':''}">${pokemonHtml}</td><td class="level-cell">${levelHtml}</td><td class="sp-cell"><div class="review-value${reviewState.sp?' is-unresolved':''}">${p.sp??'—'}${numericReviewBadge('sp')}</div></td><td class="help-time-cell"><div class="review-value${reviewState.helpSeconds?' is-unresolved':''}">${esc(fmtTime(p.helpSeconds))}${numericReviewBadge('helpSeconds')}</div></td><td class="carry-cell ${carryWarn?'warn':''}"><div class="review-value${reviewState.carry?' is-unresolved':''}">${esc(carryText||'—')}${numericReviewBadge('carry')}${carryConfirmed}</div>${carryReviewHtml}${carryOcrHint}</td><td class="skill-level-cell">${skillLevelHtml}</td><td class="foods">${foods}</td><td class="main-skill-cell">${mainSkillHtml}</td><td class="nature-cell">${natureHtml}</td><td class="subs">${subs}</td><td class="stage-cell">${esc(stage)}</td><td class="raw"><details><summary>表示</summary><pre>${raw}</pre></details></td>`;
   if($('#reviewOnly')?.checked&&!needsReview)tr.style.display='none';tb.appendChild(tr);
  }
  for(const el of tb.querySelectorAll('.nickedit'))el.addEventListener('input',e=>{const r=results[+e.target.dataset.ri],p=r.parsed;if(nicknameDataNeedsReview(r)){p.nicknameReviewDraft=e.target.value;const td=e.target.closest('td'),b=td?.querySelector('.nickconfirm'),sel=td?.querySelector('.nickcandidate');if(b)b.disabled=!e.target.value.trim();if(sel&&sel.value!==e.target.value){sel.value='';syncCustomSelectTrigger(sel);}}else{if(p.nickname!==e.target.value){p.nicknameManualConfirmed=false;e.target.closest('.nick-field')?.querySelector('.review-actions')?.remove();}p.nickname=e.target.value;scheduleCheckpointResultSave(r);}});
