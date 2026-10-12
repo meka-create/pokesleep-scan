@@ -205,3 +205,29 @@ test('subskill verification and rescue use the Android card anchor, never obsole
  assert.equal(retry.length,1,'Do not add stale or duplicate review evidence');
  assert.equal(retry[0][0],'primary');
 });
+
+test('v7 checkpoint survives picker-only compatibility-ID change; unrelated data stays rejected',()=>{
+ const app=fs.readFileSync(path.join(ROOT,'app.js'),'utf8');
+ const start=app.indexOf('function checkpointMetaCompatible(meta){');
+ const end=app.indexOf('function checkpointExpired(',start);
+ assert.ok(start>=0&&end>start,'Missing current checkpoint compatibility guard');
+ const fn=app.slice(start,end);
+ const current=app.match(/CHECKPOINT_COMPATIBILITY_ID='([^']+)'/);
+ const legacy=app.match(/CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set\((\[[^)]*\])\)/);
+ assert.ok(current&&legacy,'Missing compatibility constants');
+ const ctx={CHECKPOINT_SCHEMA_VERSION:1,CHECKPOINT_COMPATIBILITY_ID:current[1],
+   CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS:new Set(JSON.parse(legacy[1].replaceAll("'",'"')))};
+ vm.createContext(ctx);
+ vm.runInContext(fn,ctx);
+ const compat=ctx.checkpointMetaCompatible;
+ const v7={schema:1,releaseId:'2026-10-12-android-roi-standard-inline-add-v7',
+   compatibilityId:'checkpoint-compat-2026-10-12-android-roi-standard-inline-add-v7'};
+ assert.equal(compat(v7),true,'Valid v7 checkpoint was wrongly treated as incompatible');
+ assert.equal(compat({...v7,schema:99}),false,'Different schema must fail closed');
+ assert.equal(compat({...v7,releaseId:'2026-10-12-unknown'}),false,'Unknown release must fail closed');
+ assert.equal(compat({...v7,compatibilityId:'unexpected-id'}),false,'Unknown compatibility ID must fail closed');
+ assert.equal(compat({...v7,compatibilityId:current[1]}),true,'Current checkpoint must remain readable');
+ const old={schema:1,releaseId:'2026-10-06-candidate103-checkpoint-safety-metadata',
+  compatibilityId:'checkpoint-compat-2026-10-06-candidate103-v2'};
+ assert.equal(compat(old),true,'Earlier explicitly supported migration regressed');
+});
