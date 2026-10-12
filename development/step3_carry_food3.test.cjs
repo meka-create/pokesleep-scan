@@ -129,15 +129,15 @@ test('missing or ambiguous carry never blocks exportable review status',()=>{
  assert.equal(Object.values(ctx.resultReviewState(r)).some(Boolean),false);
  r.parsed.carry=44;
  assert.equal(ctx.resultReviewState(r).carry,false);
- assert.match(source,/carryOcrUnresolved:!Number\\.isInteger\\(r\\.parsed\\.carry\\)/);
+ assert.ok(source.includes('carryOcrUnresolved:!Number.isInteger(r.parsed.carry)'));
 });
 test('carry is never a CSV column, stays OCR-only and has no manual UI',()=>{
- assert.match(source,/function observedFromParsed\\(parsed\\)/);
- assert.match(source,/carry:parsed\\.carry/);
- assert.match(source,/function retryMissingCarryFromVisibleCard\\(/);
- assert.match(source,/function toPokesleepToolCsvRow\\(/);
- assert.match(source,/return \\[p\\.nickname,species,p\\.level/);
- assert.match(source,/carry:false/);
+ assert.ok(source.includes('function observedFromParsed(parsed)'));
+ assert.ok(source.includes('carry:parsed.carry'));
+ assert.ok(source.includes('function retryMissingCarryFromVisibleCard('));
+ assert.ok(source.includes('function toPokesleepToolCsvRow('));
+ assert.ok(source.includes('return [p.nickname,species,p.level'));
+ assert.ok(source.includes('carry:false'));
  for(const forbidden of ['function carryManualChoices','function applyManuallyVerifiedCarry',
   'carrymanual','carryedit','carryconfirm','has-carry-review',
   'carryManualConfirmed','carryVerificationOutOfModel']){
