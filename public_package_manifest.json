@@ -91,8 +91,8 @@
     },
     {
       "path": "development/step3_carry_food3.test.cjs",
-      "bytes": 8694,
-      "sha256": "a23b453a9769da2d330cde8305ef29258a261f29d7461233987def339047e2d9"
+      "bytes": 8719,
+      "sha256": "73b7ffe2cf120f8dd7944d21f9f2abaffdf5fca5690fc9151d5d62a7f1b66e62"
     },
     {
       "path": "development/step3_joint_rescue.test.cjs",
