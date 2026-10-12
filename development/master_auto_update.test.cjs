@@ -78,6 +78,27 @@ test('new-food image suggestion is visibly advisory, not auto-confirmed',()=>{
  assert.match(source,/画像照合の参考候補/);
  assert.match(source,/imageSuggestion.*opts\.includes\(x\.imageSuggestion\)/);
 });
+test('checkpoints are master-bound, while v7-v11 baseline sessions remain recoverable',()=>{
+ const source=fs.readFileSync(path.join(root,'app.js'),'utf8');
+ const begin=source.indexOf('function checkpointMasterKey()'),end=source.indexOf('function checkpointMeta(',begin);
+ assert.ok(begin>=0&&end>begin,'no master-specific checkpoint guard');
+ const state={sha256:'d60410ba1f92d80c67ca3ff40bc8aa7a2cd51d4c03fc33f9e99fa83bb8e77a38'};
+ const ctx={window:{POKESLEEP_SHARED_MASTER:{getStatus:()=>state}}};
+ vm.createContext(ctx);vm.runInContext(source.slice(begin,end),ctx);
+ const legacy={releaseId:'2026-10-12-android-roi-standard-inline-add-v7',
+   compatibilityId:'checkpoint-compat-2026-10-12-android-roi-standard-inline-add-v7'};
+ assert.equal(ctx.checkpointMasterMatches(legacy),true,'v7 checkpoint migration must survive');
+ assert.equal(ctx.checkpointMasterMatches({...legacy,releaseId:'2026-10-06-older-master'}),false);
+ assert.equal(ctx.checkpointMasterMatches({masterSha256:state.sha256}),true);
+ assert.equal(ctx.checkpointMasterMatches({masterSha256:'f'.repeat(64)}),false);
+ state.sha256='a'.repeat(64);
+ assert.equal(ctx.checkpointMasterMatches(legacy),false);
+ assert.equal(ctx.checkpointMasterMatches({masterSha256:state.sha256}),true);
+ assert.match(source,/masterSha256:checkpointMasterKey\(\)/);
+ assert.match(source,/if\(!checkpointMasterMatches\(meta\)\)return \{masterChanged:true,meta,files\}/);
+ assert.match(source,/tx\.objectStore\('results'\)\.clear\(\)/);
+ assert.match(source,/await runAnalysisBatch\(\[\.\.\.selected\],0\)/);
+});
 test('unknown food energy coefficients never become automatic classifier candidates',()=>{
  const text=fs.readFileSync(path.join(root,'classifier.js'),'utf8');
  assert.equal(text.split('Object.hasOwn(ING_BASE,it.key)').length,3);
