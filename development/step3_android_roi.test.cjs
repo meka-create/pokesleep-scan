@@ -122,12 +122,22 @@ test('missing or ill-placed section anchors fail closed to original crops',()=>{
 test('ROI code never removes legacy crop path or classifier',()=>{
  const app=fs.readFileSync(path.join(ROOT,'app.js'),'utf8');
  assert.match(app,/window\.POKESLEEP_ANDROID_ROI\?\.inspect\(canvas\)/);
- assert.match(app,/androidRoiEnabled\?window\.POKESLEEP_ANDROID_ROI\?\.inspect\(canvas\):null/);
- assert.match(app,/localStorage\.setItem\(STEP3_ANDROID_ROI_STORAGE_KEY/);
+ assert.match(app,/const androidRoiEnabled=true;/);
+ assert.equal(app.includes('STEP3_ANDROID_ROI_STORAGE_KEY'),false);
+ assert.equal(app.includes("$('#androidRoiEnabled')"),false);
+ assert.equal((app.match(/androidRoiEnabled\\?window\\.POKESLEEP_ANDROID_ROI\\?\\.inspect\\(canvas\\):null/g)||[]).length,4);
  assert.match(app,/return r\?cropCanvasRect\(canvas,r,scale\):cropByRegion\(canvas,REGIONS\[key\],scale\)/);
  assert.match(app,/function cropNick\(canvas,kind,scale=1\)/);
  const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
  assert.match(html,/'food_matcher\.js','android_roi\.js','csv_gate\.js','app\.js'/);
+ assert.doesNotMatch(html,/id="androidRoiEnabled"/);
+ assert.doesNotMatch(html,/android-roi-option/);
+ assert.match(html,/class="file-picker-shell"/);
+ assert.match(html,/<button id="addFilesButton" class="additional-files-btn" type="button"/);
+ assert.match(html,/aria-label="画像を追加する"/);
+ assert.match(html,/stroke="currentColor"/);
+ assert.ok(html.indexOf('id="addFilesRow"')>html.indexOf('class="file-picker-shell"'));
+ assert.ok(html.indexOf('id="addFilesRow"')<html.indexOf('class="action-row"'));
 });
 test('PWA includes Android adapter in new versioned app shell',()=>{
  const sw=fs.readFileSync(path.join(ROOT,'sw.js'),'utf8');
