@@ -1,7 +1,7 @@
 "use strict";
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
-const {webcrypto}=require('node:crypto');
+const {webcrypto,createHash}=require('node:crypto');
 const root=path.resolve(__dirname,'..');
 const asset=fs.readFileSync(path.join(root,'shared/MASTER_DATA.json'));
 const legacy=fs.readFileSync(path.join(root,'master_data.js'),'utf8');
@@ -13,7 +13,7 @@ function harness(opts={}){
  const context={
   window:{__PUBLIC_RELEASE_ID__:'step2-test'},
   crypto:opts.noCrypto?undefined:webcrypto,
-  fetch:async(url)=>failed?{ok:false,status:503}:{ok:true,arrayBuffer:async()=>Uint8Array.from(String(url).includes('master_release.json')?Buffer.from(fs.readFileSync(path.join(root,'shared/master_release.json'))):data).buffer},
+  fetch:async(url)=>failed?{ok:false,status:503}:{ok:true,arrayBuffer:async()=>Uint8Array.from(String(url).includes('master_release.json')?(opts.receipt||Buffer.from(fs.readFileSync(path.join(root,'shared/master_release.json')))):data).buffer},
   location:{href:'http://localhost:8000/'},
   TextDecoder,AbortController,URL,setTimeout,clearTimeout,
   navigator:{locks:{request:async(_name,fn)=>fn()}},
@@ -37,6 +37,35 @@ test('independent verified master selected, preserving old classifier inputs',as
  assert.equal(h.context.window.POKESLEEP_MASTER.pokemon.length,ai.pokemon.length);
  assert.notEqual(h.initial,h.context.window.POKESLEEP_MASTER);
  assert.ok(h.initial.pokemon.every(p=>h.context.window.POKESLEEP_MASTER.pokemon.some(x=>x.name_en===p.name_en)), 'Valid updates may append species but must not lose existing ones');
+});
+test('future ingredient energy from verified master feeds actual classifier SP calculation',async()=>{
+ const future=JSON.parse(JSON.stringify(ai));
+ future.ingredients.futureFood='未来の食材';
+ future.ingredientStrength={futureFood:123};
+ const seed=future.pokemon.find(x=>x.name==='フシギダネ');
+ const species={...JSON.parse(JSON.stringify(seed)),name:'未来モン',name_en:'Futuremon',
+   ing1:{...seed.ing1,key:'futureFood',name:'未来の食材'}};
+ future.pokemon.push(species);
+ const raw=Buffer.from(JSON.stringify(future));
+ const receipt={...JSON.parse(fs.readFileSync(path.join(root,'shared/master_release.json'))),
+   sha256:createHash('sha256').update(raw).digest('hex'),
+   speciesCount:future.pokemon.length,ingredientCount:Object.keys(future.ingredients).length};
+ const h=harness({data:raw,receipt:Buffer.from(JSON.stringify(receipt))});
+ assert.equal((await h.bridge.load()).source,'verified-local-master');
+ assert.equal(h.context.window.POKESLEEP_EXTRA_INGREDIENT_STRENGTH.futureFood,123);
+ vm.runInContext(fs.readFileSync(path.join(root,'classifier.js'),'utf8'),h.context);
+ const cls=h.context.window.POKESLEEP_CLASSIFIER,fp=cls.profiles(species)[0];
+ assert.equal(fp.items[0].name,'未来の食材');
+ const n=future.natures.find(x=>x.ja==='てれや');
+ const mod=cls.modFromObserved([],10);
+ const rp=cls.computeSp(species,fp,10,n,mod,0,1);
+ assert.ok(Number.isFinite(rp)&&rp>0,'Future food must not be silently computed as zero');
+ const malformed=JSON.parse(JSON.stringify(future));
+ delete malformed.ingredientStrength;
+ const badRaw=Buffer.from(JSON.stringify(malformed));
+ const badReceipt={...receipt,sha256:createHash('sha256').update(badRaw).digest('hex')};
+ const bad=harness({data:badRaw,receipt:Buffer.from(JSON.stringify(badReceipt))});
+ assert.equal((await bad.bridge.load()).source,'legacy-fallback','missing new food energy must not be promoted');
 });
 test('tampered independent master rejected; local master untouched',async()=>{
  const h=harness({data:Buffer.from(asset.toString('utf8').replace(/"cutoff"\s*:\s*"[^"]+"/,'"cutoff":"1900-01-01"'))});
