@@ -42,7 +42,24 @@ INSTRUMENTED=JS.replace(HOOK,'''window.__STEP2_AUDIT__={
     const csv=toPokesleepToolCsvRow(r);
     return {csv,errors:manualDraftErrors(r.manualDraft),
      gate:POKESLEEP_CSV_GATE.inspect(buildCsvText(),POKESLEEP_MASTER).ok};
-  }
+  },
+  testCarry:()=>{
+    const species='ジュカイン',p=POKESLEEP_MASTER.pokemon.find(x=>x.name===species);
+    const r={
+      file:'synthetic-carry.png',speciesManualOverride:species,
+      inference:{status:'UNIQUE',candidates:[species],
+        hits:[{pokemon:species,calculatedCarry:26},{pokemon:species,calculatedCarry:32}],
+        profiles:[],stages:{mainSkill:[species],helpSp:[species]}},
+      classification:{status:'UNIQUE',candidates:[species],hits:[],profiles:[]},
+      parsed:{nickname:'所持数確認',carry:null,carryNeedsReview:true,
+        level:28,sp:0,skillLevel:1,mainSkill:p.mainSkill,nature:'てれや',
+        subs:POKESLEEP_MASTER.subskills.slice(0,5).map(x=>({value:x.ja,needsReview:false}))},
+      foods:Array.from({length:3},()=>({name:p.ing1.name,needsReview:false})),raw:{}
+    };
+    results=[r];document.querySelector('#resultsCard').hidden=false;render();
+    return {options:carryManualChoices(r),hasControl:!!document.querySelector('.carryedit')};
+  },
+  carryResult:()=>({parsed:results[0].parsed,review:resultReviewState(results[0])})
 };
 '''+HOOK)
 
@@ -151,6 +168,31 @@ def main():
                 check(len(labels)==5 and all(v=="―" for v in labels),
                       "Mew's editable empty subskills should display em dash")
                 evidence["checks"].append("Mew manual empty subskills display dash but export blank CSV cells")
+
+                # Manually observed carry values remain enterable when hidden
+                # ribbon models disagree with correct on-screen capacity.
+                carry=page.evaluate("window.__STEP2_AUDIT__.testCarry()")
+                check(carry["hasControl"],"Missing carry correction control")
+                check(carry["options"]==[26,32],"Unexpected synthetic classifier values")
+                selector=page.locator("select.carryedit")
+                check(selector.locator("option[value='27']").count()==0,
+                      "Unexpected out-of-model shortcut")
+                selector.select_option("manual")
+                entry=page.locator("input.carrymanual")
+                check(entry.is_visible(),"Manual carry field not revealed")
+                entry.fill("251")
+                check(page.locator("button.carryconfirm").is_disabled(),
+                      "Out-of-bounds carry was enabled")
+                entry.fill("27")
+                page.locator("button.carryconfirm").click()
+                fixed=page.evaluate("window.__STEP2_AUDIT__.carryResult()")
+                check(fixed["parsed"]["carry"]==27 and fixed["parsed"]["carryManualConfirmed"],
+                      "Explicitly confirmed carry was not persisted")
+                check(fixed["parsed"]["carryVerificationOutOfModel"],
+                      "Audit trail failed to record classifier disagreement")
+                check(not fixed["review"]["carry"],
+                      "Explicitly verified carry is still flagged missing")
+                evidence["checks"].append("Chromium carry editor confirms out-of-model game values safely")
                 context.close()
             finally:
                 browser.close()
