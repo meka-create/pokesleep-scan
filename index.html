@@ -55,10 +55,25 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 .tips-dialog,.info-dialog{width:min(470px,calc(100vw - 28px));max-height:90dvh;margin:auto;padding:0;border:0;border-radius:20px;background:#fff;color:var(--ink);box-shadow:0 28px 80px rgba(15,23,42,.28);overflow:hidden}.tips-dialog::backdrop,.info-dialog::backdrop{background:rgba(11,16,30,.58);backdrop-filter:blur(4px)}.tips-dialog-head,.info-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line);background:#fff}.tips-dialog-title,.info-dialog-title{margin:0;font-size:17px;font-weight:900;letter-spacing:-.02em}.tips-close,.info-close{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#f3f5f8;color:#596174;font-size:20px;line-height:1}.tips-close:hover,.info-close:hover{background:#e9ecf2}.tips-dialog-body,.info-dialog-body{max-height:calc(90dvh - 67px);overflow-y:auto;padding:18px}.tips-lead{margin:0 0 14px;font-size:13px;line-height:1.7;color:#414b5e;font-weight:650}.tips-example{margin:0;border:1px solid var(--line);border-radius:15px;background:#f7f8fb;padding:10px;text-align:center}.tips-example img{display:block;width:auto;max-width:100%;max-height:55vh;margin:0 auto;border-radius:10px;box-shadow:0 8px 24px rgba(25,31,52,.10)}.tips-caption{margin:9px 0 0;font-size:11px;color:#7e8798;font-weight:700}.tips-note{margin:12px 0 0;font-size:11px;line-height:1.55;color:#858d9d}.tips-note strong{color:#626b7b}.info-copy{margin:0;color:#566074;font-size:12px;font-weight:650;line-height:1.75}.info-copy a{color:var(--accent);font-weight:800;text-decoration:underline;text-underline-offset:2px}
 .hero{max-width:760px;margin:44px auto 34px}
 .workspace{background:rgba(255,255,255,.96);border:1px solid rgba(229,232,241,.96);border-radius:26px;padding:30px;box-shadow:0 22px 60px rgba(37,43,70,.09);backdrop-filter:blur(12px);display:flex;flex-direction:column;justify-content:center}
-.filelabel{display:flex;align-items:center;justify-content:center;min-height:212px;border:1.5px dashed #cbd1df;border-radius:18px;background:linear-gradient(180deg,#fbfbfe,#f7f8fc);cursor:pointer;transition:.18s ease;padding:18px;text-align:center}
-.filelabel:hover{border-color:#999df3;background:#f8f8ff;transform:translateY(-1px)}.filelabel.is-dragover{border-color:#696df0;background:#f0f1ff;box-shadow:inset 0 0 0 2px rgba(85,88,232,.12),0 10px 28px rgba(85,88,232,.10);transform:translateY(-1px)}
-.filelabel.is-selected{border-style:solid;border-color:#9fd6c4;background:linear-gradient(180deg,#f5fcf9,#edf8f4);box-shadow:inset 0 0 0 1px rgba(22,119,95,.04)}.filelabel.is-selected:hover{border-color:#78c3aa;background:linear-gradient(180deg,#f1faf6,#e8f6f0)}.filelabel.is-selected .upload-icon{background:#dff3ea;color:var(--success)}.filelabel.is-selected .upload-main{color:#17664f;font-size:20px}.filelabel.is-selected .upload-sub{color:#5c7a70}.filelabel.is-error{border-style:solid;border-color:#e2a7ad;background:#fff7f8}.filelabel.is-error .upload-icon{background:var(--danger-soft);color:var(--danger)}.filelabel.is-error .upload-main{color:var(--danger)}
-.filelabel input{display:none}.upload-sub:empty{display:none}.upload-icon{width:48px;height:48px;border-radius:16px;background:var(--accent-soft);display:grid;place-items:center;margin:0 auto 9px;color:var(--accent);font-size:22px;font-weight:800}.upload-main{display:block;font-weight:850;font-size:17px;letter-spacing:-.015em}.upload-sub{display:block;color:var(--muted);font-size:12px;margin-top:6px;font-weight:600}
+.filelabel{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;
+ min-height:212px;border:2px dashed #abc4eb;border-radius:16px;background:#f8fbff;
+ cursor:pointer;transition:background .15s,border-color .15s;padding:18px;text-align:center}
+.filelabel:hover,.filelabel.is-dragover{border-color:#286bdd;background:#f0f6ff;transform:none}
+.filelabel.is-selected{border-color:#abc4eb;background:#f8fbff}
+.filelabel.is-selected:hover{border-color:#286bdd;background:#f0f6ff}
+.filelabel.is-error{border-color:#e2a7ad;background:#fff7f8}
+.filelabel.is-error .upload-main{color:var(--danger)}
+.filelabel:focus-visible{outline:3px solid #286bdd;outline-offset:3px}
+.filelabel input{display:none}
+.upload-content{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;pointer-events:none}
+.upload-sub:empty{display:none}
+.upload-icon{display:grid;place-items:center;width:56px;height:56px;margin:0 auto 2px;border-radius:18px;
+ background:#e7efff;color:#356ada}
+.upload-icon svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;
+ stroke-linecap:round;stroke-linejoin:round}
+.upload-main{display:block;font-weight:850;font-size:17px;color:#14263b;letter-spacing:-.015em}
+.filelabel.is-selected .upload-main{color:#14263b;font-size:17px}
+.upload-sub{display:block;color:#6c7c8c;font-size:12px;letter-spacing:0;font-weight:650}
 .action-row{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}.btn{min-height:50px;border-radius:13px;padding:0 16px;font-weight:800;transition:.16s ease}.btn-primary{background:linear-gradient(135deg,#5d60ed,#4b4ed9);color:#fff;box-shadow:0 10px 22px rgba(85,88,232,.18)}.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 13px 26px rgba(85,88,232,.25)}.btn:disabled{opacity:.42;cursor:default;box-shadow:none;transform:none}
 #progress{margin-top:16px;transition:padding .2s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease}.status-row{display:flex;align-items:center;gap:12px}.status-text{font-size:13px;color:#566074;font-weight:650}.bar{height:7px;background:#edf0f5;border-radius:999px;overflow:hidden;margin-top:9px}.bar>div{height:100%;width:0;background:linear-gradient(90deg,#6265ee,#50a4d7);border-radius:inherit;transition:width .18s ease}#progress.is-complete{margin-left:-12px;margin-right:-12px;padding:12px 13px 13px;border:1px solid rgba(85,88,232,.16);border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.99),rgba(246,247,255,.98));box-shadow:0 12px 30px rgba(39,47,83,.08),inset 0 1px 0 rgba(255,255,255,.92)}#progress.is-complete .status-row{position:relative;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px}#progress.is-complete .status-row::before{content:'';width:28px;height:28px;border-radius:50%;background:linear-gradient(145deg,#5a5dea,#6f79f5);box-shadow:0 6px 14px rgba(85,88,232,.22),inset 0 1px 0 rgba(255,255,255,.35)}#progress.is-complete .status-row::after{content:'';position:absolute;left:9px;top:7px;width:7px;height:11px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg);border-radius:1px}#progress.is-complete .status-text{color:#2f374b;font-size:13.5px;font-weight:800;letter-spacing:-.01em}#progress.is-complete .bar{height:6px;background:#e9ebf5;margin-top:10px}#progress.is-complete .bar>div{background:linear-gradient(90deg,#5558e8,#7a83f5);box-shadow:0 0 12px rgba(85,88,232,.18)}#progress.is-error .status-text{color:var(--danger);font-weight:800}#progress.is-error .bar>div{background:var(--danger)}
 #floatingProgress[hidden]{display:none}#floatingProgress{position:fixed;left:50%;top:max(10px,env(safe-area-inset-top));transform:translateX(-50%);z-index:850;width:min(520px,calc(100vw - 28px));padding:10px 13px 11px;border:1px solid rgba(218,222,234,.9);border-radius:17px;background:rgba(255,255,255,.91);box-shadow:0 16px 42px rgba(25,32,57,.15),inset 0 1px 0 rgba(255,255,255,.82);backdrop-filter:blur(18px) saturate(1.15);pointer-events:none}#floatingProgress .floating-status{font-size:12px;color:#4f596d;font-weight:800;line-height:1.35;letter-spacing:-.005em}#floatingProgress .floating-bar{height:5px;background:#edf0f5;border-radius:999px;overflow:hidden;margin-top:8px}#floatingProgress .floating-bar>div{height:100%;width:0;background:linear-gradient(90deg,#6265ee,#50a4d7);border-radius:inherit;transition:width .18s ease}#floatingProgress.is-complete{padding:11px 13px 12px;border-color:rgba(85,88,232,.16);background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(247,248,255,.93));box-shadow:0 18px 46px rgba(30,38,70,.17),inset 0 1px 0 rgba(255,255,255,.9);animation:floatingCompleteIn .24s ease-out both}#floatingProgress.is-complete .floating-status{position:relative;display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;gap:9px;color:#30384b;font-weight:800}#floatingProgress.is-complete .floating-status::before{content:'';width:24px;height:24px;border-radius:50%;background:linear-gradient(145deg,#5a5dea,#6f79f5);box-shadow:0 5px 12px rgba(85,88,232,.22),inset 0 1px 0 rgba(255,255,255,.35)}#floatingProgress.is-complete .floating-status::after{content:'';position:absolute;left:8px;top:6px;width:6px;height:9px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg);border-radius:1px}#floatingProgress.is-complete .floating-bar{background:#e9ebf5}#floatingProgress.is-complete .floating-bar>div{background:linear-gradient(90deg,#5558e8,#7a83f5)}#floatingProgress.is-error{border-color:#efc4c8;background:rgba(255,247,248,.97)}#floatingProgress.is-error .floating-status{color:var(--danger)}#floatingProgress.is-error .floating-bar>div{background:var(--danger)}@keyframes floatingCompleteIn{from{opacity:0;transform:translate(-50%,-7px) scale(.99)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
@@ -126,24 +141,35 @@ html,body{overscroll-behavior:none}
 html.analysis-pull-guard,html.analysis-pull-guard body,body.analysis-pull-guard{overscroll-behavior-y:none}
 body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
 
-/* Add screenshots from inside the selected-count frame.
-   Keep the whole original drop target and its 100+42 photo-picker workflow. */
+/* Image picker uses AI Bukkomi Scan's reference-blue styling. */
 .file-picker-shell{position:relative;min-width:0}
 .file-picker-shell>.filelabel{width:100%;box-sizing:border-box}
-.additional-files-row{position:absolute;right:13px;bottom:13px;width:48px;height:48px;
- margin:0;display:flex;align-items:center;justify-content:center;z-index:2}
-.additional-files-row[hidden],#addFiles[hidden]{display:none!important}
-.additional-files-btn{appearance:none;border:0;border-radius:50%;
- width:48px;height:48px;min-width:48px;min-height:48px;padding:0;
- display:grid;place-items:center;background:#087bd8;color:#fff;
- box-shadow:0 3px 10px rgba(0,91,180,.22);
- cursor:pointer;transition:background-color .15s,box-shadow .15s,transform .15s}
-.additional-files-btn:hover:not(:disabled){background:#006bc1;box-shadow:0 5px 14px rgba(0,91,180,.28)}
-.additional-files-btn:active:not(:disabled){transform:scale(.96)}
-.additional-files-btn svg{display:block;width:25px;height:25px}
-.additional-files-btn:focus-visible{outline:3px solid #3e8be7;outline-offset:3px}
-.additional-files-btn:disabled{opacity:.48;cursor:not-allowed}
-@media(prefers-reduced-motion:reduce){.additional-files-btn{transition:none}}
+#addFiles[hidden]{display:none!important}
+.image-select-dialog{width:min(410px,calc(100vw - 28px));max-height:90dvh;
+ margin:auto;padding:0;border:0;border-radius:20px;background:#fff;color:#14263b;
+ box-shadow:0 28px 80px rgba(15,23,42,.28);overflow:hidden}
+.image-select-dialog::backdrop{background:rgba(11,16,30,.55);backdrop-filter:blur(4px)}
+.image-select-dialog-head{display:flex;justify-content:space-between;align-items:center;
+ gap:12px;padding:17px 18px;border-bottom:1px solid #e3eaf3}
+.image-select-dialog-title{margin:0;font-size:17px;font-weight:850;letter-spacing:-.02em}
+.image-select-dialog-close{width:38px;height:38px;min-width:38px;border:0;
+ border-radius:10px;background:#f0f3f8;color:#52617a;font-size:25px;line-height:1;
+ cursor:pointer;display:grid;place-items:center}
+.image-select-dialog-close:hover{background:#e3eaf3}
+.image-select-dialog-body{padding:18px;display:grid;gap:11px}
+.image-select-dialog-hint{margin:0 0 6px;color:#64758f;font-size:13px;line-height:1.65}
+.image-select-choice{display:flex;justify-content:space-between;align-items:center;
+ min-height:54px;width:100%;padding:12px 15px;gap:10px;border:1px solid #cad9ee;
+ border-radius:12px;background:#f8fbff;color:#245fc0;font:inherit;font-weight:800;
+ text-align:left;cursor:pointer}
+.image-select-choice:hover:not(:disabled){background:#eaf2ff;border-color:#82afea}
+.image-select-choice:disabled{cursor:not-allowed;opacity:.48}
+.image-select-choice-primary{background:#2f6ce8;color:#fff;border-color:#2f6ce8}
+.image-select-choice-primary:hover:not(:disabled){background:#285dca;color:#fff;border-color:#285dca}
+.image-select-choice svg{width:20px;height:20px;fill:none;stroke:currentColor;
+ stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.image-select-choice:focus-visible,.image-select-dialog-close:focus-visible{outline:3px solid #367de8;outline-offset:2px}
+.image-select-dialog-note{font-size:11px;color:#75839b;margin:0;line-height:1.5}
 /* Mobile touch targets remain large without the extra review navigator. */
 @media(max-width:760px){
  .results-head{flex-wrap:wrap;gap:10px}
@@ -174,25 +200,20 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
     <section class="hero">
       <div class="workspace">
         <div class="file-picker-shell">
-          <label class="filelabel">
+          <div class="filelabel" role="button" tabindex="0" aria-label="画像を選択する"
+               aria-haspopup="dialog" aria-controls="imageSelectDialog">
             <input id="files" type="file" accept="image/png,image/jpeg,.png,.jpg,.jpeg" multiple>
-            <span>
-              <span id="uploadIcon" class="upload-icon">＋</span>
-              <span id="uploadMain" class="upload-main">スクリーンショットを選ぶ</span>
+            <span class="upload-content">
+              <span id="uploadIcon" class="upload-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/>
+                  <circle cx="9" cy="9" r="1.5"/><path d="m5 17 5-5 3 3 2-2 4 4"/></svg>
+              </span>
+              <span id="uploadMain" class="upload-main">画像を選択する</span>
               <span id="uploadSub" class="upload-sub">PNG / JPG / JPEG · 複数選択可</span>
             </span>
-          </label>
-          <div id="addFilesRow" class="additional-files-row" hidden>
-            <button id="addFilesButton" class="additional-files-btn" type="button"
-                    aria-label="画像を追加する" title="画像を追加する">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path d="M12 4.75V19.25M4.75 12H19.25" fill="none" stroke="currentColor"
-                      stroke-width="3.5" stroke-linecap="round"/>
-              </svg>
-            </button>
-            <input id="addFiles" type="file" accept="image/png,image/jpeg,.png,.jpg,.jpeg"
-                   multiple hidden aria-label="追加する画像を選ぶ">
           </div>
+          <input id="addFiles" type="file" accept="image/png,image/jpeg,.png,.jpg,.jpeg"
+                 multiple hidden aria-label="追加する画像を選ぶ">
         </div>
         <div class="action-row">
           <button id="run" class="btn btn-primary" type="button" disabled>解析する</button>
@@ -267,6 +288,25 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
   </div>
   <div class="info-dialog-body">
     <p class="info-copy">利用しているデータは「<a href="https://wikiwiki.jp/poke_sleep/" target="_blank" rel="noopener noreferrer">ポケモンスリープ攻略・検証Wiki</a>」「<a href="https://pks.raenonx.cc/" target="_blank" rel="noopener noreferrer">RaenonX</a>」「<a href="https://github.com/nitoyon/pokesleep-tool" target="_blank" rel="noopener noreferrer">pokesleep-tool</a>」を参照しています。</p>
+  </div>
+</dialog>
+
+<dialog id="imageSelectDialog" class="image-select-dialog" aria-labelledby="imageSelectDialogTitle" aria-describedby="imageSelectDialogHint">
+  <div class="image-select-dialog-head">
+    <h2 id="imageSelectDialogTitle" class="image-select-dialog-title">画像の選択</h2>
+    <button id="imageSelectClose" class="image-select-dialog-close" type="button" aria-label="閉じる" title="閉じる">×</button>
+  </div>
+  <div class="image-select-dialog-body">
+    <p id="imageSelectDialogHint" class="image-select-dialog-hint">選択済みの画像をどうしますか？</p>
+    <button id="imageSelectReplace" class="image-select-choice" type="button">
+      <span>画像を選び直す</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h12M4 17h9"/></svg>
+    </button>
+    <button id="imageSelectAppend" class="image-select-choice image-select-choice-primary" type="button">
+      <span>画像を追加する</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+    <p id="imageSelectAppendNote" class="image-select-dialog-note" hidden>解析結果がある間は画像を追加できません。CSV保存後に画像を選び直してください。</p>
   </div>
 </dialog>
 
