@@ -16,5 +16,22 @@ function matchCanvas(canvas,allowed){const crop=cropData(canvas),vals=[];for(con
 function matchDimmedFoodIcon(canvas,allowed,maxColorScore=Infinity){const color=matchCanvas(canvas,allowed);if(!Array.isArray(color.ranking)||color.ranking.length<2||color.margin>.04||color.score>maxColorScore)return color;const crop=cropData(canvas),shape=[];for(const label of allowed||[]){let best=-2;for(const v of variants(label)){const s=scoreShapeVariant(crop,v);if(s>best)best=s;}shape.push({name:label,score:best});}shape.sort((a,b)=>b.score-a.score);const top=shape[0]||{name:'',score:0},second=shape[1]||{name:'',score:0},shapeMargin=top.score-second.score;if(top.name&&top.name===color.second&&shapeMargin>=.04){return {name:top.name,score:top.score,second:second.name,secondScore:second.score,margin:shapeMargin,ranking:shape,dimmedShapeArbitration:true,colorRanking:color.ranking};}return color;}
 function uniqueProfiles(hits){const out=[];for(const h of hits||[]){const k=h.foods.join('\u0001');if(!out.some(x=>x.key===k))out.push({key:k,foods:[...h.foods]});}return out;}
 function resolveSlots(screenCanvas,inference,level){const ps=uniqueProfiles(inference?.hits||[]),keys=['food1','food2','food3'];return keys.map((key,i)=>{const allowed=[...new Set(ps.map(p=>p.foods[i]).filter(Boolean))];if(allowed.length===1)return {name:allowed[0],score:1,second:'',secondScore:0,margin:1,method:'db-inferred',allowed};const crop=cropFood(screenCanvas,key),isDimmedFood2=i===1&&Number.isFinite(level)&&level<30,isDimmedFood3=i===2&&Number.isFinite(level)&&level<60,m=isDimmedFood2?matchDimmedFoodIcon(crop,allowed):isDimmedFood3?matchDimmedFoodIcon(crop,allowed,.82):matchCanvas(crop,allowed);return {...m,method:'image',allowed};});}
-window.POKESLEEP_FOOD_MATCHER={cropFood,matchCanvas,resolveSlots};
+// Independent shape recheck is advisory ONLY. Color-template recognition
+// remains unchanged; a disagreeing opinion must never silently alter a food.
+function reviewShapeOpinion(screenCanvas,key,allowed){
+ const unique=[...new Set((allowed||[]).filter(name=>F.foods[name]))];
+ if(unique.length<2)return null;
+ const crop=cropData(cropFood(screenCanvas,key)),ranked=[];
+ for(const name of unique){
+  let best=-2;
+  for(const v of variants(name))best=Math.max(best,scoreShapeVariant(crop,v));
+  ranked.push({name,score:best});
+ }
+ ranked.sort((x,y)=>y.score-x.score);
+ const top=ranked[0],second=ranked[1];
+ return {name:top.name,score:top.score,second:second.name,
+  secondScore:second.score,margin:top.score-second.score,ranking:ranked,
+  method:'shape-review-only',automatic:false};
+}
+window.POKESLEEP_FOOD_MATCHER={cropFood,matchCanvas,resolveSlots,reviewShapeOpinion};
 })();
