@@ -25,11 +25,14 @@ jobs:
           node-version: '22'
       - name: Clone upstream at a single SHA; do not execute untrusted code
         run: git clone --depth 1 --single-branch https://github.com/nitoyon/pokesleep-tool.git "$RUNNER_TEMP/upstream"
+      - name: Prepare food sprite generator
+        run: python -m pip install Pillow==11.3.0
       - name: Stage, validate, test and refresh self-owned release metadata
         shell: bash
         run: |
           set -euo pipefail
           python development/master_auto_update.py --upstream "$RUNNER_TEMP/upstream" --apply
+          python development/register_food_icons.py
           python development/generate_public_package_manifest.py --write
           python -m unittest discover -s development -p 'test_master_auto_update.py' -v
           node --check app.js
@@ -43,7 +46,7 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- shared/MASTER_DATA.json shared/master_release.json app.js sw.js release.json public_package_manifest.json
+          git add -- shared/MASTER_DATA.json shared/master_release.json food_color_features.js app.js sw.js release.json public_package_manifest.json
           if git diff --cached --quiet; then echo 'No upstream master changes'; exit 0; fi
           git diff --cached --check
           git commit -m 'data: sync upstream independently'
