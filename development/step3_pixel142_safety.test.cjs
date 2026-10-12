@@ -76,3 +76,85 @@ test('existing review, legacy fallbacks and manual validation remain connected',
  assert.match(src,/window\.POKESLEEP_ANDROID_ROI\?\.inspect\(canvas\)/);
  assert.doesNotMatch(src,/reviewQueueSummary|pendingReviewItemCount|nextReview/);
 });
+
+
+function mythicalSubskillApi(){
+ const ctx={
+  NO_SUBSKILL:'―',LEVELS:[10,25,50,70,80],
+  SUBSKILLS:['きのみの数S','おてつだいスピードM','最大所持数アップS'],
+  speciesIsMythical:name=>name==='ミュウ'||name==='ダークライ',
+  chosenSpecies:r=>r.species,
+  foodCsvValue:f=>f?.name||'',mainSkillCsvValue:()=> 'メインスキル',
+  ribbonCsvValue:()=>0,shinyCsvValue:()=>0
+ };
+ vm.createContext(ctx);
+ vm.runInContext(segment('function subskillReviewSlots(r){','function subskillNeedsReview(r){'),ctx);
+ vm.runInContext(segment('function subskillReviewOptions(r,index){','function subskillReviewPreviewHtml(r,ri,index){'),ctx);
+ vm.runInContext(segment('function toPokesleepToolCsvRow(r){','function buildCsvText(){'),ctx);
+ return ctx;
+}
+function mythicalSubskillRow(species,value='きのみの数S'){
+ return {species,parsed:{nickname:'テスト',level:10,skillLevel:1,nature:'てれや',
+  subs:[{value,needsReview:true},{value:'おてつだいスピードM'},
+        {value:'最大所持数アップS'},{value:''},{value:''}]},
+  foods:[{name:'f1'},{name:'f2'},{name:'f3'}],classification:{status:'UNIQUE',candidates:[species]}};
+}
+test('Mew and Darkrai alone offer the explicit dash in an inline subskill review',()=>{
+ const c=mythicalSubskillApi();
+ for(const species of ['ミュウ','ダークライ']){
+  const row=mythicalSubskillRow(species);
+  assert.equal(c.subskillReviewSlots(row).includes(0),true);
+  assert.equal(c.subskillReviewOptions(row,0)[0],'―');
+  assert.equal(c.subskillReviewOptions(row,0).includes('きのみの数S'),true);
+ }
+ const ordinary=mythicalSubskillRow('フシギダネ');
+ assert.equal(c.subskillReviewOptions(ordinary,0).includes('―'),false);
+ assert.equal(c.subskillReviewSlots(ordinary).includes(3),true);
+});
+test('reviewed mythical empty slot exports as empty CSV field, never a dash',async()=>{
+ const c=mythicalSubskillApi();
+ for(const species of ['ミュウ','ダークライ']){
+  const row=mythicalSubskillRow(species),sub=row.parsed.subs[0];
+  sub.reviewSelection='―';
+  const results=[row], tb={querySelectorAll:()=>[button]};
+  const button={dataset:{ri:'0',si:'0'},addEventListener(_type,handler){this.handler=handler;}};
+  Object.assign(c,{tb,results,render:()=>{},
+   recomputeAfterSubskillConfirm:()=>{},scheduleCheckpointResultSave:()=>{},
+   speciesNeedsReview:()=>false,ensureClassificationPreview:async()=>{}});
+  const line=src.split('\n').find(s=>s.includes("querySelectorAll('.subskillconfirm')"));
+  assert.ok(line,'Production confirmation listener missing');
+  vm.runInContext(line,c);
+  await button.handler({currentTarget:button});
+  assert.equal(sub.value,'');
+  assert.equal(sub.needsReview,false);
+  assert.equal(sub.manualConfirmed,true);
+  assert.equal(c.subskillReviewSlots(row).includes(0),false);
+  const fields=Array.from(c.toPokesleepToolCsvRow(row));
+  assert.equal(fields[9],'');
+  assert.notEqual(fields[9],'―');
+  // The confirmed empty slot can still be reopened for review.
+  sub.reviewSelection='―';sub.needsReview=true;delete sub.manualConfirmed;
+  assert.equal(c.subskillReviewSlots(row).includes(0),true);
+ }
+});
+test('ordinary species never accepts the no-subskill option',()=>{
+ const c=mythicalSubskillApi(),row=mythicalSubskillRow('フシギダネ');
+ const sub=row.parsed.subs[0];sub.reviewSelection='―';
+ const button={dataset:{ri:'0',si:'0'},addEventListener(_type,handler){this.handler=handler;}};
+ Object.assign(c,{tb:{querySelectorAll:()=>[button]},results:[row],
+  render:()=>{},recomputeAfterSubskillConfirm:()=>{},
+  scheduleCheckpointResultSave:()=>{},speciesNeedsReview:()=>false});
+ const line=src.split('\n').find(s=>s.includes("querySelectorAll('.subskillconfirm')"));
+ vm.runInContext(line,c);
+ return button.handler({currentTarget:button}).then(()=>{
+  assert.equal(sub.value,'きのみの数S');
+  assert.equal(sub.needsReview,true);
+ });
+});
+test('both mythical manual editors label empty as dash; CSV row remains blank',()=>{
+ assert.match(src,/\$\{NO_SUBSKILL\}<\/option>/);
+ assert.match(src,/sub\.value=v===NO_SUBSKILL\?'':v;/);
+ assert.match(src,/speciesIsMythical\(chosenSpecies\(r\)\)\?NO_SUBSKILL:''/);
+ assert.match(src,/speciesIsMythical\(pokemon\)\?NO_SUBSKILL:''/);
+ assert.doesNotMatch(src,/sub\.value=NO_SUBSKILL;/);
+});
