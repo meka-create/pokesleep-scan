@@ -809,7 +809,7 @@ async function retryMissingCarryFromVisibleCard(canvas,parsed,inference,idx,tota
        wide=verifiedCarryRetryCrop(canvas,'wide');
  if(!tight||!wide){
   const fallback=await retryShiftedCarryFromScreen(canvas,parsed,inference,idx,total);
-  parsed.carryRetry={status:fallback.status,readings:fallback.readings,
+  parsed.carryRetry={status:fallback.status==='no-shifted-layout-evidence'?'not-visible-or-no-verified-carry-band':fallback.status,readings:fallback.readings,
     advisoryValue:fallback.advisoryValue??null};
   return fallback.inference;
  }
