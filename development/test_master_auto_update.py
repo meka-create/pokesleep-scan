@@ -61,6 +61,33 @@ class OctoberFifthTest(unittest.TestCase):
                          {p['name'] for p in self.full['pokemon']})
         again,status=project(self.dir,new,commit='a'*40)
         self.assertFalse(status['changed'],'second run should be idempotent')
+    def test_247_to_249_release_files_and_receipt(self):
+        import shutil,hashlib
+        from master_auto_update import promote
+        root=self.dir/'live-release-test'
+        (root/'shared').mkdir(parents=True,exist_ok=True)
+        save(root/'shared/MASTER_DATA.json',self.pre)
+        shutil.copy(ROOT/'app.js',root/'app.js')
+        shutil.copy(ROOT/'sw.js',root/'sw.js')
+        shutil.copy(ROOT/'release.json',root/'release.json')
+        shutil.copy(ROOT/'food_color_features.js',root/'food_color_features.js')
+        updated,report=project(self.dir,self.pre,commit='a'*40)
+        self.assertTrue(promote(root,updated,report))
+        actual_bytes=(root/'shared/MASTER_DATA.json').read_bytes()
+        active=json.loads(actual_bytes)
+        metadata=json.loads((root/'shared/master_release.json').read_text(encoding='utf-8'))
+        release=json.loads((root/'release.json').read_text(encoding='utf-8'))['id']
+        self.assertEqual(metadata['sha256'],hashlib.sha256(actual_bytes).hexdigest())
+        self.assertEqual(metadata['sourceCommit'],'a'*40)
+        self.assertEqual(metadata['speciesCount'],249)
+        self.assertEqual(len(active['pokemon']),249)
+        self.assertEqual(sorted(set(x['name'] for x in active['pokemon'])-
+                                set(x['name'] for x in self.pre['pokemon'])),
+                         ['タマゲタケ','モロバレル'])
+        self.assertIn(release,(root/'app.js').read_text(encoding='utf-8'))
+        self.assertIn(release,(root/'sw.js').read_text(encoding='utf-8'))
+        _,second=project(self.dir,active,commit='a'*40)
+        self.assertFalse(second['changed'],'auto updater should not endlessly republish the same master')
     def test_new_20th_ingredient_is_detected_not_guessed(self):
         data=pathlib.Path(self.dir/'src/i18n/ja/data.json')
         doc=json.loads(data.read_text(encoding='utf-8'))
