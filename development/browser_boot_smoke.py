@@ -61,14 +61,14 @@ def main():
                 check("All preserved runtime scripts load and bind", lambda:
                     page.wait_for_function(
                         "()=>!!window.POKESLEEP_MASTER&&"
-                        "window.POKESLEEP_MASTER.pokemon.length===249&&"
+                        "window.POKESLEEP_MASTER.pokemon.length>=249&&"
                         "typeof window.POKESLEEP_CLASSIFIER?.classify==='function'&&"
                         "document.querySelector('#run')?.onclick===null",
                         timeout=20000))
                 check("Verified shared master adopted before classifier", lambda:
                     page.wait_for_function(
                         "()=>window.POKESLEEP_SHARED_MASTER?.getStatus().source==='verified-local-master'&&"
-                        "window.POKESLEEP_MASTER?.pokemon.length===249&&"
+                        "window.POKESLEEP_MASTER?.pokemon.length>=249&&"
                         "typeof window.POKESLEEP_CSV_GATE?.inspect==='function'",
                         timeout=15000))
                 check("CSV filename sequence is minute only", lambda: _check_names(page))

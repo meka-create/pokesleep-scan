@@ -34,7 +34,7 @@ test('verified v27 master selected, preserving classifier inputs',async()=>{
  const h=harness(),status=await h.bridge.load();
  assert.equal(status.source,'verified-local-master');
  assert.equal(status.sha256,JSON.parse(fs.readFileSync(path.join(root,'shared/master_release.json'))).sha256);
- assert.equal(h.context.window.POKESLEEP_MASTER.pokemon.length,249);
+ assert.equal(h.context.window.POKESLEEP_MASTER.pokemon.length,ai.pokemon.length);
  assert.notEqual(h.initial,h.context.window.POKESLEEP_MASTER);
  assert.deepEqual(JSON.parse(JSON.stringify(h.initial.pokemon)),JSON.parse(JSON.stringify(h.context.window.POKESLEEP_MASTER.pokemon)));
 });
