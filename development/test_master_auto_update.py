@@ -113,6 +113,22 @@ class OctoberFifthTest(unittest.TestCase):
         with self.assertRaises(Hold):
             project(self.dir,self.pre,commit='a'*40)
 
+    def test_bad_numeric_upstream_holds_release(self):
+        src=self.dir/'src/data/pokemon.json'
+        doc=json.loads(src.read_text(encoding='utf-8'))
+        doc[0]['ingRate']='invalid'
+        save(src,doc)
+        with self.assertRaises(Hold):
+            project(self.dir,self.pre,commit='a'*40)
+
+    def test_duplicate_food_display_names_hold_release(self):
+        src=self.dir/'src/i18n/ja/data.json'
+        doc=json.loads(src.read_text(encoding='utf-8'))
+        doc['ingredients']['milk']=doc['ingredients']['apple']
+        save(src,doc)
+        with self.assertRaises(Hold):
+            project(self.dir,self.pre,commit='a'*40)
+
     def test_energy_change_to_old_food_holds_release(self):
         src=self.dir/'src/util/PokemonRp.ts'
         src.write_text(src.read_text(encoding='utf-8').replace('  apple: 90,','  apple: 999,'),

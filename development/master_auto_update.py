@@ -5,7 +5,7 @@ Read-only upstream checkout -> validated master -> transactional git commit (CI)
 Unknown structures or removal of previous selectable options cause HOLD.
 """
 from __future__ import annotations
-import argparse, hashlib, json, pathlib, re, subprocess
+import argparse, hashlib, json, math, pathlib, re, subprocess
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 INPUTS = {'pokemon':'src/data/pokemon.json','names':'src/i18n/ja/pokemons.json',
           'data':'src/i18n/ja/data.json','skills':'src/i18n/ja/skills.json',
@@ -91,6 +91,7 @@ def project(src,prior,commit=None):
           'upstream dataset incomplete')
     check(set(old_n)==set(natures) and set(old_s)==set(ss),'unknown subskill/nature coefficients')
     check(set(prior['ingredients']).issubset(ingredients),'ingredient removed')
+    check(all(isinstance(k,str) and k and isinstance(v,str) and v.strip() for k,v in ingredients.items()) and len(set(ingredients.values()))==len(ingredients),'ingredient translation missing or non-unique')
     used_en=set();used_ja=set();used_ids=set();parsed=[]
     for p in pokemon:
         en=p['name'];ja=names.get(en);skill=p['skill'];ident=(p.get('id'),p.get('form') or '')
@@ -104,8 +105,14 @@ def project(src,prior,commit=None):
         for k in FIELDS:
             check(p.get(k) is not None,f'missing {en}.{k}')
             row[k]=p[k]
-        check(isinstance(row['frequency'],(float,int)) and row['frequency']>0 and
-              isinstance(row['carryLimit'],int) and row['carryLimit']>0,
+        check(isinstance(row['frequency'],(float,int)) and not isinstance(row['frequency'],bool) and math.isfinite(row['frequency']) and row['frequency']>0
+              and type(row['carryLimit']) is int and 0<row['carryLimit']<=999
+              and all(isinstance(row[k],(float,int)) and not isinstance(row[k],bool)
+                      and math.isfinite(row[k]) and 0<=row[k]<=100 for k in ('ingRate','skillRate'))
+              and all(type(row[k]) is int and 0<=row[k]<=5 for k in ('evolutionCount','evolutionLeft'))
+              and row['specialty'] in ('Berries','Ingredients','Skills','All')
+              and isinstance(row['type'],str) and bool(row['type'])
+              and isinstance(row['arrival'],str) and re.fullmatch(r'\d{4}-\d{2}-\d{2}',row['arrival']),
               'invalid pokemon statistics')
         for n in (1,2,3):
             item=p.get('ing'+str(n))
@@ -116,6 +123,7 @@ def project(src,prior,commit=None):
                 k=item['name']
                 check(k in ingredients or (p.get('mythIng') and k in ('unknown','unknown1','unknown2','unknown3')),
                       f'unknown ingredient {en}:{k}')
+                check(all(item.get(q) is None or (type(item.get(q)) is int and 0<=item[q]<=999) for q in ('c1','c2','c3')),'invalid ingredient quantities')
                 row['ing'+str(n)]={'key':k,'name':ingredients.get(k,k),
                                   **{c:item.get(c) for c in ('c1','c2','c3')}}
         if p.get('mythIng'):
@@ -123,6 +131,7 @@ def project(src,prior,commit=None):
             for it in p['mythIng']:
                 k=it['name']
                 check(k in ingredients,'unknown mythical ingredient')
+                check(all(it.get(q) is None or (type(it.get(q)) is int and 0<=it[q]<=999) for q in ('c1','c2','c3')),'invalid mythical ingredient quantities')
                 row['mythIng'].append({'key':k,'name':ingredients[k],
                                        **{c:it.get(c) for c in ('c1','c2','c3')}})
         parsed.append(row)

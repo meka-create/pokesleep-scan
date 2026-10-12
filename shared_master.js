@@ -27,6 +27,8 @@ function valid(m,meta){
   meta.natureCount!==m.natures.length||meta.subskillCount!==m.subskills.length||
   meta.cutoff!==m.cutoff))return false;
  const ingredients=new Set(Object.keys(m.ingredients));
+ const labels=Object.values(m.ingredients);
+ if(labels.some(v=>typeof v!=='string'||!v.trim())||new Set(labels).size!==labels.length)return false;
  const added=[...ingredients].filter(k=>!Object.hasOwn(fallback.ingredients,k));
  const extra=m.ingredientStrength||{};
  if(!extra||typeof extra!=='object'||Array.isArray(extra)||
@@ -35,9 +37,15 @@ function valid(m,meta){
     Object.keys(extra).some(k=>!added.includes(k)))return false;
  for(const p of m.pokemon){
   if(!p.name_en||!p.skill||!p.mainSkill||!Number.isFinite(p.frequency)||p.frequency<=0||
-   !Number.isFinite(p.carryLimit)||p.carryLimit<0)return false;
+   !Number.isInteger(p.carryLimit)||p.carryLimit<=0||p.carryLimit>999||
+   !['ingRate','skillRate'].every(k=>Number.isFinite(p[k])&&p[k]>=0&&p[k]<=100)||
+   !['evolutionCount','evolutionLeft'].every(k=>Number.isInteger(p[k])&&p[k]>=0&&p[k]<=5)||
+   !['Berries','Ingredients','Skills','All'].includes(p.specialty)||
+   !/^\d{4}-\d{2}-\d{2}$/.test(p.arrival||''))return false;
   for(const v of [p.ing1,p.ing2,p.ing3,...(p.mythIng||[])])
-   if(v&&v.key&&v.key!=='unknown'&&!ingredients.has(v.key)&&!/^unknown\d$/.test(v.key))return false;
+   if(v&&(!v.key||(v.key!=='unknown'&&!ingredients.has(v.key)&&!/^unknown\d$/.test(v.key))||
+       !['c1','c2','c3'].every(k=>v[k]===null||v[k]===undefined||
+        (Number.isInteger(v[k])&&v[k]>=0&&v[k]<=999))))return false;
  }
  return true;
 }

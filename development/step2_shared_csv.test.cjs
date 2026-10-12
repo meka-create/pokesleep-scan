@@ -67,6 +67,15 @@ test('future ingredient energy from verified master feeds actual classifier SP c
  const bad=harness({data:badRaw,receipt:Buffer.from(JSON.stringify(badReceipt))});
  assert.equal((await bad.bridge.load()).source,'legacy-fallback','missing new food energy must not be promoted');
 });
+test('properly hashed but numerically invalid master is refused before OCR initialization',async()=>{
+ const fake=JSON.parse(JSON.stringify(ai));fake.pokemon[0].ingRate='not-a-number';
+ const raw=Buffer.from(JSON.stringify(fake));
+ const meta={...JSON.parse(fs.readFileSync(path.join(root,'shared/master_release.json'))),
+  sha256:createHash('sha256').update(raw).digest('hex')};
+ const h=harness({data:raw,receipt:Buffer.from(JSON.stringify(meta))});
+ assert.equal((await h.bridge.load()).source,'legacy-fallback');
+ assert.strictEqual(h.context.window.POKESLEEP_MASTER,h.initial);
+});
 test('tampered independent master rejected; local master untouched',async()=>{
  const h=harness({data:Buffer.from(asset.toString('utf8').replace(/"cutoff"\s*:\s*"[^"]+"/,'"cutoff":"1900-01-01"'))});
  const status=await h.bridge.load();
