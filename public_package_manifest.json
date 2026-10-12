@@ -66,8 +66,8 @@
     },
     {
       "path": "development/browser_step3_review_audit.py",
-      "bytes": 9606,
-      "sha256": "0d2b398bfc0d0ad2d88fb0944dd0160f1457a3b956b2f78719d1e361265b8043"
+      "bytes": 9608,
+      "sha256": "87b57ef6e93fa350be11b4cf8fc43d1db37ce2fe0e6aec3de2a558a0119f3472"
     },
     {
       "path": "development/generate_public_package_manifest.py",
