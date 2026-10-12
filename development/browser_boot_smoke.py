@@ -113,8 +113,8 @@ def main():
                             'reasonCode':'SYNC_OK' if status_kind=='healthy' else 'SYNC_FAILED',
                             'checkedAt':datetime.now(timezone.utc).isoformat()})
                         q.route('**/master-update-status.json*',
-                            lambda route,body=payload:route.fulfill(status=200,
-                              content_type='application/json',body=body))
+                            lambda route:route.fulfill(status=200,
+                              content_type='application/json',body=payload))
                         q.goto(url,wait_until='domcontentloaded',timeout=20000)
                         q.wait_for_function("() => !!window.POKESLEEP_MASTER_UPDATE_WATCH && !!window.POKESLEEP_CSV_GATE",timeout=20000)
                         def assert_warning():
