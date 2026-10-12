@@ -48,6 +48,8 @@ jobs:
         run: python development/generate_public_package_manifest.py --stdout
       - name: Verify SHA-256 manifest matches every tracked file
         run: python development/generate_public_package_manifest.py --check
+      - name: Compact image-view button regression
+        run: node --test development/image_button_compact.test.cjs
       - name: Runtime master and classifier smoke tests
         run: node --test development/runtime_smoke.test.cjs
       - name: Shared master and CSV compatibility

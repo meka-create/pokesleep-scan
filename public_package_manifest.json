@@ -7,12 +7,12 @@
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 34,
+  "fileCount": 35,
   "files": [
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 3491,
-      "sha256": "ab97b23376d071df2f446db4abd2e5aa7cf1b41e4b30dcdcd282c54a33da2786"
+      "bytes": 3609,
+      "sha256": "9ad8e81e74c723102896f44f49fb067a3b3f89b006ddff5a6794eb80e42b4054"
     },
     {
       "path": ".nojekyll",
@@ -73,6 +73,11 @@
       "path": "development/generate_public_package_manifest.py",
       "bytes": 3966,
       "sha256": "4f0d8b4d66c90a6e972a2939d8ca3ee699f84d2f17a43a24429a0a0a54d179aa"
+    },
+    {
+      "path": "development/image_button_compact.test.cjs",
+      "bytes": 1483,
+      "sha256": "230cafdbeedbd8c0417a0cc1360b416b1e21878720d51d0719ddfaaff687e5e2"
     },
     {
       "path": "development/runtime_smoke.test.cjs",
@@ -146,8 +151,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 69588,
-      "sha256": "5bb4b5cf48405a80e141e77a8f715a345dd50eb4ea76144768479efdfd1b3246"
+      "bytes": 69577,
+      "sha256": "3a329c8ae02ae851ca9ad5e9ffcadd316d74f95c96f7711bb9c19bd8e06a206e"
     },
     {
       "path": "manifest.webmanifest",
