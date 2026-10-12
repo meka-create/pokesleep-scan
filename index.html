@@ -149,6 +149,32 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
  .results-head{flex-wrap:wrap;gap:10px}
  .file-open,.nickconfirm,.subskillconfirm,.foodconfirm,.speciesconfirm,.manual-open{min-height:44px}
 }
+/* Image chooser visual parity with AIぶっこみスキャン (reference styles.css).
+   Only this picker/card is restyled: no OCR, append logic or CTA rewrites.
+   Preserve the established 212px desktop / 184px mobile tap target. */
+.workspace{background:#fff;border-color:#e3eaf3;border-radius:20px;
+ box-shadow:0 5px 22px rgba(27,59,104,.045);backdrop-filter:none}
+.filelabel{border:2px dashed #abc4eb;border-radius:16px;background:#f8fbff;
+ transition:border-color .15s ease,background-color .15s ease;
+ transform:none}
+.filelabel:hover{border-color:#286bdd;background:#f0f6ff;transform:none}
+.filelabel.is-dragover{border-color:#286bdd;background:#f0f6ff;
+ transform:none;box-shadow:inset 0 0 0 2px rgba(40,107,221,.10)}
+.filelabel .upload-icon{width:56px;height:56px;border-radius:18px;
+ background:#e7efff;color:#356ada;margin-bottom:10px;
+ font-size:22px;font-weight:800}
+.filelabel .upload-picture{width:25px;height:25px;display:block;
+ fill:none;stroke:currentColor;stroke-width:1.8;
+ stroke-linecap:round;stroke-linejoin:round}
+.filelabel .upload-picture[hidden],.filelabel .upload-status-glyph[hidden]{display:none!important}
+.filelabel .upload-main{color:#14263b;font-size:17px;font-weight:850;letter-spacing:0}
+.filelabel .upload-sub{font-size:12px;color:#6c7c8c;font-weight:650;letter-spacing:0}
+.filelabel.is-selected .upload-icon{background:#dff3ea;color:var(--success)}
+.filelabel.is-selected .upload-main{color:#17664f;font-size:20px}
+.filelabel.is-error .upload-icon{background:var(--danger-soft);color:var(--danger)}
+.filelabel.is-error .upload-main{color:var(--danger)}
+.filelabel:focus-within{outline:3px solid #417ce9;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.filelabel{transition:none}}
 </style>
 </head>
 <body>
@@ -177,8 +203,15 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
           <label class="filelabel">
             <input id="files" type="file" accept="image/png,image/jpeg,.png,.jpg,.jpeg" multiple>
             <span>
-              <span id="uploadIcon" class="upload-icon">＋</span>
-              <span id="uploadMain" class="upload-main">スクリーンショットを選ぶ</span>
+              <span id="uploadIcon" class="upload-icon" aria-hidden="true">
+                <svg id="uploadPhotoIcon" class="upload-picture" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <rect x="3" y="4" width="18" height="16" rx="3"/>
+                  <circle cx="9" cy="9" r="1.5"/>
+                  <path d="m5 17 5-5 3 3 2-2 4 4"/>
+                </svg>
+                <span id="uploadStatusGlyph" class="upload-status-glyph" hidden></span>
+              </span>
+              <span id="uploadMain" class="upload-main">画像を選択する</span>
               <span id="uploadSub" class="upload-sub">PNG / JPG / JPEG · 複数選択可</span>
             </span>
           </label>
