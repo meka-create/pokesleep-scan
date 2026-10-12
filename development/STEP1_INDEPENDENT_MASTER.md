@@ -18,3 +18,8 @@ New food coefficients are parsed from the upstream PokemonRp.ts integer-literal 
 A missing coefficient or changed legacy coefficient FAILS CLOSED. New sprites remain
 human-review-only until verified against actual Pokémon Sleep screenshots; registering
 a PNG alone does not authorize automatic certainty.
+
+Intermediate audit: future first-food values cannot be auto-confirmed during species
+selection or manual draft initialization; CSV export requires an explicit manual
+confirmation. Approved new food sprites provide advisory image rankings only,
+not automatic authorization for export.

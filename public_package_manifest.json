@@ -36,8 +36,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 288076,
-      "sha256": "ff2e29a89ffc608ad8d6ef2c498379543270f9268d66111f4644ba70ed6ae238"
+      "bytes": 288427,
+      "sha256": "6ebbcece4626b0604ffd38d69f267d9f0fe8ff696217985328c7108664ad131e"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -61,8 +61,8 @@
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
-      "bytes": 1302,
-      "sha256": "f2fc43146daa04ce81cadba899fb9826af6428e3bfd407a52131f696b1d0266f"
+      "bytes": 1587,
+      "sha256": "1797a36e09b324072039debcfd1fe5b5dac4cfbbebb29a3181c151fb0cbdf4b2"
     },
     {
       "path": "development/browser_boot_smoke.py",
@@ -91,8 +91,8 @@
     },
     {
       "path": "development/master_auto_update.test.cjs",
-      "bytes": 2824,
-      "sha256": "0561299c25978c2e5148479fc815fa604b8625bc4c35a91c6bd9ea8b284d9344"
+      "bytes": 5347,
+      "sha256": "fa70b092979eb4794fb82a12b1eb84d243765c6349599e342980bdcabf2a22ad"
     },
     {
       "path": "development/register_food_icons.py",
@@ -141,8 +141,8 @@
     },
     {
       "path": "food_matcher.js",
-      "bytes": 7749,
-      "sha256": "0559d700fae724aed678c2792870519a76c8aa88cd73337ca0af13ed46531d97"
+      "bytes": 8032,
+      "sha256": "d267cd8f1ada57323d64ab219c13ce1f94601788b99a37518ce2677e58d2184b"
     },
     {
       "path": "icons/apple-touch-icon.png",
