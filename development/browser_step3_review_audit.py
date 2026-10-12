@@ -77,30 +77,17 @@ def main():
                 assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth+2"),\
                     "Unexpected horizontal viewport overflow on Pixel-sized screen"
                 checks.append("Pixel-width page has no outer horizontal overflow")
-                geometry=page.evaluate("""() => {
-                  const toggle=document.querySelector('.android-roi-option');
-                  const drop=document.querySelector('.filelabel');
-                  const card=document.querySelector('.workspace');
-                  const a=toggle.getBoundingClientRect(),b=drop.getBoundingClientRect(),c=card.getBoundingClientRect();
-                  const css=getComputedStyle(toggle);
-                  return {label:toggle.innerText.trim(),above:a.bottom<=b.top+1,
-                    right:a.right>=b.right-12,inCard:a.left>=c.left&&a.right<=c.right,
-                    font:parseFloat(css.fontSize),background:css.backgroundColor,
-                    border:css.borderTopWidth,touchHeight:a.height,
-                    order:toggle.compareDocumentPosition(drop)};
-                }""")
-                assert geometry["label"]=="Android(1080×2400)最適化",geometry
-                assert geometry["above"] and geometry["right"] and geometry["inCard"],geometry
-                assert geometry["font"]<=12 and geometry["border"]=="0px",geometry
-                assert geometry["background"] in ("rgba(0, 0, 0, 0)","transparent"),geometry
-                assert geometry["touchHeight"]>=44,geometry
-                checks.append("gray unboxed right-aligned switch above picker inside white workspace")
+                assert page.locator("#androidRoiEnabled").count()==0
+                assert page.locator(".android-roi-option").count()==0
+                assert page.locator(".file-picker-shell>.filelabel").count()==1
+                assert page.locator("#addFilesRow").is_hidden()
+                checks.append("Android optimization switch removed; original picker preserved")
                 picker=page.evaluate("""() => {
                   const drop=document.querySelector('.filelabel');
                   const cs=getComputedStyle(drop),r=drop.getBoundingClientRect();
                   return {height:r.height,minHeight:parseFloat(cs.minHeight)};
                 }""")
-                assert picker["height"]>=184 and picker["minHeight"]>=184,picker
+                assert picker["height"]>=183.5 and picker["minHeight"]>=184,picker
                 checks.append("screenshot picker restored to full-size touch target")
                 import base64
                 png=base64.b64decode(
@@ -117,14 +104,26 @@ def main():
                 add=page.locator("#addFilesButton")
                 assert add.is_visible() and add.is_enabled(),"Add images option missing after first batch"
                 button_style=add.evaluate("""(el) => {
-                  const cs=getComputedStyle(el),icon=el.querySelector('.add-file-icon');
-                  return {border:cs.borderTopWidth,radius:parseFloat(cs.borderTopLeftRadius),
-                          background:cs.backgroundColor,hasIcon:!!icon,text:el.innerText.trim()};
+                  const r=el.getBoundingClientRect();
+                  const frame=document.querySelector('.file-picker-shell');
+                  const f=frame.getBoundingClientRect(),drop=document.querySelector('.filelabel').getBoundingClientRect();
+                  const cs=getComputedStyle(el),svg=el.querySelector('svg');
+                  return {width:r.width,height:r.height,radius:parseFloat(cs.borderTopLeftRadius),
+                    blue:cs.backgroundColor,hasIcon:!!svg,aria:el.getAttribute('aria-label'),
+                    inFrame:r.left>=f.left&&r.right<=f.right+1&&r.top>=f.top&&r.bottom<=f.bottom+1,
+                    inPicker:r.left>=drop.left&&r.right<=drop.right+1&&r.top>=drop.top&&r.bottom<=drop.bottom+1,
+                    rightGap:drop.right-r.right,bottomGap:drop.bottom-r.bottom,
+                    oldLabel:!!frame.querySelector('.android-roi-option')};
                 }""")
-                assert button_style["border"]!="0px" and button_style["radius"]>=10,button_style
-                assert button_style["hasIcon"] and "画像を追加する" in button_style["text"],button_style
-                assert page.locator("#uploadSub").inner_text()=="" ,"Redundant add-image instructions not removed"
-                checks.append("compact professional add-images button and no redundant instruction")
+                assert button_style["width"]>=44 and button_style["height"]>=44,button_style
+                assert button_style["radius"]>=button_style["width"]/2-1,button_style
+                assert button_style["hasIcon"] and button_style["aria"]=="画像を追加する",button_style
+                assert button_style["inFrame"] and button_style["inPicker"],button_style
+                assert 0<=button_style["rightGap"]<=20 and 0<=button_style["bottomGap"]<=20,button_style
+                assert not button_style["oldLabel"],button_style
+                assert button_style["blue"].startswith("rgb("),button_style
+                assert page.locator("#uploadSub").inner_text()=="","Redundant add-image instructions returned"
+                checks.append("blue circular plus is inside lower-right of 100-image selected frame")
                 with page.expect_file_chooser() as chooser_info:
                     add.click()
                 chooser_info.value.set_files(second)

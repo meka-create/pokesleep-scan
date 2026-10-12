@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-12-pixel142-carry-ocr-only-v6",
-  "appBuildId": "v12-pixel142-carry-ocr-only-v6",
+  "releaseId": "2026-10-12-android-roi-standard-inline-add-v7",
+  "appBuildId": "v12-android-roi-standard-inline-add-v7",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -11,8 +11,8 @@
   "files": [
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 3268,
-      "sha256": "3235e3d39bd58d11bc527ac3e0da75ba1e2f3c3ff545cbf1754b0b21790ef55a"
+      "bytes": 3366,
+      "sha256": "1681a4cce6df61a8d2e3ad1c5a5fc2ca04400321a4766032446161511f4c1a23"
     },
     {
       "path": ".nojekyll",
@@ -31,8 +31,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 284892,
-      "sha256": "720d816b11e16bfca7118fbd36873a68d4756f047f57dcb55059ea00d20b7e68"
+      "bytes": 284509,
+      "sha256": "885692518f1ffa758401288f5b261dcec689a51e80cb65d07f14ef46c5e86cde"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -56,8 +56,8 @@
     },
     {
       "path": "development/browser_boot_smoke.py",
-      "bytes": 12724,
-      "sha256": "2adb078f10a17951491508bb798514ef4c68078dd141f799ca24cc666e9e4759"
+      "bytes": 11949,
+      "sha256": "184d8c555c0c06cbc5569137b7a1c5d975cca649c935398fb885b2f355b4a733"
     },
     {
       "path": "development/browser_csv_download_audit.py",
@@ -66,8 +66,8 @@
     },
     {
       "path": "development/browser_step3_review_audit.py",
-      "bytes": 9561,
-      "sha256": "5d57de97f915bd27d97ded79bad08e002100df380592850f663eb8bd5b55fc4b"
+      "bytes": 9608,
+      "sha256": "87b57ef6e93fa350be11b4cf8fc43d1db37ce2fe0e6aec3de2a558a0119f3472"
     },
     {
       "path": "development/generate_public_package_manifest.py",
@@ -86,8 +86,8 @@
     },
     {
       "path": "development/step3_android_roi.test.cjs",
-      "bytes": 9056,
-      "sha256": "3c11d4ce6e1f6103b45e8ee47b60d8d9c530f922d083177fe62269063482664c"
+      "bytes": 9692,
+      "sha256": "6ed900dc34f10195ba2368d1c91ca3300e64621960acc36ea534966cf4fe4577"
     },
     {
       "path": "development/step3_carry_food3.test.cjs",
@@ -146,8 +146,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 69209,
-      "sha256": "7a7a660cd82a85d49c3714323650ddf33cb9d4d391708efaf0a81d8adff7504a"
+      "bytes": 67950,
+      "sha256": "cd54369b633c3ca2a76bd44e92579954b085fc568e2cd709a88773b6705c481c"
     },
     {
       "path": "manifest.webmanifest",
@@ -161,8 +161,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 52,
-      "sha256": "2393c349707414104d39c11ea32fc2e642055454d7d9ee0b496815403a380a47"
+      "bytes": 60,
+      "sha256": "a611d840028ddd330e631b91365cf7586fe3971b8a935c3e156d1878626bd249"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -176,8 +176,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 3414,
-      "sha256": "cdcf1821d7caa2b101efc32b03ee58c5ba7ad226096648a93e81e4e7db0194bb"
+      "bytes": 3422,
+      "sha256": "23cbfb35101f97981525dc23c1f787158b91c2e83c109b589b87ebb56fe5b06c"
     }
   ]
 }
