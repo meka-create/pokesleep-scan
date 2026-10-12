@@ -1,5 +1,5 @@
 (() => {
-const BUILD_ID='v12-selected-picker-highlight-v9';
+const BUILD_ID='v12-content-verified-image-append-v10';
 'use strict';
 // The verified Android 1080x2400 OCR path is now the standard on every device.
 // Preserve the existing ROI adapter and its safe legacy fallback unchanged.
@@ -63,7 +63,7 @@ const NATURES=POKESLEEP_MASTER.natures.map(x=>x.ja);
 const SUBSKILLS=POKESLEEP_MASTER.subskills.map(x=>x.ja);
 const SPECIES_NAMES=[...new Set(POKESLEEP_MASTER.pokemon.map(x=>x.name))];
 const $=s=>document.querySelector(s);let selected=[],results=[],worker=null,paddleOcr=null,paddleInitPromise=null,paddleUnavailableError=null,paddleRuntimeGeneration=0,isRunning=false,analysisPause=null,checkpointPreparing=false,selectionSnapshotPreparing=false,selectionSnapshotGeneration=0,checkpointRestoreRunning=false,checkpointSessionActive=false,checkpointPersistenceWarningShown=false,renderPending=false,modalObjectUrl='',modalReturnFocus=null,appDialogResolver=null,appDialogReturnFocus=null,localProgressVisible=true,localProgressState='idle',localProgressMaxPct=0,floatingProgressState='idle',floatingProgressDone=0,floatingProgressTotal=0,floatingProgressReviews=0,floatingCompletionTimer=null,floatingCompletionPending=false,floatingCompletionDismissed=false,preManualCsvSnapshot=null,wakeLockSentinel=null,wakeLockRequestPromise=null,wakeLockRetryTimer=null;const checkpointFailureLog=[];const layoutCache=new WeakMap(),profileCardCache=new WeakMap(),stableSourcePromises=new WeakMap(),stableSourceFiles=new WeakSet();
-const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-12-selected-picker-highlight-v9',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set([]),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
+const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-12-content-verified-image-append-v10',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set([]),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
 function pullRefreshGuardActive(){return !!(isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing);}
 function analysisWakeLockShouldHold(){return !!((isRunning||checkpointPreparing)&&!analysisPause);}
 function wakeLockApiSupported(){return typeof navigator!=='undefined'&&!!navigator.wakeLock?.request;}
@@ -282,9 +282,35 @@ async function prepareSelectedStableSources(files,generation){
  }
  return stable;
 }
-// Android photo pickers may return a different lastModified on each pick.
-// Match the same named screenshot with the same byte size across batches.
+// Photo pickers can change lastModified. Name and size narrow duplicate candidates,
+// but they are NOT proof of identical screenshots: different images may collide.
 function selectionIdentity(f){return String(f?.name||'')+'\u0000'+String(f?.size||0);}
+async function selectedImagesHaveSameBytes(a,b){
+ if(a===b)return true;
+ if(!a||!b||a.size!==b.size)return false;
+ const [left,right]=await Promise.all([imageArrayBufferWithTimeout(a),imageArrayBufferWithTimeout(b)]);
+ if(left.byteLength!==right.byteLength)return false;
+ const x=new Uint8Array(left),y=new Uint8Array(right);
+ for(let i=0;i<x.length;i++)if(x[i]!==y[i])return false;
+ return true;
+}
+async function removeIdenticalAppendedImages(stable,previousCount,generation){
+ const kept=stable.slice(0,previousCount),byIdentity=new Map();
+ for(const f of kept){
+  const key=selectionIdentity(f),bucket=byIdentity.get(key)||[];
+  bucket.push(f);byIdentity.set(key,bucket);
+ }
+ for(const f of stable.slice(previousCount)){
+  if(generation!==selectionSnapshotGeneration)throw new Error('画像選択が更新されました');
+  const key=selectionIdentity(f),bucket=byIdentity.get(key)||[];
+  let identical=false;
+  for(const candidate of bucket){
+   if(await selectedImagesHaveSameBytes(candidate,f)){identical=true;break;}
+  }
+  if(!identical){kept.push(f);bucket.push(f);byIdentity.set(key,bucket);}
+ }
+ return kept;
+}
 function setSelectedFiles(fileList,{clearInput=false,append=false}={}){
  if(newSelectionBusy())return false;
  if(applyPendingReleaseBeforeNewSelection())return false;
@@ -300,24 +326,22 @@ function setSelectedFiles(fileList,{clearInput=false,append=false}={}){
   void showAppDialog({title:'画像を追加できません',message:'解析結果があるため追加できません。CSVなどを保存した後、画像を選び直してください。',primaryLabel:'閉じる',tone:'warning'});
   return false;
  }
- const seen=new Set(append?selected.map(selectionIdentity):[]),toAdd=[];
- for(const item of incoming){
-  const key=selectionIdentity(item);
-  if(append&&seen.has(key))continue;
-  seen.add(key);toAdd.push(item);
- }
- if(!toAdd.length){
-  void showAppDialog({title:'追加画像はありません',message:'選択済みの画像と同じファイルです。別の画像を選択してください。',primaryLabel:'閉じる',tone:'info'});
-  return false;
- }
- const files=append?[...selected,...toAdd]:toAdd;
+ const files=append?[...selected,...incoming]:incoming;
  const generation=++selectionSnapshotGeneration,previousSelected=[...selected],previousCount=selected.length;
  selected=files;selectionSnapshotPreparing=true;syncSessionGuard();syncRunActionButton();updateUploadSelectionUI(files.length);
  setProgressState('running',{done:0,total:files.length,message:'選択画像を安全に準備しています…'});
  setFloatingProgress('running',{done:0,total:files.length});
  void (async()=>{try{
-   const stable=await prepareSelectedStableSources(files,generation);
+   const prepared=await prepareSelectedStableSources(files,generation);
    if(generation!==selectionSnapshotGeneration)return;
+   const stable=append?await removeIdenticalAppendedImages(prepared,previousCount,generation):prepared;
+   if(generation!==selectionSnapshotGeneration)return;
+   if(append&&stable.length===previousCount){
+    selected=previousSelected;updateUploadSelectionUI(previousCount);
+    setProgressState('ready',{total:previousCount});setFloatingProgress('ready',{total:previousCount});syncSessionGuard();
+    void showAppDialog({title:'追加画像はありません',message:'選択済みの画像と同じファイルです。別の画像を選択してください。',primaryLabel:'閉じる',tone:'info'});
+    return;
+   }
    resetPreviousAnalysis();selected=stable;updateUploadSelectionUI(selected.length);setProgressState('ready',{total:selected.length});setFloatingProgress('ready',{total:selected.length});syncSessionGuard();
   }catch(e){if(generation!==selectionSnapshotGeneration)return;console.error('選択画像の内部コピーに失敗しました',e);selected=previousSelected;if(input)input.value='';updateUploadSelectionUI(previousCount);if(results.length)refreshCompletedProgress();else if(selected.length)setProgressState('ready',{total:selected.length});else setProgressState('idle');setFloatingProgress('idle');syncSessionGuard();void showAppDialog({title:'選択画像を読み込めませんでした',message:'iPhone / iPadで選択画像へのアクセスが失われました。現在の解析結果は保持されています。画像をもう一度選択してください。',details:[`例外名: ${String(e?.name||'不明')}`,`例外内容: ${String(e?.message||e||'詳細なし')}`],primaryLabel:'閉じる',tone:'warning'});
   }finally{if(generation===selectionSnapshotGeneration){selectionSnapshotPreparing=false;syncSessionGuard();syncRunActionButton();}}
@@ -1499,7 +1523,7 @@ async function downloadDiagnosticRawCSV(){
 }
 function diagnosticObject(){
  const b=benchmarkSummary();
- return {version:'v12-selected-picker-highlight-v9',buildId:BUILD_ID,foodReviewMargin:FOOD_REVIEW_MARGIN,mintGreenRatioThreshold:MINT_GREEN_RATIO_MIN,noFoodTemplateConfig:{schema:1,scoreMin:NO_FOOD_EMPTY_SCORE_MIN,marginMin:NO_FOOD_EMPTY_MARGIN_MIN,requiresUniqueSpecies:true,requiresLegalSpeciesSlot:true,emptyReference:'embedded-data-url',emptyReferenceSha256:FOOD_EMPTY_REFERENCE_SHA256},paddleRuntime:{...paddleInitDiagnostics,attempts:[...paddleInitDiagnostics.attempts]},checkpointPersistence:{sessionActive:typeof checkpointSessionActive!=='undefined'?!!checkpointSessionActive:false,failures:typeof checkpointFailureLog!=='undefined'?checkpointFailureLog.map(x=>({...x})):[]},ocrMemoryGuard:{...(typeof ocrMemoryGuardSnapshot==='function'?ocrMemoryGuardSnapshot():{}),restoredFromCheckpoint:typeof ocrMemoryGuardRestoredSnapshot!=='undefined'&&ocrMemoryGuardRestoredSnapshot?{...ocrMemoryGuardRestoredSnapshot}:null},createdAt:new Date().toISOString(),preManualCsvSnapshot:diagnosticPreManualCsvSnapshot(),userAgent:navigator.userAgent,hardwareConcurrency:navigator.hardwareConcurrency||null,deviceMemory:navigator.deviceMemory||null,selectedFiles:selected.map(x=>({name:x.name,size:x.size,type:x.type})),benchmark:b,results:results.map(r=>({file:r.file,sourceIndex:Number.isInteger(r.sourceIndex)?r.sourceIndex:null,elapsedMs:r.elapsedMs,layout:r.layout||null,rawFirstPass:r.rawFirstPass||null,rawFinal:cloneRaw(r.raw),structuredRescue:r.parsed.structuredRescue||null,parsed:{nickname:r.parsed.nickname,nicknameBeforePaddle:r.parsed.nicknameBeforePaddle,nicknameNeedsReview:r.parsed.nicknameNeedsReview,nicknameResolvedBy:r.parsed.nicknameResolvedBy||'',nicknameReviewReason:r.parsed.nicknameReviewReason||'',nicknamePaddleUnavailable:!!r.parsed.nicknamePaddleUnavailable,nicknameCandidates:r.parsed.nicknameCandidates||[],nicknamePaddle:r.parsed.nicknamePaddle||null,nicknameReviewAtAnalysis:r.nicknameReviewAtAnalysis||null,nicknameManualConfirmed:!!r.parsed.nicknameManualConfirmed,level:r.parsed.level,levelNeedsReview:!!r.parsed.levelNeedsReview,levelReviewReason:r.parsed.levelReviewReason||'',sp:r.parsed.sp,helpSeconds:r.parsed.helpSeconds,carry:r.parsed.carry,carryNeedsReview:!!r.parsed.carryNeedsReview,carryOcrUnresolved:!Number.isInteger(r.parsed.carry)||!!r.parsed.carryNeedsReview,carryRetry:r.parsed.carryRetry||null,skillLevel:r.parsed.skillLevel,mainSkill:r.parsed.mainSkill,mainSkillNeedsReview:!!r.parsed.mainSkillNeedsReview,mainSkillReviewReason:r.parsed.mainSkillReviewReason||'',versatileSkill:r.parsed.versatileSkill||'',versatileSkillLabel:mewVersatileSkillLabel(r.parsed.versatileSkill),mainSkillOutput:mainSkillForOutput(r.parsed,r.classification,r.speciesManualOverride||''),nature:r.parsed.nature,natureNeedsReview:!!r.parsed.natureNeedsReview,natureEvidence:r.parsed.natureEvidence||null,natureEffect:r.parsed.natureEffect||'normal',mintDetection:r.parsed.mintDetection||null,subskills:r.parsed.subs.map(x=>x.value),subskillEvidence:r.parsed.subs.map(x=>({value:x.value,needsReview:!!x.needsReview,reviewReason:x.reviewReason||'',reviewCandidates:x.reviewCandidates||[],evidence:x.evidence||[]})),subskillDuplicateRejects:r.parsed.subskillDuplicateRejects||[],subskillReviewSlots:subskillReviewSlots(r).map(i=>LEVELS[i]),sleepTogetherValue:sleepTogetherValue(r.classification)},inference:{status:r.inference.status,natureEffect:r.inference.natureEffect||r.parsed.natureEffect||'normal',missing:r.inference.missing||[],stages:r.inference.stages||null,candidates:r.inference.candidates||[],carryConsistentCandidates:r.inference.carryConsistentCandidates||[]},foods:r.foods,classification:{status:r.classification.status,candidates:r.classification.candidates,speciesManualOverride:r.speciesManualOverride||'',ribbonTier:sleepTogetherTier(r.classification),sleepTogetherValue:sleepTogetherValue(r.classification),foodConflictPreserved:!!r.classification.foodConflictPreserved,foodConflictSlots:r.foodConflictSlots||[]},reviewState:resultReviewState(r),processingError:r.processingError||null,processingErrorResolved:r.processingErrorResolved||null,manualPreviewErrors:r.manualPreviewErrors||null,manualPreviewSourceError:r.manualPreviewSourceError||null,manualCompletion:r.manualCompletion||null}))};
+ return {version:'v12-content-verified-image-append-v10',buildId:BUILD_ID,foodReviewMargin:FOOD_REVIEW_MARGIN,mintGreenRatioThreshold:MINT_GREEN_RATIO_MIN,noFoodTemplateConfig:{schema:1,scoreMin:NO_FOOD_EMPTY_SCORE_MIN,marginMin:NO_FOOD_EMPTY_MARGIN_MIN,requiresUniqueSpecies:true,requiresLegalSpeciesSlot:true,emptyReference:'embedded-data-url',emptyReferenceSha256:FOOD_EMPTY_REFERENCE_SHA256},paddleRuntime:{...paddleInitDiagnostics,attempts:[...paddleInitDiagnostics.attempts]},checkpointPersistence:{sessionActive:typeof checkpointSessionActive!=='undefined'?!!checkpointSessionActive:false,failures:typeof checkpointFailureLog!=='undefined'?checkpointFailureLog.map(x=>({...x})):[]},ocrMemoryGuard:{...(typeof ocrMemoryGuardSnapshot==='function'?ocrMemoryGuardSnapshot():{}),restoredFromCheckpoint:typeof ocrMemoryGuardRestoredSnapshot!=='undefined'&&ocrMemoryGuardRestoredSnapshot?{...ocrMemoryGuardRestoredSnapshot}:null},createdAt:new Date().toISOString(),preManualCsvSnapshot:diagnosticPreManualCsvSnapshot(),userAgent:navigator.userAgent,hardwareConcurrency:navigator.hardwareConcurrency||null,deviceMemory:navigator.deviceMemory||null,selectedFiles:selected.map(x=>({name:x.name,size:x.size,type:x.type})),benchmark:b,results:results.map(r=>({file:r.file,sourceIndex:Number.isInteger(r.sourceIndex)?r.sourceIndex:null,elapsedMs:r.elapsedMs,layout:r.layout||null,rawFirstPass:r.rawFirstPass||null,rawFinal:cloneRaw(r.raw),structuredRescue:r.parsed.structuredRescue||null,parsed:{nickname:r.parsed.nickname,nicknameBeforePaddle:r.parsed.nicknameBeforePaddle,nicknameNeedsReview:r.parsed.nicknameNeedsReview,nicknameResolvedBy:r.parsed.nicknameResolvedBy||'',nicknameReviewReason:r.parsed.nicknameReviewReason||'',nicknamePaddleUnavailable:!!r.parsed.nicknamePaddleUnavailable,nicknameCandidates:r.parsed.nicknameCandidates||[],nicknamePaddle:r.parsed.nicknamePaddle||null,nicknameReviewAtAnalysis:r.nicknameReviewAtAnalysis||null,nicknameManualConfirmed:!!r.parsed.nicknameManualConfirmed,level:r.parsed.level,levelNeedsReview:!!r.parsed.levelNeedsReview,levelReviewReason:r.parsed.levelReviewReason||'',sp:r.parsed.sp,helpSeconds:r.parsed.helpSeconds,carry:r.parsed.carry,carryNeedsReview:!!r.parsed.carryNeedsReview,carryOcrUnresolved:!Number.isInteger(r.parsed.carry)||!!r.parsed.carryNeedsReview,carryRetry:r.parsed.carryRetry||null,skillLevel:r.parsed.skillLevel,mainSkill:r.parsed.mainSkill,mainSkillNeedsReview:!!r.parsed.mainSkillNeedsReview,mainSkillReviewReason:r.parsed.mainSkillReviewReason||'',versatileSkill:r.parsed.versatileSkill||'',versatileSkillLabel:mewVersatileSkillLabel(r.parsed.versatileSkill),mainSkillOutput:mainSkillForOutput(r.parsed,r.classification,r.speciesManualOverride||''),nature:r.parsed.nature,natureNeedsReview:!!r.parsed.natureNeedsReview,natureEvidence:r.parsed.natureEvidence||null,natureEffect:r.parsed.natureEffect||'normal',mintDetection:r.parsed.mintDetection||null,subskills:r.parsed.subs.map(x=>x.value),subskillEvidence:r.parsed.subs.map(x=>({value:x.value,needsReview:!!x.needsReview,reviewReason:x.reviewReason||'',reviewCandidates:x.reviewCandidates||[],evidence:x.evidence||[]})),subskillDuplicateRejects:r.parsed.subskillDuplicateRejects||[],subskillReviewSlots:subskillReviewSlots(r).map(i=>LEVELS[i]),sleepTogetherValue:sleepTogetherValue(r.classification)},inference:{status:r.inference.status,natureEffect:r.inference.natureEffect||r.parsed.natureEffect||'normal',missing:r.inference.missing||[],stages:r.inference.stages||null,candidates:r.inference.candidates||[],carryConsistentCandidates:r.inference.carryConsistentCandidates||[]},foods:r.foods,classification:{status:r.classification.status,candidates:r.classification.candidates,speciesManualOverride:r.speciesManualOverride||'',ribbonTier:sleepTogetherTier(r.classification),sleepTogetherValue:sleepTogetherValue(r.classification),foodConflictPreserved:!!r.classification.foodConflictPreserved,foodConflictSlots:r.foodConflictSlots||[]},reviewState:resultReviewState(r),processingError:r.processingError||null,processingErrorResolved:r.processingErrorResolved||null,manualPreviewErrors:r.manualPreviewErrors||null,manualPreviewSourceError:r.manualPreviewSourceError||null,manualCompletion:r.manualCompletion||null}))};
 }
 function triggerBlobDownload(blob,filename){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;a.rel='noopener';a.style.display='none';document.body.appendChild(a);try{a.click();}finally{setTimeout(()=>{a.remove();URL.revokeObjectURL(url);},1500);}}
 async function downloadDiagnostics(){

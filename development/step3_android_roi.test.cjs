@@ -152,6 +152,9 @@ test('ROI code never removes legacy crop path or classifier',()=>{
  assert.match(app,/function openImageSelectDialog\(/);
  assert.match(app,/function closeImageSelectDialog\(/);
  assert.match(app,/setSelectedFiles\(batch,\{append:true\}\)/);
+ assert.match(app,/function selectedImagesHaveSameBytes\(/);
+ assert.match(app,/function removeIdenticalAppendedImages\(/);
+ assert.doesNotMatch(app,/if\(append&&seen\.has\(key\)\)continue/);
 
 });
 test('PWA includes Android adapter in new versioned app shell',()=>{
