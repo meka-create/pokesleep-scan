@@ -11,6 +11,7 @@ const APP_SHELL = [
   versioned('./shared_master.js'),
   versioned('./shared/MASTER_DATA.json'),
   versioned('./shared/master_release.json'),
+  versioned('./master-update-status.js'),
   versioned('./csv_gate.js'),
   versioned('./android_roi.js'),
   versioned('./classifier.js'),
@@ -66,6 +67,11 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
+  // Health feed is network-only; never replay an old healthy receipt.
+  if (url.pathname.endsWith('/master-update-status.json')) {
+    event.respondWith(fetch(request,{cache:'no-store'}).catch(()=>Response.error()));
+    return;
+  }
   if (request.mode === 'navigate') {
     event.respondWith(networkFirst(request, './index.html'));
     return;

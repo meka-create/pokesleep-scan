@@ -92,6 +92,6 @@ async function load(){
  }
  return {...state};
 }
-const api={load,getStatus:()=>({...state}),canonical,valid};
+const api={load:async()=>{const result=await load();window.dispatchEvent?.(new Event('bukkomi-master-ready'));return result;},getStatus:()=>({...state}),canonical,valid};
 Object.freeze(api);window.POKESLEEP_SHARED_MASTER=api;
 })();
