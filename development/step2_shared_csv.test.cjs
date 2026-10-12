@@ -55,8 +55,11 @@ test('new species joins normal classification without preapproval',async()=>{
  const sp=cls.computeSp(seed,profile,10,nature,mod,0,1);
  const obs={level:10,sp,helpSeconds:Math.floor(seconds+1e-9),skillLevel:1,nature:'てれや',
  mainSkill:seed.mainSkill,subskills:[]};
- const c=cls.inferWithoutFoods(obs).stages.mainSkill;
- assert.ok(c.includes(seed.name));assert.ok(c.includes(fresh.name));
+ const inference=cls.inferWithoutFoods(obs);
+ assert.ok(inference.stages.mainSkill.includes(fresh.name));
+ assert.ok(inference.candidates.includes(seed.name),'baseline species calculation must remain valid');
+ assert.ok(inference.candidates.includes(fresh.name),'new species must reach final calculated candidates, not just initial skill filter');
+ assert.notEqual(inference.status,'UNIQUE','identical new and existing species must not produce a false unique identification');
 });
 test('future ingredient energy from verified master feeds actual classifier SP calculation',async()=>{
  const future=JSON.parse(JSON.stringify(ai));
