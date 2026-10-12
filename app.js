@@ -717,6 +717,62 @@ function applyNicknameSafety(parsed){if(nicknameLooksUiContaminated(parsed.nickn
 function cloneRaw(raw){return Object.fromEntries(Object.entries(raw).filter(([k])=>!k.startsWith('_')).map(([k,v])=>[k,{text:v?.text||'',confidence:v?.confidence||0}]));}
 function observedFromParsed(parsed){return {level:parsed.level,sp:parsed.sp,helpSeconds:parsed.helpSeconds,carry:parsed.carry,skillLevel:parsed.skillLevel,nature:parsed.nature,mainSkill:parsed.mainSkill,subskills:parsed.subs.map(x=>x.value)};}
 function inferParsed(parsed){return POKESLEEP_CLASSIFIER.inferWithoutFoods(observedFromParsed(parsed));}
+// Carry is NOT derivable from species/SP: ribbon history produces several valid
+// carry counts. Re-read only a VERIFIED visible carry card, and accept only
+// independently corroborated raw '<number> 個' OCR consistent with the master.
+function parseExplicitCarryEvidence(reading){
+ const text=String(reading?.text||'').normalize('NFKC');
+ const matches=[...text.matchAll(/([0-9]{1,3})\\s*個/g)];
+ if(matches.length!==1)return null;
+ const n=Number(matches[0][1]);
+ return Number.isInteger(n)&&n>=1&&n<=250?n:null;
+}
+function verifiedCarryRetryCrop(canvas,kind){
+ const L=layoutInfo(canvas),c=L.carry,t=L.time,m=L.main;
+ if(!c||!t||!m||t.end>=c.start||c.end+52>=m.start||c.start<80)return null;
+ const sx=canvas.width/REF_W;
+ const x1=(kind==='tight'?288:252)*sx,x2=(kind==='tight'?490:610)*sx;
+ const y1=Math.max(0,c.start-(kind==='tight'?4:14));
+ const y2=Math.min(canvas.height,c.end+(kind==='tight'?54:72));
+ return cropCanvasRect(canvas,[x1,y1,x2,y2]);
+}
+function corroboratedCarryRetry(readings,inference){
+ const evidence=(readings||[]).filter(x=>Number.isInteger(x?.value)&&
+  Number(x.confidence)>=62&&x?.crop&&x?.psm);
+ if(evidence.length<2||new Set(evidence.map(x=>x.crop)).size<2)return null;
+ const vals=[...new Set(evidence.map(x=>x.value))];
+ if(vals.length!==1||!evidence.some(x=>Number(x.confidence)>=74))return null;
+ // A second strong, contradictory observation blocks rather than voting.
+ if((readings||[]).some(x=>Number.isInteger(x?.value)&&x.value!==vals[0]
+  &&Number(x.confidence)>=55))return null;
+ const hits=Array.isArray(inference?.hits)?inference.hits:[];
+ if(inference?.status!=='UNIQUE'||!hits.length)return null;
+ const matched=hits.filter(h=>h.calculatedCarry===vals[0]);
+ if(!matched.length||matched.some(h=>h.pokemon!==inference.candidates?.[0]))return null;
+ return vals[0];
+}
+async function retryMissingCarryFromVisibleCard(canvas,parsed,inference,idx,total){
+ if(Number.isInteger(parsed?.carry)&&parsed.carry>0)return inference;
+ const tight=verifiedCarryRetryCrop(canvas,'tight'),
+       wide=verifiedCarryRetryCrop(canvas,'wide');
+ if(!tight||!wide){parsed.carryRetry={status:'not-visible-or-no-verified-carry-band'};return inference;}
+ const readings=[];
+ for(const [name,src,options] of [
+  ['tight',tight,{psm:'7'}],
+  ['wide',wide,{psm:'11',threshold:178}],
+  ['wide-alt',wide,{psm:'7'}]
+ ]){
+  const r=await ocrSingle(src,'所持数・画像再確認',idx,total,options);
+  readings.push({...r,value:parseExplicitCarryEvidence(r),crop:name,psm:options.psm});
+ }
+ const recovered=corroboratedCarryRetry(readings,inference);
+ parsed.carryRetry={status:recovered==null?'unresolved':'independent-visible-ocr-confirmed',readings};
+ if(recovered!=null){
+  parsed.carry=recovered;
+  inference=inferParsed(parsed);
+ }
+ return inference;
+}
 function detectWhiteMint(canvas){
  const c=cropByRegion(canvas,MINT_MARK_REGION),ctx=c.getContext('2d',{willReadFrequently:true}),d=ctx.getImageData(0,0,c.width,c.height).data;let green=0;
  for(let i=0;i<d.length;i+=4){const r=d[i],g=d[i+1],b=d[i+2];if(g>=145&&g-r>=35&&g-b>=20)green++;}
@@ -1219,7 +1275,7 @@ async function analyzeSingleImage(inputFile,idx,total,{sourceIndex=null,displayN
   parsed=await improveOCR(canvas,raw,parsed,idx,total);parsed=await verifySubskills(canvas,rawFirstPass,raw,parsed,idx,total);parsed=rejectImpossibleDuplicateSubskills(parsed);parsed=await improveNicknameWithPaddle(canvas,parsed,idx,total,name);parsed=applyNicknameSafety(parsed);
   const nicknameReviewAtAnalysis={value:parsed.nickname,needsReview:!!parsed.nicknameNeedsReview,reason:parsed.nicknameReviewReason||'',resolvedBy:parsed.nicknameResolvedBy||''};
   const nicknamePreview=parsed.nicknameNeedsReview?nicknameReviewPreviewCrop(canvas).toDataURL('image/png'):'';setProgressState('running',{done:idx,total,message:`解析中 ${Math.min(idx+1,total)} / ${total}`});
-  let inference=inferParsed(parsed);({parsed,inference}=await rescueStructured(canvas,raw,parsed,inference,idx,total));({parsed,inference}=applyMintNeutralization(canvas,parsed,inference));parsed.versatileSkill=detailedMewVersatileSkill(parsed);
+  let inference=inferParsed(parsed);({parsed,inference}=await rescueStructured(canvas,raw,parsed,inference,idx,total));inference=await retryMissingCarryFromVisibleCard(canvas,parsed,inference,idx,total);({parsed,inference}=applyMintNeutralization(canvas,parsed,inference));parsed.versatileSkill=detailedMewVersatileSkill(parsed);
   let foods=guardLockedFood3KnownLowConfidenceConfusions(guardLockedFood3SoyMushroomConfusion(guardLockedFood3DimmedArbitration(markFoodReviews(POKESLEEP_FOOD_MATCHER.resolveSlots(canvas,inference,parsed.level)),parsed.level),parsed.level),parsed.level);const firstFoodRescue=typeof tryCarryCorroboratedFirstFoodRescue==='function'?tryCarryCorroboratedFirstFoodRescue(inference,foods):null;if(firstFoodRescue)foods=firstFoodRescue.foods;foods=await applySafeNoFoodTemplate(canvas,inference,foods);const safeFood=resolveFoodsSafely(inference,foods),classification=safeFood.classification;
   setProgressState('running',{done:idx,total,message:`解析中 ${Math.min(idx+1,total)} / ${total}`});
   const foodPreviews=foods.map(()=>'');
