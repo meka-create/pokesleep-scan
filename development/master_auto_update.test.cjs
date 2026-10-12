@@ -16,7 +16,7 @@ test('unrecognized ingredient graphic never classified as one of existing images
  const start=source.indexOf('function uniqueProfiles(');
  const end=source.indexOf('// Independent shape recheck',start);
  assert.ok(start>=0&&end>start);
- const ctx={F:{foods:{}},cropFood:()=>{throw Error('Unexpected icon scoring')}};
+ const ctx={window:{},F:{foods:{}},cropFood:()=>{throw Error('Unexpected icon scoring')}};
  vm.createContext(ctx);vm.runInContext(source.slice(start,end),ctx);
  const result=ctx.resolveSlots(null,{hits:[{foods:['将来の新食材','将来の新食材','将来の新食材']}]},1);
  assert.equal(result[0].needsReview,true);
