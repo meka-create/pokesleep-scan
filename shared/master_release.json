@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "sourceRepo": "nitoyon/pokesleep-tool",
+  "sourceCommit": "f394104a0a9d44335a8697143464e5add9815643",
+  "sha256": "d60410ba1f92d80c67ca3ff40bc8aa7a2cd51d4c03fc33f9e99fa83bb8e77a38",
+  "speciesCount": 249,
+  "ingredientCount": 19,
+  "natureCount": 25,
+  "subskillCount": 17,
+  "cutoff": "2026-10-05",
+  "missingFoodTemplates": [],
+  "updateMode": "independent-same-repository"
+}

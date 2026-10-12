@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "pokesleep-ocr-master-status-v1",
+  "state": "pending",
+  "createdAt": "2026-10-12T00:00:00Z",
+  "checkedAt": null,
+  "reasonCode": "FIRST_CHECK_PENDING"
+}

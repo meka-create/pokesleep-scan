@@ -1,4 +1,4 @@
-const RELEASE_ID = '2026-10-12-checkpoint-v7-safe-migration-v11';
+const RELEASE_ID = '2026-10-12-independent-master-auto-v12';
 // Distinct caches per release prevent stale OCR and UI assets from surviving promotion.
 const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}-step3-prod-multi-picker-v1-reviewclean-v1`;
 const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}&step2=sharedcsv-v1&step3=androidroi-v1&pick=multi-v1&ui=review-clean-v1`;
@@ -10,6 +10,8 @@ const APP_SHELL = [
   versioned('./master_data.js'),
   versioned('./shared_master.js'),
   versioned('./shared/MASTER_DATA.json'),
+  versioned('./shared/master_release.json'),
+  versioned('./master-update-status.js'),
   versioned('./csv_gate.js'),
   versioned('./android_roi.js'),
   versioned('./classifier.js'),
@@ -65,6 +67,11 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
+  // Health feed is network-only; never replay an old healthy receipt.
+  if (url.pathname.endsWith('/master-update-status.json')) {
+    event.respondWith(fetch(request,{cache:'no-store'}).catch(()=>Response.error()));
+    return;
+  }
   if (request.mode === 'navigate') {
     event.respondWith(networkFirst(request, './index.html'));
     return;

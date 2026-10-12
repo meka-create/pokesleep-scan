@@ -61,14 +61,14 @@ def main():
                 check("All preserved runtime scripts load and bind", lambda:
                     page.wait_for_function(
                         "()=>!!window.POKESLEEP_MASTER&&"
-                        "window.POKESLEEP_MASTER.pokemon.length===249&&"
+                        "window.POKESLEEP_MASTER.pokemon.length>=249&&"
                         "typeof window.POKESLEEP_CLASSIFIER?.classify==='function'&&"
                         "document.querySelector('#run')?.onclick===null",
                         timeout=20000))
                 check("Verified shared master adopted before classifier", lambda:
                     page.wait_for_function(
-                        "()=>window.POKESLEEP_SHARED_MASTER?.getStatus().source==='pinned-ai-v27'&&"
-                        "window.POKESLEEP_MASTER?.pokemon.length===249&&"
+                        "()=>window.POKESLEEP_SHARED_MASTER?.getStatus().source==='verified-local-master'&&"
+                        "window.POKESLEEP_MASTER?.pokemon.length>=249&&"
                         "typeof window.POKESLEEP_CSV_GATE?.inspect==='function'",
                         timeout=15000))
                 check("CSV filename sequence is minute only", lambda: _check_names(page))
@@ -98,6 +98,48 @@ def main():
                 check("No uncaught JavaScript exceptions", lambda:
                       _assert(not errors, "Uncaught JS errors: " + repr(errors)))
                 context.close()
+                # A remote failure must only expose the icon; no automatic modal.
+                for status_kind,should_warn in [('healthy',False),('attention',True)]:
+                    c=browser.new_context(service_workers='block')
+                    try:
+                        q=c.new_page()
+                        q.route(TESSERACT_URL,lambda route:route.fulfill(status=200,
+                            content_type='application/javascript',
+                            body="window.Tesseract={createWorker:()=>{throw Error('OCR stub forbidden');}};"))
+                        from datetime import datetime,timezone
+                        payload=json.dumps({
+                            'schemaVersion':'pokesleep-ocr-master-status-v1',
+                            'state':status_kind,
+                            'reasonCode':'SYNC_OK' if status_kind=='healthy' else 'SYNC_FAILED',
+                            'checkedAt':datetime.now(timezone.utc).isoformat()})
+                        q.route('**/master-update-status.json*',
+                            lambda route:route.fulfill(status=200,
+                              content_type='application/json',body=payload))
+                        q.goto(url,wait_until='domcontentloaded',timeout=20000)
+                        q.wait_for_function("() => !!window.POKESLEEP_MASTER_UPDATE_WATCH && !!window.POKESLEEP_CSV_GATE",timeout=20000)
+                        if should_warn:
+                            q.wait_for_function("() => document.querySelector('#masterUpdateWarning')?.hidden===false",timeout=10000)
+                        def assert_warning():
+                            warning=q.locator('#masterUpdateWarning')
+                            dialog=q.locator('#masterUpdateDialog')
+                            _assert(warning.is_visible()==should_warn,'Unexpected warning visibility')
+                            _assert(not should_warn or warning.bounding_box()['x']<q.locator('#tipsBtn').bounding_box()['x'], 'Warning must be left of TIPS')
+                            css=warning.evaluate("el=>({border:getComputedStyle(el).borderTopWidth,background:getComputedStyle(el).backgroundColor})")
+                            _assert(css['border']=='0px' and css['background'] in ('rgba(0, 0, 0, 0)','transparent'), 'Warning has border/background')
+                            _assert(not dialog.evaluate('(el)=>el.open'),'Modal appeared without tap')
+                            if should_warn:
+                                tips=q.locator('#tipsDialog')
+                                if tips.evaluate('(el)=>el.open'):
+                                    q.locator('#tipsClose').click()
+                                warning.click()
+                                _assert(dialog.evaluate('(el)=>el.open'),'Warning icon did not open modal')
+                                _assert(dialog.locator('button').count()==1,
+                                    'Warning modal must have only the upper-right × button')
+                                q.locator('#masterUpdateClose').click()
+                                _assert(not dialog.evaluate('(el)=>el.open'),'× did not close modal')
+                        check('Master update '+status_kind+' warning UI',assert_warning)
+                    finally:
+                        c.close()
                 # Browser-level v7 -> current IndexedDB checkpoint migration.
                 # Use a dedicated origin-isolated context with a synthetic file.
                 # No OCR occurs and no user data can be touched.
@@ -117,6 +159,32 @@ def main():
                           lambda: _check_v7_checkpoint_migrated(old_page))
                 finally:
                     migration.close()
+                # Old checkpoint bytes must survive a verified master SHA change.
+                stale_master=browser.new_context(service_workers="block")
+                try:
+                    stale=stale_master.new_page()
+                    stale.route(TESSERACT_URL,lambda r:r.fulfill(
+                        status=200,content_type="application/javascript",body="window.Tesseract={};"))
+                    stale.goto(url,wait_until="domcontentloaded",timeout=20000)
+                    stale.wait_for_function("() => !!window.POKESLEEP_CSV_GATE",timeout=20000)
+                    _seed_v7_checkpoint(stale)
+                    stale.evaluate("""async () => {
+                      const req=indexedDB.open('bukkomi-scan-checkpoint-v1',2);
+                      const db=await new Promise((yes,no)=>{req.onsuccess=()=>yes(req.result);req.onerror=()=>no(req.error)});
+                      const tx=db.transaction('meta','readwrite');
+                      const store=tx.objectStore('meta');
+                      const get=store.get('active');
+                      const meta=await new Promise((yes,no)=>{get.onsuccess=()=>yes(get.result);get.onerror=()=>no(get.error)});
+                      meta.masterSha256='f'.repeat(64);
+                      store.put(meta);
+                      await new Promise((yes,no)=>{tx.oncomplete=yes;tx.onerror=()=>no(tx.error)});
+                      db.close();
+                    }""")
+                    stale.reload(wait_until="domcontentloaded",timeout=20000)
+                    check("Stale-master checkpoint retains images and requests re-analysis",
+                          lambda:_check_master_change_checkpoint(stale))
+                finally:
+                    stale_master.close()
                 # Independent PWA cache test: preserve offline availability of
                 # the NEW local assets. CDN OCR binaries are deliberately out of
                 # scope and are not claimed as offline-capable.
@@ -135,7 +203,7 @@ def main():
                           if(!key)return false;
                           const cache=await caches.open(key);
                           const release=window.__PUBLIC_RELEASE_ID__;
-                          for(const path of ['shared_master.js','shared/MASTER_DATA.json','android_roi.js','csv_gate.js','app.js','icons/icon-maskable-192.png','icons/icon-maskable-512.png']){
+                          for(const path of ['shared_master.js','shared/MASTER_DATA.json','shared/master_release.json','android_roi.js','csv_gate.js','app.js','icons/icon-maskable-192.png','icons/icon-maskable-512.png']){
                             const req=new URL(path,location.href);
                             req.searchParams.set('release',release);
                             req.searchParams.set('step2','sharedcsv-v1');
@@ -238,6 +306,24 @@ def _check_v7_checkpoint_migrated(page):
             "v7 checkpoint compatibility ID was not migrated")
     _assert(meta.get("migratedFrom",{}).get("releaseId")=="2026-10-12-android-roi-standard-inline-add-v7",
             "Original v7 checkpoint provenance not retained")
+
+
+def _check_master_change_checkpoint(page):
+    page.locator("#appDialog").wait_for(state="visible",timeout=20000)
+    _assert(page.locator("#appDialogTitle").inner_text()=="新しいマスターで再解析が必要です",
+            "Stale master data was silently accepted instead of requesting reanalysis")
+    data=page.evaluate("""async () => {
+       const req=indexedDB.open('bukkomi-scan-checkpoint-v1',2);
+       const db=await new Promise((yes,no)=>{req.onsuccess=()=>yes(req.result);req.onerror=()=>no(req.error)});
+       const tx=db.transaction(['meta','files'],'readonly');
+       const q=tx.objectStore('meta').get('active'),files=tx.objectStore('files').getAll();
+       const out=await Promise.all([
+          new Promise(yes=>q.onsuccess=()=>yes(q.result)),
+          new Promise(yes=>files.onsuccess=()=>yes(files.result))]);
+       db.close();return {sha:out[0]?.masterSha256,count:out[1]?.length,bytes:out[1]?.[0]?.data?.byteLength};
+    }""")
+    _assert(data["sha"]=="f"*64 and data["count"]==1 and data["bytes"]==len(PNG),
+            "Mismatch check prematurely deleted the user's checkpoint bytes")
 
 
 def _check_android_roi_standard(page):

@@ -1,18 +1,23 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-12-checkpoint-v7-safe-migration-v11",
-  "appBuildId": "v12-checkpoint-v7-safe-migration-v11",
+  "releaseId": "2026-10-12-independent-master-auto-v12",
+  "appBuildId": "v12-independent-master-auto-v12",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 35,
+  "fileCount": 49,
   "files": [
     {
+      "path": ".github/workflows/independent-master-sync.yml",
+      "bytes": 4653,
+      "sha256": "09dde3f748f9cd4b748dc79d5bc960a9c91e0375ee84927adceedb8c25e79b93"
+    },
+    {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 3609,
-      "sha256": "9ad8e81e74c723102896f44f49fb067a3b3f89b006ddff5a6794eb80e42b4054"
+      "bytes": 4672,
+      "sha256": "3a8dfbd09b3b686d68aec5ecd786849c0877676d088bf4e1897734fe193782dc"
     },
     {
       "path": ".nojekyll",
@@ -31,8 +36,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 288074,
-      "sha256": "0d49c3045c2727ccd239857be64e924f9bd8a221d50b8f8ba68e32466e3067f4"
+      "bytes": 290554,
+      "sha256": "ea2a2548ac52e12a48037937487719b278e7194fa15fe2ff8af7a1207ca796f4"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -46,8 +51,8 @@
     },
     {
       "path": "classifier.js",
-      "bytes": 14129,
-      "sha256": "cc32653aecb43be416cf1bd3be09ac7bfca5c18e0a0c20d2f7f4206b7af723c1"
+      "bytes": 15129,
+      "sha256": "0de9f6db4afffbbafb53dda74ebbc0d132f5b88215044dda343a64f19535bcde"
     },
     {
       "path": "csv_gate.js",
@@ -55,9 +60,14 @@
       "sha256": "21dc417084295317019f1338616c6b27c24e85d903c1269bde2daefef90d2ba3"
     },
     {
+      "path": "development/STEP1_INDEPENDENT_MASTER.md",
+      "bytes": 1719,
+      "sha256": "afd32c529cb2c334278760a7fb072096bf73b70fa12b2348e8c2d5e3abb7836e"
+    },
+    {
       "path": "development/browser_boot_smoke.py",
-      "bytes": 16652,
-      "sha256": "e293023ce283e03cb284a5092811c7ade264517e971c5732a62cb4cc9756d072"
+      "bytes": 22886,
+      "sha256": "6372dcdc3434e8152ce271c5916490107822956907dc554c92ebd978f0a8fede"
     },
     {
       "path": "development/browser_csv_download_audit.py",
@@ -80,14 +90,44 @@
       "sha256": "230cafdbeedbd8c0417a0cc1360b416b1e21878720d51d0719ddfaaff687e5e2"
     },
     {
+      "path": "development/master_auto_update.py",
+      "bytes": 13082,
+      "sha256": "39ef6acc65fe431c52c7346eb8ef899a846f2d11420ecf2b11b14c9ec0915352"
+    },
+    {
+      "path": "development/master_auto_update.test.cjs",
+      "bytes": 5828,
+      "sha256": "1d3694189db85d7169df4b784687d91e9a9c4c4814142091aa32f6893272bb23"
+    },
+    {
+      "path": "development/master_deploy_workflow.test.cjs",
+      "bytes": 1915,
+      "sha256": "6b78d796672f55f92e92e896192aa316b21e4a18bd074fb261358a77ceb56658"
+    },
+    {
+      "path": "development/master_update_status.test.cjs",
+      "bytes": 4477,
+      "sha256": "2ab3836b8d467a5d01adeab1f687279c4a0be3e792d26de89d2e3c8e84224575"
+    },
+    {
+      "path": "development/publish_master_status.py",
+      "bytes": 1479,
+      "sha256": "331b4f08a0f41f52fb88ac70d6ac7525d53b8ad7431eadc01d05c1099a8c99f7"
+    },
+    {
+      "path": "development/register_food_icons.py",
+      "bytes": 3180,
+      "sha256": "a4b82e6deaabb19d55f6264d99167ffdc1dc2e908d1d37facf8f370405677b8c"
+    },
+    {
       "path": "development/runtime_smoke.test.cjs",
       "bytes": 2353,
       "sha256": "1d85a83ce5bda029d4c8b8ded7b4cbf78ae0b92a1b1f3c7cf8463c1d534e3ace"
     },
     {
       "path": "development/step2_shared_csv.test.cjs",
-      "bytes": 12383,
-      "sha256": "4ee336b2bc98603920a2539dd573c67d0fe97d453626c9c733002f786994f15c"
+      "bytes": 17431,
+      "sha256": "3ec3b99396a4431bb3f9c907e5b35d24de31611c9fb8fd26ed0c0d312cbc3999"
     },
     {
       "path": "development/step3_android_roi.test.cjs",
@@ -110,14 +150,29 @@
       "sha256": "4d5e8776d5e5d17e901ee0e6239284296add3e6303b0565c2c27677e4a0dbe60"
     },
     {
+      "path": "development/test_master_auto_update.py",
+      "bytes": 11235,
+      "sha256": "0f5f757099e6064abf9cb29d37f4666bf38da307124bc1a41c1de1c05c9368ee"
+    },
+    {
+      "path": "development/test_master_status.py",
+      "bytes": 1566,
+      "sha256": "21fbdbd4b45919acb7e0c26f4a51ac9f68344c6c1320bf39e2ccdaa872bbdeb8"
+    },
+    {
+      "path": "development/write_master_update_status.py",
+      "bytes": 1324,
+      "sha256": "dc0b793a12875a6166ccc08dea8204891047018a25b79fc532e1e432905c3073"
+    },
+    {
       "path": "food_color_features.js",
       "bytes": 497419,
       "sha256": "e00286ae2e8fe96d6f0b49c93e03150469175382ba09c62b499e6f33d85ae444"
     },
     {
       "path": "food_matcher.js",
-      "bytes": 7313,
-      "sha256": "643b3fdee8b74bcc1402f471c799d335888d3d4bb098f50e564e08ec75997fc5"
+      "bytes": 7498,
+      "sha256": "b834eb188f578af2f04de427bc70092d432fd5c61b8d6cb44660f7223699a49f"
     },
     {
       "path": "icons/apple-touch-icon.png",
@@ -151,13 +206,23 @@
     },
     {
       "path": "index.html",
-      "bytes": 69577,
-      "sha256": "3a329c8ae02ae851ca9ad5e9ffcadd316d74f95c96f7711bb9c19bd8e06a206e"
+      "bytes": 71284,
+      "sha256": "889a27fc2c7c30959e4684f841aacbf2f86cad9e10dff2f4448f9e06cb1634d5"
     },
     {
       "path": "manifest.webmanifest",
       "bytes": 1250,
       "sha256": "8b3751a6c224f95dd9435284e28273c6a94066f351256b1c74958506eb8b918c"
+    },
+    {
+      "path": "master-update-status.js",
+      "bytes": 2616,
+      "sha256": "1579acc049e1423423cf1e006e7acdf494bc15d0da845c36738763c08e5889ad"
+    },
+    {
+      "path": "master-update-status.json",
+      "bytes": 177,
+      "sha256": "ca90ed7c7af314427c8007f1729838070072caf5e8cbf33bf8a4fde0c7e38cc9"
     },
     {
       "path": "master_data.js",
@@ -166,8 +231,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 58,
-      "sha256": "ce3d3db9678abebbc92648fe2b10023d949543fee84918e5409254d9295b2b9e"
+      "bytes": 53,
+      "sha256": "11a93a44c90d6470516e6918015284cb1d533708b3a803da9291bc5afcd09aff"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -175,14 +240,19 @@
       "sha256": "d60410ba1f92d80c67ca3ff40bc8aa7a2cd51d4c03fc33f9e99fa83bb8e77a38"
     },
     {
+      "path": "shared/master_release.json",
+      "bytes": 397,
+      "sha256": "e6f3624c04a120286cf43373dc8df7048b7d3fa0811e1189801479d4dc53d0a0"
+    },
+    {
       "path": "shared_master.js",
-      "bytes": 4248,
-      "sha256": "bb332a0403de1e01fdec8b00c7db76badc7def0111210eff340a847e985b256f"
+      "bytes": 5816,
+      "sha256": "bc817438a9c541c141501cf314e62eee32f61acb9bdc87af22cf685a209b79dd"
     },
     {
       "path": "sw.js",
-      "bytes": 3420,
-      "sha256": "ef1c3d49d634a27d20043f2e2131d4e1539967bdc9b74f44395cf06263ecdeba"
+      "bytes": 3736,
+      "sha256": "4b934d162f9c9a804358c37f0919d6d48789bc35c75d63bcf7a23b650700e0bf"
     }
   ]
 }

@@ -1,7 +1,7 @@
 "use strict";
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
-const {webcrypto}=require('node:crypto');
+const {webcrypto,createHash}=require('node:crypto');
 const root=path.resolve(__dirname,'..');
 const asset=fs.readFileSync(path.join(root,'shared/MASTER_DATA.json'));
 const legacy=fs.readFileSync(path.join(root,'master_data.js'),'utf8');
@@ -13,7 +13,7 @@ function harness(opts={}){
  const context={
   window:{__PUBLIC_RELEASE_ID__:'step2-test'},
   crypto:opts.noCrypto?undefined:webcrypto,
-  fetch:async()=>failed?{ok:false,status:503}:{ok:true,arrayBuffer:async()=>Uint8Array.from(data).buffer},
+  fetch:async(url)=>failed?{ok:false,status:503}:{ok:true,arrayBuffer:async()=>Uint8Array.from(String(url).includes('master_release.json')?(opts.receipt||Buffer.from(fs.readFileSync(path.join(root,'shared/master_release.json')))):data).buffer},
   location:{href:'http://localhost:8000/'},
   TextDecoder,AbortController,URL,setTimeout,clearTimeout,
   navigator:{locks:{request:async(_name,fn)=>fn()}},
@@ -30,16 +30,86 @@ function harness(opts={}){
  return {context,initial,gate:context.window.POKESLEEP_CSV_GATE,
          bridge:context.window.POKESLEEP_SHARED_MASTER};
 }
-test('verified v27 master selected, preserving classifier inputs',async()=>{
+test('independent verified master selected, preserving old classifier inputs',async()=>{
  const h=harness(),status=await h.bridge.load();
- assert.equal(status.source,'pinned-ai-v27');
- assert.equal(status.sha256,'d60410ba1f92d80c67ca3ff40bc8aa7a2cd51d4c03fc33f9e99fa83bb8e77a38');
- assert.equal(h.context.window.POKESLEEP_MASTER.pokemon.length,249);
+ assert.equal(status.source,'verified-local-master');
+ assert.equal(status.sha256,JSON.parse(fs.readFileSync(path.join(root,'shared/master_release.json'))).sha256);
+ assert.equal(h.context.window.POKESLEEP_MASTER.pokemon.length,ai.pokemon.length);
  assert.notEqual(h.initial,h.context.window.POKESLEEP_MASTER);
- assert.deepEqual(JSON.parse(JSON.stringify(h.initial.pokemon)),JSON.parse(JSON.stringify(h.context.window.POKESLEEP_MASTER.pokemon)));
+ assert.ok(h.initial.pokemon.every(p=>h.context.window.POKESLEEP_MASTER.pokemon.some(x=>x.name_en===p.name_en)), 'Valid updates may append species but must not lose existing ones');
 });
-test('tampered AI master rejected; local master untouched',async()=>{
- const h=harness({data:Buffer.from(asset.toString('utf8').replace('"2026-10-05"','"1900-01-01"'))});
+test('new species joins normal classification without preapproval',async()=>{
+ const next=JSON.parse(JSON.stringify(ai));
+ const seed=next.pokemon.find(p=>p.name==='フシギダネ');
+ const fresh={...JSON.parse(JSON.stringify(seed)),name:'新規追加ポケモン',name_en:'NewlyAddedPokemon'};
+ next.pokemon.push(fresh);
+ const raw=Buffer.from(JSON.stringify(next));
+ const receipt={...JSON.parse(fs.readFileSync(path.join(root,'shared/master_release.json'))),
+   speciesCount:next.pokemon.length,sha256:createHash('sha256').update(raw).digest('hex')};
+ const h=harness({data:raw,receipt:Buffer.from(JSON.stringify(receipt))});
+ assert.equal((await h.bridge.load()).source,'verified-local-master');
+ vm.runInContext(fs.readFileSync(path.join(root,'classifier.js'),'utf8'),h.context);
+ const cls=h.context.window.POKESLEEP_CLASSIFIER;
+ const nature=next.natures.find(n=>n.ja==='てれや'),mod=cls.modFromObserved([],10);
+ const profile=cls.profiles(seed)[0],seconds=cls.frequency(seed,10,nature,mod,0);
+ const sp=cls.computeSp(seed,profile,10,nature,mod,0,1);
+ const obs={level:10,sp,helpSeconds:Math.floor(seconds+1e-9),skillLevel:1,nature:'てれや',
+ mainSkill:seed.mainSkill,subskills:[]};
+ const inference=cls.inferWithoutFoods(obs);
+ assert.ok(inference.stages.mainSkill.includes(fresh.name));
+ assert.ok(inference.candidates.includes(seed.name),'baseline species calculation must remain valid');
+ assert.ok(inference.candidates.includes(fresh.name),'new species must reach final calculated candidates, not just initial skill filter');
+ assert.notEqual(inference.status,'UNIQUE','identical new and existing species must not produce a false unique identification');
+});
+test('future ingredient energy from verified master feeds actual classifier SP calculation',async()=>{
+ const future=JSON.parse(JSON.stringify(ai));
+ future.ingredients.futureFood='未来の食材';
+ future.ingredientStrength={futureFood:123};
+ const seed=future.pokemon.find(x=>x.name==='フシギダネ');
+ const species={...JSON.parse(JSON.stringify(seed)),name:'未来モン',name_en:'Futuremon',
+   ing1:{...seed.ing1,key:'futureFood',name:'未来の食材'}};
+ future.pokemon.push(species);
+ const raw=Buffer.from(JSON.stringify(future));
+ const receipt={...JSON.parse(fs.readFileSync(path.join(root,'shared/master_release.json'))),
+   sha256:createHash('sha256').update(raw).digest('hex'),
+   speciesCount:future.pokemon.length,ingredientCount:Object.keys(future.ingredients).length};
+ const h=harness({data:raw,receipt:Buffer.from(JSON.stringify(receipt))});
+ assert.equal((await h.bridge.load()).source,'verified-local-master');
+ assert.equal(h.context.window.POKESLEEP_EXTRA_INGREDIENT_STRENGTH.futureFood,123);
+ vm.runInContext(fs.readFileSync(path.join(root,'classifier.js'),'utf8'),h.context);
+ const cls=h.context.window.POKESLEEP_CLASSIFIER,fp=cls.profiles(species)[0];
+ assert.equal(fp.items[0].name,'未来の食材');
+ const n=future.natures.find(x=>x.ja==='てれや');
+ const mod=cls.modFromObserved([],10);
+ const rp=cls.computeSp(species,fp,10,n,mod,0,1);
+ assert.ok(Number.isFinite(rp)&&rp>0,'Future food must not be silently computed as zero');
+ const malformed=JSON.parse(JSON.stringify(future));
+ delete malformed.ingredientStrength;
+ const badRaw=Buffer.from(JSON.stringify(malformed));
+ const badReceipt={...receipt,sha256:createHash('sha256').update(badRaw).digest('hex')};
+ const bad=harness({data:badRaw,receipt:Buffer.from(JSON.stringify(badReceipt))});
+ assert.equal((await bad.bridge.load()).source,'legacy-fallback','missing new food energy must not be promoted');
+});
+test('properly hashed but numerically invalid master is refused before OCR initialization',async()=>{
+ const fake=JSON.parse(JSON.stringify(ai));fake.pokemon[0].ingRate='not-a-number';
+ const raw=Buffer.from(JSON.stringify(fake));
+ const meta={...JSON.parse(fs.readFileSync(path.join(root,'shared/master_release.json'))),
+  sha256:createHash('sha256').update(raw).digest('hex')};
+ const h=harness({data:raw,receipt:Buffer.from(JSON.stringify(meta))});
+ assert.equal((await h.bridge.load()).source,'legacy-fallback');
+ assert.strictEqual(h.context.window.POKESLEEP_MASTER,h.initial);
+});
+test('hashed master with missing required ingredient quantity never replaces live fallback',async()=>{
+ const fake=JSON.parse(JSON.stringify(ai));fake.pokemon[0].ing1.c1=null;
+ const raw=Buffer.from(JSON.stringify(fake));
+ const meta={...JSON.parse(fs.readFileSync(path.join(root,'shared/master_release.json'))),
+  sha256:createHash('sha256').update(raw).digest('hex')};
+ const h=harness({data:raw,receipt:Buffer.from(JSON.stringify(meta))});
+ assert.equal((await h.bridge.load()).source,'legacy-fallback');
+ assert.strictEqual(h.context.window.POKESLEEP_MASTER,h.initial);
+});
+test('tampered independent master rejected; local master untouched',async()=>{
+ const h=harness({data:Buffer.from(asset.toString('utf8').replace(/"cutoff"\s*:\s*"[^"]+"/,'"cutoff":"1900-01-01"'))});
  const status=await h.bridge.load();
  assert.equal(status.source,'legacy-fallback');
  assert.strictEqual(h.context.window.POKESLEEP_MASTER,h.initial);
@@ -179,7 +249,7 @@ test('species-canonical CSV skill normalizes random and legendary screen aliases
               '食材ゲットS');
 });
 
-test('all 249 supported species have at least one valid 16-column importer row',()=>{
+test('all active master species have at least one valid 16-column importer row',()=>{
  const context={window:{}};
  vm.createContext(context);
  vm.runInContext(legacy,context,{filename:'master_data.js'});
@@ -194,11 +264,11 @@ test('all 249 supported species have at least one valid 16-column importer row',
     p.name==='ミュウ'?'きのみバースト':p.mainSkill,nature,
     ...ai.subskills.slice(0,5).map(x=>x.ja),'0','0'];
  });
- assert.equal(rows.length,249);
+ assert.equal(rows.length,ai.pokemon.length);
  const h=harness(),csv=h.gate.serialize([Array.from(h.gate.HEADER),...rows]);
  const result=h.gate.inspect(csv,ai);
  assert.equal(result.ok,true,JSON.stringify(result.errors.slice(0,25)));
- assert.equal(result.rows.length,250);
+ assert.equal(result.rows.length,ai.pokemon.length+1);
 });
 
 test('filename reservations survive alternating minutes and backward clock adjustments',async()=>{
