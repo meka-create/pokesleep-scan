@@ -89,6 +89,8 @@ def main():
                     page.locator("#tipsClose").click()
                 check("Android ROI remains standard despite an old OFF preference", lambda:
                       _check_android_roi_standard(page))
+                check("AI-style picture icon and screenshot picker match", lambda:
+                      _check_ai_style_picker(page))
                 check("Initially CSV export is disabled", lambda:
                       _assert(page.locator("#csv").is_disabled(), "CSV is enabled with no records"))
                 check("Reject unsupported attachment with visible error", lambda:
@@ -182,6 +184,48 @@ def _check_android_roi_standard(page):
             "Image-append plus should not appear before choosing screenshots")
 
 
+
+def _check_ai_style_picker(page):
+    _assert(page.locator("#uploadMain").inner_text()=="画像を選択する",
+            "Initial image picker label differs from AIぶっこみスキャン")
+    _assert(page.locator("#uploadPhotoIcon").is_visible(),
+            "Initial picture icon is not visible")
+    _assert(page.locator("#uploadStatusGlyph").is_hidden(),
+            "A selected-state glyph is visible before choosing images")
+    styles=page.evaluate("""() => {
+      const drop=document.querySelector('.filelabel'),
+            icon=document.querySelector('#uploadIcon'),
+            picture=document.querySelector('#uploadPhotoIcon'),
+            d=getComputedStyle(drop),i=getComputedStyle(icon),p=getComputedStyle(picture);
+      return {borderWidth:d.borderTopWidth,borderStyle:d.borderTopStyle,
+              borderColor:d.borderTopColor,background:d.backgroundColor,
+              radius:d.borderTopLeftRadius,iconWidth:i.width,iconHeight:i.height,
+              iconRadius:i.borderTopLeftRadius,iconColor:i.color,
+              iconBackground:i.backgroundColor,pictureWidth:p.width,
+              pictureStroke:p.stroke,hasRect:!!picture.querySelector('rect'),
+              hasCircle:!!picture.querySelector('circle'),
+              hasPath:!!picture.querySelector('path'),
+              appendHidden:document.querySelector('#addFilesRow').hidden};
+    }""")
+    _assert(styles["borderWidth"]=="2px" and styles["borderStyle"]=="dashed",
+            "AI picker dashed border differs: "+str(styles))
+    _assert(styles["borderColor"]=="rgb(171, 196, 235)",
+            "AI picker blue border differs: "+str(styles))
+    _assert(styles["background"]=="rgb(248, 251, 255)",
+            "AI picker pale-blue background differs: "+str(styles))
+    _assert(styles["radius"]=="16px" and styles["iconRadius"]=="18px",
+            "AI picker corner radii differ: "+str(styles))
+    _assert(styles["iconWidth"]=="56px" and styles["iconHeight"]=="56px",
+            "AI picker picture icon tile differs: "+str(styles))
+    _assert(styles["iconBackground"]=="rgb(231, 239, 255)",
+            "AI picker icon tile blue differs: "+str(styles))
+    _assert(styles["pictureWidth"]=="25px" and all(
+            styles[k] for k in ("hasRect","hasCircle","hasPath")),
+            "AI picture outline SVG differs: "+str(styles))
+    _assert(styles["appendHidden"],
+            "Additional-files plus must be hidden before the first selection")
+
+
 def _check_names(page):
     names=page.evaluate("""async ()=>{
       const d=new Date(2026,9,12,14,35,59),g=window.POKESLEEP_CSV_GATE;
@@ -215,6 +259,13 @@ def _select_png(page):
         "()=>!document.querySelector('#run').disabled", timeout=15000)
     _assert(page.locator("#uploadMain").inner_text() == "1枚を選択しました",
             "PNG selection count not reflected in the upload UI")
+    _assert(page.locator("#uploadPhotoIcon").is_hidden(),
+            "Picture SVG should hide when the existing selection check appears")
+    _assert(page.locator("#uploadStatusGlyph").is_visible()
+            and page.locator("#uploadStatusGlyph").inner_text()=="✓",
+            "Selected-image checkmark did not replace the picture symbol")
+    _assert(page.locator("#uploadPhotoIcon").count()==1,
+            "Selecting images destroyed the picture SVG for the next reset")
     _assert(page.locator("#csv").is_disabled(),
             "CSV should remain blocked until analysis")
 
