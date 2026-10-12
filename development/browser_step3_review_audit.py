@@ -97,6 +97,12 @@ def main():
                        for i in range(1,101)]
                 second=[{"name":f"IMG_{i:04d}.png","mimeType":"image/png","buffer":png}
                         for i in range(101,143)]
+                # Move the synthetic pointer away and suppress transient hover transitions
+                # so this test asserts the actual stable idle/selected CSS colors.
+                page.locator(".filelabel").evaluate("(el)=>el.style.transition='none'")
+                page.mouse.move(0,0)
+                idle_color=page.locator(".filelabel").evaluate("(el)=>getComputedStyle(el).backgroundColor")
+                assert idle_color=="rgb(248, 251, 255)",idle_color
                 page.locator("#files").set_input_files(first,timeout=30000)
                 page.wait_for_function("""() =>
                   document.querySelector('#uploadMain')?.textContent==='100枚を選択しました' &&
@@ -115,20 +121,25 @@ def main():
                     circle:!!icon?.querySelector('circle'),path:!!icon?.querySelector('path'),
                     iconSize:i.width,label:el.getAttribute('aria-label')};
                 }""")
-                assert appearance["border"]=="2px" and appearance["style"]=="dashed",appearance
-                assert appearance["radius"]>=16 and appearance["background"]=="rgb(248, 251, 255)",appearance
+                page.mouse.move(0,0)
+                assert appearance["border"]=="2px" and appearance["style"]=="solid",appearance
+                assert appearance["radius"]>=16 and appearance["background"]=="rgb(234, 243, 255)",appearance
+                assert appearance["background"]!=idle_color,appearance
                 assert appearance["icon"] and appearance["rect"] and appearance["circle"] and appearance["path"],appearance
                 assert appearance["iconSize"]=="56px",appearance
                 assert page.locator("#uploadSub").inner_text()==""
-                checks.append("AI Scan picture icon, blue dashed frame and original large picker")
+                checks.append("AI Scan picture icon, selected pale-blue fill and solid blue border")
                 drop=page.locator(".filelabel")
                 drop.click()
                 assert page.locator("#imageSelectDialog").is_visible()
+                assert page.locator("#imageSelectDialogHint").count()==0
+                assert page.locator("#imageSelectDialog").get_attribute("aria-describedby") is None
                 assert page.locator("#imageSelectReplace").is_visible()
                 assert page.locator("#imageSelectAppend").is_enabled()
                 page.locator("#imageSelectClose").click()
                 assert page.locator("#imageSelectDialog").is_hidden()
-                checks.append("selected picker opens modal; top-right X closes it")
+                assert page.locator("#uploadMain").inner_text()=="100枚を選択しました"
+                checks.append("selected picker opens hint-free modal; X closes without clearing selection")
                 drop.click()
                 with page.expect_file_chooser() as chooser_info:
                     page.locator("#imageSelectAppend").click()

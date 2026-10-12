@@ -137,6 +137,9 @@ test('ROI code never removes legacy crop path or classifier',()=>{
  assert.match(html,/id="uploadIcon" class="upload-icon"/);
  assert.match(html,/<rect x="3" y="4" width="18" height="16" rx="3"\/>/);
  assert.match(html,/id="imageSelectDialog"/);
+ assert.match(html,/\.filelabel\.is-selected\{border:2px solid #5b8fe6;background:#eaf3ff/);
+ assert.doesNotMatch(html,/選択済みの画像をどうしますか？/);
+ assert.doesNotMatch(html,/id="imageSelectDialogHint"/);
  assert.match(html,/id="imageSelectClose"/);
  assert.match(html,/id="imageSelectReplace"/);
  assert.match(html,/id="imageSelectAppend"/);
