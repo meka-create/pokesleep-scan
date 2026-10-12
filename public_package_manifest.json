@@ -36,8 +36,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 288427,
-      "sha256": "6ebbcece4626b0604ffd38d69f267d9f0fe8ff696217985328c7108664ad131e"
+      "bytes": 288645,
+      "sha256": "df88ef12aa8e77baf2e253be3b2dd165127d91cb7196ca9c83242a859c1456fd"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -91,8 +91,8 @@
     },
     {
       "path": "development/master_auto_update.test.cjs",
-      "bytes": 5361,
-      "sha256": "542c7dff2af980e1e9d8553a86c7d1a84371327ffa4525d59a835a94bbf11509"
+      "bytes": 5640,
+      "sha256": "0292402699dd593cbd91688078bc74b718dcc6ac6ad0a6d162ce7195c33603b3"
     },
     {
       "path": "development/register_food_icons.py",

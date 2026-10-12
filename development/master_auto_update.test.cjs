@@ -73,6 +73,11 @@ test('species/manual review and CSV paths cannot bypass unreviewed future first-
  assert.equal(ctx.foodSlotNeedsReview(r,0),false);
  assert.equal(ctx.csvFoodResolvedForPokesleepTool('future',r.foods[0],0),true);
 });
+test('new-food image suggestion is visibly advisory, not auto-confirmed',()=>{
+ const source=fs.readFileSync(path.join(root,'app.js'),'utf8');
+ assert.match(source,/画像照合の参考候補/);
+ assert.match(source,/imageSuggestion.*opts\.includes\(x\.imageSuggestion\)/);
+});
 test('unknown food energy coefficients never become automatic classifier candidates',()=>{
  const text=fs.readFileSync(path.join(root,'classifier.js'),'utf8');
  assert.equal(text.split('Object.hasOwn(ING_BASE,it.key)').length,3);
