@@ -3,10 +3,12 @@ import csv
 import hashlib
 import json
 import tempfile
+import zipfile
+import io
 import unittest
 from pathlib import Path
 
-from step2_meka142_benchmark import EXPECTED_COUNT, FIELD_NAMES, evaluate, read_golden, verify_images
+from step2_meka142_benchmark import EXPECTED_COUNT, FIELD_NAMES, evaluate, read_golden, verify_images, verify_raw_csv
 
 
 def fixture():
@@ -38,8 +40,14 @@ def fixture():
             "foods": [{"name": x, "needsReview": False, "manualOverride": False}
                       for x in ("あまいミツ", "あんみんトマト", "ほっこりポテト")],
         })
+    raw_rows = [[i + 1, selected[i]["name"], "解析成功", *["" for _ in range(16)]]
+                for i in range(EXPECTED_COUNT)]
+    assert all(len(row) == 19 for row in raw_rows)
     diag = {"version": "v12-synthetic", "results": results, "selectedFiles": selected,
-            "preManualCsvSnapshot": {"rowCount": EXPECTED_COUNT, "skipped": [], "derivedRows": []}}
+            "preManualCsvSnapshot": {"schema": 2, "rowCount": EXPECTED_COUNT,
+                                     "successfulRowCount": EXPECTED_COUNT,
+                                     "header": [f"column_{j}" for j in range(19)],
+                                     "rows": raw_rows, "skipped": [], "derivedRows": []}}
     return golden, diag
 
 
@@ -85,6 +93,65 @@ class Meka142BenchmarkTest(unittest.TestCase):
         diag["results"].pop()
         with self.assertRaisesRegex(ValueError, "142 selected"):
             evaluate(golden, diag)
+
+
+    def test_real_style_golden_zip_and_renamed_android_images(self):
+        golden, diag = fixture()
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            image_zip = root / "meka142.zip"
+            golden_zip = root / "golden172.zip"
+            with zipfile.ZipFile(image_zip, "w") as ar:
+                for i, row in enumerate(golden):
+                    content = b"x" * (i + 1)
+                    row["画像SHA256"] = hashlib.sha256(content).hexdigest()
+                    ar.writestr("meka142/" + row["画像ファイル"], content)
+                    renamed = f"10000{i:03d}.png"
+                    diag["selectedFiles"][i]["name"] = renamed
+                    diag["selectedFiles"][i]["size"] = len(content)
+                    diag["results"][i]["file"] = renamed
+                    diag["preManualCsvSnapshot"]["rows"][i][1] = renamed
+            text = io.StringIO()
+            writer = csv.DictWriter(text, fieldnames=list(golden[0]))
+            writer.writeheader()
+            writer.writerows(golden)
+            # Golden172 contains nano30, but only meka142 may be evaluated.
+            writer.writerow({**golden[0], "corpus": "nano30", "assetId": "NANO30-001",
+                             "画像ファイル": "not_meka142.png"})
+            with zipfile.ZipFile(golden_zip, "w") as ar:
+                ar.writestr("GOLDEN_CORRECTED/正解表_全172.csv", text.getvalue())
+            corrected = read_golden(golden_zip)
+            self.assertEqual(len(corrected), 142)
+            sizes = verify_images(image_zip, corrected)
+            report = evaluate(corrected, diag, sizes)
+            self.assertEqual(report["totals"]["auto_correct"], 2272)
+            self.assertEqual(report["imageMapping"][0]["selectedAlias"], "10000000.png")
+            rawcsv = root / "raw.csv"
+            rows = [diag["preManualCsvSnapshot"]["header"], *diag["preManualCsvSnapshot"]["rows"]]
+            with rawcsv.open("w", encoding="utf-8", newline="") as f:
+                csv.writer(f).writerows(rows)
+            verify_raw_csv(rawcsv, diag)
+            diag["preManualCsvSnapshot"]["rows"][7][-1] = "changed"
+            with self.assertRaisesRegex(ValueError, "does not equal"):
+                verify_raw_csv(rawcsv, diag)
+
+    def test_ambiguous_size_does_not_guess_original_image(self):
+        golden, diag = fixture()
+        same = {len(diag["selectedFiles"][0]["name"]): None}
+        with self.assertRaisesRegex(ValueError, "uniquely map"):
+            evaluate(golden, diag, same)
+
+    def test_mythical_blank_is_different_from_dashed_csv(self):
+        golden, diag = fixture()
+        golden[0]["ポケモン名"] = "ダークライ"
+        golden[0]["サブスキル5"] = "―"
+        diag["results"][0]["classification"]["candidates"] = ["ダークライ"]
+        diag["results"][0]["parsed"]["subskills"][-1] = ""
+        # No confirming OCR evidence = still review, never auto-accept merely because legal.
+        diag["results"][0]["parsed"]["subskillEvidence"][-1]["needsReview"] = True
+        rep = evaluate(golden, diag)
+        self.assertEqual(rep["totals"]["review_or_manual"], 1)
+        self.assertEqual(rep["totals"]["auto_wrong"], 0)
 
     def test_read_golden_and_original_image_sha_gate(self):
         golden, _ = fixture()
