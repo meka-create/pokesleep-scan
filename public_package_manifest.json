@@ -51,8 +51,8 @@
     },
     {
       "path": "classifier.js",
-      "bytes": 14603,
-      "sha256": "7bc2a5209052b79fd8d8fe6ea6ac2951e5329584583e86d409baac2ae7a3940e"
+      "bytes": 15043,
+      "sha256": "cbd154e69cf272513b2061a25260570430cf0229ccf2b05fe214fd2c88972068"
     },
     {
       "path": "csv_gate.js",
@@ -91,8 +91,8 @@
     },
     {
       "path": "development/master_auto_update.test.cjs",
-      "bytes": 1751,
-      "sha256": "d197ede7b136dee716d5472356fb617f183f4d3b0b54b72dab1f3fb32ac0ad80"
+      "bytes": 1903,
+      "sha256": "27f9f50ca6edd0c2fb540d568578d6696f6bf54ff519631b990c72fdd67f319b"
     },
     {
       "path": "development/register_food_icons.py",
@@ -206,8 +206,8 @@
     },
     {
       "path": "shared_master.js",
-      "bytes": 4183,
-      "sha256": "56770807533dac1dfe4132f556d0d1f0ffd4acfcce77c727db1ebdefc62e7fa9"
+      "bytes": 4349,
+      "sha256": "b558f1d69d18861bdfeced9960b48e4676aeaa4d2a7acd647eefbb978dafb1fc"
     },
     {
       "path": "sw.js",
