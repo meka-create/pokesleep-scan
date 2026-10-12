@@ -58,6 +58,8 @@ jobs:
           set -euo pipefail
           git clone --depth 1 --single-branch https://github.com/nitoyon/pokesleep-tool.git "$RUNNER_TEMP/upstream"
           python development/master_auto_update.py --upstream "$RUNNER_TEMP/upstream"
+      - name: Compact source-image button regression
+        run: node --test development/image_button_compact.test.cjs
       - name: Master warning and health publisher tests
         run: |
           node --test development/master_update_status.test.cjs
