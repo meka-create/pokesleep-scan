@@ -59,7 +59,9 @@ jobs:
           git clone --depth 1 --single-branch https://github.com/nitoyon/pokesleep-tool.git "$RUNNER_TEMP/upstream"
           python development/master_auto_update.py --upstream "$RUNNER_TEMP/upstream"
       - name: Master warning and health publisher tests
-        run: node --test development/master_update_status.test.cjs
+        run: |
+          node --test development/master_update_status.test.cjs
+          python -m unittest discover -s development -p 'test_master_status.py' -v
       - name: Independent master safety unit tests
         run: node --test development/master_auto_update.test.cjs
       - name: Runtime master and classifier smoke tests

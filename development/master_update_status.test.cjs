@@ -52,10 +52,19 @@ test('pending is quiet until 50-hour deadline',async()=>{
  assert.equal(h.nodes.masterUpdateWarning.hidden,true);
  assert.equal(h.ctx.window.POKESLEEP_MASTER_UPDATE_WATCH.readStatus(healthy('pending','2026-10-01T00:00:00Z')).state,'attention');
 });
-test('workflow records failure after resetting unverified candidate',()=>{
+test('workflow records failed sync independently from its unsafe worktree',()=>{
  const wf=fs.readFileSync(path.join(root,'.github/workflows/independent-master-sync.yml'),'utf8');
  assert.match(wf,/if: always\(\)/);
  assert.match(wf,/needs: \[sync\]/);
  assert.match(wf,/git add -- master-update-status.json public_package_manifest.json/);
  assert.match(wf,/development\/publish_master_status.py/);
+});
+
+test('invalid healthy feed and unusable local master both require warning',async()=>{
+ const h=harness(healthy('healthy'));await h.flush();
+ const invalid=healthy('healthy');delete invalid.reasonCode;
+ assert.equal(h.ctx.window.POKESLEEP_MASTER_UPDATE_WATCH.readStatus(invalid).state,'attention');
+ h.master.source='unusable';h.master.reason='legacy-master-invalid';
+ h.events['bukkomi-master-ready']();
+ assert.equal(h.nodes.masterUpdateWarning.hidden,false);
 });

@@ -7,7 +7,7 @@ if(!badge||!dialog||!close)return;
 const SCHEMA='pokesleep-ocr-master-status-v1',MAX_AGE_MS=50*3600*1000;
 let current={state:'pending',reason:'initializing'},serial=0;
 function readStatus(data,now=Date.now()){
- if(!data||data.schemaVersion!==SCHEMA||!['healthy','attention','pending'].includes(data.state))
+ if(!data||data.schemaVersion!==SCHEMA||!['healthy','attention','pending'].includes(data.state)||typeof data.reasonCode!=='string'||data.reasonCode.length>120)
   return {state:'attention',reason:'invalid-status'};
  const t=Date.parse(data.state==='pending'?data.createdAt:data.checkedAt);
  if(!Number.isFinite(t)||t>now+600000||now-t>MAX_AGE_MS)
@@ -16,7 +16,7 @@ function readStatus(data,now=Date.now()){
 }
 function localFailure(){
  const s=window.POKESLEEP_SHARED_MASTER?.getStatus?.();
- return !!s&&s.source==='legacy-fallback'&&s.reason!=='not-loaded';
+ return !!s&&s.reason!=='not-loaded'&&s.source!=='verified-local-master';
 }
 function render(remote){
  const problem=remote.state==='attention'||localFailure();

@@ -98,6 +98,43 @@ def main():
                 check("No uncaught JavaScript exceptions", lambda:
                       _assert(not errors, "Uncaught JS errors: " + repr(errors)))
                 context.close()
+                # A remote failure must only expose the icon; no automatic modal.
+                for status_kind,should_warn in [('healthy',False),('attention',True)]:
+                    c=browser.new_context(service_workers='block')
+                    try:
+                        q=c.new_page()
+                        q.route(TESSERACT_URL,lambda route:route.fulfill(status=200,
+                            content_type='application/javascript',
+                            body="window.Tesseract={createWorker:()=>{throw Error('OCR stub forbidden');}};"))
+                        from datetime import datetime,timezone
+                        payload=json.dumps({
+                            'schemaVersion':'pokesleep-ocr-master-status-v1',
+                            'state':status_kind,
+                            'reasonCode':'SYNC_OK' if status_kind=='healthy' else 'SYNC_FAILED',
+                            'checkedAt':datetime.now(timezone.utc).isoformat()})
+                        q.route('**/master-update-status.json*',
+                            lambda route,body=payload:route.fulfill(status=200,
+                              content_type='application/json',body=body))
+                        q.goto(url,wait_until='domcontentloaded',timeout=20000)
+                        q.wait_for_function("() => !!window.POKESLEEP_MASTER_UPDATE_WATCH && !!window.POKESLEEP_CSV_GATE",timeout=20000)
+                        def assert_warning():
+                            warning=q.locator('#masterUpdateWarning')
+                            dialog=q.locator('#masterUpdateDialog')
+                            _assert(warning.is_visible()==should_warn,'Unexpected warning visibility')
+                            _assert(not dialog.evaluate('(el)=>el.open'),'Modal appeared without tap')
+                            if should_warn:
+                                tips=q.locator('#tipsDialog')
+                                if tips.evaluate('(el)=>el.open'):
+                                    q.locator('#tipsClose').click()
+                                warning.click()
+                                _assert(dialog.evaluate('(el)=>el.open'),'Warning icon did not open modal')
+                                _assert(dialog.locator('button').count()==1,
+                                    'Warning modal must have only the upper-right × button')
+                                q.locator('#masterUpdateClose').click()
+                                _assert(not dialog.evaluate('(el)=>el.open'),'× did not close modal')
+                        check('Master update '+status_kind+' warning UI',assert_warning)
+                    finally:
+                        c.close()
                 # Browser-level v7 -> current IndexedDB checkpoint migration.
                 # Use a dedicated origin-isolated context with a synthetic file.
                 # No OCR occurs and no user data can be touched.
