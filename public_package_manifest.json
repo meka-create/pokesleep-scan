@@ -1,131 +1,183 @@
 {
-  "package": "public-candidate125-carry-corroborated-first-food-runtime-only",
-  "releaseId": "2026-10-09-candidate125-carry-corroborated-first-food",
-  "basedOn": "public-candidate124-species-ocr-consensus-rescue-runtime-only (Candidate124 formal baseline)",
-  "recognitionLogicChanged": true,
-  "runtimeOnly": true,
-  "publicAllowlistPolicy": {
-    "mode": "explicit-allowlist",
-    "developmentIncluded": false,
-    "developerReadmeIncluded": false,
-    "localServerIncluded": false,
-    "unusedFoodFeaturesIncluded": false,
-    "complianceDocsIncluded": [
-      "THIRD_PARTY_NOTICES.md"
-    ],
-    "provenanceLedgerPublic": false
-  },
-  "maintenanceChanges": [
-    "Add review-only safety guards for observed false-confirm patterns without changing Candidate121 OCR/classifier recognition values.",
-    "Mark nicknames with unmatched closing punctuation for review instead of silently accepting the contaminated value.",
-    "When species is unresolved, mark low-confidence main-skill evidence for review and block CSV export until that review is resolved.",
-    "When species is unresolved and any subskill already carries uncertainty evidence, preserve/propagate review across the nonblank subskill chain instead of hiding it.",
-    "Reapply Candidate122 review-safety guards after checkpoint restore while respecting manual confirmations.",
-    "Keep Candidate121 ±1-second help-time tolerance, OCR engines, crop/threshold geometry, food matcher, species classifier matching, carry logic, checkpoint schema/compatibility, and iOS OCR memory guard unchanged.",
-    "Candidate123 numeric read-only review badges for missing SP/helpSeconds/carry or corroborated SP inconsistency.",
-    "Candidate124: strictly consensus-supported multi-field species rescue using already collected skill-line/header OCR evidence; only when classifier UNIQUE and carry-consistent; no additional OCR or classifier/food-matcher changes.",
-    "Candidate125: when an occluded first food icon has corroborated runner-up image evidence, a unique carry-consistent classifier candidate and a matching later-food profile, correct first food under explicit review and resolve species; no extra OCR or baseline regression."
-  ],
-  "validation": {
-    "candidate": "Candidate125",
-    "formalBaseline": "Candidate124",
-    "deviceValidation": "IPHONE_ANDROID_PRIORITY_CORPUS_GATE_PENDING",
-    "scope": "Carry- and food3-corroborated first-food image rescue; preserves review; no extra OCR calls, classifier/food matcher/CSV schema/memory guard changes"
-  },
-  "files": [
-    {
-      "path": ".nojekyll",
-      "bytes": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "path": "app.js",
-      "bytes": 267467,
-      "sha256": "ae5f1e0a1896aab83a14d5ab3d42ad25641cd8bd1c95b9802517a57c5a28a66d"
-    },
-    {
-      "path": "assets/example-screenshot.png",
-      "bytes": 105755,
-      "sha256": "faf93b7dfeab7395ba20d5e296ef81da2a2df3b1b61e62f3ebb5674313fe8a06"
-    },
-    {
-      "path": "assets/ogp-card.png",
-      "bytes": 1083675,
-      "sha256": "461dd958fc6f4cd5ebe7fc1d2fd1fc1f8c86aad667562a858138120c16a4fd14"
-    },
-    {
-      "path": "classifier.js",
-      "bytes": 14129,
-      "sha256": "cc32653aecb43be416cf1bd3be09ac7bfca5c18e0a0c20d2f7f4206b7af723c1"
-    },
-    {
-      "path": "food_color_features.js",
-      "bytes": 497419,
-      "sha256": "e00286ae2e8fe96d6f0b49c93e03150469175382ba09c62b499e6f33d85ae444"
-    },
-    {
-      "path": "food_matcher.js",
-      "bytes": 6506,
-      "sha256": "68f20e2ce1ab45222824669514eaa62077add12dfe8949658caf0f6a9589c9a7"
-    },
-    {
-      "path": "icons/apple-touch-icon.png",
-      "bytes": 36171,
-      "sha256": "94efded712e48ea4d759f43f18638d57ba5ab0b306cf3acc7881b1125c2e08bc"
-    },
-    {
-      "path": "icons/favicon-32.png",
-      "bytes": 2353,
-      "sha256": "597f50ab41004b1e7bc9d67c886181c71c3dca528d89d7ffbe44ed77326468bc"
-    },
-    {
-      "path": "icons/icon-192.png",
-      "bytes": 40243,
-      "sha256": "52296a381af6c11f40b00ef73c1285f4dd0ba7b454a4b86d589aa8d4ea01d1de"
-    },
-    {
-      "path": "icons/icon-512.png",
-      "bytes": 232560,
-      "sha256": "87aef36407bfdfef3170b32bda7e695f283c22f0d5ba934137edb6913101baf4"
-    },
-    {
-      "path": "index.html",
-      "bytes": 65019,
-      "sha256": "5201fdcbe08922d696c8ecad5094d709a6b9a565e7b8d7df961078c57c4ec571"
-    },
-    {
-      "path": "manifest.webmanifest",
-      "bytes": 1096,
-      "sha256": "be65840e2fd893d19143ab7a19b991a5a323d935a619341ace3850db8df2d83d"
-    },
-    {
-      "path": "master_data.js",
-      "bytes": 131939,
-      "sha256": "b0f3bc100966de43dfdd4bd2d6b2036d8f7609b718b241a60674612aaf384ab4"
-    },
-    {
-      "path": "release.json",
-      "bytes": 68,
-      "sha256": "4aad2516039d66fc02cad9967e4ac51b902c11d39859ece05bb265dc041dca4d"
-    },
-    {
-      "path": "sw.js",
-      "bytes": 2995,
-      "sha256": "7eaa16a4f38e2446ad6c1ee0c3bf3f94a1dbecc33d707e57b934695679187697"
-    },
-    {
-      "path": "THIRD_PARTY_NOTICES.md",
-      "bytes": 4318,
-      "sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
-    }
-  ],
-  "publicUrl": {
-    "page": "https://meka-create.github.io/pokesleep-scan/",
-    "image": "https://meka-create.github.io/pokesleep-scan/assets/ogp-card.png?release=2026-10-09-candidate125-carry-corroborated-first-food",
-    "configuredAt": "2026-10-05T13:08:29.379Z"
-  },
-  "masterDataChanged": false,
-  "formalBaseline": "Candidate124",
-  "provisional": true,
-  "checkpointCompatibilityId": "checkpoint-compat-2026-10-07-candidate109-v3"
+"schemaVersion": 2,
+"kind": "current-tracked-repository-inventory",
+"releaseId": "2026-10-12-pixel142-independent-audit-v5",
+"appBuildId": "v12-pixel142-independent-audit-v5",
+"purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
+"scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
+"developmentIncludedInPublicRepository": true,
+"knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
+"fileCount": 34,
+"files": [
+{
+"path": ".github/workflows/pixel142-main-release.yml",
+"bytes": 3141,
+"sha256": "4c8a4a981a8500904ce34f474652ee43d0ba33bc84de1c836167616bf57a855e"
+},
+{
+"path": ".nojekyll",
+"bytes": 0,
+"sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+},
+{
+"path": "THIRD_PARTY_NOTICES.md",
+"bytes": 4318,
+"sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
+},
+{
+"path": "android_roi.js",
+"bytes": 6991,
+"sha256": "d08d08bfd1f42ac12035ef3cb41049061b54ee19959d7e26033c52c1cf0a367b"
+},
+{
+"path": "app.js",
+"bytes": 288624,
+"sha256": "16485bef8886f526048f92c1505e4cb5e5b96e840a15f6bc0d84f62392a3cd3c"
+},
+{
+"path": "assets/example-screenshot.png",
+"bytes": 105755,
+"sha256": "faf93b7dfeab7395ba20d5e296ef81da2a2df3b1b61e62f3ebb5674313fe8a06"
+},
+{
+"path": "assets/ogp-card.png",
+"bytes": 1083675,
+"sha256": "461dd958fc6f4cd5ebe7fc1d2fd1fc1f8c86aad667562a858138120c16a4fd14"
+},
+{
+"path": "classifier.js",
+"bytes": 14129,
+"sha256": "cc32653aecb43be416cf1bd3be09ac7bfca5c18e0a0c20d2f7f4206b7af723c1"
+},
+{
+"path": "csv_gate.js",
+"bytes": 8245,
+"sha256": "21dc417084295317019f1338616c6b27c24e85d903c1269bde2daefef90d2ba3"
+},
+{
+"path": "development/browser_boot_smoke.py",
+"bytes": 12724,
+"sha256": "2adb078f10a17951491508bb798514ef4c68078dd141f799ca24cc666e9e4759"
+},
+{
+"path": "development/browser_csv_download_audit.py",
+"bytes": 12493,
+"sha256": "efefe82f48a47e3cc54af7214b52637ffd62486f9d1a8da76ae84ba2fbeff74c"
+},
+{
+"path": "development/browser_step3_review_audit.py",
+"bytes": 9561,
+"sha256": "5d57de97f915bd27d97ded79bad08e002100df380592850f663eb8bd5b55fc4b"
+},
+{
+"path": "development/generate_public_package_manifest.py",
+"bytes": 3966,
+"sha256": "4f0d8b4d66c90a6e972a2939d8ca3ee699f84d2f17a43a24429a0a0a54d179aa"
+},
+{
+"path": "development/runtime_smoke.test.cjs",
+"bytes": 2353,
+"sha256": "1d85a83ce5bda029d4c8b8ded7b4cbf78ae0b92a1b1f3c7cf8463c1d534e3ace"
+},
+{
+"path": "development/step2_shared_csv.test.cjs",
+"bytes": 12383,
+"sha256": "4ee336b2bc98603920a2539dd573c67d0fe97d453626c9c733002f786994f15c"
+},
+{
+"path": "development/step3_android_roi.test.cjs",
+"bytes": 9056,
+"sha256": "3c11d4ce6e1f6103b45e8ee47b60d8d9c530f922d083177fe62269063482664c"
+},
+{
+"path": "development/step3_carry_food3.test.cjs",
+"bytes": 9045,
+"sha256": "8371e714274c8484f3df0a88968148d4c8e38f5faa1a342023a1eb88e5133d7a"
+},
+{
+"path": "development/step3_joint_rescue.test.cjs",
+"bytes": 4516,
+"sha256": "727c1941c8b70b7ede21f528792785029b1f0b7f9a5e2338ad31d2605efafc9e"
+},
+{
+"path": "development/step3_pixel142_safety.test.cjs",
+"bytes": 3690,
+"sha256": "4d5e8776d5e5d17e901ee0e6239284296add3e6303b0565c2c27677e4a0dbe60"
+},
+{
+"path": "food_color_features.js",
+"bytes": 497419,
+"sha256": "e00286ae2e8fe96d6f0b49c93e03150469175382ba09c62b499e6f33d85ae444"
+},
+{
+"path": "food_matcher.js",
+"bytes": 7313,
+"sha256": "643b3fdee8b74bcc1402f471c799d335888d3d4bb098f50e564e08ec75997fc5"
+},
+{
+"path": "icons/apple-touch-icon.png",
+"bytes": 38588,
+"sha256": "878b81f376b474f19e61ab86724934c00e8cb3058517b65dc0872aabd22e0688"
+},
+{
+"path": "icons/favicon-32.png",
+"bytes": 2796,
+"sha256": "87c006c09b99b58864777e8aa566fc4fed066c5423191c476835357ac97b1760"
+},
+{
+"path": "icons/icon-192.png",
+"bytes": 45985,
+"sha256": "75550a30c39818f43cd39157544bb1d64d8bd1d77e5a88067c270f127d0d37e5"
+},
+{
+"path": "icons/icon-512.png",
+"bytes": 265749,
+"sha256": "dd0f157cf81aed9325f5208e54caa03626c29854ae69751e511667951215c418"
+},
+{
+"path": "icons/icon-maskable-192.png",
+"bytes": 34776,
+"sha256": "d80de0922bb8be973cce16a0cb1b8d6a2119b9848dec996a271132de65ff29d5"
+},
+{
+"path": "icons/icon-maskable-512.png",
+"bytes": 191495,
+"sha256": "fafc1a3be39aee764127d29eeb2d8cbffdaf0f81abd7ab5eb77291c3a37ae8f7"
+},
+{
+"path": "index.html",
+"bytes": 70386,
+"sha256": "123abcb07de77d5a9e0428c2180d2e385b748e9e5eb299930950a1d869cc78e4"
+},
+{
+"path": "manifest.webmanifest",
+"bytes": 1250,
+"sha256": "8b3751a6c224f95dd9435284e28273c6a94066f351256b1c74958506eb8b918c"
+},
+{
+"path": "master_data.js",
+"bytes": 131939,
+"sha256": "b0f3bc100966de43dfdd4bd2d6b2036d8f7609b718b241a60674612aaf384ab4"
+},
+{
+"path": "release.json",
+"bytes": 55,
+"sha256": "b3bfdc21a7bd8381597a4a9d46c98f30042890172ffbd5792f9b30cc7992ef68"
+},
+{
+"path": "shared/MASTER_DATA.json",
+"bytes": 211799,
+"sha256": "d60410ba1f92d80c67ca3ff40bc8aa7a2cd51d4c03fc33f9e99fa83bb8e77a38"
+},
+{
+"path": "shared_master.js",
+"bytes": 4248,
+"sha256": "bb332a0403de1e01fdec8b00c7db76badc7def0111210eff340a847e985b256f"
+},
+{
+"path": "sw.js",
+"bytes": 3417,
+"sha256": "0b0b0361cf794ca9fa128667b91c1a32602a6df8601008e3ff23b4bd304cf94e"
+}
+]
 }
