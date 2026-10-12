@@ -23,60 +23,40 @@ test('unrecognized ingredient graphic never classified as one of existing images
  assert.equal(result[0].name,'');
  assert.equal(result[0].method,'missing-template');
 });
-test('new ingredient names require human review even if icon image is registered',()=>{
- const source=fs.readFileSync(path.join(root,'food_matcher.js'),'utf8');
- const begin=source.indexOf('function uniqueProfiles('),end=source.indexOf('// Independent shape recheck',begin);
- const ctx={window:{POKESLEEP_BASELINE_FOODS:new Set(['あじわいキノコ'])},
-            F:{foods:{'未来の食材':{w:1,h:1,rgba:[0,0,0,0]}}},
-            cropFood:()=>{throw Error('Must not score unvalidated new food icon')}};
- vm.createContext(ctx);vm.runInContext(source.slice(begin,end),ctx);
- const foods=ctx.resolveSlots(null,{hits:[{foods:['未来の食材','未来の食材','未来の食材']}]},30);
- assert.equal(foods[0].method,'new-food-review');
- assert.equal(foods[0].needsReview,true);
- assert.equal(foods[0].name,'');
-});
-test('new food sprite produces review-only image evidence; it never auto-certifies',()=>{
+test('registered new food follows standard automatic recognition',()=>{
  const source=fs.readFileSync(path.join(root,'food_matcher.js'),'utf8');
  const start=source.indexOf('function uniqueProfiles('),end=source.indexOf('// Independent shape recheck',start);
- const ctx={window:{POKESLEEP_BASELINE_FOODS:new Set(['あじわいキノコ'])},
-   F:{foods:{'未来の食材':{w:4,h:4,rgba:[]}}},cropFood:()=>({image:true}),
-   matchCanvas:()=>({name:'未来の食材',score:.94,second:'',secondScore:0,margin:.94,ranking:[{name:'未来の食材',score:.94}]})};
+ const ctx={window:{},F:{foods:{'未来の食材':{w:1,h:1,rgba:[0,0,0,0]}}},
+   cropFood:()=>{throw Error('Single allowed food does not require crop')}};
  vm.createContext(ctx);vm.runInContext(source.slice(start,end),ctx);
- const foods=ctx.resolveSlots({canvas:true},{hits:[{foods:['未来の食材','未来の食材','未来の食材']}]},10);
- assert.equal(foods[0].name,'');
- assert.equal(foods[0].imageSuggestion,'未来の食材');
- assert.equal(foods[0].needsReview,true);
- assert.equal(foods[0].method,'new-food-review');
+ const food=ctx.resolveSlots(null,{hits:[{foods:['未来の食材','未来の食材','未来の食材']}]},30)[0];
+ assert.equal(food.name,'未来の食材');assert.equal(food.method,'db-inferred');
+ assert.notEqual(food.needsReview,true);
 });
-test('species/manual review and CSV paths cannot bypass unreviewed future first-food gate',()=>{
+test('new known food in species and CSV follows normal eligibility rules',()=>{
  const app=fs.readFileSync(path.join(root,'app.js'),'utf8');
- const functions=['isUnreviewedNewFood','manualAutoFirstFood','autoResolveFirstFoodForSpecies','foodSlotNeedsReview','csvFoodResolvedForPokesleepTool'];
- const lines=app.split('\n'),extract=functions.map(name=>{
-  const source=lines.find(l=>l.startsWith('function '+name+'('));
-  assert.ok(source,'missing '+name);
-  return source;
+ const names=['manualAutoFirstFood','autoResolveFirstFoodForSpecies','foodSlotNeedsReview','csvFoodResolvedForPokesleepTool'];
+ const lines=app.split('\n'),source=names.map(n=>{
+   const s=lines.find(line=>line.startsWith('function '+n+'('));
+   assert.ok(s,'missing '+n);return s;
  }).join('\n');
- const ctx={window:{POKESLEEP_BASELINE_FOODS:new Set(['あじわいキノコ'])},NO_FOOD:'―',
-  manualFoodOptions:name=>[name==='future'?'未来の食材':'あじわいキノコ'],
-  chosenSpecies:()=> 'future',speciesFoodReviewSlots:()=>[],
-  manualProfilesForSpecies:()=>[['未来の食材','未来の食材','未来の食材']]};
- vm.createContext(ctx);vm.runInContext(extract,ctx);
- assert.equal(ctx.manualAutoFirstFood('future'),'');
- assert.equal(ctx.manualAutoFirstFood('known'),'あじわいキノコ');
- const r={foods:[{name:'',needsReview:true,method:'new-food-review'}]};
- assert.equal(ctx.autoResolveFirstFoodForSpecies(r,'future'),false);
- assert.equal(r.foods[0].needsReview,true);
- r.foods[0]={name:'未来の食材',needsReview:false,method:'db-inferred'};
- assert.equal(ctx.foodSlotNeedsReview(r,0),true);
- assert.equal(ctx.csvFoodResolvedForPokesleepTool('future',r.foods[0],0),false);
- r.foods[0].manualOverride=true;
+ const ctx={NO_FOOD:'―',manualFoodOptions:()=>['未来の食材'],
+ chosenSpecies:()=> 'future',speciesFoodReviewSlots:()=>[],
+ manualProfilesForSpecies:()=>[['未来の食材','未来の食材','未来の食材']]};
+ vm.createContext(ctx);vm.runInContext(source,ctx);
+ assert.equal(ctx.manualAutoFirstFood('future'),'未来の食材');
+ const r={foods:[{name:'',needsReview:true}]};
+ assert.equal(ctx.autoResolveFirstFoodForSpecies(r,'future'),true);
  assert.equal(ctx.foodSlotNeedsReview(r,0),false);
  assert.equal(ctx.csvFoodResolvedForPokesleepTool('future',r.foods[0],0),true);
 });
-test('new-food image suggestion is visibly advisory, not auto-confirmed',()=>{
- const source=fs.readFileSync(path.join(root,'app.js'),'utf8');
- assert.match(source,/画像照合の参考候補/);
- assert.match(source,/imageSuggestion.*opts\.includes\(x\.imageSuggestion\)/);
+test('future species are never blanket-blocked solely because they are new',()=>{
+ const cls=fs.readFileSync(path.join(root,'classifier.js'),'utf8');
+ const shared=fs.readFileSync(path.join(root,'shared_master.js'),'utf8');
+ const matcher=fs.readFileSync(path.join(root,'food_matcher.js'),'utf8');
+ assert.doesNotMatch(cls,/BASELINE_SPECIES|POKESLEEP_BASELINE_SKILLS/);
+ assert.doesNotMatch(shared,/POKESLEEP_BASELINE_SPECIES|POKESLEEP_BASELINE_SKILLS|POKESLEEP_BASELINE_FOODS/);
+ assert.doesNotMatch(matcher,/new-food-review/);
 });
 test('checkpoints are master-bound, while v7-v11 baseline sessions remain recoverable',()=>{
  const source=fs.readFileSync(path.join(root,'app.js'),'utf8');
@@ -104,5 +84,5 @@ test('unknown food energy coefficients never become automatic classifier candida
  assert.equal(text.split('Object.hasOwn(ING_BASE,it.key)').length,3);
  assert.match(text,/Object.assign\(ING_BASE,window.POKESLEEP_EXTRA_INGREDIENT_STRENGTH/);
  assert.equal(text.split('Object.hasOwn(BERRY_BASE,sp.type)').length,3);
- assert.equal(text.split('POKESLEEP_BASELINE_SKILLS.has(sp.skill)').length,3);
+ assert.doesNotMatch(text,/POKESLEEP_BASELINE_SKILLS/);
 });

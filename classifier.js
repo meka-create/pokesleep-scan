@@ -94,8 +94,8 @@ function inferWithoutFoods(obs){
  const mainCandidates=M.pokemon.filter(sp=>mainSkillMatches(obs.mainSkill,sp.mainSkill));
  stages.mainSkill=mainCandidates.map(x=>x.name);
  for(const sp of mainCandidates){
-  // Unknown berry types or main skills have no validated coefficients; fail closed.
-  if(!Object.hasOwn(BERRY_BASE,sp.type)||(window.POKESLEEP_BASELINE_SKILLS&&!window.POKESLEEP_BASELINE_SKILLS.has(sp.skill)))continue;
+  // Missing berry coefficients cannot be calculated; valid new species are not blanket-blocked.
+  if(!Object.hasOwn(BERRY_BASE,sp.type))continue;
   // A future food lacks verified energy coefficients: never auto-classify that species.
   if([sp.ing1,sp.ing2,sp.ing3,...(sp.mythIng||[])].some(it=>it&&it.key&&!Object.hasOwn(ING_BASE,it.key)&&!/^unknown[0-3]?$/.test(it.key)))continue;
   const vals=skillSpValues(sp.skill);if(obs.skillLevel<1||obs.skillLevel>vals.length)continue;
@@ -132,8 +132,8 @@ function inferWithoutFoodsNeutralized(obs){
  const mainCandidates=M.pokemon.filter(sp=>mainSkillMatches(obs.mainSkill,sp.mainSkill));
  stages.mainSkill=mainCandidates.map(x=>x.name);
  for(const sp of mainCandidates){
-  // Unknown berry types or main skills have no validated coefficients; fail closed.
-  if(!Object.hasOwn(BERRY_BASE,sp.type)||(window.POKESLEEP_BASELINE_SKILLS&&!window.POKESLEEP_BASELINE_SKILLS.has(sp.skill)))continue;
+  // Missing berry coefficients cannot be calculated; valid new species are not blanket-blocked.
+  if(!Object.hasOwn(BERRY_BASE,sp.type))continue;
   // A future food lacks verified energy coefficients: never auto-classify that species.
   if([sp.ing1,sp.ing2,sp.ing3,...(sp.mythIng||[])].some(it=>it&&it.key&&!Object.hasOwn(ING_BASE,it.key)&&!/^unknown[0-3]?$/.test(it.key)))continue;
   const vals=skillSpValues(sp.skill);if(obs.skillLevel<1||obs.skillLevel>vals.length)continue;

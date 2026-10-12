@@ -38,6 +38,26 @@ test('independent verified master selected, preserving old classifier inputs',as
  assert.notEqual(h.initial,h.context.window.POKESLEEP_MASTER);
  assert.ok(h.initial.pokemon.every(p=>h.context.window.POKESLEEP_MASTER.pokemon.some(x=>x.name_en===p.name_en)), 'Valid updates may append species but must not lose existing ones');
 });
+test('new species joins normal classification without preapproval',async()=>{
+ const next=JSON.parse(JSON.stringify(ai));
+ const seed=next.pokemon.find(p=>p.name==='フシギダネ');
+ const fresh={...JSON.parse(JSON.stringify(seed)),name:'新規追加ポケモン',name_en:'NewlyAddedPokemon'};
+ next.pokemon.push(fresh);
+ const raw=Buffer.from(JSON.stringify(next));
+ const receipt={...JSON.parse(fs.readFileSync(path.join(root,'shared/master_release.json'))),
+   speciesCount:next.pokemon.length,sha256:createHash('sha256').update(raw).digest('hex')};
+ const h=harness({data:raw,receipt:Buffer.from(JSON.stringify(receipt))});
+ assert.equal((await h.bridge.load()).source,'verified-local-master');
+ vm.runInContext(fs.readFileSync(path.join(root,'classifier.js'),'utf8'),h.context);
+ const cls=h.context.window.POKESLEEP_CLASSIFIER;
+ const nature=next.natures.find(n=>n.ja==='てれや'),mod=cls.modFromObserved([],10);
+ const profile=cls.profiles(seed)[0],seconds=cls.frequency(seed,10,nature,mod,0);
+ const sp=cls.computeSp(seed,profile,10,nature,mod,0,1);
+ const obs={level:10,sp,helpSeconds:Math.floor(seconds+1e-9),skillLevel:1,nature:'てれや',
+ mainSkill:seed.mainSkill,subskills:[]};
+ const c=cls.inferWithoutFoods(obs).stages.mainSkill;
+ assert.ok(c.includes(seed.name));assert.ok(c.includes(fresh.name));
+});
 test('future ingredient energy from verified master feeds actual classifier SP calculation',async()=>{
  const future=JSON.parse(JSON.stringify(ai));
  future.ingredients.futureFood='未来の食材';

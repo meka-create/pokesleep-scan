@@ -137,6 +137,15 @@ class OctoberFifthTest(unittest.TestCase):
         with self.assertRaises(Hold):
             project(self.dir,self.pre,commit='a'*40)
 
+    def test_existing_species_statistics_update_without_separate_approval(self):
+        src=self.dir/'src/data/pokemon.json'
+        data=json.loads(src.read_text(encoding='utf-8'))
+        data[0]['frequency']+=2
+        save(src,data)
+        updated,report=project(self.dir,self.full,commit='a'*40)
+        self.assertTrue(report['changed'])
+        self.assertIn(data[0]['name'],report['changedSpecies'])
+
     def test_energy_change_to_old_food_holds_release(self):
         src=self.dir/'src/util/PokemonRp.ts'
         src.write_text(src.read_text(encoding='utf-8').replace('  apple: 90,','  apple: 999,'),

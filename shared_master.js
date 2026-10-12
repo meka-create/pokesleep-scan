@@ -5,9 +5,7 @@
 (()=>{'use strict';
 const MASTER_PATH='shared/MASTER_DATA.json',META_PATH='shared/master_release.json';
 const fallback=window.POKESLEEP_MASTER;
-// Unreviewed newly introduced main skill keys must never use generic SP defaults.
-window.POKESLEEP_BASELINE_SKILLS=new Set((fallback?.pokemon||[]).map(p=>p.skill));
-window.POKESLEEP_BASELINE_FOODS=new Set(Object.values(fallback?.ingredients||{}));
+// Updated species enter normal classification without per-release manual approval.
 window.POKESLEEP_EXTRA_INGREDIENT_STRENGTH={};
 let state={source:'legacy-fallback',reason:'not-loaded',sha256:'',commit:''};
 const signature=m=>({cutoff:m.cutoff,pokemon:m.pokemon,ingredients:m.ingredients,

@@ -1,28 +1,31 @@
-# STEP 1: Self-owned master and future food images
+# STEP 1: Independent automatic master updates
 
-The OCR PWA fetches upstream from nitoyon/pokesleep-tool directly, never via AI Scan.
-Actions run an isolated read-only source clone daily, validate and atomically publish a master plus SHA-256 receipt.
-Unexpected upstream data, translations or missing numerical metadata hold the active version.
-Clients verify the receipt+SHA-256 and use the old bundled snapshot on failure.
+The OCR PWA receives data directly from nitoyon/pokesleep-tool, without
+depending on AI Bukkomi Scan. The scheduled check runs at **午前4:00 JST**
+(UTC cron `0 19 * * *`). A structurally valid upstream change is automatically
+promoted with a validated SHA-256 receipt. New species and legitimate existing
+species updates do **not** require per-release manual precision approval.
 
-New food images are not scraped automatically. Approved transparent food sprites may
-be committed under assets/food-icons/<ingredient key>.png. The daily workflow
-registers them as color-feature templates, updates missingFoodTemplates and bumps
-the PWA release. Missing sprites are always review-gated; never guessed.
+The target "zero false automatic confirmations except nicknames" refers to
+the **meka142 Golden 142 screenshots** in STEP 2; it is not a blanket ban on
+recognizing future Pokémon. Supported new species enter normal inference
+and CSV workflows immediately.
 
-Run: python -m unittest discover -s development -p 'test_master_auto_update.py' -v
-October 5 additions are exercised by a synthetic 247-to-249 migration.
-STEP 3 remains responsible for live pokesleep-tool importer compatibility acceptance.
+New ingredients with valid energy coefficients and icon templates follow the
+same matcher as current ingredients. If the icon template is actually missing,
+that individual ingredient remains review-gated rather than guessed. Missing
+computation parameters or malformed upstream inputs HOLD the update and
+preserve the last functioning master. These are actual compatibility problems,
+not a requirement to manually approve every added species.
 
-New food coefficients are parsed from the upstream PokemonRp.ts integer-literal table.
-A missing coefficient or changed legacy coefficient FAILS CLOSED. New sprites remain
-human-review-only until verified against actual Pokémon Sleep screenshots; registering
-a PNG alone does not authorize automatic certainty.
+Approved PNG icon images under `assets/food-icons/<ingredient key>.png` can be
+registered with `development/register_food_icons.py`. Images are not scraped
+automatically.
 
-Intermediate audit: future first-food values cannot be auto-confirmed during species
-selection or manual draft initialization; CSV export requires an explicit manual
-confirmation. Approved new food sprites provide advisory image rankings only,
-not automatic authorization for export.
+On a failed/stale verification or browser master load error, an unframed ⚠️
+appears to the left of TIPS. It never opens a modal automatically. On tapping,
+a modal opens with only an upper-right ×.
 
-### Master update warning
-Daily 04:00 JST check (GitHub may delay) writes `master-update-status.json` on success or failure. Stale/missing status older than 50 hours or locally rejected master activates bare ⚠️ immediately before TIPS. It only opens on tap and uses a top-right × without bottom controls. A failed update retains the old master; no automatic modal.
+The synthetic October 5 247→249 migration and existing/upcoming species
+recognition tests belong to STEP 1. meka142 OCR vs Golden belongs to STEP 2;
+live pokesleep-tool importer verification belongs to STEP 3.
