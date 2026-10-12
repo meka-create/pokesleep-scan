@@ -7,7 +7,9 @@ import functools
 import http.server
 import json
 import re
+import struct
 import threading
+import zlib
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
@@ -165,7 +167,37 @@ def main():
                 assert page.evaluate("window.__STEP3_REVIEW_AUDIT__.names().length")==142
                 page.locator("#appDialogPrimary").click()
                 checks.append("duplicate second-batch selection blocked without losing earlier 142 images")
-                # Replacing 142 photos from the selected-image modal replaces
+                # A distinct PNG can have the SAME filename and byte count.
+                # It must be added rather than silently mistaken for a duplicate.
+                collision=bytearray(png)
+                replacement_idat=zlib.compress(bytes([0,128,255]),9)
+                assert len(replacement_idat)==11
+                collision[41:52]=replacement_idat
+                collision[52:56]=struct.pack(">I",zlib.crc32(b"IDAT"+replacement_idat))
+                assert len(collision)==len(png) and bytes(collision)!=png
+                same_metadata_different_image={"name":"IMG_0001.png","mimeType":"image/png","buffer":bytes(collision)}
+                drop.click()
+                with page.expect_file_chooser() as collision_chooser:
+                    page.locator("#imageSelectAppend").click()
+                collision_chooser.value.set_files([same_metadata_different_image])
+                page.wait_for_function("""() =>
+                  document.querySelector('#uploadMain')?.textContent==='143枚を選択しました' &&
+                  !document.querySelector('#run')?.disabled""",timeout=45000)
+                assert page.evaluate("window.__STEP3_REVIEW_AUDIT__.names().length")==143
+                assert page.evaluate(
+                    "window.__STEP3_REVIEW_AUDIT__.names().filter(x=>x==='IMG_0001.png').length")==2
+                checks.append("distinct same-name same-size image retained without losing 100+42 input")
+                # Adding that exact altered PNG again must still be deduplicated.
+                drop.click()
+                with page.expect_file_chooser() as collision_dup_chooser:
+                    page.locator("#imageSelectAppend").click()
+                collision_dup_chooser.value.set_files([same_metadata_different_image])
+                page.locator("#appDialog").wait_for(state="visible",timeout=10000)
+                assert "追加画像はありません" in page.locator("#appDialogTitle").inner_text()
+                assert page.evaluate("window.__STEP3_REVIEW_AUDIT__.names().length")==143
+                page.locator("#appDialogPrimary").click()
+                checks.append("byte-identical repeated screenshot rejected even after metadata collision")
+                # Replacing 143 photos from the selected-image modal replaces
                 # the complete list rather than accidentally appending.
                 drop.click()
                 with page.expect_file_chooser() as replace_picker:
