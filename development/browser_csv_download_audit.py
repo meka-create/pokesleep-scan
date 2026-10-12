@@ -175,6 +175,16 @@ def main():
                 check(carry["hasControl"],"Missing carry correction control")
                 check(carry["options"]==[26,32],"Unexpected synthetic classifier values")
                 selector=page.locator("select.carryedit")
+                visible_debug=page.evaluate("""() => {
+                  let el=document.querySelector('select.carryedit'),stack=[];
+                  while(el){const st=getComputedStyle(el);
+                   stack.push({name:el.tagName,id:el.id,cls:el.className,
+                     hidden:el.hidden,display:st.display,visibility:st.visibility,
+                     rect:el.getBoundingClientRect().height});el=el.parentElement;}
+                  return {stack,reviewOnly:document.querySelector('#reviewOnly')?.checked,
+                    count:document.querySelectorAll('#tbl tbody tr').length};
+                }""")
+                check(selector.is_visible(),"Hidden carry editor: "+str(visible_debug))
                 check(selector.locator("option[value='27']").count()==0,
                       "Unexpected out-of-model shortcut")
                 selector.select_option("manual")
