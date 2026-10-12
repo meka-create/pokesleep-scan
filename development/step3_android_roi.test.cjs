@@ -133,11 +133,23 @@ test('ROI code never removes legacy crop path or classifier',()=>{
  assert.doesNotMatch(html,/id="androidRoiEnabled"/);
  assert.doesNotMatch(html,/android-roi-option/);
  assert.match(html,/class="file-picker-shell"/);
- assert.match(html,/<button id="addFilesButton" class="additional-files-btn" type="button"/);
- assert.match(html,/aria-label="画像を追加する"/);
- assert.match(html,/stroke="currentColor"/);
- assert.ok(html.indexOf('id="addFilesRow"')>html.indexOf('class="file-picker-shell"'));
- assert.ok(html.indexOf('id="addFilesRow"')<html.indexOf('class="action-row"'));
+ assert.match(html,/id="uploadMain" class="upload-main">画像を選択する/);
+ assert.match(html,/id="uploadIcon" class="upload-icon"/);
+ assert.match(html,/<rect x="3" y="4" width="18" height="16" rx="3"\/>/);
+ assert.match(html,/id="imageSelectDialog"/);
+ assert.match(html,/id="imageSelectClose"/);
+ assert.match(html,/id="imageSelectReplace"/);
+ assert.match(html,/id="imageSelectAppend"/);
+ assert.match(html,/id="addFiles" type="file"/);
+ assert.match(html,/\.filelabel\{display:flex/);
+ assert.match(html,/2px dashed #abc4eb/);
+ assert.match(html,/background:#f8fbff/);
+ assert.doesNotMatch(html,/addFilesButton/);
+ assert.doesNotMatch(html,/additional-files-btn/);
+ assert.match(app,/function openImageSelectDialog\(/);
+ assert.match(app,/function closeImageSelectDialog\(/);
+ assert.match(app,/setSelectedFiles\(batch,\{append:true\}\)/);
+
 });
 test('PWA includes Android adapter in new versioned app shell',()=>{
  const sw=fs.readFileSync(path.join(ROOT,'sw.js'),'utf8');
