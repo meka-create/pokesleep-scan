@@ -13,7 +13,7 @@ function harness(opts={}){
  const context={
   window:{__PUBLIC_RELEASE_ID__:'step2-test'},
   crypto:opts.noCrypto?undefined:webcrypto,
-  fetch:async()=>failed?{ok:false,status:503}:{ok:true,arrayBuffer:async()=>Uint8Array.from(data).buffer},
+  fetch:async(url)=>failed?{ok:false,status:503}:{ok:true,arrayBuffer:async()=>Uint8Array.from(String(url).includes('master_release.json')?Buffer.from(fs.readFileSync(path.join(root,'shared/master_release.json'))):data).buffer},
   location:{href:'http://localhost:8000/'},
   TextDecoder,AbortController,URL,setTimeout,clearTimeout,
   navigator:{locks:{request:async(_name,fn)=>fn()}},
@@ -32,8 +32,8 @@ function harness(opts={}){
 }
 test('verified v27 master selected, preserving classifier inputs',async()=>{
  const h=harness(),status=await h.bridge.load();
- assert.equal(status.source,'pinned-ai-v27');
- assert.equal(status.sha256,'d60410ba1f92d80c67ca3ff40bc8aa7a2cd51d4c03fc33f9e99fa83bb8e77a38');
+ assert.equal(status.source,'verified-local-master');
+ assert.equal(status.sha256,JSON.parse(fs.readFileSync(path.join(root,'shared/master_release.json'))).sha256);
  assert.equal(h.context.window.POKESLEEP_MASTER.pokemon.length,249);
  assert.notEqual(h.initial,h.context.window.POKESLEEP_MASTER);
  assert.deepEqual(JSON.parse(JSON.stringify(h.initial.pokemon)),JSON.parse(JSON.stringify(h.context.window.POKESLEEP_MASTER.pokemon)));

@@ -91,6 +91,8 @@ function inferWithoutFoods(obs){
  const mainCandidates=M.pokemon.filter(sp=>mainSkillMatches(obs.mainSkill,sp.mainSkill));
  stages.mainSkill=mainCandidates.map(x=>x.name);
  for(const sp of mainCandidates){
+  // A future food lacks verified energy coefficients: never auto-classify that species.
+  if([sp.ing1,sp.ing2,sp.ing3,...(sp.mythIng||[])].some(it=>it&&it.key&&!Object.hasOwn(ING_BASE,it.key)&&!/^unknown\\d?$/.test(it.key)))continue;
   const vals=skillSpValues(sp.skill);if(obs.skillLevel<1||obs.skillLevel>vals.length)continue;
   let speciesHit=false;
   for(let hist=0;hist<=Math.max(0,sp.evolutionCount||0);hist++){
@@ -125,6 +127,8 @@ function inferWithoutFoodsNeutralized(obs){
  const mainCandidates=M.pokemon.filter(sp=>mainSkillMatches(obs.mainSkill,sp.mainSkill));
  stages.mainSkill=mainCandidates.map(x=>x.name);
  for(const sp of mainCandidates){
+  // A future food lacks verified energy coefficients: never auto-classify that species.
+  if([sp.ing1,sp.ing2,sp.ing3,...(sp.mythIng||[])].some(it=>it&&it.key&&!Object.hasOwn(ING_BASE,it.key)&&!/^unknown\\d?$/.test(it.key)))continue;
   const vals=skillSpValues(sp.skill);if(obs.skillLevel<1||obs.skillLevel>vals.length)continue;
   let speciesHit=false;
   for(let hist=0;hist<=Math.max(0,sp.evolutionCount||0);hist++){

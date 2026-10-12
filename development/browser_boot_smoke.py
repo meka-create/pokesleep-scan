@@ -67,7 +67,7 @@ def main():
                         timeout=20000))
                 check("Verified shared master adopted before classifier", lambda:
                     page.wait_for_function(
-                        "()=>window.POKESLEEP_SHARED_MASTER?.getStatus().source==='pinned-ai-v27'&&"
+                        "()=>window.POKESLEEP_SHARED_MASTER?.getStatus().source==='verified-local-master'&&"
                         "window.POKESLEEP_MASTER?.pokemon.length===249&&"
                         "typeof window.POKESLEEP_CSV_GATE?.inspect==='function'",
                         timeout=15000))
@@ -135,7 +135,7 @@ def main():
                           if(!key)return false;
                           const cache=await caches.open(key);
                           const release=window.__PUBLIC_RELEASE_ID__;
-                          for(const path of ['shared_master.js','shared/MASTER_DATA.json','android_roi.js','csv_gate.js','app.js','icons/icon-maskable-192.png','icons/icon-maskable-512.png']){
+                          for(const path of ['shared_master.js','shared/MASTER_DATA.json','shared/master_release.json','android_roi.js','csv_gate.js','app.js','icons/icon-maskable-192.png','icons/icon-maskable-512.png']){
                             const req=new URL(path,location.href);
                             req.searchParams.set('release',release);
                             req.searchParams.set('step2','sharedcsv-v1');
