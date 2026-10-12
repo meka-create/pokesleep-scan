@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-12-pixel142-independent-audit-v5",
-  "appBuildId": "v12-pixel142-independent-audit-v5",
+  "releaseId": "2026-10-12-pixel142-carry-ocr-only-v6",
+  "appBuildId": "v12-pixel142-carry-ocr-only-v6",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -11,8 +11,8 @@
   "files": [
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 3141,
-      "sha256": "4c8a4a981a8500904ce34f474652ee43d0ba33bc84de1c836167616bf57a855e"
+      "bytes": 3268,
+      "sha256": "3235e3d39bd58d11bc527ac3e0da75ba1e2f3c3ff545cbf1754b0b21790ef55a"
     },
     {
       "path": ".nojekyll",
@@ -31,8 +31,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 288624,
-      "sha256": "16485bef8886f526048f92c1505e4cb5e5b96e840a15f6bc0d84f62392a3cd3c"
+      "bytes": 284892,
+      "sha256": "720d816b11e16bfca7118fbd36873a68d4756f047f57dcb55059ea00d20b7e68"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -61,8 +61,8 @@
     },
     {
       "path": "development/browser_csv_download_audit.py",
-      "bytes": 12493,
-      "sha256": "efefe82f48a47e3cc54af7214b52637ffd62486f9d1a8da76ae84ba2fbeff74c"
+      "bytes": 11874,
+      "sha256": "6e185c790c2e995402d822bbf11a129bbf9a2ad42e5b79b1dc9fe14dc87b9ff6"
     },
     {
       "path": "development/browser_step3_review_audit.py",
@@ -91,8 +91,8 @@
     },
     {
       "path": "development/step3_carry_food3.test.cjs",
-      "bytes": 9045,
-      "sha256": "8371e714274c8484f3df0a88968148d4c8e38f5faa1a342023a1eb88e5133d7a"
+      "bytes": 8694,
+      "sha256": "a23b453a9769da2d330cde8305ef29258a261f29d7461233987def339047e2d9"
     },
     {
       "path": "development/step3_joint_rescue.test.cjs",
@@ -146,8 +146,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 70386,
-      "sha256": "123abcb07de77d5a9e0428c2180d2e385b748e9e5eb299930950a1d869cc78e4"
+      "bytes": 69209,
+      "sha256": "7a7a660cd82a85d49c3714323650ddf33cb9d4d391708efaf0a81d8adff7504a"
     },
     {
       "path": "manifest.webmanifest",
@@ -161,8 +161,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 55,
-      "sha256": "b3bfdc21a7bd8381597a4a9d46c98f30042890172ffbd5792f9b30cc7992ef68"
+      "bytes": 52,
+      "sha256": "2393c349707414104d39c11ea32fc2e642055454d7d9ee0b496815403a380a47"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -176,8 +176,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 3417,
-      "sha256": "0b0b0361cf794ca9fa128667b91c1a32602a6df8601008e3ff23b4bd304cf94e"
+      "bytes": 3414,
+      "sha256": "cdcf1821d7caa2b101efc32b03ee58c5ba7ad226096648a93e81e4e7db0194bb"
     }
   ]
 }
