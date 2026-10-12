@@ -34,5 +34,53 @@ function reviewShapeOpinion(screenCanvas,key,allowed){
   secondScore:second.score,margin:top.score-second.score,ranking:ranked,
   method:'shape-review-only',automatic:false};
 }
-window.POKESLEEP_FOOD_MATCHER={cropFood,matchCanvas,resolveSlots,reviewShapeOpinion};
+
+// An independent within-image comparison can corroborate a dimmed food3
+// against a confidently known food1/food2. Never infer from similar templates
+// alone: require strong pixel identity inside this ONE screenshot.
+function iconSelfCorrelation(a,b){
+ if(!a||!b||a.width!==100||a.height!==80||b.width!==100||b.height!==80)return -1;
+ const A=a.getContext('2d',{willReadFrequently:true}).getImageData(0,0,100,80).data;
+ const B=b.getContext('2d',{willReadFrequently:true}).getImageData(0,0,100,80).data;
+ const ga=new Float64Array(8000),gb=new Float64Array(8000);
+ for(let p=0;p<8000;p++){const j=p*4;ga[p]=.299*A[j]+.587*A[j+1]+.114*A[j+2];gb[p]=.299*B[j]+.587*B[j+1]+.114*B[j+2];}
+ let best=-1;
+ for(const dy of [-2,0,2])for(const dx of [-2,0,2]){
+  let n=0,sa=0,sb,saa=0,sbb=0,sab=0;sb=0;
+  for(let y=10;y<62;y++)for(let x=12;x<83;x++){
+   const yy=y+dy,xx=x+dx;
+   if(yy<10||yy>=62||xx<12||xx>=83)continue;
+   const va=ga[y*100+x],vb=gb[yy*100+xx];
+   n++;sa+=va;sb+=vb;saa+=va*va;sbb+=vb*vb;sab+=va*vb;
+  }
+  const cov=sab-sa*sb/n,ea=saa-sa*sa/n,eb=sbb-sb*sb/n;
+  if(ea>1e-3&&eb>1e-3)best=Math.max(best,cov/Math.sqrt(ea*eb));
+ }
+ return best;
+}
+function thirdFoodSelfMatchFromScores(foods,score0,score1){
+ const third=foods?.[2];if(!third||third.method!=='image'||!Array.isArray(third.allowed)||third.allowed.length<2)return null;
+ const ranked=new Map();
+ for(const [i,score] of [[0,score0],[1,score1]]){
+  const prev=foods[i],name=prev?.name||'';
+  if(prev?.needsReview||prev?.manualOverride||!name||!third.allowed.includes(name)||!Number.isFinite(score))continue;
+  ranked.set(name,Math.max(score,ranked.get(name)??-1));
+ }
+ const entries=[...ranked.entries()].sort((a,b)=>b[1]-a[1]);
+ if(!entries.length||entries[0][1]<.90)return null;
+ // If two distinct earlier icons look equally close, abstain.
+ if(entries[1]&&entries[0][1]-entries[1][1]<.12)return null;
+ return {name:entries[0][0],score:entries[0][1],secondName:entries[1]?.[0]||'',secondScore:entries[1]?.[1]??-1,method:'within-image-grayscale-correlation'};
+}
+function thirdFoodSelfMatch(screenCanvas,foods){
+ const third=foods?.[2];if(!third||third.method!=='image'||!Array.isArray(third.allowed)||third.allowed.length<2)return null;
+ const last=cropFood(screenCanvas,'food3');
+ const scores=[0,1].map(i=>{
+  const prev=foods[i],name=prev?.name||'';
+  if(prev?.needsReview||prev?.manualOverride||!name||!third.allowed.includes(name))return -1;
+  return iconSelfCorrelation(cropFood(screenCanvas,'food'+(i+1)),last);
+ });
+ return thirdFoodSelfMatchFromScores(foods,scores[0],scores[1]);
+}
+window.POKESLEEP_FOOD_MATCHER={cropFood,matchCanvas,resolveSlots,reviewShapeOpinion,iconSelfCorrelation,thirdFoodSelfMatchFromScores,thirdFoodSelfMatch};
 })();
