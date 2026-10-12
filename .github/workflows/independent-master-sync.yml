@@ -1,7 +1,7 @@
 name: Independent master auto-update
 on:
   schedule:
-    - cron: '15 19 * * *' # 04:15 JST; GitHub may delay scheduled jobs
+    - cron: '0 19 * * *' # 毎日午前4:00 JST (19:00 UTC); GitHub Actions may start later
   workflow_dispatch:
 permissions:
   contents: write
