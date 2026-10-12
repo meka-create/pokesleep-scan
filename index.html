@@ -176,7 +176,6 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
  .file-open,.nickconfirm,.subskillconfirm,.foodconfirm,.speciesconfirm,.manual-open{min-height:44px}
 }
 </style>
-<script src="./master-update-status.js" defer></script>
 </head>
 <body>
 <div class="shell">
@@ -413,6 +412,15 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
   window.dispatchEvent(new CustomEvent('bukkomi-release-ready',{detail:{releaseId}}));
 
   try{
+    // Load the warning UI from the same versioned PWA cache as other local code.
+    // Do not depend on the external OCR CDN for health reporting.
+    const watchUrl=new URL('master-update-status.js',location.href);
+    watchUrl.searchParams.set('release',releaseId);
+    watchUrl.searchParams.set('step2','sharedcsv-v1');
+    watchUrl.searchParams.set('step3','androidroi-v1');
+    watchUrl.searchParams.set('pick','multi-v1');
+    watchUrl.searchParams.set('ui','review-clean-v1');
+    await loadScript(watchUrl.toString());
     await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js');
     for(const file of localFiles){
       const u=new URL(file,location.href);

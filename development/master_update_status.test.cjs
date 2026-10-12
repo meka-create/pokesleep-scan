@@ -68,3 +68,10 @@ test('invalid healthy feed and unusable local master both require warning',async
  h.events['bukkomi-master-ready']();
  assert.equal(h.nodes.masterUpdateWarning.hidden,false);
 });
+
+test('master warning JS is booted from the versioned PWA cache before remote OCR CDN',()=>{
+ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ assert.doesNotMatch(html,/<script src=".\\/master-update-status\\.js"/);
+ assert.match(html,/await loadScript\\(watchUrl\\.toString\\(\\)\\)/);
+ assert.ok(html.indexOf('await loadScript(watchUrl.toString())')<html.indexOf("await loadScript('https:\\/\\/cdn.jsdelivr.net"));
+});
