@@ -80,6 +80,8 @@ jobs:
         run: node --test development/step3_pixel142_safety.test.cjs
       - name: Two-field corroborated OCR rescue
         run: node --test development/step3_joint_rescue.test.cjs
+      - name: STEP 2 mythical optional food no-template regression
+        run: node --test development/step2_mythical_food_sentinel.test.cjs
       - name: STEP 2 third-food independent-icon corroboration regression
         run: node --test development/step2_food3_selfmatch.test.cjs
       - name: Missing carry and third-food advisory regression
