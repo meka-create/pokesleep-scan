@@ -7,7 +7,7 @@
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 54,
+  "fileCount": 55,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 5286,
-      "sha256": "2a8d7694c298468a96a866145ba520c0b67101fd2bb11b46637e5f0f98b49233"
+      "bytes": 5434,
+      "sha256": "2ee11ee70abc9ab24189c776da18fc958dfb1f074cbb00bb3f564939ab2f21c9"
     },
     {
       "path": ".nojekyll",
@@ -36,8 +36,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 292202,
-      "sha256": "f9bf03cab7e3fa8b8464b3d8bd05a852cd1fa95416db73fc93ceb2a7b3489a4b"
+      "bytes": 295354,
+      "sha256": "013479bf3b680e9fe8b4b81a3335e0ae7fccfc7c829f8e3f4ae94b279ae32ff5"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -143,6 +143,11 @@
       "path": "development/step2_mythical_food_sentinel.test.cjs",
       "bytes": 3119,
       "sha256": "6b661a577f2c4b5c720ea73ac67c75d6e84d45592a76b19f51579c60cb465c2c"
+    },
+    {
+      "path": "development/step2_mythical_subskill_dash.test.cjs",
+      "bytes": 5022,
+      "sha256": "28745238d33de09bff51ad901b6cd6128f0675da51da842b924d7443be20dc71"
     },
     {
       "path": "development/step2_shared_csv.test.cjs",
@@ -276,8 +281,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 3804,
-      "sha256": "2bc1f938c02f524a318607f51cf1c13318a398456d98c18cf6c98101ad56cb1e"
+      "bytes": 3821,
+      "sha256": "d9a365307d1a12666aeca8f7cb02a9be6e627d4f6803f0e6ba8d7ec325ebd585"
     }
   ]
 }
