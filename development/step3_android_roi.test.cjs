@@ -125,7 +125,7 @@ test('ROI code never removes legacy crop path or classifier',()=>{
  assert.match(app,/const androidRoiEnabled=true;/);
  assert.equal(app.includes('STEP3_ANDROID_ROI_STORAGE_KEY'),false);
  assert.equal(app.includes("$('#androidRoiEnabled')"),false);
- assert.equal((app.match(/androidRoiEnabled\\?window\\.POKESLEEP_ANDROID_ROI\\?\\.inspect\\(canvas\\):null/g)||[]).length,4);
+ assert.equal(app.split('androidRoiEnabled?window.POKESLEEP_ANDROID_ROI?.inspect(canvas):null').length-1,4);
  assert.match(app,/return r\?cropCanvasRect\(canvas,r,scale\):cropByRegion\(canvas,REGIONS\[key\],scale\)/);
  assert.match(app,/function cropNick\(canvas,kind,scale=1\)/);
  const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
