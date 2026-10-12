@@ -1,5 +1,5 @@
-const RELEASE_ID = '2026-10-12-pixel142-latias-shifted-v4';
-// Separate the STEP2 dev cache from the published Candidate125 cache.
+const RELEASE_ID = '2026-10-12-pixel142-independent-audit-v5';
+// Distinct caches per release prevent stale OCR and UI assets from surviving promotion.
 const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}-step3-prod-multi-picker-v1-reviewclean-v1`;
 const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}&step2=sharedcsv-v1&step3=androidroi-v1&pick=multi-v1&ui=review-clean-v1`;
 const APP_SHELL = [
