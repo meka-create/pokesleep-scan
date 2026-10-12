@@ -82,6 +82,8 @@ jobs:
         run: node --test development/step3_joint_rescue.test.cjs
       - name: STEP 2 mythical optional food no-template regression
         run: node --test development/step2_mythical_food_sentinel.test.cjs
+      - name: STEP 2 mythical blank subskill dash pixel-proof regression
+        run: node --test development/step2_mythical_subskill_dash.test.cjs
       - name: STEP 2 mythical empty third-food dash pixel-proof regression
         run: node --test development/step2_mythical_empty_dash.test.cjs
       - name: STEP 2 third-food independent-icon corroboration regression

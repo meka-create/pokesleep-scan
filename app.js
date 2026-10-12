@@ -1247,6 +1247,63 @@ function resolveFoodsSafely(inference,foods){let classification=POKESLEEP_CLASSI
 function recomputeClassificationFromFoods(r){if(!r)return;if(r.foods?.some(x=>x.needsReview)){r.classification=r.inference;return;}const safe=resolveFoodsSafely(r.inference,r.foods);r.classification=safe.classification;r.foodConflictSlots=safe.conflictSlots;}
 function speciesMasterRows(name){return (window.POKESLEEP_MASTER?.pokemon||[]).filter(sp=>sp.name===name);}
 function speciesIsMythical(name){return speciesMasterRows(name).some(sp=>Array.isArray(sp.mythIng));}
+// STEP 2: physical evidence for the short horizontal “―” on mythical subskill
+// cards.  Never infer blank from low-confidence OCR, locked level, or species
+// metadata alone.  The tiny neutral dash must actually be visible in pixels.
+function mythicalSubskillDashPixelStats(rgba,w,h){
+ if(!rgba||w!==140||h!==28||rgba.length!==w*h*4)return {confirmed:false,reason:'geometry'};
+ let count=0,minX=w,minY=h,maxX=-1,maxY=-1;
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+  const j=(y*w+x)*4,r=rgba[j],g=rgba[j+1],b=rgba[j+2];
+  const max=Math.max(r,g,b),min=Math.min(r,g,b),gray=(r+g+b)/3;
+  if(gray>=230||max-min>=30)continue;
+  count++;minX=Math.min(minX,x);maxX=Math.max(maxX,x);
+  minY=Math.min(minY,y);maxY=Math.max(maxY,y);
+ }
+ const width=maxX-minX+1,height=maxY-minY+1;
+ const confirmed=count>=8&&count<=55&&width>=5&&width<=20&&height>=1&&height<=5
+  &&Math.abs((minX+maxX)/2-70)<=15;
+ return {confirmed,count,bounds:count?[minX,minY,maxX,maxY]:null};
+}
+function visibleMythicalSubskillDash(canvas,index){
+ if(!canvas||index!==3&&index!==4||canvas.width<600||canvas.height<1400
+  ||Math.abs(canvas.width/canvas.height-691/1536)>.006)return {confirmed:false,reason:'layout'};
+ const layout=layoutInfo(canvas),detail=layout?.detail;
+ if(!detail||detail.start<1100*canvas.height/1536
+  ||detail.start>1350*canvas.height/1536)return {confirmed:false,reason:'detail-anchor'};
+ const sx=canvas.width/691,sy=canvas.height/1536;
+ const cx=Math.round((index===3?495:190)*sx);
+ const cy=Math.round(detail.start+(index===3?-205:-100)*sy);
+ // The 691x1536 screenshot ROI is reproducible for the reference layout.
+ if(Math.abs(sx-1)>.001||Math.abs(sy-1)>.001)return {confirmed:false,reason:'scale'};
+ const x=cx-70,y=cy-14;
+ if(x<0||y<0||x+140>canvas.width||y+28>canvas.height)return {confirmed:false,reason:'crop'};
+ try{return mythicalSubskillDashPixelStats(canvas.getContext('2d',{willReadFrequently:true})
+   .getImageData(x,y,140,28).data,140,28);}
+ catch(e){return {confirmed:false,reason:'pixel-unavailable'};}
+}
+function applyVisibleMythicalSubskillDashes(canvas,parsed,inference){
+ const species=inference?.status==='UNIQUE'&&inference.candidates?.length===1?inference.candidates[0]:'';
+ if(!species||!speciesIsMythical(species)||!Array.isArray(parsed?.subs))return {parsed,inference};
+ for(const i of [3,4]){
+  const sub=parsed.subs[i];
+  if(!sub?.needsReview||sub.manualConfirmed||sub.manualOverride)continue;
+  const proof=visibleMythicalSubskillDash(canvas,i);
+  if(!proof.confirmed)continue;
+  const before=parsed.subs,after=before.map(x=>({...x}));
+  after[i]={...after[i],value:'',score:1,needsReview:false,
+   reviewReason:'visible-mythical-empty-subskill-dash',reviewCandidates:[],
+   explicitEmptyDash:proof};
+  parsed.subs=after;
+  const trial=inferParsed(parsed);
+  if(trial.status==='UNIQUE'&&trial.candidates?.length===1&&trial.candidates[0]===species){
+   inference=trial;
+   (parsed.visibleEmptySubskillProofs||(parsed.visibleEmptySubskillProofs=[]))
+    .push({level:LEVELS[i],proof});
+  }else parsed.subs=before;
+ }
+ return {parsed,inference};
+}
 const NO_SUBSKILL='―';
 const NO_FOOD='―',NO_FOOD_EMPTY_SCORE_MIN=.50,NO_FOOD_EMPTY_MARGIN_MIN=.10;
 function noFoodTemplateEligible(legal,emptyScore,regularBestScore){return !!legal&&Number.isFinite(emptyScore)&&emptyScore>=NO_FOOD_EMPTY_SCORE_MIN&&Number.isFinite(regularBestScore)&&emptyScore-regularBestScore+1e-12>=NO_FOOD_EMPTY_MARGIN_MIN;}
@@ -1463,7 +1520,7 @@ async function analyzeSingleImage(inputFile,idx,total,{sourceIndex=null,displayN
   parsed=await improveOCR(canvas,raw,parsed,idx,total);parsed=await verifySubskills(canvas,rawFirstPass,raw,parsed,idx,total);parsed=rejectImpossibleDuplicateSubskills(parsed);parsed=await improveNicknameWithPaddle(canvas,parsed,idx,total,name);parsed=applyNicknameSafety(parsed);
   const nicknameReviewAtAnalysis={value:parsed.nickname,needsReview:!!parsed.nicknameNeedsReview,reason:parsed.nicknameReviewReason||'',resolvedBy:parsed.nicknameResolvedBy||''};
   const nicknamePreview=parsed.nicknameNeedsReview?nicknameReviewPreviewCrop(canvas).toDataURL('image/png'):'';setProgressState('running',{done:idx,total,message:`解析中 ${Math.min(idx+1,total)} / ${total}`});
-  let inference=inferParsed(parsed);({parsed,inference}=await rescueStructured(canvas,raw,parsed,inference,idx,total));inference=await retryMissingCarryFromVisibleCard(canvas,parsed,inference,idx,total);({parsed,inference}=applyMintNeutralization(canvas,parsed,inference));parsed.versatileSkill=detailedMewVersatileSkill(parsed);
+  let inference=inferParsed(parsed);({parsed,inference}=await rescueStructured(canvas,raw,parsed,inference,idx,total));inference=await retryMissingCarryFromVisibleCard(canvas,parsed,inference,idx,total);({parsed,inference}=applyMintNeutralization(canvas,parsed,inference));({parsed,inference}=applyVisibleMythicalSubskillDashes(canvas,parsed,inference));parsed.versatileSkill=detailedMewVersatileSkill(parsed);
   let foods=guardLockedFood3KnownLowConfidenceConfusions(guardLockedFood3SoyMushroomConfusion(guardLockedFood3DimmedArbitration(markFoodReviews(POKESLEEP_FOOD_MATCHER.resolveSlots(canvas,inference,parsed.level)),parsed.level),parsed.level),parsed.level);const firstFoodRescue=typeof tryCarryCorroboratedFirstFoodRescue==='function'?tryCarryCorroboratedFirstFoodRescue(inference,foods):null;if(firstFoodRescue)foods=firstFoodRescue.foods;foods=await applySafeNoFoodTemplate(canvas,inference,foods);
   // Conservative second opinion: corroborate food3 ONLY when it is already
   // reviewed or would be flagged by the known weak-third-food safety guard.
