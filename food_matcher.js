@@ -88,5 +88,37 @@ function thirdFoodSelfMatch(screenCanvas,foods){
  });
  return thirdFoodSelfMatchFromScores(foods,scores[0],scores[1]);
 }
-window.POKESLEEP_FOOD_MATCHER={cropFood,matchCanvas,resolveSlots,reviewShapeOpinion,iconSelfCorrelation,thirdFoodSelfMatchFromScores,thirdFoodSelfMatch};
+
+// Explicit pale horizontal dash in food3: independent evidence of the game
+// displaying "―".  Strictly fail closed if layout, palette, or glyph differs.
+// Coordinates are absolute normalized screenshot coordinates, NOT an OCR
+// template, since the no-food icon is above the standard food crop on Mew.
+function explicitThirdFoodDashStats(rgba,w,h){
+ if(!rgba||w<24||h<24||rgba.length!==w*h*4)return {confirmed:false,reason:'geometry'};
+ let nonPale=0,paleBg=0,dash=0,frames=w*h;
+ for(let j=0;j<rgba.length;j+=4){
+  const r=rgba[j],g=rgba[j+1],b=rgba[j+2];
+  if(r<244||g<222||b<166)nonPale++;
+  if(r>=250&&g>=246&&b>=215&&b<=238)paleBg++;
+  if(r>=247&&g>=224&&g<=245&&b>=170&&b<210)dash++;
+ }
+ const contamination=nonPale/frames,background=paleBg/frames,mark=dash/frames;
+ return {confirmed:contamination<=.01&&background>=.67&&mark>=.025&&mark<=.11,
+  contamination,background,dash:mark};
+}
+function explicitThirdFoodDash(screenCanvas){
+ if(!screenCanvas||!Number.isFinite(screenCanvas.width)||!Number.isFinite(screenCanvas.height)
+    ||screenCanvas.width<500||screenCanvas.height<1000
+    ||Math.abs(screenCanvas.width/screenCanvas.height-REF_W/REF_H)>.006)
+   return {confirmed:false,reason:'unsupported-layout'};
+ const [sx,sy]=[screenCanvas.width/REF_W,screenCanvas.height/REF_H];
+ const [x0,y0,x1,y1]=[537,199,604,260];
+ const x=Math.round(x0*sx),y=Math.round(y0*sy),
+  w=Math.round(x1*sx)-x,h=Math.round(y1*sy)-y;
+ if(w<24||h<24||x+w>screenCanvas.width||y+h>screenCanvas.height)
+  return {confirmed:false,reason:'invalid-crop'};
+ const data=screenCanvas.getContext('2d',{willReadFrequently:true}).getImageData(x,y,w,h).data;
+ return explicitThirdFoodDashStats(data,w,h);
+}
+window.POKESLEEP_FOOD_MATCHER={cropFood,matchCanvas,resolveSlots,reviewShapeOpinion,iconSelfCorrelation,thirdFoodSelfMatchFromScores,thirdFoodSelfMatch,explicitThirdFoodDashStats,explicitThirdFoodDash};
 })();
