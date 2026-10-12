@@ -31,6 +31,7 @@ jobs:
           set -euo pipefail
           python development/master_auto_update.py --upstream "$RUNNER_TEMP/upstream" --apply
           python development/generate_public_package_manifest.py --write
+          python -m unittest discover -s development -p 'test_master_auto_update.py' -v
           node --check app.js
           node --check classifier.js
           node --check food_matcher.js

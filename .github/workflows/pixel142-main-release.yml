@@ -48,6 +48,10 @@ jobs:
         run: python development/generate_public_package_manifest.py --stdout
       - name: Verify SHA-256 manifest matches every tracked file
         run: python development/generate_public_package_manifest.py --check
+      - name: Simulate October 5 species addition and upstream failures
+        run: python -m unittest discover -s development -p 'test_master_auto_update.py' -v
+      - name: Independent master safety unit tests
+        run: node --test development/master_auto_update.test.cjs
       - name: Runtime master and classifier smoke tests
         run: node --test development/runtime_smoke.test.cjs
       - name: Shared master and CSV compatibility
