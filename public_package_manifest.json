@@ -36,8 +36,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 290554,
-      "sha256": "ea2a2548ac52e12a48037937487719b278e7194fa15fe2ff8af7a1207ca796f4"
+      "bytes": 290713,
+      "sha256": "77df3fe9f674520313750075482493afba067ca1bbc2baec75028e5f6f2f66a3"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -146,8 +146,8 @@
     },
     {
       "path": "development/step3_pixel142_safety.test.cjs",
-      "bytes": 3690,
-      "sha256": "4d5e8776d5e5d17e901ee0e6239284296add3e6303b0565c2c27677e4a0dbe60"
+      "bytes": 7980,
+      "sha256": "f0f6726683ae293a3e2419261231db5e7dc1c0bd3ca8eedc8dcb6c6bbbd9bb19"
     },
     {
       "path": "development/test_master_auto_update.py",
@@ -251,8 +251,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 3736,
-      "sha256": "4b934d162f9c9a804358c37f0919d6d48789bc35c75d63bcf7a23b650700e0bf"
+      "bytes": 3754,
+      "sha256": "1f7a8bfe62b0ed760d8a363436edc39468bf9cbcdcfd1c2d7de576e6f5199102"
     }
   ]
 }
