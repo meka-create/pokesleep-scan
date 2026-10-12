@@ -4,14 +4,19 @@ const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'app.js'),'utf8');
 const fm=fs.readFileSync(path.join(root,'food_matcher.js'),'utf8');
+const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const grab=(a,b)=>{const i=source.indexOf(a),j=source.indexOf(b,i);assert.ok(i>=0&&j>i,a);return source.slice(i,j)};
 const A=grab('function parseExplicitCarryEvidence(reading){','function detectWhiteMint(canvas){');
-const B=grab('function carryManualChoices(r){','function resultReviewState(r){');
+const B=grab('function numericDataNeedsReview(r,key){','function statusView(r){');
 const ctx={
  REF_W:691,layoutInfo:c=>c.layout,cropCanvasRect:(_c,r)=>({rect:r}),
  inferParsed:p=>({status:'UNIQUE',hits:[{pokemon:'ミュウ',calculatedCarry:p.carry}]}),
  chosenSpecies:r=>r.species||'',
- recomputeClassificationFromFoods:r=>{r.recomputed=true},
+ numericSpEvidenceConflict:()=>false,
+ speciesNeedsReview:()=>false,nicknameDataNeedsReview:()=>false,
+ levelDataNeedsReview:()=>false,skillLevelDataNeedsReview:()=>false,
+ mainSkillDataNeedsReview:()=>false,natureDataNeedsReview:()=>false,
+ foodDataNeedsReview:()=>false,subskillNeedsReview:()=>false,
  ocrSingle:async(src,_label,_i,_total,opt)=>({text:'44 個',confidence:85,psm:opt.psm}),
 };
 vm.createContext(ctx);vm.runInContext(A+B,ctx);
@@ -117,40 +122,28 @@ test('visible card corroboration updates parsed carry and inference',async()=>{
  assert.equal(p.carryNeedsReview,true);
  assert.equal(got.status,'UNIQUE');assert.equal(p.carryRetry.readings.length,3);
 });
-test('only legal classifier carry values can be manually confirmed',()=>{
- const r={species:'ミュウ',parsed:{carry:null},inference};
- assert.deepEqual(Array.from(ctx.carryManualChoices(r)),[38,39,41,44,46]);
- assert.equal(ctx.applyManuallyVerifiedCarry(r,20),false);
- assert.equal(r.parsed.carry,null);
- assert.equal(ctx.applyManuallyVerifiedCarry(r,44),true);
- assert.equal(r.parsed.carry,44);assert.equal(r.parsed.carryManualConfirmed,true);
- assert.equal(r.parsed.carryNeedsReview,false);
- assert.equal(r.recomputed,true);
+test('missing or ambiguous carry never blocks exportable review status',()=>{
+ const r={parsed:{carry:null,carryNeedsReview:true}};
+ assert.equal(ctx.numericDataNeedsReview(r,'carry'),false);
+ assert.equal(ctx.resultReviewState(r).carry,false);
+ assert.equal(Object.values(ctx.resultReviewState(r)).some(Boolean),false);
+ r.parsed.carry=44;
+ assert.equal(ctx.resultReviewState(r).carry,false);
+ assert.match(source,/carryOcrUnresolved:!Number\\.isInteger\\(r\\.parsed\\.carry\\)/);
 });
-test('user-confirmed carry outside model options is supported safely',()=>{
- const r={species:'ジュカイン',parsed:{carry:null,carryNeedsReview:true},
-  inference:{status:'UNIQUE',candidates:['ジュカイン'],
-    hits:[{pokemon:'ジュカイン',calculatedCarry:26},
-          {pokemon:'ジュカイン',calculatedCarry:32}]}};
- assert.equal(ctx.applyManuallyVerifiedCarry(r,'27'),false);
- assert.equal(r.parsed.carry,null);
- assert.equal(ctx.applyManuallyVerifiedCarry(r,'0',true),false);
- assert.equal(ctx.applyManuallyVerifiedCarry(r,'251',true),false);
- assert.equal(ctx.applyManuallyVerifiedCarry(r,'not-a-number',true),false);
- assert.equal(ctx.applyManuallyVerifiedCarry(r,'27',true),true);
- assert.equal(r.parsed.carry,27);
- assert.equal(r.parsed.carryManualConfirmed,true);
- assert.equal(r.parsed.carryNeedsReview,false);
- assert.equal(r.parsed.carryVerificationOutOfModel,true);
- assert.equal(r.parsed.carryRetry.manuallyEnteredOutsideClassifier,true);
-});
-test('carry review UI provides custom entry even if classifier has no guesses',()=>{
- assert.match(source,/const carryReviewHtml=reviewState.carry&&!manual/);
- assert.match(source,/その他（画面の数値を入力）/);
- assert.match(source,/class="carrymanual"/);
- assert.match(source,/inputmode="numeric"/);
- assert.match(source,/class="review-confirm carryconfirm"/);
- assert.match(source,/has-carry-review/);
+test('carry is never a CSV column, stays OCR-only and has no manual UI',()=>{
+ assert.match(source,/function observedFromParsed\\(parsed\\)/);
+ assert.match(source,/carry:parsed\\.carry/);
+ assert.match(source,/function retryMissingCarryFromVisibleCard\\(/);
+ assert.match(source,/function toPokesleepToolCsvRow\\(/);
+ assert.match(source,/return \\[p\\.nickname,species,p\\.level/);
+ assert.match(source,/carry:false/);
+ for(const forbidden of ['function carryManualChoices','function applyManuallyVerifiedCarry',
+  'carrymanual','carryedit','carryconfirm','has-carry-review',
+  'carryManualConfirmed','carryVerificationOutOfModel']){
+   assert.equal(source.includes(forbidden),false,forbidden);
+   assert.equal(html.includes(forbidden),false,forbidden);
+ }
 });
 test('shape second opinion is explicitly non-authoritative',()=>{
  assert.match(fm,/function reviewShapeOpinion\(/);
@@ -161,5 +154,5 @@ test('shape second opinion is explicitly non-authoritative',()=>{
  assert.doesNotMatch(source,/third\.name\s*=\s*opinion\.name/);
  assert.match(source,/形状照合の参考候補/);
  assert.match(source,/parsed\.carryNeedsReview=true/);
- assert.match(source,/p\.carryNeedsReview=false/);
+ assert.match(source,/carryOcrUnresolved:/);
 });
