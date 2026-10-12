@@ -1,5 +1,5 @@
 (() => {
-const BUILD_ID='v12-pixel142-carry-food3-v3';
+const BUILD_ID='v12-pixel142-latias-shifted-v4';
 'use strict';
 const STEP3_ANDROID_ROI_STORAGE_KEY='pokesleep-ocr-android-roi-v1';
 let androidRoiEnabled=(()=>{
@@ -65,7 +65,7 @@ const NATURES=POKESLEEP_MASTER.natures.map(x=>x.ja);
 const SUBSKILLS=POKESLEEP_MASTER.subskills.map(x=>x.ja);
 const SPECIES_NAMES=[...new Set(POKESLEEP_MASTER.pokemon.map(x=>x.name))];
 const $=s=>document.querySelector(s);let selected=[],results=[],worker=null,paddleOcr=null,paddleInitPromise=null,paddleUnavailableError=null,paddleRuntimeGeneration=0,isRunning=false,analysisPause=null,checkpointPreparing=false,selectionSnapshotPreparing=false,selectionSnapshotGeneration=0,checkpointRestoreRunning=false,checkpointSessionActive=false,checkpointPersistenceWarningShown=false,renderPending=false,modalObjectUrl='',modalReturnFocus=null,appDialogResolver=null,appDialogReturnFocus=null,localProgressVisible=true,localProgressState='idle',localProgressMaxPct=0,floatingProgressState='idle',floatingProgressDone=0,floatingProgressTotal=0,floatingProgressReviews=0,floatingCompletionTimer=null,floatingCompletionPending=false,floatingCompletionDismissed=false,preManualCsvSnapshot=null,wakeLockSentinel=null,wakeLockRequestPromise=null,wakeLockRetryTimer=null;const checkpointFailureLog=[];const layoutCache=new WeakMap(),profileCardCache=new WeakMap(),stableSourcePromises=new WeakMap(),stableSourceFiles=new WeakSet();
-const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-12-pixel142-carry-food3-v3',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-pixel142-carry-food3-v3',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set([]),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
+const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-12-pixel142-latias-shifted-v4',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-pixel142-latias-shifted-v4',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set([]),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
 function pullRefreshGuardActive(){return !!(isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing);}
 function analysisWakeLockShouldHold(){return !!((isRunning||checkpointPreparing)&&!analysisPause);}
 function wakeLockApiSupported(){return typeof navigator!=='undefined'&&!!navigator.wakeLock?.request;}
@@ -751,11 +751,68 @@ function corroboratedCarryRetry(readings,inference){
  if(!matched.length||matched.some(h=>h.pokemon!==inference.candidates?.[0]))return null;
  return vals[0];
 }
+// Some four-line skill descriptions produce a top green strip only 1-6 pixels
+// high and a real section heading around y=514. Then layoutInfo cannot assign
+// the normal time/carry bands, even though the carry number IS visible.
+// Use that observed green heading as an anchor for a small, upper-card OCR
+// search. Never apply this to normal screenshots or infer a missing ribbon.
+function shiftedCarrySearchRects(canvas){
+ const L=layoutInfo(canvas),m=L?.main,d=L?.detail;
+ if(L?.carry||L?.time||!m||!d||m.start>12||
+   d.start<400||d.start>690||canvas.height<1000)return [];
+ const h=d.start,sx=canvas.width/REF_W;
+ return [[-394,-300],[-303,-209],[-212,-118],[-127,-18]].map((span,i)=>{
+  const y1=Math.max(0,h+span[0]),y2=Math.min(canvas.height,h+span[1]);
+  return {name:'shifted-band-'+i,rect:[255*sx,y1,610*sx,y2]};
+ }).filter(x=>x.rect[3]-x.rect[1]>=50);
+}
+function carryCompatibleWithClassifier(inference,value){
+ return inference?.status==='UNIQUE'&&Array.isArray(inference?.hits)
+   &&inference.hits.some(h=>h.pokemon===inference.candidates?.[0]
+     &&h.calculatedCarry===value);
+}
+async function retryShiftedCarryFromScreen(canvas,parsed,inference,idx,total){
+ const zones=shiftedCarrySearchRects(canvas),readings=[];
+ if(!zones.length)return {inference,readings,status:'no-shifted-layout-evidence'};
+ // The initial image OCR lacks the visible carry field. Search only above
+ // the green main-skill heading; do not inspect food or subskill values.
+ for(const z of zones){
+  const src=cropCanvasRect(canvas,z.rect);
+  const r=await ocrSingle(src,'所持数・ずれた表示位置を再確認',idx,total,{psm:'7'});
+  const value=parseExplicitCarryEvidence(r);
+  readings.push({...r,value,crop:z.name,psm:'7'});
+ }
+ const supported=readings.filter(r=>r.value!==null
+   &&Number(r.confidence)>=62&&carryCompatibleWithClassifier(inference,r.value));
+ const choices=[...new Set(supported.map(x=>x.value))];
+ if(choices.length!==1)return {inference,readings,
+   status:choices.length>1?'conflicting-shifted-ocr':'unresolved-shifted-ocr'};
+ const first=supported.sort((a,b)=>b.confidence-a.confidence)[0];
+ if(first.confidence<72)return {inference,readings,status:'weak-shifted-ocr'};
+ const z=zones.find(x=>x.name===first.crop);
+ const narrow=[285*canvas.width/REF_W,z.rect[1],510*canvas.width/REF_W,z.rect[3]];
+ const confirmation=await ocrSingle(cropCanvasRect(canvas,narrow),
+   '所持数・再確認',idx,total,{psm:'11'});
+ const confirmedValue=parseExplicitCarryEvidence(confirmation);
+ readings.push({...confirmation,value:confirmedValue,crop:'shifted-confirmation',psm:'11'});
+ if(confirmedValue!==first.value||Number(confirmation.confidence)<62)
+  return {inference,readings,status:'shifted-ocr-candidate-needs-verification',
+    advisoryValue:first.value};
+ parsed.carry=first.value;
+ parsed.carryNeedsReview=true; // Two overlapping crops never count as independent visible facts.
+ return {inference:inferParsed(parsed),readings,status:'shifted-ocr-needs-user-verification',
+   advisoryValue:first.value};
+}
 async function retryMissingCarryFromVisibleCard(canvas,parsed,inference,idx,total){
  if(Number.isInteger(parsed?.carry)&&parsed.carry>0)return inference;
  const tight=verifiedCarryRetryCrop(canvas,'tight'),
        wide=verifiedCarryRetryCrop(canvas,'wide');
- if(!tight||!wide){parsed.carryRetry={status:'not-visible-or-no-verified-carry-band'};return inference;}
+ if(!tight||!wide){
+  const fallback=await retryShiftedCarryFromScreen(canvas,parsed,inference,idx,total);
+  parsed.carryRetry={status:fallback.status==='no-shifted-layout-evidence'?'not-visible-or-no-verified-carry-band':fallback.status,readings:fallback.readings,
+    advisoryValue:fallback.advisoryValue??null};
+  return fallback.inference;
+ }
  const readings=[];
  for(const [name,src,options] of [
   ['tight',tight,{psm:'7'}],
@@ -1206,7 +1263,9 @@ function render(){syncAdditionalFileUi();
   const carryWarn=p.carry!=null&&c.status==='UNIQUE'&&!c.hits.some(h=>h.carryMatch===true),carryText=`${p.carry??''}${carryWarn?' ⚠':''}`;
   const carryValues=reviewState.carry&&!manual?carryManualChoices(r):[];
   const carryReviewHtml=carryValues.length?`<div class="review-control carry-review-control"><select class="carryedit" data-ri="${ri}" aria-label="最大所持数をゲーム画面で確認"><option value="" selected disabled>所持数を確認</option>${carryValues.map(n=>`<option value="${n}">${n}個</option>`).join('')}</select><button type="button" class="review-confirm carryconfirm" data-ri="${ri}" disabled>確定</button></div>`:'';
-  const carryConfirmed=p.carryManualConfirmed?'<span class="verified-badge">確認済み</span>':'';const numericReviewBadge=key=>reviewState[key]?'<span class="review-badge" title="認識数値を元画像・ゲーム画面で確認してください。">要確認</span>':'';
+  const carryConfirmed=p.carryManualConfirmed?'<span class="verified-badge">確認済み</span>':'';
+  const carryOcrHint=reviewState.carry&&Number.isInteger(p.carryRetry?.advisoryValue)
+   ?`<span class="candidate-label">画像再読取候補: ${p.carryRetry.advisoryValue}個（元画像で確認）</span>`:'';const numericReviewBadge=key=>reviewState[key]?'<span class="review-badge" title="認識数値を元画像・ゲーム画面で確認してください。">要確認</span>':'';
   const nickDraft=p.nicknameReviewDraft??p.nickname;
   const nickPreview=reviewState.nickname&&r.nicknamePreview?`<img class="reviewpreview nickpreview preview-open" data-ri="${ri}" tabindex="0" role="button" title="元のスクリーンショットを表示" src="${r.nicknamePreview}" alt="ニックネームの切り出し">`:'';
   const nickAltNames=nicknameAlternativeRows(r,p,nickDraft);
@@ -1242,7 +1301,7 @@ function render(){syncAdditionalFileUi();
   const pausedHere=!!analysisPause&&results[ri]===analysisPause.result;
   const statusBadge=st==='要確認'?'':`<span class="status-pill ${cl}">${st}</span>`,processingErrorHtml=r.processingError?`<div class="processing-error-note"><strong>${esc(r.processingError.stage||'解析')}</strong><span>${esc(r.processingError.message||'解析処理に失敗しました')}</span>${pausedHere?'<span class="processing-pause-note">この画像で解析を一時停止しています。上部の「停止した画像から再開」からも再開できます。</span>':''}<div class="processing-recovery-actions"><button type="button" class="processing-retry" data-ri="${ri}" ${recoveryBusy?'disabled':''}>${r.recoveryBusy==='retry'?'再解析中…':pausedHere?'再解析して再開':'再解析'}</button><button type="button" class="processing-reselect" data-ri="${ri}" ${recoveryBusy?'disabled':''}>${r.recoveryBusy==='reselect'?'読込中…':'画像を再選択'}</button><button type="button" class="processing-delete" data-ri="${ri}" ${recoveryBusy?'disabled':''}>削除</button></div></div>`:'';
   const imageButton=(extraClass='')=>`<button type="button" class="file-open ${extraClass}" data-ri="${ri}" title="元のスクリーンショットを表示" aria-label="${esc(r.file)} の元画像を表示"><span class="file-open-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"></rect><circle cx="8.5" cy="9" r="1.5"></circle><path d="m5.5 17 4.3-4.2 3.2 3 2.2-2.1 3.3 3.3"></path></svg></span><span class="file-open-label">画像を見る</span></button>`;
-  tr.innerHTML=`<td class="file-cell"><div class="file-source">${imageButton('file-open-desktop')}</div></td><td class="status-cell"><div class="card-meta-row"><span class="card-status-slot">${statusBadge}</span>${imageButton('file-open-mobile')}</div>${processingErrorHtml}${manualAction}</td><td class="nickname-cell">${nicknameHtml}</td><td class="pokemon-cell ${classificationNeedsReview?'review-cell':''}">${pokemonHtml}</td><td class="level-cell">${levelHtml}</td><td class="sp-cell"><div class="review-value${reviewState.sp?' is-unresolved':''}">${p.sp??'—'}${numericReviewBadge('sp')}</div></td><td class="help-time-cell"><div class="review-value${reviewState.helpSeconds?' is-unresolved':''}">${esc(fmtTime(p.helpSeconds))}${numericReviewBadge('helpSeconds')}</div></td><td class="carry-cell ${carryWarn?'warn':''}"><div class="review-value${reviewState.carry?' is-unresolved':''}">${esc(carryText||'—')}${numericReviewBadge('carry')}${carryConfirmed}</div>${carryReviewHtml}</td><td class="skill-level-cell">${skillLevelHtml}</td><td class="foods">${foods}</td><td class="main-skill-cell">${mainSkillHtml}</td><td class="nature-cell">${natureHtml}</td><td class="subs">${subs}</td><td class="stage-cell">${esc(stage)}</td><td class="raw"><details><summary>表示</summary><pre>${raw}</pre></details></td>`;
+  tr.innerHTML=`<td class="file-cell"><div class="file-source">${imageButton('file-open-desktop')}</div></td><td class="status-cell"><div class="card-meta-row"><span class="card-status-slot">${statusBadge}</span>${imageButton('file-open-mobile')}</div>${processingErrorHtml}${manualAction}</td><td class="nickname-cell">${nicknameHtml}</td><td class="pokemon-cell ${classificationNeedsReview?'review-cell':''}">${pokemonHtml}</td><td class="level-cell">${levelHtml}</td><td class="sp-cell"><div class="review-value${reviewState.sp?' is-unresolved':''}">${p.sp??'—'}${numericReviewBadge('sp')}</div></td><td class="help-time-cell"><div class="review-value${reviewState.helpSeconds?' is-unresolved':''}">${esc(fmtTime(p.helpSeconds))}${numericReviewBadge('helpSeconds')}</div></td><td class="carry-cell ${carryWarn?'warn':''}"><div class="review-value${reviewState.carry?' is-unresolved':''}">${esc(carryText||'—')}${numericReviewBadge('carry')}${carryConfirmed}</div>${carryReviewHtml}${carryOcrHint}</td><td class="skill-level-cell">${skillLevelHtml}</td><td class="foods">${foods}</td><td class="main-skill-cell">${mainSkillHtml}</td><td class="nature-cell">${natureHtml}</td><td class="subs">${subs}</td><td class="stage-cell">${esc(stage)}</td><td class="raw"><details><summary>表示</summary><pre>${raw}</pre></details></td>`;
   if($('#reviewOnly')?.checked&&!needsReview)tr.style.display='none';tb.appendChild(tr);
  }
  for(const el of tb.querySelectorAll('.nickedit'))el.addEventListener('input',e=>{const r=results[+e.target.dataset.ri],p=r.parsed;if(nicknameDataNeedsReview(r)){p.nicknameReviewDraft=e.target.value;const td=e.target.closest('td'),b=td?.querySelector('.nickconfirm'),sel=td?.querySelector('.nickcandidate');if(b)b.disabled=!e.target.value.trim();if(sel&&sel.value!==e.target.value){sel.value='';syncCustomSelectTrigger(sel);}}else{if(p.nickname!==e.target.value){p.nicknameManualConfirmed=false;e.target.closest('.nick-field')?.querySelector('.review-actions')?.remove();}p.nickname=e.target.value;scheduleCheckpointResultSave(r);}});
@@ -1419,7 +1478,7 @@ async function downloadDiagnosticRawCSV(){
 }
 function diagnosticObject(){
  const b=benchmarkSummary();
- return {version:'v12-pixel142-carry-food3-v3',buildId:BUILD_ID,foodReviewMargin:FOOD_REVIEW_MARGIN,mintGreenRatioThreshold:MINT_GREEN_RATIO_MIN,noFoodTemplateConfig:{schema:1,scoreMin:NO_FOOD_EMPTY_SCORE_MIN,marginMin:NO_FOOD_EMPTY_MARGIN_MIN,requiresUniqueSpecies:true,requiresLegalSpeciesSlot:true,emptyReference:'embedded-data-url',emptyReferenceSha256:FOOD_EMPTY_REFERENCE_SHA256},paddleRuntime:{...paddleInitDiagnostics,attempts:[...paddleInitDiagnostics.attempts]},checkpointPersistence:{sessionActive:typeof checkpointSessionActive!=='undefined'?!!checkpointSessionActive:false,failures:typeof checkpointFailureLog!=='undefined'?checkpointFailureLog.map(x=>({...x})):[]},ocrMemoryGuard:{...(typeof ocrMemoryGuardSnapshot==='function'?ocrMemoryGuardSnapshot():{}),restoredFromCheckpoint:typeof ocrMemoryGuardRestoredSnapshot!=='undefined'&&ocrMemoryGuardRestoredSnapshot?{...ocrMemoryGuardRestoredSnapshot}:null},createdAt:new Date().toISOString(),preManualCsvSnapshot:diagnosticPreManualCsvSnapshot(),userAgent:navigator.userAgent,hardwareConcurrency:navigator.hardwareConcurrency||null,deviceMemory:navigator.deviceMemory||null,selectedFiles:selected.map(x=>({name:x.name,size:x.size,type:x.type})),benchmark:b,results:results.map(r=>({file:r.file,sourceIndex:Number.isInteger(r.sourceIndex)?r.sourceIndex:null,elapsedMs:r.elapsedMs,layout:r.layout||null,rawFirstPass:r.rawFirstPass||null,rawFinal:cloneRaw(r.raw),structuredRescue:r.parsed.structuredRescue||null,parsed:{nickname:r.parsed.nickname,nicknameBeforePaddle:r.parsed.nicknameBeforePaddle,nicknameNeedsReview:r.parsed.nicknameNeedsReview,nicknameResolvedBy:r.parsed.nicknameResolvedBy||'',nicknameReviewReason:r.parsed.nicknameReviewReason||'',nicknamePaddleUnavailable:!!r.parsed.nicknamePaddleUnavailable,nicknameCandidates:r.parsed.nicknameCandidates||[],nicknamePaddle:r.parsed.nicknamePaddle||null,nicknameReviewAtAnalysis:r.nicknameReviewAtAnalysis||null,nicknameManualConfirmed:!!r.parsed.nicknameManualConfirmed,level:r.parsed.level,levelNeedsReview:!!r.parsed.levelNeedsReview,levelReviewReason:r.parsed.levelReviewReason||'',sp:r.parsed.sp,helpSeconds:r.parsed.helpSeconds,carry:r.parsed.carry,carryNeedsReview:!!r.parsed.carryNeedsReview,carryManualConfirmed:!!r.parsed.carryManualConfirmed,carryRetry:r.parsed.carryRetry||null,skillLevel:r.parsed.skillLevel,mainSkill:r.parsed.mainSkill,mainSkillNeedsReview:!!r.parsed.mainSkillNeedsReview,mainSkillReviewReason:r.parsed.mainSkillReviewReason||'',versatileSkill:r.parsed.versatileSkill||'',versatileSkillLabel:mewVersatileSkillLabel(r.parsed.versatileSkill),mainSkillOutput:mainSkillForOutput(r.parsed,r.classification,r.speciesManualOverride||''),nature:r.parsed.nature,natureNeedsReview:!!r.parsed.natureNeedsReview,natureEvidence:r.parsed.natureEvidence||null,natureEffect:r.parsed.natureEffect||'normal',mintDetection:r.parsed.mintDetection||null,subskills:r.parsed.subs.map(x=>x.value),subskillEvidence:r.parsed.subs.map(x=>({value:x.value,needsReview:!!x.needsReview,reviewReason:x.reviewReason||'',reviewCandidates:x.reviewCandidates||[],evidence:x.evidence||[]})),subskillDuplicateRejects:r.parsed.subskillDuplicateRejects||[],subskillReviewSlots:subskillReviewSlots(r).map(i=>LEVELS[i]),sleepTogetherValue:sleepTogetherValue(r.classification)},inference:{status:r.inference.status,natureEffect:r.inference.natureEffect||r.parsed.natureEffect||'normal',missing:r.inference.missing||[],stages:r.inference.stages||null,candidates:r.inference.candidates||[],carryConsistentCandidates:r.inference.carryConsistentCandidates||[]},foods:r.foods,classification:{status:r.classification.status,candidates:r.classification.candidates,speciesManualOverride:r.speciesManualOverride||'',ribbonTier:sleepTogetherTier(r.classification),sleepTogetherValue:sleepTogetherValue(r.classification),foodConflictPreserved:!!r.classification.foodConflictPreserved,foodConflictSlots:r.foodConflictSlots||[]},reviewState:resultReviewState(r),processingError:r.processingError||null,processingErrorResolved:r.processingErrorResolved||null,manualPreviewErrors:r.manualPreviewErrors||null,manualPreviewSourceError:r.manualPreviewSourceError||null,manualCompletion:r.manualCompletion||null}))};
+ return {version:'v12-pixel142-latias-shifted-v4',buildId:BUILD_ID,foodReviewMargin:FOOD_REVIEW_MARGIN,mintGreenRatioThreshold:MINT_GREEN_RATIO_MIN,noFoodTemplateConfig:{schema:1,scoreMin:NO_FOOD_EMPTY_SCORE_MIN,marginMin:NO_FOOD_EMPTY_MARGIN_MIN,requiresUniqueSpecies:true,requiresLegalSpeciesSlot:true,emptyReference:'embedded-data-url',emptyReferenceSha256:FOOD_EMPTY_REFERENCE_SHA256},paddleRuntime:{...paddleInitDiagnostics,attempts:[...paddleInitDiagnostics.attempts]},checkpointPersistence:{sessionActive:typeof checkpointSessionActive!=='undefined'?!!checkpointSessionActive:false,failures:typeof checkpointFailureLog!=='undefined'?checkpointFailureLog.map(x=>({...x})):[]},ocrMemoryGuard:{...(typeof ocrMemoryGuardSnapshot==='function'?ocrMemoryGuardSnapshot():{}),restoredFromCheckpoint:typeof ocrMemoryGuardRestoredSnapshot!=='undefined'&&ocrMemoryGuardRestoredSnapshot?{...ocrMemoryGuardRestoredSnapshot}:null},createdAt:new Date().toISOString(),preManualCsvSnapshot:diagnosticPreManualCsvSnapshot(),userAgent:navigator.userAgent,hardwareConcurrency:navigator.hardwareConcurrency||null,deviceMemory:navigator.deviceMemory||null,selectedFiles:selected.map(x=>({name:x.name,size:x.size,type:x.type})),benchmark:b,results:results.map(r=>({file:r.file,sourceIndex:Number.isInteger(r.sourceIndex)?r.sourceIndex:null,elapsedMs:r.elapsedMs,layout:r.layout||null,rawFirstPass:r.rawFirstPass||null,rawFinal:cloneRaw(r.raw),structuredRescue:r.parsed.structuredRescue||null,parsed:{nickname:r.parsed.nickname,nicknameBeforePaddle:r.parsed.nicknameBeforePaddle,nicknameNeedsReview:r.parsed.nicknameNeedsReview,nicknameResolvedBy:r.parsed.nicknameResolvedBy||'',nicknameReviewReason:r.parsed.nicknameReviewReason||'',nicknamePaddleUnavailable:!!r.parsed.nicknamePaddleUnavailable,nicknameCandidates:r.parsed.nicknameCandidates||[],nicknamePaddle:r.parsed.nicknamePaddle||null,nicknameReviewAtAnalysis:r.nicknameReviewAtAnalysis||null,nicknameManualConfirmed:!!r.parsed.nicknameManualConfirmed,level:r.parsed.level,levelNeedsReview:!!r.parsed.levelNeedsReview,levelReviewReason:r.parsed.levelReviewReason||'',sp:r.parsed.sp,helpSeconds:r.parsed.helpSeconds,carry:r.parsed.carry,carryNeedsReview:!!r.parsed.carryNeedsReview,carryManualConfirmed:!!r.parsed.carryManualConfirmed,carryRetry:r.parsed.carryRetry||null,skillLevel:r.parsed.skillLevel,mainSkill:r.parsed.mainSkill,mainSkillNeedsReview:!!r.parsed.mainSkillNeedsReview,mainSkillReviewReason:r.parsed.mainSkillReviewReason||'',versatileSkill:r.parsed.versatileSkill||'',versatileSkillLabel:mewVersatileSkillLabel(r.parsed.versatileSkill),mainSkillOutput:mainSkillForOutput(r.parsed,r.classification,r.speciesManualOverride||''),nature:r.parsed.nature,natureNeedsReview:!!r.parsed.natureNeedsReview,natureEvidence:r.parsed.natureEvidence||null,natureEffect:r.parsed.natureEffect||'normal',mintDetection:r.parsed.mintDetection||null,subskills:r.parsed.subs.map(x=>x.value),subskillEvidence:r.parsed.subs.map(x=>({value:x.value,needsReview:!!x.needsReview,reviewReason:x.reviewReason||'',reviewCandidates:x.reviewCandidates||[],evidence:x.evidence||[]})),subskillDuplicateRejects:r.parsed.subskillDuplicateRejects||[],subskillReviewSlots:subskillReviewSlots(r).map(i=>LEVELS[i]),sleepTogetherValue:sleepTogetherValue(r.classification)},inference:{status:r.inference.status,natureEffect:r.inference.natureEffect||r.parsed.natureEffect||'normal',missing:r.inference.missing||[],stages:r.inference.stages||null,candidates:r.inference.candidates||[],carryConsistentCandidates:r.inference.carryConsistentCandidates||[]},foods:r.foods,classification:{status:r.classification.status,candidates:r.classification.candidates,speciesManualOverride:r.speciesManualOverride||'',ribbonTier:sleepTogetherTier(r.classification),sleepTogetherValue:sleepTogetherValue(r.classification),foodConflictPreserved:!!r.classification.foodConflictPreserved,foodConflictSlots:r.foodConflictSlots||[]},reviewState:resultReviewState(r),processingError:r.processingError||null,processingErrorResolved:r.processingErrorResolved||null,manualPreviewErrors:r.manualPreviewErrors||null,manualPreviewSourceError:r.manualPreviewSourceError||null,manualCompletion:r.manualCompletion||null}))};
 }
 function triggerBlobDownload(blob,filename){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;a.rel='noopener';a.style.display='none';document.body.appendChild(a);try{a.click();}finally{setTimeout(()=>{a.remove();URL.revokeObjectURL(url);},1500);}}
 async function downloadDiagnostics(){
