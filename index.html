@@ -164,6 +164,12 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
 .additional-files-btn:focus-visible{outline:2px solid #4b4ed9;outline-offset:3px}
 .additional-files-btn:disabled{opacity:.48;cursor:not-allowed}
 
+/* Keep the legacy compact table, but NEVER hide fields requiring user action. */
+#tbl td.carry-cell.has-carry-review{display:table-cell!important;vertical-align:top;min-width:164px;max-width:220px;background:#fffaf1}
+#tbl td.carry-cell.has-carry-review .carry-review-label{display:block;font-size:11px;font-weight:850;color:#80510f;margin-bottom:4px}
+@media(max-width:680px){
+ #tbl td.carry-cell.has-carry-review{display:block!important;grid-column:1/-1;min-width:0;max-width:none;border-top:1px solid #efd4aa;margin-top:4px;padding:10px 6px}
+}
 @media(prefers-reduced-motion:reduce){.android-roi-option input[type="checkbox"],
  .android-roi-option input[type="checkbox"]::before{transition:none}}
 /* Mobile touch targets remain large without the extra review navigator. */
