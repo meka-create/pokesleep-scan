@@ -86,8 +86,8 @@
     },
     {
       "path": "development/master_auto_update.py",
-      "bytes": 12848,
-      "sha256": "c916427691ce0dc46511bb7c5137331fc672d75375de1127071e07aa1bc28a5e"
+      "bytes": 12913,
+      "sha256": "ef0b3c406fa65ab1b2550f6f5beb7ab3535a69c15e864702ba456404172cd449"
     },
     {
       "path": "development/master_auto_update.test.cjs",
@@ -206,8 +206,8 @@
     },
     {
       "path": "shared_master.js",
-      "bytes": 5593,
-      "sha256": "b9b50a613ce2d0bc68e06dbf93e9552910e249dbf9b01cf3e8f838130a63716d"
+      "bytes": 5662,
+      "sha256": "c0d8565e78df11772797e0743b12a88206cd35a63cc89b6f684d704d58fd2d53"
     },
     {
       "path": "sw.js",
