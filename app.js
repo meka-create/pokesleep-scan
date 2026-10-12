@@ -1256,6 +1256,18 @@ async function applySafeNoFoodTemplate(canvas,inference,foods){
  const out=(foods||[]).map(x=>({...x}));if(!species)return out;
  for(let i=0;i<out.length;i++){
   const f=out[i],legal=noneFoodAllowed(species,i)&&Array.isArray(f.allowed)&&f.allowed.includes(NO_FOOD);if(!legal||f.method==='new-food-review'||f.reviewReason==='new-food-image-not-validated')continue;
+  // New, independent physical dash evidence. Eligible only for a legal
+  // mythical empty third slot with weak regular-food evidence; never infer
+  // an absent food from species metadata or low OCR score alone.
+  if(i===2&&(Number(f.score)||0)<.70){
+   let marker=null;try{marker=POKESLEEP_FOOD_MATCHER.explicitThirdFoodDash(canvas);}catch(e){marker={confirmed:false,error:runtimeErrorText(e)};}
+   if(marker?.confirmed){
+    f.emptyTemplate={legal:true,confirmed:true,source:'explicit-screen-dash',marker};
+    f.name=NO_FOOD;f.score=1;f.second='';f.secondScore=0;f.margin=1;
+    f.method='explicit-screen-dash';f.needsReview=false;delete f.reviewReason;
+    continue;
+   }
+  }
   let emptyScore;try{emptyScore=await foodEmptyTemplateScore(POKESLEEP_FOOD_MATCHER.cropFood(canvas,`food${i+1}`));}catch(e){f.emptyTemplate={legal:true,confirmed:false,error:runtimeErrorText(e)};if(f.name===NO_FOOD){f.name='';f.needsReview=true;f.reviewReason='no-food-template-unavailable';}continue;}
   const regular=(Array.isArray(f.ranking)?f.ranking:[]).filter(x=>x?.name&&x.name!==NO_FOOD&&Number.isFinite(Number(x.score))).sort((a,b)=>Number(b.score)-Number(a.score))[0]||null,regularBestScore=regular?Number(regular.score):NaN,margin=Number.isFinite(regularBestScore)?emptyScore-regularBestScore:null,confirmed=noFoodTemplateEligible(legal,emptyScore,regularBestScore);
   f.emptyTemplate={legal:true,confirmed,score:emptyScore,regularBest:regular?.name||'',regularBestScore:Number.isFinite(regularBestScore)?regularBestScore:null,margin};
