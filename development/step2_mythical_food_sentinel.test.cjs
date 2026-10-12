@@ -18,7 +18,7 @@ test('― is a legal absent-food sentinel, not a missing sprite',()=>{
   {foods:['マメミート','マメミート','げきからハーブ']},
   {foods:['マメミート','マメミート','―']}
  ]};
- const slots=ctx.resolveSlots({},inference,59);
+ const slots=ctx.resolveSlots({},inference,65);
  assert.equal(slots.length,3);
  assert.equal(slots[2].method,'image');
  assert.equal(slots[2].needsReview,undefined);
