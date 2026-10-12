@@ -1453,6 +1453,22 @@ async function analyzeSingleImage(inputFile,idx,total,{sourceIndex=null,displayN
   const nicknamePreview=parsed.nicknameNeedsReview?nicknameReviewPreviewCrop(canvas).toDataURL('image/png'):'';setProgressState('running',{done:idx,total,message:`解析中 ${Math.min(idx+1,total)} / ${total}`});
   let inference=inferParsed(parsed);({parsed,inference}=await rescueStructured(canvas,raw,parsed,inference,idx,total));inference=await retryMissingCarryFromVisibleCard(canvas,parsed,inference,idx,total);({parsed,inference}=applyMintNeutralization(canvas,parsed,inference));parsed.versatileSkill=detailedMewVersatileSkill(parsed);
   let foods=guardLockedFood3KnownLowConfidenceConfusions(guardLockedFood3SoyMushroomConfusion(guardLockedFood3DimmedArbitration(markFoodReviews(POKESLEEP_FOOD_MATCHER.resolveSlots(canvas,inference,parsed.level)),parsed.level),parsed.level),parsed.level);const firstFoodRescue=typeof tryCarryCorroboratedFirstFoodRescue==='function'?tryCarryCorroboratedFirstFoodRescue(inference,foods):null;if(firstFoodRescue)foods=firstFoodRescue.foods;foods=await applySafeNoFoodTemplate(canvas,inference,foods);
+  // Conservative second opinion: corroborate food3 ONLY when it is already
+  // reviewed or would be flagged by the known weak-third-food safety guard.
+  // This compares actual icons in one screenshot, never Golden data.
+  const candidateFood3=foods?.[2];
+  if(candidateFood3?.method==='image'&&(candidateFood3.needsReview||weakThirdFoodEvidence(foods))){
+   try{
+    const match=POKESLEEP_FOOD_MATCHER.thirdFoodSelfMatch(canvas,foods);
+    if(match){
+     candidateFood3.crossSlotEvidence={...match,originalName:candidateFood3.name,originalScore:candidateFood3.score};
+     candidateFood3.name=match.name;
+     candidateFood3.method='image-cross-slot';
+     candidateFood3.needsReview=false;
+     candidateFood3.reviewReason='';
+    }
+   }catch(e){candidateFood3.crossSlotError=runtimeErrorText(e);}
+  }
   // Recheck ONLY third food slots already marked for human review.
   // No suggestion is auto-applied: this leaves the zero-false-accept gate intact.
   const third=foods[2];

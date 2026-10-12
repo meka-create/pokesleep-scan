@@ -7,7 +7,7 @@
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 51,
+  "fileCount": 52,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 4855,
-      "sha256": "878229df9723d7de1f4b88f1a02f5c2b4ff664cff66b31c198697a8d4eebab72"
+      "bytes": 4997,
+      "sha256": "a9973a0c692a6224def33a598ac506c492e242daa3f752deb1e94da16acfb660"
     },
     {
       "path": ".nojekyll",
@@ -36,8 +36,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 290713,
-      "sha256": "77df3fe9f674520313750075482493afba067ca1bbc2baec75028e5f6f2f66a3"
+      "bytes": 291520,
+      "sha256": "33d8413e21689e6c8f568900e20fa712773916a0c17e1d33f755ee022555a447"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -125,6 +125,11 @@
       "sha256": "1d85a83ce5bda029d4c8b8ded7b4cbf78ae0b92a1b1f3c7cf8463c1d534e3ace"
     },
     {
+      "path": "development/step2_food3_selfmatch.test.cjs",
+      "bytes": 3611,
+      "sha256": "8e3556a3cacf48254dacd520eb035f3e63f122ef8d9e6a2576c9dbd1568ff4d0"
+    },
+    {
       "path": "development/step2_meka142_benchmark.py",
       "bytes": 15339,
       "sha256": "63cc811d93fed04b0649903398d812dbb6f9e384e919b8ea80c630ce37b75173"
@@ -181,8 +186,8 @@
     },
     {
       "path": "food_matcher.js",
-      "bytes": 7498,
-      "sha256": "b834eb188f578af2f04de427bc70092d432fd5c61b8d6cb44660f7223699a49f"
+      "bytes": 10127,
+      "sha256": "81c8569e2c7f390215ff65d4053b2d96d657cbd0218c24dd019aeedbd3e556a7"
     },
     {
       "path": "icons/apple-touch-icon.png",
@@ -261,8 +266,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 3754,
-      "sha256": "1f7a8bfe62b0ed760d8a363436edc39468bf9cbcdcfd1c2d7de576e6f5199102"
+      "bytes": 3773,
+      "sha256": "ece4fbec25429ada42720e8f5fca90fafa2924f0210931b57cd5586d3d5e7bb6"
     }
   ]
 }

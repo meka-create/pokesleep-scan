@@ -1,6 +1,6 @@
 const RELEASE_ID = '2026-10-12-independent-master-auto-v12';
 // Distinct caches per release prevent stale OCR and UI assets from surviving promotion.
-const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}-step3-prod-multi-picker-v1-reviewclean-v1-mythical-blank-v2`;
+const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}-step3-prod-multi-picker-v1-reviewclean-v1-mythical-blank-v2-food3-selfmatch-v3`;
 const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}&step2=sharedcsv-v1&step3=androidroi-v1&pick=multi-v1&ui=review-clean-v1`;
 const APP_SHELL = [
   './',
