@@ -127,6 +127,30 @@ test('only legal classifier carry values can be manually confirmed',()=>{
  assert.equal(r.parsed.carryNeedsReview,false);
  assert.equal(r.recomputed,true);
 });
+test('user-confirmed carry outside model options is supported safely',()=>{
+ const r={species:'ジュカイン',parsed:{carry:null,carryNeedsReview:true},
+  inference:{status:'UNIQUE',candidates:['ジュカイン'],
+    hits:[{pokemon:'ジュカイン',calculatedCarry:26},
+          {pokemon:'ジュカイン',calculatedCarry:32}]}};
+ assert.equal(ctx.applyManuallyVerifiedCarry(r,'27'),false);
+ assert.equal(r.parsed.carry,null);
+ assert.equal(ctx.applyManuallyVerifiedCarry(r,'0',true),false);
+ assert.equal(ctx.applyManuallyVerifiedCarry(r,'251',true),false);
+ assert.equal(ctx.applyManuallyVerifiedCarry(r,'not-a-number',true),false);
+ assert.equal(ctx.applyManuallyVerifiedCarry(r,'27',true),true);
+ assert.equal(r.parsed.carry,27);
+ assert.equal(r.parsed.carryManualConfirmed,true);
+ assert.equal(r.parsed.carryNeedsReview,false);
+ assert.equal(r.parsed.carryVerificationOutOfModel,true);
+ assert.equal(r.parsed.carryRetry.manuallyEnteredOutsideClassifier,true);
+});
+test('carry review UI provides custom entry even if classifier has no guesses',()=>{
+ assert.match(source,/const carryReviewHtml=reviewState.carry&&!manual/);
+ assert.match(source,/その他（画面の数値を入力）/);
+ assert.match(source,/class="carrymanual"/);
+ assert.match(source,/inputmode="numeric"/);
+ assert.match(source,/class="carryconfirm"/);
+});
 test('shape second opinion is explicitly non-authoritative',()=>{
  assert.match(fm,/function reviewShapeOpinion\(/);
  assert.match(fm,/automatic:false/);
