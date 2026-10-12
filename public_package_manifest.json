@@ -91,8 +91,8 @@
     },
     {
       "path": "development/master_auto_update.test.cjs",
-      "bytes": 5347,
-      "sha256": "fa70b092979eb4794fb82a12b1eb84d243765c6349599e342980bdcabf2a22ad"
+      "bytes": 5361,
+      "sha256": "542c7dff2af980e1e9d8553a86c7d1a84371327ffa4525d59a835a94bbf11509"
     },
     {
       "path": "development/register_food_icons.py",
