@@ -43,23 +43,29 @@ INSTRUMENTED=JS.replace(HOOK,'''window.__STEP2_AUDIT__={
     return {csv,errors:manualDraftErrors(r.manualDraft),
      gate:POKESLEEP_CSV_GATE.inspect(buildCsvText(),POKESLEEP_MASTER).ok};
   },
-  testCarry:()=>{
-    const species='ジュカイン',p=POKESLEEP_MASTER.pokemon.find(x=>x.name===species);
+  testMissingCarry:()=>{
+    const species='フシギダネ',p=POKESLEEP_MASTER.pokemon.find(x=>x.name===species);
     const r={
-      file:'synthetic-carry.png',speciesManualOverride:species,
-      inference:{status:'UNIQUE',candidates:[species],
-        hits:[{pokemon:species,calculatedCarry:26},{pokemon:species,calculatedCarry:32}],
+      file:'synthetic-missing-carry.png',speciesManualOverride:species,
+      inference:{status:'UNIQUE',candidates:[species],hits:[],
         profiles:[],stages:{mainSkill:[species],helpSp:[species]}},
       classification:{status:'UNIQUE',candidates:[species],hits:[],profiles:[]},
-      parsed:{nickname:'所持数確認',carry:null,carryNeedsReview:true,
-        level:28,sp:0,skillLevel:1,mainSkill:p.mainSkill,nature:'てれや',
+      parsed:{nickname:'所持数未取得',carry:null,carryNeedsReview:true,
+        level:10,sp:1000,helpSeconds:2500,skillLevel:1,
+        mainSkill:p.mainSkill,nature:'てれや',
         subs:POKESLEEP_MASTER.subskills.slice(0,5).map(x=>({value:x.ja,needsReview:false}))},
       foods:Array.from({length:3},()=>({name:p.ing1.name,needsReview:false})),raw:{}
     };
-    results=[r];document.querySelector('#resultsCard').hidden=false;render();
-    return {options:carryManualChoices(r),hasControl:!!document.querySelector('.carryedit')};
+    results=[r];document.querySelector('#resultsCard').hidden=false;
+    document.querySelector('#csv').disabled=false;
+    render();
+    return {row:toPokesleepToolCsvRow(r),
+      gate:POKESLEEP_CSV_GATE.inspect(buildCsvText(),POKESLEEP_MASTER).ok,
+      blocker:csvCompatibilityBlockers().blocked,
+      review:resultReviewState(r),carry:r.parsed.carry,
+      hasControls:!!document.querySelector('.carryedit,.carrymanual,.carryconfirm'),
+      diagnostics:diagnosticObject().results[0].parsed};
   },
-  carryResult:()=>({parsed:results[0].parsed,review:resultReviewState(results[0])})
 };
 '''+HOOK)
 
@@ -169,40 +175,26 @@ def main():
                       "Mew's editable empty subskills should display em dash")
                 evidence["checks"].append("Mew manual empty subskills display dash but export blank CSV cells")
 
-                # Manually observed carry values remain enterable when hidden
-                # ribbon models disagree with correct on-screen capacity.
-                carry=page.evaluate("window.__STEP2_AUDIT__.testCarry()")
-                check(carry["hasControl"],"Missing carry correction control")
-                check(carry["options"]==[26,32],"Unexpected synthetic classifier values")
-                selector=page.locator("select.carryedit")
-                visible_debug=page.evaluate("""() => {
-                  let el=document.querySelector('select.carryedit'),stack=[];
-                  while(el){const st=getComputedStyle(el);
-                   stack.push({name:el.tagName,id:el.id,cls:el.className,
-                     hidden:el.hidden,display:st.display,visibility:st.visibility,
-                     rect:el.getBoundingClientRect().height});el=el.parentElement;}
-                  return {stack,reviewOnly:document.querySelector('#reviewOnly')?.checked,
-                    count:document.querySelectorAll('#tbl tbody tr').length};
-                }""")
-                check(selector.is_visible(),"Hidden carry editor: "+str(visible_debug))
-                check(selector.locator("option[value='27']").count()==0,
-                      "Unexpected out-of-model shortcut")
-                selector.select_option("manual")
-                entry=page.locator("input.carrymanual")
-                check(entry.is_visible(),"Manual carry field not revealed")
-                entry.fill("251")
-                check(page.locator("button.carryconfirm").is_disabled(),
-                      "Out-of-bounds carry was enabled")
-                entry.fill("27")
-                page.locator("button.carryconfirm").click()
-                fixed=page.evaluate("window.__STEP2_AUDIT__.carryResult()")
-                check(fixed["parsed"]["carry"]==27 and fixed["parsed"]["carryManualConfirmed"],
-                      "Explicitly confirmed carry was not persisted")
-                check(fixed["parsed"]["carryVerificationOutOfModel"],
-                      "Audit trail failed to record classifier disagreement")
-                check(not fixed["review"]["carry"],
-                      "Explicitly verified carry is still flagged missing")
-                evidence["checks"].append("Chromium carry editor confirms out-of-model game values safely")
+                # Missing carry is OCR-only diagnostic data. It does not
+                # require manual entry, block valid CSV or silently fill carry.
+                carry=page.evaluate("window.__STEP2_AUDIT__.testMissingCarry()")
+                check(not carry["hasControls"],"Removed carry manual controls still rendered")
+                check(carry["carry"] is None,"Missing carry was filled without image evidence")
+                check(carry["review"]["carry"] is False,"Carry-only review still blocks completion")
+                check(not carry["blocker"],"Missing carry blocked exportable CSV fields")
+                check(carry["gate"] and len(carry["row"])==16,"Missing-carry CSV was invalid")
+                check(carry["diagnostics"]["carryOcrUnresolved"] is True,
+                      "Raw carry OCR uncertainty was lost from diagnostics")
+                check(carry["diagnostics"]["carry"] is None,
+                      "Diagnostic carry was silently filled")
+                with page.expect_download(timeout=10000) as info:
+                    page.locator("#csv").click()
+                carry_csv=Path(info.value.path()).read_text(encoding="utf-8")
+                carry_rows=list(csv.reader(io.StringIO(carry_csv)))
+                check(len(carry_rows)==2 and len(carry_rows[1])==16,
+                      "Missing carry failed real 16-column CSV export")
+                evidence["checks"].append(
+                    "missing carry: no manual editor, unblocked actual CSV, retained raw diagnostic")
                 context.close()
             finally:
                 browser.close()
