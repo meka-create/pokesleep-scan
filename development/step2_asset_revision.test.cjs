@@ -8,7 +8,7 @@ const app=fs.readFileSync('app.js','utf8');
 // still answers local script requests. An unchanged ?release= query can return
 // stale code for the full session. Always bump script query when OCR logic
 // changes, in BOTH dynamic loader and PWA precache manifest.
-const indexRevs=[...index.matchAll(/u\.searchParams\.set\('ui','([^']+)'\)/g)].map(m=>m[1]);
+const indexRevs=[...index.matchAll(/(?:watchUrl|u)\.searchParams\.set\('ui','([^']+)'\)/g)].map(m=>m[1]);
 assert.equal(indexRevs.length,2,'the main and health local-script loaders both need a pinned cache revision');
 assert.equal(indexRevs[0],indexRevs[1]);
 const swRev=worker.match(/&ui=([^\x60]+)\x60/);
