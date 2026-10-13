@@ -60,3 +60,16 @@ test('unavailable or weak Paddle evidence is inert',()=>{
   assert.equal(r.nickname,'ユキコ');assert.equal(r.nicknameNeedsReview,true);
  }
 });
+
+test('all other production code is byte-for-byte identical to pre-nickname baseline',()=>{
+ const crypto=require('node:crypto');
+ let restored=src.slice(0,start)+src.slice(end);
+ const call='parsed=improveReviewedNicknameCaption(parsed);';
+ assert.equal(restored.split(call).length-1,1,'one nickname hook insertion');
+ restored=restored.replace(call,'');
+ restored=restored.replace("codeRevision:'20261013-nickname-caption-review-v1'",
+  "codeRevision:'20261013-food3-pixel-v6-direct-files'");
+ const sha=crypto.createHash('sha256').update(restored,'utf8').digest('hex');
+ assert.equal(sha,'365ae89c57ea414a0fcf196c965fb4023718953bca07c437a62c3a190a5d7c46',
+  'non-nickname implementation changed unexpectedly');
+});
