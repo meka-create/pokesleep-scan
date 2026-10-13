@@ -191,8 +191,8 @@
     },
     {
       "path": "development/step3_android_roi.test.cjs",
-      "bytes": 12441,
-      "sha256": "eed5fc2d86cb454a3616f2bb1ec109ceef8395491cb34095c588bd147a35f732"
+      "bytes": 12451,
+      "sha256": "ba5e41d352d21206c216f9713a15e5f4e7c5ba59b36bf2672c205dc9fb0bb829"
     },
     {
       "path": "development/step3_carry_food3.test.cjs",
