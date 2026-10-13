@@ -164,8 +164,8 @@ test('PWA includes Android adapter in new versioned app shell',()=>{
  assert.match(sw,/versioned\('\.\/android_roi\.js'\)/);
  assert.match(sw,/step3=androidroi-v1/);
  assert.match(sw,/pick=multi-v1/);
- assert.match(sw,/ui=review-clean-v1-food3-pixel-v7-nickname-caption/);
- assert.match(html,/set\('ui','review-clean-v1-food3-pixel-v7-nickname-caption'\)/);
+ assert.match(sw,/ui=review-clean-v1-food3-pixel-v8-nickname-postrescue/);
+ assert.match(html,/set\('ui','review-clean-v1-food3-pixel-v8-nickname-postrescue'\)/);
  assert.match(html,/set\('pick','multi-v1'\)/);
  assert.match(html,/set\('step3','androidroi-v1'\)/);
 });
