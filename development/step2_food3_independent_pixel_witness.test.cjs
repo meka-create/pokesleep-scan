@@ -25,14 +25,15 @@ function put(d,box,rgb){
  }
 }
 const center=[46,29,56,39],bottom=[46,40,56,50],
-      left=[25,28,32,44],neck=[46,6,56,16];
+      left=[25,28,32,44],neck=[46,6,56,16],
+      lowerLabel=[46,48,56,58];
 const potato=sample();
 put(potato,center,[253,225,179]);
 put(potato,bottom,[250,215,171]);
 put(potato,left,[251,218,173]);
 const oil=sample();
 put(oil,center,[247,236,160]);
-put(oil,bottom,[241,242,213]);
+put(oil,lowerLabel,[241,242,213]);
 put(oil,neck,[185,196,171]);
 const pumpkins=sample();
 put(pumpkins,center,[254,214,157]);
@@ -48,6 +49,9 @@ assert.equal(pixel(potato,99,80,opts),null,'unknown geometry must fail closed');
 const outOfRange=potato.slice();
 put(outOfRange,bottom,[254,214,157]);
 assert.equal(pixel(outOfRange,100,80,opts),null,'one conflicting region must prevent acceptance');
+const noLabel=oil.slice();
+put(noLabel,lowerLabel,[254,254,237]);
+assert.equal(pixel(noLabel,100,80,opts),null,'oil must display a distinct lower bottle label');
 const noNeck=oil.slice();
 put(noNeck,neck,[254,254,237]);
 assert.equal(pixel(noNeck,100,80,opts),null,'color alone without visible bottle neck is insufficient');

@@ -146,8 +146,8 @@
     },
     {
       "path": "development/step2_food3_independent_pixel_witness.test.cjs",
-      "bytes": 2814,
-      "sha256": "253b0cc8aef9a33db2fc5482f13b2e5ae1290465123bb811bb6a0c97baefaf42"
+      "bytes": 3012,
+      "sha256": "6f25de3bdbdd498fceff2e3a840f20124fc5204838301d0f8979f681c7a4f594"
     },
     {
       "path": "development/step2_food3_selfmatch.test.cjs",
@@ -226,8 +226,8 @@
     },
     {
       "path": "food_matcher.js",
-      "bytes": 14826,
-      "sha256": "bd7c3599dcd8ed6e6b4303678c363e286090ecd850c6cd4524aed58d542d7c80"
+      "bytes": 14881,
+      "sha256": "a65b8ae1b9edbcb21a2bc20105d11231d0a5504e13117c40ac96728a39353f93"
     },
     {
       "path": "icons/apple-touch-icon.png",
@@ -307,7 +307,7 @@
     {
       "path": "sw.js",
       "bytes": 3907,
-      "sha256": "548a0760abc52e0a0fc9c2bd90d93edf1959e231fff6e30750a98cdd50d7362c"
+      "sha256": "7c340f767cce90d71ce3d48e245338d53cbe8535c82f1105af4d34eaeeb8447f"
     }
   ]
 }

@@ -106,8 +106,9 @@ function lockedFood3PixelWitnessFromRgba(rgba,w,h,allowed){
   return channel.map(v=>{v.sort((a,b)=>a-b);return (v[(v.length-1)>>1]+v[v.length>>1])/2;});
  };
  const center=region(46,29,56,39),bottom=region(46,40,56,50),
-  left=region(25,28,32,44),neck=region(46,6,56,16);
- if(!center||!bottom||!left||!neck)return null;
+  left=region(25,28,32,44),neck=region(46,6,56,16),
+  lowerLabel=region(46,48,56,58);
+ if(!center||!bottom||!left||!neck||!lowerLabel)return null;
  const within=(rgb,lo,hi)=>rgb.every((v,i)=>v>=lo[i]&&v<=hi[i]);
  const potato=candidates.has('ほっこりポテト')&&
   within(center,[248,218,172],[255,231,186])&&
@@ -116,11 +117,11 @@ function lockedFood3PixelWitnessFromRgba(rgba,w,h,allowed){
  const oil=candidates.has('ピュアなオイル')&&
   within(center,[241,229,150],[252,244,169])&&
   within(neck,[176,186,162],[200,208,183])&&
-  within(bottom,[234,237,197],[250,249,224]);
+  within(lowerLabel,[233,235,198],[250,249,224]);
  if(potato===oil)return null; // reject ambiguous evidence
  return {name:potato?'ほっこりポテト':'ピュアなオイル',
   method:'three-region-visible-pixel-witness',
-  evidence:potato?{center,bottom,left}:{center,neck,bottom}};
+  evidence:potato?{center,bottom,left}:{center,neck,lowerLabel}};
 }
 function lockedFood3PixelWitness(screenCanvas,foods,level){
  const third=foods?.[2];
