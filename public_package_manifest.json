@@ -7,7 +7,7 @@
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 57,
+  "fileCount": 58,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 5694,
-      "sha256": "e2a16cd17631c29b01223a21c271520300d248fa9d8d4fba3acdd96c84db2359"
+      "bytes": 5825,
+      "sha256": "a92ea2b103ea03e4b8afb47a5801d1ae2767d0c48221f719d82bc659827b9ce8"
     },
     {
       "path": ".nojekyll",
@@ -36,8 +36,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 295620,
-      "sha256": "035efc696b981efba9c3590bc17a841213c6d85c89d1ad09be8eeaf5e6e47205"
+      "bytes": 295651,
+      "sha256": "c09a237218dfe18f1d8b36ba820d9c3061f27e1b4fd0531106f8455831deb95f"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -83,6 +83,11 @@
       "path": "development/browser_step3_review_audit.py",
       "bytes": 13785,
       "sha256": "328ca5d9dea1e3cd19f5a64492c0d5d2228d17d404f32e9424e119a133e62c45"
+    },
+    {
+      "path": "development/browser_unified_mobile_layout.py",
+      "bytes": 5874,
+      "sha256": "cf24f8b25e6bc7f7f3b9d94a55edd3759ee21645e5be3e10688e50b13ecae668"
     },
     {
       "path": "development/generate_public_package_manifest.py",
@@ -246,8 +251,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 71385,
-      "sha256": "e7852065d0f5956f93dffcdfc641899ff515ca8d38e0f3b14c7717a97e6c5f6a"
+      "bytes": 71332,
+      "sha256": "915d9f9e6fe8c642701a60e2239bb862586967de23c003978b90dbffecc74691"
     },
     {
       "path": "manifest.webmanifest",
@@ -291,8 +296,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 3836,
-      "sha256": "f19b21e7e375e0b74175bed74ff5564990539b7d1ec602a52c22066fab1c84e3"
+      "bytes": 3861,
+      "sha256": "536c5b5bbfd0d58f5e160aad0845c10406b445f1b563ad0a02f8a7d493341ffe"
     }
   ]
 }
