@@ -82,7 +82,7 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  let restored=src.slice(0,start)+src.slice(end);
  const consensusCall='parsed=autoConfirmCorroboratedReviewedNickname(parsed);';
  assert.equal(restored.split(consensusCall).length-1,1,'one reviewed-name promotion hook');
- restored=restored.replace(consensusCall,'');
+ restored=restored.replace('  '+consensusCall+'\n','');
  const call='parsed=improveReviewedNicknameCaption(parsed);';
  assert.equal(restored.split(call).length-1,2,'nickname hook before and after level rescue');
  restored=restored.replace(call,'');
