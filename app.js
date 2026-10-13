@@ -387,8 +387,17 @@ function setSelectedFiles(fileList,{clearInput=false,append=false}={}){
  })();return true;}
 
 const fileInput=$('#files'),dropZone=$('.filelabel');
-const additionalInput=$('#addFiles'),imageSelectDialog=$('#imageSelectDialog');
-let imageSelectionReturnFocus=null;
+const additionalInput=$('#addFiles'),storageInput=$('#storageFiles'),imageSelectDialog=$('#imageSelectDialog');
+let imageSelectionReturnFocus=null,imageSelectionAppend=false;
+function setImageSelectStep(step){
+ const source=step==='source';
+ const modes=$('#imageSelectActionChoices'),sources=$('#imageSelectSourceChoices'),back=$('#imageSelectBack');
+ if(modes)modes.hidden=source;
+ if(sources)sources.hidden=!source;
+ if(back)back.hidden=!source||!selected.length;
+ const heading=$('#imageSelectDialogTitle');
+ if(heading)heading.textContent=source?'画像の選択先':'画像の選択';
+}
 function closeImageSelectDialog({restoreFocus=true}={}){
  if(!imageSelectDialog?.open)return;
  imageSelectDialog.close();
@@ -396,31 +405,30 @@ function closeImageSelectDialog({restoreFocus=true}={}){
  imageSelectionReturnFocus=null;
 }
 function openImageSelectDialog(){
- if(!selected.length||newSelectionBusy()||!imageSelectDialog)return;
+ if(newSelectionBusy()||!imageSelectDialog)return;
  imageSelectionReturnFocus=document.activeElement;
+ imageSelectionAppend=false;
  syncAdditionalFileUi();
+ setImageSelectStep(selected.length?'action':'source');
  if(!imageSelectDialog.open)imageSelectDialog.showModal();
- $('#imageSelectClose')?.focus();
+ (selected.length?$('#imageSelectReplace'):$('#imageSourcePhotos'))?.focus();
 }
 function triggerImageFilePicker(input){
  if(!input||newSelectionBusy())return;
- // Clear the native input, not the selected list: Android pickers can reselect
- // the same batch and must still fire a change event.
+ // Re-selecting the same image must still fire change on Android.
  input.value='';
  input.click();
 }
 dropZone?.addEventListener('click',e=>{
  if(e.target===fileInput)return;
  if(newSelectionBusy())return;
- if(selected.length)openImageSelectDialog();
- else triggerImageFilePicker(fileInput);
+ openImageSelectDialog();
 });
 dropZone?.addEventListener('keydown',e=>{
  if(e.target!==dropZone||!['Enter',' '].includes(e.key))return;
  e.preventDefault();
  if(newSelectionBusy())return;
- if(selected.length)openImageSelectDialog();
- else triggerImageFilePicker(fileInput);
+ openImageSelectDialog();
 });
 fileInput?.addEventListener('click',e=>{
  if(newSelectionBusy()){e.preventDefault();return;}
@@ -428,14 +436,34 @@ fileInput?.addEventListener('click',e=>{
 });
 fileInput?.addEventListener('change',e=>setSelectedFiles(e.target.files));
 $('#imageSelectClose')?.addEventListener('click',()=>closeImageSelectDialog());
+$('#imageSelectBack')?.addEventListener('click',()=>{
+ if(!imageSelectDialog?.open)return;
+ if(!selected.length){closeImageSelectDialog();return;}
+ setImageSelectStep('action');
+ $('#imageSelectReplace')?.focus();
+});
 $('#imageSelectReplace')?.addEventListener('click',()=>{
- closeImageSelectDialog({restoreFocus:false});
- triggerImageFilePicker(fileInput);
+ if(newSelectionBusy())return;
+ imageSelectionAppend=false;
+ setImageSelectStep('source');
+ $('#imageSourcePhotos')?.focus();
 });
 $('#imageSelectAppend')?.addEventListener('click',()=>{
  if(analysisPause||!selected.length||newSelectionBusy())return;
+ imageSelectionAppend=true;
+ setImageSelectStep('source');
+ $('#imageSourcePhotos')?.focus();
+});
+$('#imageSourcePhotos')?.addEventListener('click',()=>{
+ const append=imageSelectionAppend;
  closeImageSelectDialog({restoreFocus:false});
- triggerImageFilePicker(additionalInput);
+ triggerImageFilePicker(append?additionalInput:fileInput);
+});
+$('#imageSourceFiles')?.addEventListener('click',()=>{
+ closeImageSelectDialog({restoreFocus:false});
+ // A generic input (no accept) asks Android Chrome for a file browser,
+ // rather than its Photos-only picker. Type validation remains strict.
+ triggerImageFilePicker(storageInput);
 });
 imageSelectDialog?.addEventListener('close',()=>{
  if(imageSelectionReturnFocus?.isConnected)imageSelectionReturnFocus.focus();
@@ -444,6 +472,11 @@ imageSelectDialog?.addEventListener('close',()=>{
 additionalInput?.addEventListener('change',e=>{
  const batch=[...e.target.files];e.target.value='';
  if(batch.length)setSelectedFiles(batch,{append:true});
+});
+storageInput?.addEventListener('change',e=>{
+ const batch=[...e.target.files],append=imageSelectionAppend;
+ e.target.value='';
+ if(batch.length)setSelectedFiles(batch,{append,clearInput:true});
 });
 let dragDepth=0;
 function hasFileDrag(e){return Array.from(e.dataTransfer?.types||[]).includes('Files');}
