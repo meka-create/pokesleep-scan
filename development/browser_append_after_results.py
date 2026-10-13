@@ -76,6 +76,7 @@ def main():
      # No image chosen: keep both results and original image selection.
      with page.expect_file_chooser() as cancel:
       page.locator("#imageSelectAppend").click()
+      page.locator("#imageSourcePhotos").click()
      cancel.value.set_files([])
      assert page.evaluate("window.__APPEND_AFTER_RESULTS_TEST__.count()")==1
      assert page.evaluate("window.__APPEND_AFTER_RESULTS_TEST__.selected()")==["first.png"]
@@ -87,6 +88,7 @@ def main():
      page.locator(".filelabel").click()
      with page.expect_file_chooser() as duplicate:
       page.locator("#imageSelectAppend").click()
+      page.locator("#imageSourcePhotos").click()
      duplicate.value.set_files([first])
      page.locator("#appDialog").wait_for(state="visible",timeout=20000)
      assert "追加画像はありません" in page.locator("#appDialogTitle").inner_text()
@@ -103,6 +105,7 @@ def main():
      assert page.locator("#imageSelectAppend").is_enabled()
      with page.expect_file_chooser() as new_images:
       page.locator("#imageSelectAppend").click()
+      page.locator("#imageSourcePhotos").click()
      new_images.value.set_files([second])
      page.wait_for_function("""() => document.querySelector('#uploadMain')?.textContent==='2枚を選択しました'
        && !document.querySelector('#run')?.disabled
