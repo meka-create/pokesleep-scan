@@ -2,29 +2,34 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
-test('Photos and Files are explicit source options without changing the upload target',()=>{
- const html=fs.readFileSync('index.html','utf8');
- const app=fs.readFileSync('app.js','utf8');
- assert.match(html,/<button id="imageSourcePhotos"/);
- assert.match(html,/<button id="imageSourceFiles"/);
- assert.match(html,/<input id="files" type="file" accept="image\/png,image\/jpeg,.png,.jpg,.jpeg" multiple>/);
+const html=fs.readFileSync('index.html','utf8');
+const app=fs.readFileSync('app.js','utf8');
+test('initial image selection directly invokes the generic native file picker',()=>{
+ assert.doesNotMatch(html,/id="imageSelectSourceChoices"|id="imageSourcePhotos"|id="imageSourceFiles"|id="imageSelectBack"/);
  assert.match(html,/<input id="storageFiles" type="file" multiple hidden/);
  assert.doesNotMatch(html,/<input id="storageFiles"[^>]*accept=/);
- assert.match(app,/triggerImageFilePicker\(append\?additionalInput:fileInput\)/);
- assert.match(app,/triggerImageFilePicker\(storageInput\)/);
+ assert.match(app,/function openImagePickerOrActions\(\)/);
+ assert.match(app,/if\(selected\.length\)\{openImageSelectDialog\(\);return;\}\s*imageSelectionAppend=false;\s*triggerImageFilePicker\(storageInput\)/);
+ assert.match(app,/const invalid=incoming\.filter\(f=>!isAcceptedImageFile\(f\)\)/);
  assert.match(app,/const batch=\[\.\.\.e\.target\.files\],append=imageSelectionAppend/);
  assert.match(app,/setSelectedFiles\(batch,\{append,clearInput:true\}\)/);
- assert.match(app,/const invalid=incoming.filter\(f=>!isAcceptedImageFile\(f\)\)/);
- assert.match(app,/const files=append\?\[\.\.\.selected,\.\.\.incoming\]:incoming/);
- assert.match(app,/if\(append&&stable.length===previousCount\)/);
- assert.match(app,/if\(newSelectionBusy\(\)\)return;/);
 });
-test('Selected images keep replace/append stage; fresh selection starts with source choice',()=>{
- const app=fs.readFileSync('app.js','utf8');
- const html=fs.readFileSync('index.html','utf8');
- assert.match(app,/setImageSelectStep\(selected.length\?'action':'source'\)/);
- assert.match(app,/setImageSelectStep\('source'\)/);
- assert.match(app,/setImageSelectStep\('action'\)/);
- assert.match(html,/id="imageSelectBack"[^>]*hidden/);
- assert.match(html,/#imageSelectActionChoices\[hidden\],#imageSelectSourceChoices\[hidden\]/);
+test('selected images preserve the action modal; both actions open Files immediately',()=>{
+ assert.match(html,/id="imageSelectDialog"/);
+ assert.match(html,/id="imageSelectActionChoices"/);
+ assert.match(html,/<div id="imageSelectActionChoices" class="image-select-dialog-body">/);
+ assert.match(html,/id="imageSelectReplace"/);
+ assert.match(html,/id="imageSelectAppend"/);
+ assert.match(app,/function openImageSelectDialog\(\)/);
+ assert.match(app,/imageSelectionAppend=false;\s*closeImageSelectDialog\(\{restoreFocus:false\}\);\s*triggerImageFilePicker\(storageInput\)/);
+ assert.match(app,/imageSelectionAppend=true;\s*closeImageSelectDialog\(\{restoreFocus:false\}\);\s*triggerImageFilePicker\(storageInput\)/);
+ assert.match(app,/const files=append\?\[\.\.\.selected,\.\.\.incoming\]:incoming/);
+ assert.match(app,/if\(append&&stable\.length===previousCount\)/);
+ assert.doesNotMatch(app,/setImageSelectStep|#imageSourcePhotos|#imageSourceFiles/);
+});
+test('keyboard support remains and the action dialog is only announced when applicable',()=>{
+ assert.match(html,/class="filelabel" role="button" tabindex="0"/);
+ assert.match(app,/dropZone\?\.addEventListener\('keydown'/);
+ assert.match(app,/label\?\.setAttribute\('aria-haspopup','dialog'\)/);
+ assert.match(app,/label\?\.removeAttribute\('aria-haspopup'\)/);
 });
