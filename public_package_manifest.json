@@ -7,7 +7,7 @@
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 55,
+  "fileCount": 57,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 5434,
-      "sha256": "2ee11ee70abc9ab24189c776da18fc958dfb1f074cbb00bb3f564939ab2f21c9"
+      "bytes": 5694,
+      "sha256": "e2a16cd17631c29b01223a21c271520300d248fa9d8d4fba3acdd96c84db2359"
     },
     {
       "path": ".nojekyll",
@@ -36,8 +36,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 295354,
-      "sha256": "013479bf3b680e9fe8b4b81a3335e0ae7fccfc7c829f8e3f4ae94b279ae32ff5"
+      "bytes": 295620,
+      "sha256": "035efc696b981efba9c3590bc17a841213c6d85c89d1ad09be8eeaf5e6e47205"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -68,6 +68,11 @@
       "path": "development/browser_boot_smoke.py",
       "bytes": 22886,
       "sha256": "6372dcdc3434e8152ce271c5916490107822956907dc554c92ebd978f0a8fede"
+    },
+    {
+      "path": "development/browser_choice_picker_kana.py",
+      "bytes": 5922,
+      "sha256": "a7922713c90f90e2d1b4415fa5365ddf3b2d6e011b148efc0d593ddb4e27c30b"
     },
     {
       "path": "development/browser_csv_download_audit.py",
@@ -118,6 +123,11 @@
       "path": "development/register_food_icons.py",
       "bytes": 3180,
       "sha256": "a4b82e6deaabb19d55f6264d99167ffdc1dc2e908d1d37facf8f370405677b8c"
+    },
+    {
+      "path": "development/review_picker_kana_prefix.test.cjs",
+      "bytes": 3587,
+      "sha256": "fa5970688bc8863d9931c5bd80fbaceef8fc45b6ad7e528fae77c1c4c358a51f"
     },
     {
       "path": "development/runtime_smoke.test.cjs",
@@ -236,8 +246,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 71284,
-      "sha256": "889a27fc2c7c30959e4684f841aacbf2f86cad9e10dff2f4448f9e06cb1634d5"
+      "bytes": 71385,
+      "sha256": "e7852065d0f5956f93dffcdfc641899ff515ca8d38e0f3b14c7717a97e6c5f6a"
     },
     {
       "path": "manifest.webmanifest",
@@ -281,8 +291,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 3821,
-      "sha256": "d9a365307d1a12666aeca8f7cb02a9be6e627d4f6803f0e6ba8d7ec325ebd585"
+      "bytes": 3836,
+      "sha256": "f19b21e7e375e0b74175bed74ff5564990539b7d1ec602a52c22066fab1c84e3"
     }
   ]
 }
