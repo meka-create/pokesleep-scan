@@ -131,8 +131,8 @@
     },
     {
       "path": "development/nickname_caption_rescue.test.cjs",
-      "bytes": 4259,
-      "sha256": "fcdb5414ae79e55ab57ba6df539c554fb78526ab198b4ebef1202b1e75c03ee1"
+      "bytes": 4249,
+      "sha256": "272d6e91404cc0c17a42a520c6ece6c083048d9254b73695a39389bbc5b27175"
     },
     {
       "path": "development/publish_master_status.py",
