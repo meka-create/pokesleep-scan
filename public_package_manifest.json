@@ -106,8 +106,8 @@
     },
     {
       "path": "development/image_source_choice.test.cjs",
-      "bytes": 2266,
-      "sha256": "562dff28faac8d010210003108504b9b203955078db5c9d78a3ebf36031509df"
+      "bytes": 2358,
+      "sha256": "140d43fecdfcec2365c9f1372a89b4e7d2c54d5560b0eae44e0686d28efc4b5b"
     },
     {
       "path": "development/master_auto_update.py",
@@ -271,8 +271,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 71502,
-      "sha256": "3a993a018be0f0e5596fc7304fb47a11d114ff67fa3a3a76868e9b413593e2ae"
+      "bytes": 71495,
+      "sha256": "06587c9ba07f63d1d3072dffc3290dd004dd5a3a27e3a86c2dacd6d326b6b34d"
     },
     {
       "path": "manifest.webmanifest",
