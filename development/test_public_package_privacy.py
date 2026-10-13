@@ -20,6 +20,20 @@ class PublicationGuardTests(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertTrue(private_file_risk(path),path)
 
+    def test_reject_secret_filetypes_and_hidden_credentials(self):
+        forbidden = [
+            '.env', '.env.local', '.env.production',
+            'config/.env.production', '.aws/credentials',
+            'certs/private.key', 'certs/server.pem',
+            'backup/userdata.sql', 'backup/settings.bak',
+            'keys/production.p12', 'auth/android.keystore',
+            'credentials.txt', 'oauth_access-token.txt',
+            'private-key.txt', 'deploy_secret.txt', 'backup/app.tfstate',
+        ]
+        for path in forbidden:
+            with self.subTest(path=path):
+                self.assertTrue(private_file_risk(path), path)
+
     def test_allow_existing_intended_public_code_assets_and_master(self):
         permitted = [
             ".gitignore",".github/workflows/pixel142-main-release.yml",
