@@ -94,6 +94,8 @@ jobs:
         run: node --test development/step2_asset_revision.test.cjs
       - name: STEP 2 locked third-food independent pixel witness (strict negative controls)
         run: node --test development/step2_food3_independent_pixel_witness.test.cjs
+      - name: Nickname level-caption review-only candidate regression
+        run: node --test development/nickname_caption_rescue.test.cjs
       - name: Missing carry and third-food advisory regression
         run: node --test development/step3_carry_food3.test.cjs
       - name: Prepare real Chromium browser tests
