@@ -171,6 +171,13 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
  stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .image-select-choice:focus-visible,.image-select-dialog-close:focus-visible{outline:3px solid #367de8;outline-offset:2px}
 .image-select-dialog-note{font-size:11px;color:#75839b;margin:0;line-height:1.5}
+.image-select-source-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
+.image-select-source-subtitle{color:#667993;font-size:11px;font-weight:650;line-height:1.45}
+.image-select-choice-primary .image-select-source-subtitle{color:#eff4ff}
+.image-select-choice-primary{align-items:center}
+.image-select-back{border:0;background:transparent;color:#3569c4;font-size:12px;font-weight:850;padding:8px 6px;border-radius:8px;cursor:pointer}
+.image-select-back:focus-visible{outline:3px solid #367de8}
+#imageSelectActionChoices[hidden],#imageSelectSourceChoices[hidden],#imageSelectBack[hidden]{display:none!important}
 /* Mobile touch targets remain large without the extra review navigator. */
 
  .results-head{flex-wrap:wrap;gap:10px}
@@ -216,6 +223,10 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
           </div>
           <input id="addFiles" type="file" accept="image/png,image/jpeg,.png,.jpg,.jpeg"
                  multiple hidden aria-label="追加する画像を選ぶ">
+          <!-- Omit accept on purpose: Android Chromium can then offer its
+               generic file manager instead of forcing the system Photo Picker.
+               JS still rejects all non-PNG/JPG files before any state change. -->
+          <input id="storageFiles" type="file" multiple hidden aria-label="ファイルから画像を選ぶ">
         </div>
         <div class="action-row">
           <button id="run" class="btn btn-primary" type="button" disabled>解析する</button>
@@ -296,10 +307,11 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
 
 <dialog id="imageSelectDialog" class="image-select-dialog" aria-labelledby="imageSelectDialogTitle">
   <div class="image-select-dialog-head">
+    <button id="imageSelectBack" class="image-select-back" type="button" hidden>戻る</button>
     <h2 id="imageSelectDialogTitle" class="image-select-dialog-title">画像の選択</h2>
     <button id="imageSelectClose" class="image-select-dialog-close" type="button" aria-label="閉じる" title="閉じる">×</button>
   </div>
-  <div class="image-select-dialog-body">
+  <div id="imageSelectActionChoices" class="image-select-dialog-body" hidden>
     <button id="imageSelectReplace" class="image-select-choice" type="button">
       <span>画像を選び直す</span>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h12M4 17h9"/></svg>
@@ -308,6 +320,19 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
       <span>画像を追加する</span>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
     </button>
+  </div>
+  <div id="imageSelectSourceChoices" class="image-select-dialog-body" hidden>
+    <button id="imageSourcePhotos" class="image-select-choice image-select-choice-primary" type="button">
+      <span class="image-select-source-copy"><span>フォトから選択</span>
+        <span class="image-select-source-subtitle">Google フォトなどの写真選択画面</span></span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m5 18 5-5 3 3 3-4 4 6"/></svg>
+    </button>
+    <button id="imageSourceFiles" class="image-select-choice" type="button">
+      <span class="image-select-source-copy"><span>ファイルから選択</span>
+        <span class="image-select-source-subtitle">ダウンロード・ファイルマネージャーなど</span></span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5h7l2 2h9v12H3z"/></svg>
+    </button>
+    <p class="image-select-dialog-note">使用するファイル管理画面は端末・ブラウザーによって異なります。</p>
   </div>
 </dialog>
 
