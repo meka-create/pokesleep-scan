@@ -17,6 +17,7 @@ test('initial image selection directly invokes the generic native file picker',(
 test('selected images preserve the action modal; both actions open Files immediately',()=>{
  assert.match(html,/id="imageSelectDialog"/);
  assert.match(html,/id="imageSelectActionChoices"/);
+ assert.match(html,/<div id="imageSelectActionChoices" class="image-select-dialog-body">/);
  assert.match(html,/id="imageSelectReplace"/);
  assert.match(html,/id="imageSelectAppend"/);
  assert.match(app,/function openImageSelectDialog\(\)/);
