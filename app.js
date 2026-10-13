@@ -1530,6 +1530,15 @@ async function analyzeSingleImage(inputFile,idx,total,{sourceIndex=null,displayN
   const nicknamePreview=parsed.nicknameNeedsReview?nicknameReviewPreviewCrop(canvas).toDataURL('image/png'):'';setProgressState('running',{done:idx,total,message:`解析中 ${Math.min(idx+1,total)} / ${total}`});
   let inference=inferParsed(parsed);({parsed,inference}=await rescueStructured(canvas,raw,parsed,inference,idx,total));inference=await retryMissingCarryFromVisibleCard(canvas,parsed,inference,idx,total);({parsed,inference}=applyMintNeutralization(canvas,parsed,inference));({parsed,inference}=applyVisibleMythicalSubskillDashes(canvas,parsed,inference));parsed.versatileSkill=detailedMewVersatileSkill(parsed);
   let foods=guardLockedFood3KnownLowConfidenceConfusions(guardLockedFood3SoyMushroomConfusion(guardLockedFood3DimmedArbitration(markFoodReviews(POKESLEEP_FOOD_MATCHER.resolveSlots(canvas,inference,parsed.level)),parsed.level),parsed.level),parsed.level);const firstFoodRescue=typeof tryCarryCorroboratedFirstFoodRescue==='function'?tryCarryCorroboratedFirstFoodRescue(inference,foods):null;if(firstFoodRescue)foods=firstFoodRescue.foods;foods=await applySafeNoFoodTemplate(canvas,inference,foods);
+  // Apply the existing weak-food3 safety review BEFORE independent pixel
+  // corroboration, not only at the final result-rendering stage. Without
+  // this ordering, a weak locked oil icon has no review flag yet and cannot
+  // reach the strict three-region witness even though the UI later reviews it.
+  // This moves an existing review guard earlier; it does NOT relax it.
+  if(weakThirdFoodEvidence(foods)){
+   foods[2].needsReview=true;
+   foods[2].reviewReason=foods[2].reviewReason||'weak-third-food-image-with-inferred-preceding-slots';
+  }
   // Conservative second opinion: corroborate food3 ONLY when it is already
   // reviewed or would be flagged by the known weak-third-food safety guard.
   // This compares actual icons in one screenshot, never Golden data.
