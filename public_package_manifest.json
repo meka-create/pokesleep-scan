@@ -311,8 +311,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 3921,
-      "sha256": "d7911443bef58f36745d93cea66aeb6b4cf174bc496a369eb659e20dabc1fe2c"
+      "bytes": 3936,
+      "sha256": "3a28b8056c8eb10a0c0a8523017923a2d024c3c0bb2916c14004b6fa794d7546"
     }
   ]
 }
