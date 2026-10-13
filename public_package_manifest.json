@@ -151,8 +151,8 @@
     },
     {
       "path": "development/nickname_freeze.test.cjs",
-      "bytes": 2590,
-      "sha256": "1fc9153f4dfeb4d4b3a77ed2c940d28bdd8d6835922756abb56255fd8ddbccc7"
+      "bytes": 3176,
+      "sha256": "a9d2e036edaf7834b72d3cfcb9816ee9177f0d29e0663bbee7e6cd1b363f1a50"
     },
     {
       "path": "development/nickname_meka142_gate.py",
