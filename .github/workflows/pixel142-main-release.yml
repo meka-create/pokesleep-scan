@@ -60,6 +60,8 @@ jobs:
           set -euo pipefail
           git clone --depth 1 --single-branch https://github.com/nitoyon/pokesleep-tool.git "$RUNNER_TEMP/upstream"
           python development/master_auto_update.py --upstream "$RUNNER_TEMP/upstream"
+      - name: Kana-folded prefix-search and nickname-caption regression
+        run: node --test development/review_picker_kana_prefix.test.cjs
       - name: Compact source-image button regression
         run: node --test development/image_button_compact.test.cjs
       - name: Independent updater production Pages deployment tests
@@ -98,6 +100,8 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Real Chromium UI boot and cache tests
         run: python development/browser_boot_smoke.py
+      - name: Real Chromium kana picker UX regression
+        run: python development/browser_choice_picker_kana.py
       - name: Real Chromium Android review UX tests
         run: python development/browser_step3_review_audit.py
       - name: Real Chromium CSV download and preflight tests
