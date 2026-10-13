@@ -10,6 +10,12 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const app=fs.readFileSync('app.js','utf8');
 const FROZEN=[
+ {name:'verified Paddle and ONNX runtime model fingerprints',start:'const PADDLE_CDN=',end:'const paddleModelBlobUrls=[];',
+  sha256:'41e205c4a8a8f64c6a1ddcdcd2616f23da768acba7d847e840db008089a44269'},
+ {name:'nickname image crop and preview positioning',start:'function cropNick(',end:'function profileHeaderCrop(',
+  sha256:'c80f510bb5034747c8ba3a03834aa11f76cddf31084573ef1d4bf42fc345a086'},
+ {name:'nickname and level caption parsing',start:'function normalizeNickLevelOcr(',end:'function parseSpText(',
+  sha256:'bc049d78308d332f01dece919cd65c881000e4958d0bd9c294319feb99cad553'},
  {name:'nickname candidate cleaning and voting',start:'function cleanNick(',end:'async function improveOCR(',
   sha256:'f13a5e071ac6e392a6d3de7f7d1a36a32eff93c7dcfc2c7e8b1f3c72be38ea39'},
  {name:'Paddle ensemble and review decisions',start:'function nickBase(',end:'// Nickname-only advisory rescue:',
