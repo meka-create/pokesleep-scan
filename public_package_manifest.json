@@ -86,8 +86,8 @@
     },
     {
       "path": "development/browser_step3_review_audit.py",
-      "bytes": 13785,
-      "sha256": "328ca5d9dea1e3cd19f5a64492c0d5d2228d17d404f32e9424e119a133e62c45"
+      "bytes": 14100,
+      "sha256": "aa76f5470dd822683f96e5a53150704f96b68b7f1f57bde869a21172b721b0a9"
     },
     {
       "path": "development/browser_unified_mobile_layout.py",
