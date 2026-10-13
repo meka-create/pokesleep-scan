@@ -21,8 +21,8 @@
     },
     {
       "path": ".gitignore",
-      "bytes": 416,
-      "sha256": "0f712d73eee2637247174311cf00f869a5b7881e6b8ef0f90e64313ebe502336"
+      "bytes": 580,
+      "sha256": "c652a3fd8e6fe99fb2487e2d8f28b571706994963a4c6168f1c019b29ceba820"
     },
     {
       "path": ".nojekyll",
@@ -111,8 +111,8 @@
     },
     {
       "path": "development/generate_public_package_manifest.py",
-      "bytes": 5657,
-      "sha256": "fef5613943e3ec2665b060a5e37caf7385bf9eee9bc39e233dc6848104dfd752"
+      "bytes": 6487,
+      "sha256": "84413c3e43434b0bb2b856998cc6ad5787db8ba900f79f563f1a37561eba3bf6"
     },
     {
       "path": "development/image_button_compact.test.cjs",
@@ -271,8 +271,8 @@
     },
     {
       "path": "development/test_public_package_privacy.py",
-      "bytes": 2170,
-      "sha256": "02b67856e0fa94bae10cd2dcf0f679c4a68d59e2e11b2daffe2cb39120cc1620"
+      "bytes": 2819,
+      "sha256": "944b97df4c65a492e2c138c87395f86f5756f4f662ab7f0161973919a7b44c58"
     },
     {
       "path": "development/test_step2_meka142_benchmark.py",
