@@ -50,7 +50,7 @@ def main():
      page.on("pageerror",lambda e:errors.append(str(e)))
      page.route(CDN,lambda route:route.fulfill(
       status=200,content_type="application/javascript",body="window.Tesseract={};"))
-     page.route(re.compile(r"/app\\.js\\?"),lambda route:route.fulfill(
+     page.route(re.compile(r"/app\.js\?"),lambda route:route.fulfill(
       status=200,content_type="application/javascript",body=INSTRUMENTED))
      page.goto(f"http://127.0.0.1:{server.server_address[1]}/?release={RELEASE}",
       wait_until="domcontentloaded",timeout=20000)
