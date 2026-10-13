@@ -10,15 +10,17 @@ test('image viewing button retains subtle compact base layout',()=>{
  assert.match(css,/padding:3px 7px/);
  assert.match(css,/font-size:9\.5px/);
 });
-test('phone layout keeps its original compact 30px image button height',()=>{
- const mobileStart=html.indexOf('@media(max-width:680px){.pokemon-cell');
- const compactRule=html.indexOf('.file-open{width:auto;min-height:30px;padding:4px 7px',mobileStart);
- const lateTouchRule=html.lastIndexOf('@media(max-width:760px){');
- assert.ok(mobileStart>=0&&compactRule>mobileStart&&compactRule<lateTouchRule,
-   'The 30px button must be in the mobile stylesheet before other touch rules');
+test('desktop and phone share the compact 30px image button height',()=>{
+ const baseRule=html.indexOf('.file-open{display:inline-flex');
+ const compactRule=html.indexOf('.file-open{width:auto;min-height:30px;padding:4px 7px');
+ const lateTouchRule=html.indexOf('/* Mobile touch targets remain large without the extra review navigator. */');
+ assert.ok(baseRule>=0&&compactRule>baseRule&&compactRule<lateTouchRule,
+   'The universal mobile 30px button must override the 28px base before other touch rules');
+ assert.doesNotMatch(html,/@media\(max-width:(?:680|760)px\)/,
+   'PC and phone styles should no longer diverge for results and buttons');
 });
 test('large 44px touch targets remain on review controls, not the image button',()=>{
- const block=html.match(/\/\* Mobile touch targets remain large without the extra review navigator\. \*\/\s*@media\(max-width:760px\)\{([\s\S]*?)\}\s*<\/style>/);
+ const block=html.match(/\/\* Mobile touch targets remain large without the extra review navigator\. \*\/\s*([\s\S]*?)<\/style>/);
  assert.ok(block,'missing touch-target rule');
  assert.doesNotMatch(block[1],/\.file-open\b/);
  assert.match(block[1],/\.nickconfirm,\.subskillconfirm,\.foodconfirm,\.speciesconfirm,\.manual-open\{min-height:44px\}/);
