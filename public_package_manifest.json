@@ -71,8 +71,8 @@
     },
     {
       "path": "development/browser_choice_picker_kana.py",
-      "bytes": 5922,
-      "sha256": "a7922713c90f90e2d1b4415fa5365ddf3b2d6e011b148efc0d593ddb4e27c30b"
+      "bytes": 5980,
+      "sha256": "291eacfccf1aab891f2e00b79438834656fe1bf245cfdded55e1f240f26f99b4"
     },
     {
       "path": "development/browser_csv_download_audit.py",
