@@ -1,0 +1,32 @@
+# Local/private Pokémon Sleep screenshots and Golden corpora: never publish.
+*.zip
+*.7z
+*.rar
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.jsonl
+*.ndjson
+*.har
+*.log
+*.sqlite
+*.db
+pokesleep_ocr_*
+*diagnostics*.json
+*Golden*
+*golden*
+*正解表*
+*MEKA142-*.png
+*MEKA142-*.jpg
+*Screenshot_*.png
+*Screenshot_*.jpg
+*IMG_*.png
+*IMG_*.jpg
+private_*
+# Local Python/build outputs
+__pycache__/
+*.pyc
+.pytest_cache/
+node_modules/
+.playwright/

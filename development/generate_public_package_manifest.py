@@ -19,6 +19,40 @@ import sys
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 OUTPUT=ROOT/'public_package_manifest.json'
 EXCLUDED={'public_package_manifest.json'}
+# These are the only JSON documents designed to ship in the public PWA.
+# Adding another intentional public JSON requires a reviewed change here.
+PUBLIC_JSON={
+    'release.json','master-update-status.json',
+    'shared/MASTER_DATA.json','shared/master_release.json'
+}
+PUBLIC_MEDIA_DIRS={'assets','icons'}
+PRIVATE_SUFFIXES={
+    '.zip','.7z','.rar','.tar','.gz','.csv','.tsv','.xls','.xlsx',
+    '.jsonl','.ndjson','.har','.log','.db','.sqlite','.sqlite3',
+    '.pdf','.doc','.docx','.ppt','.pptx'
+}
+MEDIA_SUFFIXES={'.png','.jpg','.jpeg','.webp','.gif','.avif','.heic','.heif','.svg'}
+
+def private_file_risk(path):
+    """Fail closed before a private corpus/output accidentally reaches Pages."""
+    p=pathlib.PurePosixPath(path)
+    name=p.name.casefold()
+    if any(part in ('.','..') for part in p.parts) or p.is_absolute():
+        return 'unsafe repository path'
+    if any(word in name for word in (
+            'golden','正解表','diagnostics','raw_before_review',
+            'pokesleep_ocr_','input_manifest','private_','meka142-',
+            'nano30','screenshot_','img_')):
+        return 'private corpus or OCR-export filename'
+    suffix=p.suffix.lower()
+    if suffix in PRIVATE_SUFFIXES:
+        return 'non-public archive, dataset or document type'
+    if suffix=='.json' and path not in PUBLIC_JSON:
+        return 'unreviewed JSON may contain private analysis results'
+    if suffix in MEDIA_SUFFIXES and (not p.parts or p.parts[0] not in PUBLIC_MEDIA_DIRS):
+        return 'image/media must be in a reviewed public asset directory'
+    return ''
+
 
 def build():
     release=json.loads((ROOT/'release.json').read_text(encoding='utf-8'))['id']
@@ -37,6 +71,8 @@ def build():
         if not byte_path:continue
         path=byte_path.decode('utf-8')
         if path in EXCLUDED:continue
+        issue=private_file_risk(path)
+        if issue:raise ValueError('Private/publication-risk file '+path+': '+issue)
         file=ROOT/path
         if not file.is_file():
             raise ValueError('Missing tracked file: '+path)

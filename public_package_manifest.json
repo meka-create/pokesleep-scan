@@ -7,7 +7,7 @@
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 67,
+  "fileCount": 70,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,13 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 6841,
-      "sha256": "69e44eb14bb3b451f50af1e466be2b9e8aa83670298f5c3d6740186490ca3a19"
+      "bytes": 7145,
+      "sha256": "86ace6b6274df1fa37eef54c96bc85660649f18ae8f7b62292c0e937e5259922"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 416,
+      "sha256": "0f712d73eee2637247174311cf00f869a5b7881e6b8ef0f90e64313ebe502336"
     },
     {
       "path": ".nojekyll",
@@ -61,8 +66,8 @@
     },
     {
       "path": "development/ROADMAP_20261013.md",
-      "bytes": 3521,
-      "sha256": "51e959cbbec8dbdaf1e7316932ac2369e21a1e449a01e83f12a459b342d5ac15"
+      "bytes": 4681,
+      "sha256": "0ee9d8938f6ce805639cb2db159150ab957c17473dad5b72e3225a5ee15f0105"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -101,8 +106,8 @@
     },
     {
       "path": "development/generate_public_package_manifest.py",
-      "bytes": 3966,
-      "sha256": "4f0d8b4d66c90a6e972a2939d8ca3ee699f84d2f17a43a24429a0a0a54d179aa"
+      "bytes": 5657,
+      "sha256": "fef5613943e3ec2665b060a5e37caf7385bf9eee9bc39e233dc6848104dfd752"
     },
     {
       "path": "development/image_button_compact.test.cjs",
@@ -143,6 +148,11 @@
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
       "bytes": 4302,
       "sha256": "d70a76e0e15898e3982ebacc9e0bb918ec0c71c3fc252275eec0bf14a6990309"
+    },
+    {
+      "path": "development/nickname_freeze.test.cjs",
+      "bytes": 3176,
+      "sha256": "a9d2e036edaf7834b72d3cfcb9816ee9177f0d29e0663bbee7e6cd1b363f1a50"
     },
     {
       "path": "development/nickname_meka142_gate.py",
@@ -243,6 +253,11 @@
       "path": "development/test_nickname_meka142_gate.py",
       "bytes": 4634,
       "sha256": "1c94d689420ce5b7e60ee5ad51e6e59ae76f394318282a94192e993d1e99e867"
+    },
+    {
+      "path": "development/test_public_package_privacy.py",
+      "bytes": 2170,
+      "sha256": "02b67856e0fa94bae10cd2dcf0f679c4a68d59e2e11b2daffe2cb39120cc1620"
     },
     {
       "path": "development/test_step2_meka142_benchmark.py",
