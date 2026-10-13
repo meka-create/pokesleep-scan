@@ -7,7 +7,7 @@
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 63,
+  "fileCount": 66,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 6527,
-      "sha256": "f44d71cff0039757efecbe2d94eadc5b82ff30698d52040c2a89b0f952076a8e"
+      "bytes": 6690,
+      "sha256": "ea52bb20833c6a351233590d118a02cd6b61b50b921d4136fc6efab7ff2e62b7"
     },
     {
       "path": ".nojekyll",
@@ -58,6 +58,11 @@
       "path": "csv_gate.js",
       "bytes": 8245,
       "sha256": "21dc417084295317019f1338616c6b27c24e85d903c1269bde2daefef90d2ba3"
+    },
+    {
+      "path": "development/ROADMAP_20261013.md",
+      "bytes": 3521,
+      "sha256": "51e959cbbec8dbdaf1e7316932ac2369e21a1e449a01e83f12a459b342d5ac15"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -133,6 +138,11 @@
       "path": "development/nickname_caption_rescue.test.cjs",
       "bytes": 4249,
       "sha256": "272d6e91404cc0c17a42a520c6ece6c083048d9254b73695a39389bbc5b27175"
+    },
+    {
+      "path": "development/nickname_meka142_gate.py",
+      "bytes": 8244,
+      "sha256": "330f5852504ed37dee595431d892aef5fc80342fda401a04e4124047b20a62a7"
     },
     {
       "path": "development/publish_master_status.py",
@@ -223,6 +233,11 @@
       "path": "development/test_master_status.py",
       "bytes": 1566,
       "sha256": "21fbdbd4b45919acb7e0c26f4a51ac9f68344c6c1320bf39e2ccdaa872bbdeb8"
+    },
+    {
+      "path": "development/test_nickname_meka142_gate.py",
+      "bytes": 4634,
+      "sha256": "1c94d689420ce5b7e60ee5ad51e6e59ae76f394318282a94192e993d1e99e867"
     },
     {
       "path": "development/test_step2_meka142_benchmark.py",
