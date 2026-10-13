@@ -48,6 +48,8 @@ jobs:
         run: python development/generate_public_package_manifest.py --stdout
       - name: Verify SHA-256 manifest matches every tracked file
         run: python development/generate_public_package_manifest.py --check
+      - name: Reject private dataset and unpublished artifact paths (synthetic only)
+        run: python -m unittest discover -s development -p 'test_public_package_privacy.py' -v
       - name: STEP 2 meka142 private benchmark evaluator safety tests (synthetic only)
         run: python -m unittest discover -s development -p 'test_step2_meka142_benchmark.py' -v
       - name: Prepare transparent food sprite regression
@@ -98,6 +100,8 @@ jobs:
         run: node --test development/nickname_caption_rescue.test.cjs
       - name: Conservative multi-OCR nickname review promotion regression
         run: node --test development/nickname_consensus_autoconfirm.test.cjs
+      - name: Frozen nickname pipeline SHA-256 non-regression
+        run: node --test development/nickname_freeze.test.cjs
       - name: Private nickname acceptance gate synthetic regressions
         run: python -m unittest discover -s development -p 'test_nickname_meka142_gate.py' -v
       - name: Missing carry and third-food advisory regression
