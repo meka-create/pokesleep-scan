@@ -2,7 +2,7 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),vm=require('node:vm');
 const src=fs.readFileSync('app.js','utf8');
-const start=src.indexOf('function stripVerifiedNicknameLevelCaption(');
+const start=src.indexOf('// Nickname-only advisory rescue:');
 const end=src.indexOf('function nicknameLooksUiContaminated(',start);
 assert.ok(start>=0&&end>start,'nickname-only production helper must exist');
 const ctx={
