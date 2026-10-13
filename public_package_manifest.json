@@ -36,8 +36,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 296420,
-      "sha256": "6b1fa6dff3722297d213eacfc4980005512cef646118172db3d839e4ffabf89d"
+      "bytes": 296970,
+      "sha256": "e222092a7f47a43441f3ab3def14bbcff012bf0d408005e1e9556682760f8251"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -146,8 +146,8 @@
     },
     {
       "path": "development/step2_food3_independent_pixel_witness.test.cjs",
-      "bytes": 3012,
-      "sha256": "6f25de3bdbdd498fceff2e3a840f20124fc5204838301d0f8979f681c7a4f594"
+      "bytes": 3439,
+      "sha256": "06620e30a404c98402dfe697a6d85ca30a69186e7fb1937a59500aa1c12cb5ca"
     },
     {
       "path": "development/step2_food3_selfmatch.test.cjs",
@@ -307,7 +307,7 @@
     {
       "path": "sw.js",
       "bytes": 3907,
-      "sha256": "7c340f767cce90d71ce3d48e245338d53cbe8535c82f1105af4d34eaeeb8447f"
+      "sha256": "902a515bed906042ab9c3abfe73e851ac426e877f77add870a535c490db64d1b"
     }
   ]
 }
