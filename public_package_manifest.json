@@ -146,8 +146,8 @@
     },
     {
       "path": "development/step2_asset_revision.test.cjs",
-      "bytes": 1419,
-      "sha256": "dec4a4d1d1206ab2383317f45850e24fb6867439b0e119944c934a191c8530ff"
+      "bytes": 1432,
+      "sha256": "55d7a974d45080423df6629721c91b59a7b2e84465bd4ea7c296a3c57f84061e"
     },
     {
       "path": "development/step2_food3_independent_pixel_witness.test.cjs",
