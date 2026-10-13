@@ -102,10 +102,11 @@ function updateUploadSelectionUI(count,{error=false,errorMessage=''}={}){
  syncRunActionButton();
 }
 function syncAdditionalFileUi(){
- const append=$('#imageSelectAppend'),note=$('#imageSelectAppendNote');
- const canAppend=selected.length>0&&!results.length&&!analysisPause&&!newSelectionBusy();
+ const append=$('#imageSelectAppend');
+ // An append is allowed after completion: a successful append replaces the
+ // current analysis state with a fresh unanalysed combined selection.
+ const canAppend=selected.length>0&&!analysisPause&&!newSelectionBusy();
  if(append)append.disabled=!canAppend;
- if(note)note.hidden=canAppend;
 }
 function syncRunActionButton(){syncAdditionalFileUi();const run=$('#run');if(!run)return;if(analysisPause){const failure=analysisPause.result,busy=!!(isRunning||checkpointPreparing||checkpointRestoreRunning||analysisPause.manualCommitBusy||failure?.recoveryBusy);run.textContent=(analysisPause.manualCommitBusy||failure?.recoveryBusy)?'再開中…':'停止した画像から再開';run.disabled=busy||!failure?.processingError;run.setAttribute('aria-label','停止した画像を再解析して残りの解析を再開');return;}run.textContent='解析する';run.disabled=!!(isRunning||checkpointPreparing||selectionSnapshotPreparing||checkpointRestoreRunning||!selected.length);run.removeAttribute('aria-label');}
 function setProgressState(state,{done=0,total=0,message='',reviews=0}={}){const box=$('#progress'),bar=$('#bar'),stat=$('#stat');if(!box||!bar||!stat)return;box.classList.remove('is-idle','is-ready','is-running','is-complete','is-error');box.classList.add(`is-${state}`);const pct=total?Math.max(0,Math.min(100,Math.round(done/total*100))):(state==='complete'?100:0);if(state==='idle'||state==='ready'){localProgressMaxPct=0;}else if(state==='running'){if(localProgressState!=='running')localProgressMaxPct=0;localProgressMaxPct=Math.max(localProgressMaxPct,pct);}else if(state==='complete'){localProgressMaxPct=100;}else if(state==='error'){localProgressMaxPct=Math.max(localProgressMaxPct,pct);}localProgressState=state;bar.style.width=`${localProgressMaxPct}%`;if(message){stat.textContent=message;return;}if(state==='ready')stat.textContent='解析の準備ができました';else if(state==='running')stat.textContent=done>0?`${done}/${total}枚を解析中…`:'解析を開始します…';else if(state==='complete')stat.textContent=`解析が完了しました　${done} / ${total}${reviews?`　·　要確認 ${reviews}件`:''}`;else if(state==='error')stat.textContent=`解析できませんでした${total?`　${done} / ${total}`:''}`;else stat.textContent='画像を選択してください';}
@@ -360,10 +361,6 @@ function setSelectedFiles(fileList,{clearInput=false,append=false}={}){
   void showAppDialog({title:'画像を選択できません',message:'PNG / JPG / JPEG の画像を選択してください。現在の解析結果は保持されています。',primaryLabel:'閉じる',tone:'error'});
   return false;
  }
- if(append&&results.length){
-  void showAppDialog({title:'画像を追加できません',message:'解析結果があるため追加できません。CSVなどを保存した後、画像を選び直してください。',primaryLabel:'閉じる',tone:'warning'});
-  return false;
- }
  const files=append?[...selected,...incoming]:incoming;
  const generation=++selectionSnapshotGeneration,previousSelected=[...selected],previousCount=selected.length;
  selected=files;selectionSnapshotPreparing=true;syncSessionGuard();syncRunActionButton();updateUploadSelectionUI(files.length);
@@ -376,7 +373,11 @@ function setSelectedFiles(fileList,{clearInput=false,append=false}={}){
    if(generation!==selectionSnapshotGeneration)return;
    if(append&&stable.length===previousCount){
     selected=previousSelected;updateUploadSelectionUI(previousCount);
-    setProgressState('ready',{total:previousCount});setFloatingProgress('ready',{total:previousCount});syncSessionGuard();
+    // Duplicate-only append must not discard finished results or misstate
+    // their progress as a new unanalysed selection.
+    if(results.length)refreshCompletedProgress();
+    else{setProgressState('ready',{total:previousCount});setFloatingProgress('ready',{total:previousCount});}
+    syncSessionGuard();
     void showAppDialog({title:'追加画像はありません',message:'選択済みの画像と同じファイルです。別の画像を選択してください。',primaryLabel:'閉じる',tone:'info'});
     return;
    }
@@ -432,7 +433,7 @@ $('#imageSelectReplace')?.addEventListener('click',()=>{
  triggerImageFilePicker(fileInput);
 });
 $('#imageSelectAppend')?.addEventListener('click',()=>{
- if(results.length||analysisPause||!selected.length||newSelectionBusy())return;
+ if(analysisPause||!selected.length||newSelectionBusy())return;
  closeImageSelectDialog({restoreFocus:false});
  triggerImageFilePicker(additionalInput);
 });
