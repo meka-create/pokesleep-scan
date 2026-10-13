@@ -20,7 +20,8 @@ INSTRUMENTED=APP.replace(HOOK,"""window.__PICKER_KANA_TEST__={
  paint:()=>{results=[makeProcessingFailureResult({name:'synthetic.png'},'OCR',
    Error('synthetic OCR failed'))];render();},
  manual:()=>{results[0].manualDraft=makeManualDraft(results[0]);
-  results[0].manualEditOpen=true;render();}
+  results[0].manualEditOpen=true;render();},
+ enhance:root=>enhanceCustomSelects(root)
 };
 """+HOOK)
 CDN="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"
@@ -91,7 +92,7 @@ def main():
        }
        host.append(select);
       }
-      enhanceCustomSelects(host);
+      window.__PICKER_KANA_TEST__.enhance(host);
     }""")
     triggers=page.locator("#picker-kana-fixtures .custom-select-trigger")
     assert triggers.count()==7
