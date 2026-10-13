@@ -10,6 +10,11 @@ const pixel=window.POKESLEEP_FOOD_MATCHER.lockedFood3PixelWitnessFromRgba;
 assert.equal(typeof pixel,'function');
 assert.match(app,/inference\?\.status==='UNIQUE'&&thirdBeforeWitness\?\.needsReview/);
 assert.match(app,/POKESLEEP_FOOD_MATCHER\.lockedFood3PixelWitness\(canvas,foods,parsed\.level\)/);
+const analysisStart=app.indexOf('async function analyzeSingleImage(');
+const earlyReview=app.indexOf('if(weakThirdFoodEvidence(foods)){',analysisStart);
+const witnessCall=app.indexOf('const pixelWitness=POKESLEEP_FOOD_MATCHER.lockedFood3PixelWitness(',analysisStart);
+assert(analysisStart>=0&&earlyReview>analysisStart&&witnessCall>earlyReview,
+ 'the existing weak-food3 review MUST execute before strict pixel verification');
 const sample=(base=[254,254,237])=>{
  const d=new Uint8ClampedArray(100*80*4);
  for(let y=0;y<80;y++)for(let x=0;x<100;x++){
