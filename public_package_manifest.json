@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 6398,
-      "sha256": "fee6f6c7d640fb4364a2c75a8c9be330e2ca27f07e9263f7a0583d956b9889c1"
+      "bytes": 6387,
+      "sha256": "00b00c6065709c41442c3f49c9ffe1ed2ada7804b899cb6a9c6dbac1f050cdde"
     },
     {
       "path": ".nojekyll",
@@ -36,8 +36,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 298372,
-      "sha256": "7e5dff619948d3ac0ee9a620749e2d587d131367c90af35e709c09603e98978c"
+      "bytes": 297643,
+      "sha256": "365ae89c57ea414a0fcf196c965fb4023718953bca07c437a62c3a190a5d7c46"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -66,8 +66,8 @@
     },
     {
       "path": "development/browser_append_after_results.py",
-      "bytes": 8915,
-      "sha256": "3079491bb9c47137ea3b506aa9598baa412fcd2509cd9c1231b71a72f7e9548d"
+      "bytes": 8235,
+      "sha256": "075af9fb40b00b249f2ff068313a51fe158115512b4301779b2c30e6e9c5d2e7"
     },
     {
       "path": "development/browser_boot_smoke.py",
@@ -86,8 +86,8 @@
     },
     {
       "path": "development/browser_step3_review_audit.py",
-      "bytes": 14100,
-      "sha256": "aa76f5470dd822683f96e5a53150704f96b68b7f1f57bde869a21172b721b0a9"
+      "bytes": 13792,
+      "sha256": "4b1b30abc571e88c1bbda74a330b60571b1cf879d5b6c0f3b08fcd83501b36e7"
     },
     {
       "path": "development/browser_unified_mobile_layout.py",
@@ -106,8 +106,8 @@
     },
     {
       "path": "development/image_source_choice.test.cjs",
-      "bytes": 1803,
-      "sha256": "3c8a400e7636c778fa745d97f9129d3db174aab9839b779417073d3e8a9c750a"
+      "bytes": 2266,
+      "sha256": "562dff28faac8d010210003108504b9b203955078db5c9d78a3ebf36031509df"
     },
     {
       "path": "development/master_auto_update.py",
@@ -151,8 +151,8 @@
     },
     {
       "path": "development/step2_asset_revision.test.cjs",
-      "bytes": 1445,
-      "sha256": "a1659ff83c8bca964d62c4a1d475183cd2f0222e84571a3e5377264f8490d9ce"
+      "bytes": 1471,
+      "sha256": "77225692cc62e26201b07ac58fa4c5c15d845091157022ce55e44db022de535a"
     },
     {
       "path": "development/step2_food3_independent_pixel_witness.test.cjs",
@@ -271,8 +271,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 73377,
-      "sha256": "27d29573edddd2039c6dccf8d8ae7d31c1c219e4e17a09e7175cf0e3889eb89b"
+      "bytes": 71502,
+      "sha256": "3a993a018be0f0e5596fc7304fb47a11d114ff67fa3a3a76868e9b413593e2ae"
     },
     {
       "path": "manifest.webmanifest",
@@ -316,8 +316,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 3955,
-      "sha256": "96cda5cf1f9a022d771dfe54304278286cf43f719d8de63a7ec6e15fa361d34b"
+      "bytes": 3976,
+      "sha256": "4b949777e9f1843b44e2ebcefc1413e2d9bc30494f3065acb09fd35e615d0b72"
     }
   ]
 }
