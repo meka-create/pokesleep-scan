@@ -61,13 +61,35 @@ test('unavailable or weak Paddle evidence is inert',()=>{
  }
 });
 
+test('post-structure retry recovers reviewed captions and refreshes immutable snapshot',()=>{
+ for(const [caption,level,want] of [
+  ['Lv.14ok',14,'ok'],['LV.17A70',17,'A70'],['LV.16B58',16,'B58']]){
+  const p=row({current:caption,paddle:caption,level:null,review:true});
+  ctx.improveReviewedNicknameCaption(p);
+  assert.equal(p.nickname,caption);
+  p.level=level;ctx.improveReviewedNicknameCaption(p);
+  assert.equal(p.nickname,want);
+  assert.equal(p.nicknameNeedsReview,true);
+ }
+ const rescue=src.indexOf('({parsed,inference}=await rescueStructured(canvas,raw,parsed,inference,idx,total));');
+ const retry=src.indexOf('parsed=improveReviewedNicknameCaption(parsed);',rescue);
+ const snapshot=src.indexOf('Object.assign(nicknameReviewAtAnalysis,',rescue);
+ assert.ok(rescue>=0 && retry>rescue && snapshot>retry,'snapshot must reflect final nickname');
+});
+
 test('all other production code is byte-for-byte identical to pre-nickname baseline',()=>{
  const crypto=require('node:crypto');
  let restored=src.slice(0,start)+src.slice(end);
  const call='parsed=improveReviewedNicknameCaption(parsed);';
- assert.equal(restored.split(call).length-1,1,'one nickname hook insertion');
+ assert.equal(restored.split(call).length-1,2,'nickname hook before and after level rescue');
  restored=restored.replace(call,'');
- restored=restored.replace("codeRevision:'20261013-nickname-caption-review-v1'",
+ const later=`({parsed,inference}=await rescueStructured(canvas,raw,parsed,inference,idx,total));`;
+ // Replace only the added post-structure review segment with its original flow.
+ const post="({parsed,inference}=await rescueStructured(canvas,raw,parsed,inference,idx,total));\n  // Retry nickname-only caption cleanup after structured OCR provides a verified level.\n  // Reconcile the immutable OCR-time snapshot with the final reviewed candidate.\n  parsed=improveReviewedNicknameCaption(parsed);\n  Object.assign(nicknameReviewAtAnalysis,{value:parsed.nickname,needsReview:!!parsed.nicknameNeedsReview,reason:parsed.nicknameReviewReason||'',resolvedBy:parsed.nicknameResolvedBy||''});\n  inference=await retryMissingCarryFromVisibleCard";
+ const old='({parsed,inference}=await rescueStructured(canvas,raw,parsed,inference,idx,total));inference=await retryMissingCarryFromVisibleCard';
+ assert.equal(restored.split(post).length-1,1);
+ restored=restored.replace(post,old);
+ restored=restored.replace("codeRevision:'20261013-nickname-caption-review-v2-postrescue'",
   "codeRevision:'20261013-food3-pixel-v6-direct-files'");
  const sha=crypto.createHash('sha256').update(restored,'utf8').digest('hex');
  assert.equal(sha,'365ae89c57ea414a0fcf196c965fb4023718953bca07c437a62c3a190a5d7c46',
