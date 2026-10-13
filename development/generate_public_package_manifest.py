@@ -32,6 +32,8 @@ PRIVATE_SUFFIXES={
     '.pdf','.doc','.docx','.ppt','.pptx'
 }
 MEDIA_SUFFIXES={'.png','.jpg','.jpeg','.webp','.gif','.avif','.heic','.heif','.svg'}
+SENSITIVE_SUFFIXES={'.pem','.key','.p12','.pfx','.jks','.keystore','.kdbx','.ovpn','.mobileconfig','.sql','.bak','.backup','.old','.tfstate'}
+
 
 def private_file_risk(path):
     """Fail closed before a private corpus/output accidentally reaches Pages."""
@@ -45,6 +47,16 @@ def private_file_risk(path):
             'nano30','screenshot_','img_')):
         return 'private corpus or OCR-export filename'
     suffix=p.suffix.lower()
+    # The Pages workflow publishes the repository tree. Common credential
+    # formats and undeclared hidden files must be explicitly reviewed, even
+    # when their filenames do not look like an OCR dataset.
+    if name.startswith('.env') or suffix in SENSITIVE_SUFFIXES:
+        return 'credential, secret, backup or configuration file'
+    if re.search(r'(^|[._-])(?:api[_-]?key|credentials?|secret|access[_-]?token|private[_-]?key)([._-]|$)', name):
+        return 'credential-like filename'
+    if any(part.startswith('.') for part in p.parts) and not (
+            path in {'.gitignore','.nojekyll'} or p.parts[0]=='.github'):
+        return 'unreviewed hidden file or directory'
     if suffix in PRIVATE_SUFFIXES:
         return 'non-public archive, dataset or document type'
     if suffix=='.json' and path not in PUBLIC_JSON:
