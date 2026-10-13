@@ -89,6 +89,55 @@ function thirdFoodSelfMatch(screenCanvas,foods){
  return thirdFoodSelfMatchFromScores(foods,scores[0],scores[1]);
 }
 
+// Independent direct-pixel evidence for two recognizable locked food3 icons.
+// Separate physical regions: potato fill/bottom/side; oil body/neck/label.
+// No correlation scores, source filenames, species IDs, or Golden-derived
+// runtime lookups. An unsupported appearance MUST remain under manual review.
+function lockedFood3PixelWitnessFromRgba(rgba,w,h,allowed){
+ if(w!==100||h!==80||!rgba||rgba.length!==w*h*4)return null;
+ const candidates=new Set(allowed||[]);
+ const region=(x1,y1,x2,y2)=>{
+  const channel=[[],[],[]];
+  for(let y=y1;y<y2;y++)for(let x=x1;x<x2;x++){
+   const j=(y*w+x)*4;
+   if(rgba[j+3]!==255)return null;
+   for(let c=0;c<3;c++)channel[c].push(rgba[j+c]);
+  }
+  return channel.map(v=>{v.sort((a,b)=>a-b);return (v[(v.length-1)>>1]+v[v.length>>1])/2;});
+ };
+ const center=region(46,29,56,39),bottom=region(46,40,56,50),
+  left=region(25,28,32,44),neck=region(46,6,56,16);
+ if(!center||!bottom||!left||!neck)return null;
+ const within=(rgb,lo,hi)=>rgb.every((v,i)=>v>=lo[i]&&v<=hi[i]);
+ const potato=candidates.has('ほっこりポテト')&&
+  within(center,[248,218,172],[255,231,186])&&
+  within(bottom,[245,206,161],[255,230,186])&&
+  within(left,[245,208,164],[255,231,186]);
+ const oil=candidates.has('ピュアなオイル')&&
+  within(center,[241,229,150],[252,244,169])&&
+  within(neck,[176,186,162],[200,208,183])&&
+  within(bottom,[234,237,197],[250,249,224]);
+ if(potato===oil)return null; // reject ambiguous evidence
+ return {name:potato?'ほっこりポテト':'ピュアなオイル',
+  method:'three-region-visible-pixel-witness',
+  evidence:potato?{center,bottom,left}:{center,neck,bottom}};
+}
+function lockedFood3PixelWitness(screenCanvas,foods,level){
+ const third=foods?.[2];
+ if(!(Number.isFinite(level)&&level<60)||third?.method!=='image'||
+   !third.needsReview||third.manualOverride||!Array.isArray(third.allowed)||
+   third.allowed.length<2||!Array.isArray(third.ranking))return null;
+ // Never introduce a new name: only inspect an already ranked top-two food.
+ const leading=third.ranking.slice(0,2).map(x=>x.name);
+ const allowed=third.allowed.filter(name=>leading.includes(name));
+ if(!allowed.length||!screenCanvas||screenCanvas.width!==REF_W||
+   Math.abs(screenCanvas.height-REF_H)>1)return null;
+ const crop=cropFood(screenCanvas,'food3');
+ if(crop.width!==100||crop.height!==80)return null;
+ const rgba=crop.getContext('2d',{willReadFrequently:true}).getImageData(0,0,100,80).data;
+ return lockedFood3PixelWitnessFromRgba(rgba,100,80,allowed);
+}
+
 // Explicit pale horizontal dash in food3: independent evidence of the game
 // displaying "―".  Strictly fail closed if layout, palette, or glyph differs.
 // Coordinates are absolute normalized screenshot coordinates, NOT an OCR
@@ -120,5 +169,5 @@ function explicitThirdFoodDash(screenCanvas){
  const data=screenCanvas.getContext('2d',{willReadFrequently:true}).getImageData(x,y,w,h).data;
  return explicitThirdFoodDashStats(data,w,h);
 }
-window.POKESLEEP_FOOD_MATCHER={cropFood,matchCanvas,resolveSlots,reviewShapeOpinion,iconSelfCorrelation,thirdFoodSelfMatchFromScores,thirdFoodSelfMatch,explicitThirdFoodDashStats,explicitThirdFoodDash};
+window.POKESLEEP_FOOD_MATCHER={cropFood,matchCanvas,resolveSlots,reviewShapeOpinion,iconSelfCorrelation,thirdFoodSelfMatchFromScores,thirdFoodSelfMatch,lockedFood3PixelWitnessFromRgba,lockedFood3PixelWitness,explicitThirdFoodDashStats,explicitThirdFoodDash};
 })();
