@@ -30,3 +30,18 @@ __pycache__/
 .pytest_cache/
 node_modules/
 .playwright/
+
+# Secrets and local credentials must never be committed or deployed.
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.kdbx
+*.tfstate
+*.tfstate.*
+*.sql
+*.bak
