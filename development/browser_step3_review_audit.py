@@ -145,7 +145,6 @@ def main():
                 drop.click()
                 with page.expect_file_chooser() as chooser_info:
                     page.locator("#imageSelectAppend").click()
-                    page.locator("#imageSourcePhotos").click()
                 chooser_info.value.set_files(second)
                 page.wait_for_function("""() =>
                   document.querySelector('#uploadMain')?.textContent==='142枚を選択しました' &&
@@ -155,14 +154,13 @@ def main():
                     "new Set(window.__STEP3_REVIEW_AUDIT__.names()).size")==142
                 assert page.locator("#run").is_enabled()
                 assert not page.locator("#appDialog").is_visible()
-                checks.append("Pixel photo picker 100+42 batches preserved as 142 unique images; OCR not run")
+                checks.append("Pixel direct Files picker 100+42 batches preserved as 142 unique images; OCR not run")
                 # Attempting to add an already-selected screenshot is not permitted
                 # to duplicate the CSV row or alter the original 142-image list.
                 drop.click()
                 assert page.locator("#imageSelectDialog").is_visible()
                 with page.expect_file_chooser() as dup_chooser:
                     page.locator("#imageSelectAppend").click()
-                    page.locator("#imageSourcePhotos").click()
                 dup_chooser.value.set_files([first[0]])
                 page.locator("#appDialog").wait_for(state="visible",timeout=10000)
                 assert "追加画像はありません" in page.locator("#appDialogTitle").inner_text()
@@ -181,7 +179,6 @@ def main():
                 drop.click()
                 with page.expect_file_chooser() as collision_chooser:
                     page.locator("#imageSelectAppend").click()
-                    page.locator("#imageSourcePhotos").click()
                 collision_chooser.value.set_files([same_metadata_different_image])
                 page.wait_for_function("""() =>
                   document.querySelector('#uploadMain')?.textContent==='143枚を選択しました' &&
@@ -194,7 +191,6 @@ def main():
                 drop.click()
                 with page.expect_file_chooser() as collision_dup_chooser:
                     page.locator("#imageSelectAppend").click()
-                    page.locator("#imageSourcePhotos").click()
                 collision_dup_chooser.value.set_files([same_metadata_different_image])
                 page.locator("#appDialog").wait_for(state="visible",timeout=10000)
                 assert "追加画像はありません" in page.locator("#appDialogTitle").inner_text()
@@ -206,7 +202,6 @@ def main():
                 drop.click()
                 with page.expect_file_chooser() as replace_picker:
                     page.locator("#imageSelectReplace").click()
-                    page.locator("#imageSourcePhotos").click()
                 replace_picker.value.set_files([first[0]])
                 page.wait_for_function("""() =>
                   document.querySelector('#uploadMain')?.textContent==='1枚を選択しました' &&
