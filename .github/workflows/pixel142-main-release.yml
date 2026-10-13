@@ -100,6 +100,8 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Real Chromium UI boot and cache tests
         run: python development/browser_boot_smoke.py
+      - name: Real Chromium unified desktop and phone card layout
+        run: python development/browser_unified_mobile_layout.py
       - name: Real Chromium kana picker UX regression
         run: python development/browser_choice_picker_kana.py
       - name: Real Chromium Android review UX tests
