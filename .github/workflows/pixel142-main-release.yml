@@ -62,6 +62,16 @@ jobs:
           set -euo pipefail
           git clone --depth 1 --single-branch https://github.com/nitoyon/pokesleep-tool.git "$RUNNER_TEMP/upstream"
           python development/master_auto_update.py --upstream "$RUNNER_TEMP/upstream"
+      - name: STEP 3 real pokesleep-tool Japanese CSV importer compatibility
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Upstream was cloned for the master projection check above.
+          cp development/step3_real_upstream_importer.test.ts "$RUNNER_TEMP/upstream/src/util/Formatter/ScanStep3Importer.test.ts"
+          ( cd "$RUNNER_TEMP/upstream"
+            npm ci --ignore-scripts --no-audit --no-fund
+            SCAN_MASTER_PATH="$GITHUB_WORKSPACE/shared/MASTER_DATA.json" npx vitest run src/util/Formatter/ScanStep3Importer.test.ts --reporter=dot
+          )
       - name: Kana-folded prefix-search and nickname-caption regression
         run: node --test development/review_picker_kana_prefix.test.cjs
       - name: Compact source-image button regression

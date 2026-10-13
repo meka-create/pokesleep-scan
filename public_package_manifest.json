@@ -7,7 +7,7 @@
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 70,
+  "fileCount": 71,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 7145,
-      "sha256": "86ace6b6274df1fa37eef54c96bc85660649f18ae8f7b62292c0e937e5259922"
+      "bytes": 7743,
+      "sha256": "809ec01397795e020ff3fe03d1f697eed665f42f04ad5b81d47b23261a95943f"
     },
     {
       "path": ".gitignore",
@@ -66,8 +66,8 @@
     },
     {
       "path": "development/ROADMAP_20261013.md",
-      "bytes": 4681,
-      "sha256": "0ee9d8938f6ce805639cb2db159150ab957c17473dad5b72e3225a5ee15f0105"
+      "bytes": 5359,
+      "sha256": "976644328266e787a3a9deeb50ecc027241975b4af763cc0e62f70219a621e20"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -238,6 +238,11 @@
       "path": "development/step3_pixel142_safety.test.cjs",
       "bytes": 7980,
       "sha256": "f0f6726683ae293a3e2419261231db5e7dc1c0bd3ca8eedc8dcb6c6bbbd9bb19"
+    },
+    {
+      "path": "development/step3_real_upstream_importer.test.ts",
+      "bytes": 5773,
+      "sha256": "3397248c49eb76ca1ac0b86b83227ba1746522e9db1ccab679505860c423007b"
     },
     {
       "path": "development/test_master_auto_update.py",
