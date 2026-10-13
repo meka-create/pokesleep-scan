@@ -387,8 +387,17 @@ function setSelectedFiles(fileList,{clearInput=false,append=false}={}){
  })();return true;}
 
 const fileInput=$('#files'),dropZone=$('.filelabel');
-const additionalInput=$('#addFiles'),imageSelectDialog=$('#imageSelectDialog');
-let imageSelectionReturnFocus=null;
+const additionalInput=$('#addFiles'),storageInput=$('#storageFiles'),imageSelectDialog=$('#imageSelectDialog');
+let imageSelectionReturnFocus=null,imageSelectionAppend=false;
+function setImageSelectStep(step){
+ const source=step==='source';
+ const modes=$('#imageSelectActionChoices'),sources=$('#imageSelectSourceChoices'),back=$('#imageSelectBack');
+ if(modes)modes.hidden=source;
+ if(sources)sources.hidden=!source;
+ if(back)back.hidden=!source||!selected.length;
+ const heading=$('#imageSelectDialogTitle');
+ if(heading)heading.textContent=source?'画像の選択先':'画像の選択';
+}
 function closeImageSelectDialog({restoreFocus=true}={}){
  if(!imageSelectDialog?.open)return;
  imageSelectDialog.close();
@@ -396,31 +405,30 @@ function closeImageSelectDialog({restoreFocus=true}={}){
  imageSelectionReturnFocus=null;
 }
 function openImageSelectDialog(){
- if(!selected.length||newSelectionBusy()||!imageSelectDialog)return;
+ if(newSelectionBusy()||!imageSelectDialog)return;
  imageSelectionReturnFocus=document.activeElement;
+ imageSelectionAppend=false;
  syncAdditionalFileUi();
+ setImageSelectStep(selected.length?'action':'source');
  if(!imageSelectDialog.open)imageSelectDialog.showModal();
- $('#imageSelectClose')?.focus();
+ (selected.length?$('#imageSelectReplace'):$('#imageSourcePhotos'))?.focus();
 }
 function triggerImageFilePicker(input){
  if(!input||newSelectionBusy())return;
- // Clear the native input, not the selected list: Android pickers can reselect
- // the same batch and must still fire a change event.
+ // Re-selecting the same image must still fire change on Android.
  input.value='';
  input.click();
 }
 dropZone?.addEventListener('click',e=>{
  if(e.target===fileInput)return;
  if(newSelectionBusy())return;
- if(selected.length)openImageSelectDialog();
- else triggerImageFilePicker(fileInput);
+ openImageSelectDialog();
 });
 dropZone?.addEventListener('keydown',e=>{
  if(e.target!==dropZone||!['Enter',' '].includes(e.key))return;
  e.preventDefault();
  if(newSelectionBusy())return;
- if(selected.length)openImageSelectDialog();
- else triggerImageFilePicker(fileInput);
+ openImageSelectDialog();
 });
 fileInput?.addEventListener('click',e=>{
  if(newSelectionBusy()){e.preventDefault();return;}
@@ -428,14 +436,34 @@ fileInput?.addEventListener('click',e=>{
 });
 fileInput?.addEventListener('change',e=>setSelectedFiles(e.target.files));
 $('#imageSelectClose')?.addEventListener('click',()=>closeImageSelectDialog());
+$('#imageSelectBack')?.addEventListener('click',()=>{
+ if(!imageSelectDialog?.open)return;
+ if(!selected.length){closeImageSelectDialog();return;}
+ setImageSelectStep('action');
+ $('#imageSelectReplace')?.focus();
+});
 $('#imageSelectReplace')?.addEventListener('click',()=>{
- closeImageSelectDialog({restoreFocus:false});
- triggerImageFilePicker(fileInput);
+ if(newSelectionBusy())return;
+ imageSelectionAppend=false;
+ setImageSelectStep('source');
+ $('#imageSourcePhotos')?.focus();
 });
 $('#imageSelectAppend')?.addEventListener('click',()=>{
  if(analysisPause||!selected.length||newSelectionBusy())return;
+ imageSelectionAppend=true;
+ setImageSelectStep('source');
+ $('#imageSourcePhotos')?.focus();
+});
+$('#imageSourcePhotos')?.addEventListener('click',()=>{
+ const append=imageSelectionAppend;
  closeImageSelectDialog({restoreFocus:false});
- triggerImageFilePicker(additionalInput);
+ triggerImageFilePicker(append?additionalInput:fileInput);
+});
+$('#imageSourceFiles')?.addEventListener('click',()=>{
+ closeImageSelectDialog({restoreFocus:false});
+ // A generic input (no accept) asks Android Chrome for a file browser,
+ // rather than its Photos-only picker. Type validation remains strict.
+ triggerImageFilePicker(storageInput);
 });
 imageSelectDialog?.addEventListener('close',()=>{
  if(imageSelectionReturnFocus?.isConnected)imageSelectionReturnFocus.focus();
@@ -444,6 +472,11 @@ imageSelectDialog?.addEventListener('close',()=>{
 additionalInput?.addEventListener('change',e=>{
  const batch=[...e.target.files];e.target.value='';
  if(batch.length)setSelectedFiles(batch,{append:true});
+});
+storageInput?.addEventListener('change',e=>{
+ const batch=[...e.target.files],append=imageSelectionAppend;
+ e.target.value='';
+ if(batch.length)setSelectedFiles(batch,{append,clearInput:true});
 });
 let dragDepth=0;
 function hasFileDrag(e){return Array.from(e.dataTransfer?.types||[]).includes('Files');}
@@ -1676,7 +1709,7 @@ async function downloadDiagnosticRawCSV(){
 }
 function diagnosticObject(){
  const b=benchmarkSummary();
- return {version:'v12-independent-master-auto-v12',buildId:BUILD_ID,codeRevision:'20261013-food3-pixel-v4-query-refresh',foodReviewMargin:FOOD_REVIEW_MARGIN,mintGreenRatioThreshold:MINT_GREEN_RATIO_MIN,noFoodTemplateConfig:{schema:1,scoreMin:NO_FOOD_EMPTY_SCORE_MIN,marginMin:NO_FOOD_EMPTY_MARGIN_MIN,requiresUniqueSpecies:true,requiresLegalSpeciesSlot:true,emptyReference:'embedded-data-url',emptyReferenceSha256:FOOD_EMPTY_REFERENCE_SHA256},paddleRuntime:{...paddleInitDiagnostics,attempts:[...paddleInitDiagnostics.attempts]},checkpointPersistence:{sessionActive:typeof checkpointSessionActive!=='undefined'?!!checkpointSessionActive:false,failures:typeof checkpointFailureLog!=='undefined'?checkpointFailureLog.map(x=>({...x})):[]},ocrMemoryGuard:{...(typeof ocrMemoryGuardSnapshot==='function'?ocrMemoryGuardSnapshot():{}),restoredFromCheckpoint:typeof ocrMemoryGuardRestoredSnapshot!=='undefined'&&ocrMemoryGuardRestoredSnapshot?{...ocrMemoryGuardRestoredSnapshot}:null},createdAt:new Date().toISOString(),preManualCsvSnapshot:diagnosticPreManualCsvSnapshot(),userAgent:navigator.userAgent,hardwareConcurrency:navigator.hardwareConcurrency||null,deviceMemory:navigator.deviceMemory||null,selectedFiles:selected.map(x=>({name:x.name,size:x.size,type:x.type})),benchmark:b,results:results.map(r=>({file:r.file,sourceIndex:Number.isInteger(r.sourceIndex)?r.sourceIndex:null,elapsedMs:r.elapsedMs,layout:r.layout||null,rawFirstPass:r.rawFirstPass||null,rawFinal:cloneRaw(r.raw),structuredRescue:r.parsed.structuredRescue||null,parsed:{nickname:r.parsed.nickname,nicknameBeforePaddle:r.parsed.nicknameBeforePaddle,nicknameNeedsReview:r.parsed.nicknameNeedsReview,nicknameResolvedBy:r.parsed.nicknameResolvedBy||'',nicknameReviewReason:r.parsed.nicknameReviewReason||'',nicknamePaddleUnavailable:!!r.parsed.nicknamePaddleUnavailable,nicknameCandidates:r.parsed.nicknameCandidates||[],nicknamePaddle:r.parsed.nicknamePaddle||null,nicknameReviewAtAnalysis:r.nicknameReviewAtAnalysis||null,nicknameManualConfirmed:!!r.parsed.nicknameManualConfirmed,level:r.parsed.level,levelNeedsReview:!!r.parsed.levelNeedsReview,levelReviewReason:r.parsed.levelReviewReason||'',sp:r.parsed.sp,helpSeconds:r.parsed.helpSeconds,carry:r.parsed.carry,carryNeedsReview:!!r.parsed.carryNeedsReview,carryOcrUnresolved:!Number.isInteger(r.parsed.carry)||!!r.parsed.carryNeedsReview,carryRetry:r.parsed.carryRetry||null,skillLevel:r.parsed.skillLevel,mainSkill:r.parsed.mainSkill,mainSkillNeedsReview:!!r.parsed.mainSkillNeedsReview,mainSkillReviewReason:r.parsed.mainSkillReviewReason||'',versatileSkill:r.parsed.versatileSkill||'',versatileSkillLabel:mewVersatileSkillLabel(r.parsed.versatileSkill),mainSkillOutput:mainSkillForOutput(r.parsed,r.classification,r.speciesManualOverride||''),nature:r.parsed.nature,natureNeedsReview:!!r.parsed.natureNeedsReview,natureEvidence:r.parsed.natureEvidence||null,natureEffect:r.parsed.natureEffect||'normal',mintDetection:r.parsed.mintDetection||null,subskills:r.parsed.subs.map(x=>x.value),subskillEvidence:r.parsed.subs.map(x=>({value:x.value,needsReview:!!x.needsReview,reviewReason:x.reviewReason||'',reviewCandidates:x.reviewCandidates||[],evidence:x.evidence||[]})),subskillDuplicateRejects:r.parsed.subskillDuplicateRejects||[],subskillReviewSlots:subskillReviewSlots(r).map(i=>LEVELS[i]),sleepTogetherValue:sleepTogetherValue(r.classification)},inference:{status:r.inference.status,natureEffect:r.inference.natureEffect||r.parsed.natureEffect||'normal',missing:r.inference.missing||[],stages:r.inference.stages||null,candidates:r.inference.candidates||[],carryConsistentCandidates:r.inference.carryConsistentCandidates||[]},foods:r.foods,classification:{status:r.classification.status,candidates:r.classification.candidates,speciesManualOverride:r.speciesManualOverride||'',ribbonTier:sleepTogetherTier(r.classification),sleepTogetherValue:sleepTogetherValue(r.classification),foodConflictPreserved:!!r.classification.foodConflictPreserved,foodConflictSlots:r.foodConflictSlots||[]},reviewState:resultReviewState(r),processingError:r.processingError||null,processingErrorResolved:r.processingErrorResolved||null,manualPreviewErrors:r.manualPreviewErrors||null,manualPreviewSourceError:r.manualPreviewSourceError||null,manualCompletion:r.manualCompletion||null}))};
+ return {version:'v12-independent-master-auto-v12',buildId:BUILD_ID,codeRevision:'20261013-food3-pixel-v5-sources',foodReviewMargin:FOOD_REVIEW_MARGIN,mintGreenRatioThreshold:MINT_GREEN_RATIO_MIN,noFoodTemplateConfig:{schema:1,scoreMin:NO_FOOD_EMPTY_SCORE_MIN,marginMin:NO_FOOD_EMPTY_MARGIN_MIN,requiresUniqueSpecies:true,requiresLegalSpeciesSlot:true,emptyReference:'embedded-data-url',emptyReferenceSha256:FOOD_EMPTY_REFERENCE_SHA256},paddleRuntime:{...paddleInitDiagnostics,attempts:[...paddleInitDiagnostics.attempts]},checkpointPersistence:{sessionActive:typeof checkpointSessionActive!=='undefined'?!!checkpointSessionActive:false,failures:typeof checkpointFailureLog!=='undefined'?checkpointFailureLog.map(x=>({...x})):[]},ocrMemoryGuard:{...(typeof ocrMemoryGuardSnapshot==='function'?ocrMemoryGuardSnapshot():{}),restoredFromCheckpoint:typeof ocrMemoryGuardRestoredSnapshot!=='undefined'&&ocrMemoryGuardRestoredSnapshot?{...ocrMemoryGuardRestoredSnapshot}:null},createdAt:new Date().toISOString(),preManualCsvSnapshot:diagnosticPreManualCsvSnapshot(),userAgent:navigator.userAgent,hardwareConcurrency:navigator.hardwareConcurrency||null,deviceMemory:navigator.deviceMemory||null,selectedFiles:selected.map(x=>({name:x.name,size:x.size,type:x.type})),benchmark:b,results:results.map(r=>({file:r.file,sourceIndex:Number.isInteger(r.sourceIndex)?r.sourceIndex:null,elapsedMs:r.elapsedMs,layout:r.layout||null,rawFirstPass:r.rawFirstPass||null,rawFinal:cloneRaw(r.raw),structuredRescue:r.parsed.structuredRescue||null,parsed:{nickname:r.parsed.nickname,nicknameBeforePaddle:r.parsed.nicknameBeforePaddle,nicknameNeedsReview:r.parsed.nicknameNeedsReview,nicknameResolvedBy:r.parsed.nicknameResolvedBy||'',nicknameReviewReason:r.parsed.nicknameReviewReason||'',nicknamePaddleUnavailable:!!r.parsed.nicknamePaddleUnavailable,nicknameCandidates:r.parsed.nicknameCandidates||[],nicknamePaddle:r.parsed.nicknamePaddle||null,nicknameReviewAtAnalysis:r.nicknameReviewAtAnalysis||null,nicknameManualConfirmed:!!r.parsed.nicknameManualConfirmed,level:r.parsed.level,levelNeedsReview:!!r.parsed.levelNeedsReview,levelReviewReason:r.parsed.levelReviewReason||'',sp:r.parsed.sp,helpSeconds:r.parsed.helpSeconds,carry:r.parsed.carry,carryNeedsReview:!!r.parsed.carryNeedsReview,carryOcrUnresolved:!Number.isInteger(r.parsed.carry)||!!r.parsed.carryNeedsReview,carryRetry:r.parsed.carryRetry||null,skillLevel:r.parsed.skillLevel,mainSkill:r.parsed.mainSkill,mainSkillNeedsReview:!!r.parsed.mainSkillNeedsReview,mainSkillReviewReason:r.parsed.mainSkillReviewReason||'',versatileSkill:r.parsed.versatileSkill||'',versatileSkillLabel:mewVersatileSkillLabel(r.parsed.versatileSkill),mainSkillOutput:mainSkillForOutput(r.parsed,r.classification,r.speciesManualOverride||''),nature:r.parsed.nature,natureNeedsReview:!!r.parsed.natureNeedsReview,natureEvidence:r.parsed.natureEvidence||null,natureEffect:r.parsed.natureEffect||'normal',mintDetection:r.parsed.mintDetection||null,subskills:r.parsed.subs.map(x=>x.value),subskillEvidence:r.parsed.subs.map(x=>({value:x.value,needsReview:!!x.needsReview,reviewReason:x.reviewReason||'',reviewCandidates:x.reviewCandidates||[],evidence:x.evidence||[]})),subskillDuplicateRejects:r.parsed.subskillDuplicateRejects||[],subskillReviewSlots:subskillReviewSlots(r).map(i=>LEVELS[i]),sleepTogetherValue:sleepTogetherValue(r.classification)},inference:{status:r.inference.status,natureEffect:r.inference.natureEffect||r.parsed.natureEffect||'normal',missing:r.inference.missing||[],stages:r.inference.stages||null,candidates:r.inference.candidates||[],carryConsistentCandidates:r.inference.carryConsistentCandidates||[]},foods:r.foods,classification:{status:r.classification.status,candidates:r.classification.candidates,speciesManualOverride:r.speciesManualOverride||'',ribbonTier:sleepTogetherTier(r.classification),sleepTogetherValue:sleepTogetherValue(r.classification),foodConflictPreserved:!!r.classification.foodConflictPreserved,foodConflictSlots:r.foodConflictSlots||[]},reviewState:resultReviewState(r),processingError:r.processingError||null,processingErrorResolved:r.processingErrorResolved||null,manualPreviewErrors:r.manualPreviewErrors||null,manualPreviewSourceError:r.manualPreviewSourceError||null,manualCompletion:r.manualCompletion||null}))};
 }
 function triggerBlobDownload(blob,filename){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;a.rel='noopener';a.style.display='none';document.body.appendChild(a);try{a.click();}finally{setTimeout(()=>{a.remove();URL.revokeObjectURL(url);},1500);}}
 async function downloadDiagnostics(){

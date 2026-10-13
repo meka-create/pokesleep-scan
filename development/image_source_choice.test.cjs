@@ -1,0 +1,30 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+test('Photos and Files are explicit source options without changing the upload target',()=>{
+ const html=fs.readFileSync('index.html','utf8');
+ const app=fs.readFileSync('app.js','utf8');
+ assert.match(html,/<button id="imageSourcePhotos"/);
+ assert.match(html,/<button id="imageSourceFiles"/);
+ assert.match(html,/<input id="files" type="file" accept="image\/png,image\/jpeg,.png,.jpg,.jpeg" multiple>/);
+ assert.match(html,/<input id="storageFiles" type="file" multiple hidden/);
+ assert.doesNotMatch(html,/<input id="storageFiles"[^>]*accept=/);
+ assert.match(app,/triggerImageFilePicker\(append\?additionalInput:fileInput\)/);
+ assert.match(app,/triggerImageFilePicker\(storageInput\)/);
+ assert.match(app,/const batch=\[\.\.\.e\.target\.files\],append=imageSelectionAppend/);
+ assert.match(app,/setSelectedFiles\(batch,\{append,clearInput:true\}\)/);
+ assert.match(app,/const invalid=incoming.filter\(f=>!isAcceptedImageFile\(f\)\)/);
+ assert.match(app,/const files=append\?\[\.\.\.selected,\.\.\.incoming\]:incoming/);
+ assert.match(app,/if\(append&&stable.length===previousCount\)/);
+ assert.match(app,/if\(newSelectionBusy\(\)\)return;/);
+});
+test('Selected images keep replace/append stage; fresh selection starts with source choice',()=>{
+ const app=fs.readFileSync('app.js','utf8');
+ const html=fs.readFileSync('index.html','utf8');
+ assert.match(app,/setImageSelectStep\(selected.length\?'action':'source'\)/);
+ assert.match(app,/setImageSelectStep\('source'\)/);
+ assert.match(app,/setImageSelectStep\('action'\)/);
+ assert.match(html,/id="imageSelectBack"[^>]*hidden/);
+ assert.match(html,/#imageSelectActionChoices\[hidden\],#imageSelectSourceChoices\[hidden\]/);
+});

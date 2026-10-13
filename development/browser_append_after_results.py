@@ -60,7 +60,27 @@ def main():
       page.locator("#tipsClose").click()
      first={"name":"first.png","mimeType":"image/png","buffer":PNG}
      second={"name":"second.png","mimeType":"image/png","buffer":PNG}
-     page.locator("#files").set_input_files([first])
+     # Opening the primary picker starts with an explicit source choice.
+     page.locator(".filelabel").click()
+     assert page.locator("#imageSelectSourceChoices").is_visible()
+     assert page.locator("#imageSelectActionChoices").is_hidden()
+     assert page.locator("#imageSourceFiles").is_visible()
+     assert page.locator("#storageFiles").get_attribute("accept") is None
+     # A file-manager upload of a non-image is rejected without changing state.
+     with page.expect_file_chooser() as bad:
+      page.locator("#imageSourceFiles").click()
+     assert bad.value.element.get_attribute("id") == "storageFiles"
+     bad.value.set_files([{"name":"invalid.txt","mimeType":"text/plain","buffer":b"not an image"}])
+     page.locator("#appDialog").wait_for(state="visible",timeout=20000)
+     assert "PNG / JPG / JPEG" in page.locator("#appDialogMessage").inner_text()
+     assert page.locator("#run").is_disabled()
+     page.locator("#appDialogPrimary").click()
+     checks.append(f"{width}px: initial Files choice rejects nonimages without modifying state")
+     # User can go back from a source choice to the existing append/replace UI.
+     page.locator(".filelabel").click()
+     with page.expect_file_chooser() as initial:
+      page.locator("#imageSourceFiles").click()
+     initial.value.set_files([first])
      page.wait_for_function("""() => document.querySelector('#uploadMain')?.textContent==='1枚を選択しました'
        && !document.querySelector('#run')?.disabled""",timeout=20000)
      page.evaluate("window.__APPEND_AFTER_RESULTS_TEST__.paint()")
@@ -76,6 +96,7 @@ def main():
      # No image chosen: keep both results and original image selection.
      with page.expect_file_chooser() as cancel:
       page.locator("#imageSelectAppend").click()
+      page.locator("#imageSourcePhotos").click()
      cancel.value.set_files([])
      assert page.evaluate("window.__APPEND_AFTER_RESULTS_TEST__.count()")==1
      assert page.evaluate("window.__APPEND_AFTER_RESULTS_TEST__.selected()")==["first.png"]
@@ -87,6 +108,7 @@ def main():
      page.locator(".filelabel").click()
      with page.expect_file_chooser() as duplicate:
       page.locator("#imageSelectAppend").click()
+      page.locator("#imageSourcePhotos").click()
      duplicate.value.set_files([first])
      page.locator("#appDialog").wait_for(state="visible",timeout=20000)
      assert "追加画像はありません" in page.locator("#appDialogTitle").inner_text()
@@ -103,6 +125,7 @@ def main():
      assert page.locator("#imageSelectAppend").is_enabled()
      with page.expect_file_chooser() as new_images:
       page.locator("#imageSelectAppend").click()
+      page.locator("#imageSourcePhotos").click()
      new_images.value.set_files([second])
      page.wait_for_function("""() => document.querySelector('#uploadMain')?.textContent==='2枚を選択しました'
        && !document.querySelector('#run')?.disabled
@@ -113,6 +136,23 @@ def main():
      assert page.locator("#csv").is_disabled()
      assert page.locator("#copyCsv").is_disabled()
      assert page.locator("#appDialog").is_hidden()
+     # Files append and no-change cancel must work through generic Documents UI.
+     page.locator(".filelabel").click()
+     page.locator("#imageSelectAppend").click()
+     assert page.locator("#imageSelectSourceChoices").is_visible()
+     assert page.locator("#imageSelectBack").is_visible()
+     page.locator("#imageSelectBack").click()
+     assert page.locator("#imageSelectActionChoices").is_visible()
+     page.locator("#imageSelectReplace").click()
+     with page.expect_file_chooser() as replace_images:
+      page.locator("#imageSourceFiles").click()
+     assert replace_images.value.element.get_attribute("id") == "storageFiles"
+     replace_images.value.set_files([first])
+     page.wait_for_function("""() => document.querySelector('#uploadMain')?.textContent==='1枚を選択しました'
+       && !document.querySelector('#run')?.disabled""",timeout=20000)
+     assert page.evaluate("window.__APPEND_AFTER_RESULTS_TEST__.selected()")==["first.png"]
+     checks.append(f"{width}px: source Back and Files replace preserve intended selection")
+
      assert page.locator("#progress").evaluate("e=>e.classList.contains('is-ready')")
      assert not errors,(width,errors)
      checks.append(f"{width}px: successful append resets results, offers full reanalysis of both images, no confirm")
