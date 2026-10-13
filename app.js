@@ -1546,6 +1546,21 @@ async function analyzeSingleImage(inputFile,idx,total,{sourceIndex=null,displayN
     }
    }catch(e){candidateFood3.crossSlotError=runtimeErrorText(e);}
   }
+  // Independent direct pixel evidence may resolve an ALREADY reviewed
+  // third-food slot. Otherwise keep every existing safety review unchanged.
+  const thirdBeforeWitness=foods?.[2];
+  if(inference?.status==='UNIQUE'&&thirdBeforeWitness?.needsReview){
+   try{
+    const pixelWitness=POKESLEEP_FOOD_MATCHER.lockedFood3PixelWitness(canvas,foods,parsed.level);
+    if(pixelWitness&&thirdBeforeWitness.allowed?.includes(pixelWitness.name)){
+     thirdBeforeWitness.pixelWitness={...pixelWitness,previousName:thirdBeforeWitness.name};
+     thirdBeforeWitness.name=pixelWitness.name;
+     thirdBeforeWitness.method='image-independent-pixel-witness';
+     thirdBeforeWitness.needsReview=false;
+     thirdBeforeWitness.reviewReason='';
+    }
+   }catch(e){thirdBeforeWitness.pixelWitnessError=runtimeErrorText(e);}
+  }
   // Recheck ONLY third food slots already marked for human review.
   // No suggestion is auto-applied: this leaves the zero-false-accept gate intact.
   const third=foods[2];
