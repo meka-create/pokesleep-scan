@@ -102,7 +102,7 @@ jobs:
           set -euo pipefail
           python -m pip install playwright==1.56.0
           python -m playwright install --with-deps chromium
-      - name: Photos and Files source picker regression
+      - name: Direct Files picker regression
         run: node --test development/image_source_choice.test.cjs
       - name: Real Chromium UI boot and cache tests
         run: python development/browser_boot_smoke.py
