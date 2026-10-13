@@ -444,7 +444,7 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
     watchUrl.searchParams.set('step2','sharedcsv-v1');
     watchUrl.searchParams.set('step3','androidroi-v1');
     watchUrl.searchParams.set('pick','multi-v1');
-    watchUrl.searchParams.set('ui','review-clean-v1-food3-pixel-v4');
+    watchUrl.searchParams.set('ui','review-clean-v1-food3-pixel-v5-sources');
     await loadScript(watchUrl.toString());
     await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js');
     for(const file of localFiles){
@@ -454,7 +454,7 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
       u.searchParams.set('step2','sharedcsv-v1');
       u.searchParams.set('step3','androidroi-v1');
       u.searchParams.set('pick','multi-v1');
-      u.searchParams.set('ui','review-clean-v1-food3-pixel-v4');
+      u.searchParams.set('ui','review-clean-v1-food3-pixel-v5-sources');
       await loadScript(u.toString());
       // Classifier closes over POKESLEEP_MASTER at load time. Finish selection
       // before classifier.js executes; never change master mid-session.
