@@ -16,6 +16,6 @@ assert(swRev,'SW precache URL query must carry the same asset revision');
 assert.equal(swRev[1],indexRevs[0],'precache must use the exact dynamic script URL');
 assert.match(indexRevs[0],/food3-pixel-v5-sources/,'new pixel witnesses must not reuse the older cache key');
 assert.match(worker,/food3-pixel-witness-v4-query-refresh-sources-v1/,'rotate SW cache namespace');
-assert.match(app,/codeRevision:'20261013-food3-pixel-v5-sources-query-refresh'/);
+assert.match(app,/codeRevision:'20261013-food3-pixel-v5-sources'/);
 assert.match(app,/lockedFood3PixelWitness\(canvas,foods,parsed\.level\)/);
 console.log('PASS: cache-busted live script URLs, SW precache parity, observable diagnostics fingerprint');
