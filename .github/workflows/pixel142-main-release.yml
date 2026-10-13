@@ -90,6 +90,8 @@ jobs:
         run: node --test development/step2_mythical_empty_dash.test.cjs
       - name: STEP 2 third-food independent-icon corroboration regression
         run: node --test development/step2_food3_selfmatch.test.cjs
+      - name: STEP 2 fresh asset query and diagnostics fingerprint
+        run: node --test development/step2_asset_revision.test.cjs
       - name: STEP 2 locked third-food independent pixel witness (strict negative controls)
         run: node --test development/step2_food3_independent_pixel_witness.test.cjs
       - name: Missing carry and third-food advisory regression
