@@ -7,7 +7,7 @@
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 66,
+  "fileCount": 67,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 6690,
-      "sha256": "ea52bb20833c6a351233590d118a02cd6b61b50b921d4136fc6efab7ff2e62b7"
+      "bytes": 6841,
+      "sha256": "69e44eb14bb3b451f50af1e466be2b9e8aa83670298f5c3d6740186490ca3a19"
     },
     {
       "path": ".nojekyll",
@@ -36,8 +36,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 299916,
-      "sha256": "a792c799bb08ca3da06a27eca8ccf0dd5fd9035e1cdd121780e44144ec7cfde6"
+      "bytes": 302065,
+      "sha256": "14be175505783733fae37e4d3d7c037ce1e184c36bb4adcb7bcf97d7482c0e7a"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -136,8 +136,13 @@
     },
     {
       "path": "development/nickname_caption_rescue.test.cjs",
-      "bytes": 6113,
-      "sha256": "6c6f13a7480ce883e075ecd02b3b8ed61490ad1250036f97822b1881b37f8a84"
+      "bytes": 6331,
+      "sha256": "e62590bf912beda4ef9468453bd87b7e20d9547073030daf7e0ce9bf306a7693"
+    },
+    {
+      "path": "development/nickname_consensus_autoconfirm.test.cjs",
+      "bytes": 4302,
+      "sha256": "d70a76e0e15898e3982ebacc9e0bb918ec0c71c3fc252275eec0bf14a6990309"
     },
     {
       "path": "development/nickname_meka142_gate.py",
@@ -166,8 +171,8 @@
     },
     {
       "path": "development/step2_asset_revision.test.cjs",
-      "bytes": 1519,
-      "sha256": "44a7b764fe8c9c4f4bce9746c9bde0f90197a4e236f6c682e09fa38c4a326af1"
+      "bytes": 1507,
+      "sha256": "7d8495f2ef6ff63a1e5ae50ca0e9436ca94f98c6f7303d25ca52621fdde522d0"
     },
     {
       "path": "development/step2_food3_independent_pixel_witness.test.cjs",
@@ -206,8 +211,8 @@
     },
     {
       "path": "development/step3_android_roi.test.cjs",
-      "bytes": 12465,
-      "sha256": "7b80609e80c0f50abdbbc7dddaf6d049a34ad37796ad230efb61214c3a2bc79a"
+      "bytes": 12463,
+      "sha256": "b23436772030a5b7b93bfff1c9861c77abf8e02b079343c83b47d6becf67506c"
     },
     {
       "path": "development/step3_carry_food3.test.cjs",
@@ -291,8 +296,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 71509,
-      "sha256": "b16988a8106be14a9ac0bb00666f07acb429e966370cffa19dabbf485e939705"
+      "bytes": 71507,
+      "sha256": "6048eeb99dfacd49c88a43ef979a80be2019a284b99472ec6fea914fc0d7d0ab"
     },
     {
       "path": "manifest.webmanifest",
@@ -336,8 +341,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4014,
-      "sha256": "59ce38c1fc4096509775ed395363e4302ca7145aadb15d3958769a78e0f4f9a0"
+      "bytes": 4012,
+      "sha256": "5673a4bad9a8aee8e9fd9ed5f57db1609586dcc7f4e3cd25e4de77a2274741a8"
     }
   ]
 }

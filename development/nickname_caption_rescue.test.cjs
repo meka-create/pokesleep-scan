@@ -80,6 +80,9 @@ test('post-structure retry recovers reviewed captions and refreshes immutable sn
 test('all other production code is byte-for-byte identical to pre-nickname baseline',()=>{
  const crypto=require('node:crypto');
  let restored=src.slice(0,start)+src.slice(end);
+ const consensusCall='parsed=autoConfirmCorroboratedReviewedNickname(parsed);';
+ assert.equal(restored.split(consensusCall).length-1,1,'one reviewed-name promotion hook');
+ restored=restored.replace('  '+consensusCall+'\n','');
  const call='parsed=improveReviewedNicknameCaption(parsed);';
  assert.equal(restored.split(call).length-1,2,'nickname hook before and after level rescue');
  restored=restored.replace(call,'');
@@ -89,7 +92,7 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  const old='({parsed,inference}=await rescueStructured(canvas,raw,parsed,inference,idx,total));inference=await retryMissingCarryFromVisibleCard';
  assert.equal(restored.split(post).length-1,1);
  restored=restored.replace(post,old);
- restored=restored.replace("codeRevision:'20261013-nickname-caption-review-v2-postrescue'",
+ restored=restored.replace("codeRevision:'20261013-nickname-consensus-gated-v3'",
   "codeRevision:'20261013-food3-pixel-v6-direct-files'");
  const sha=crypto.createHash('sha256').update(restored,'utf8').digest('hex');
  assert.equal(sha,'365ae89c57ea414a0fcf196c965fb4023718953bca07c437a62c3a190a5d7c46',
