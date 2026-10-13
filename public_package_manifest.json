@@ -96,8 +96,8 @@
     },
     {
       "path": "development/image_button_compact.test.cjs",
-      "bytes": 1483,
-      "sha256": "230cafdbeedbd8c0417a0cc1360b416b1e21878720d51d0719ddfaaff687e5e2"
+      "bytes": 1617,
+      "sha256": "e6d5b2cc7ee990e24b3f8f6eb426be308fedea9d3c0513350420ce2877135e81"
     },
     {
       "path": "development/master_auto_update.py",
