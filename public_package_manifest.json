@@ -25,6 +25,11 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 4318,
+      "sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
+    },
+    {
       "path": "android_roi.js",
       "bytes": 6991,
       "sha256": "d08d08bfd1f42ac12035ef3cb41049061b54ee19959d7e26033c52c1cf0a367b"
@@ -53,6 +58,11 @@
       "path": "csv_gate.js",
       "bytes": 8245,
       "sha256": "21dc417084295317019f1338616c6b27c24e85d903c1269bde2daefef90d2ba3"
+    },
+    {
+      "path": "development/STEP1_INDEPENDENT_MASTER.md",
+      "bytes": 1719,
+      "sha256": "afd32c529cb2c334278760a7fb072096bf73b70fa12b2348e8c2d5e3abb7836e"
     },
     {
       "path": "development/browser_append_after_results.py",
@@ -133,11 +143,6 @@
       "path": "development/runtime_smoke.test.cjs",
       "bytes": 2353,
       "sha256": "1d85a83ce5bda029d4c8b8ded7b4cbf78ae0b92a1b1f3c7cf8463c1d534e3ace"
-    },
-    {
-      "path": "development/STEP1_INDEPENDENT_MASTER.md",
-      "bytes": 1719,
-      "sha256": "afd32c529cb2c334278760a7fb072096bf73b70fa12b2348e8c2d5e3abb7836e"
     },
     {
       "path": "development/step2_asset_revision.test.cjs",
@@ -270,11 +275,6 @@
       "sha256": "8b3751a6c224f95dd9435284e28273c6a94066f351256b1c74958506eb8b918c"
     },
     {
-      "path": "master_data.js",
-      "bytes": 131939,
-      "sha256": "b0f3bc100966de43dfdd4bd2d6b2036d8f7609b718b241a60674612aaf384ab4"
-    },
-    {
       "path": "master-update-status.js",
       "bytes": 2616,
       "sha256": "1579acc049e1423423cf1e006e7acdf494bc15d0da845c36738763c08e5889ad"
@@ -285,14 +285,14 @@
       "sha256": "d9b0934493699a58172eaef9220afebaf24fbb5a2b9cf93e0ce3a3963ed3145e"
     },
     {
+      "path": "master_data.js",
+      "bytes": 131939,
+      "sha256": "b0f3bc100966de43dfdd4bd2d6b2036d8f7609b718b241a60674612aaf384ab4"
+    },
+    {
       "path": "release.json",
       "bytes": 53,
       "sha256": "11a93a44c90d6470516e6918015284cb1d533708b3a803da9291bc5afcd09aff"
-    },
-    {
-      "path": "shared_master.js",
-      "bytes": 5816,
-      "sha256": "bc817438a9c541c141501cf314e62eee32f61acb9bdc87af22cf685a209b79dd"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -305,14 +305,14 @@
       "sha256": "e6f3624c04a120286cf43373dc8df7048b7d3fa0811e1189801479d4dc53d0a0"
     },
     {
+      "path": "shared_master.js",
+      "bytes": 5816,
+      "sha256": "bc817438a9c541c141501cf314e62eee32f61acb9bdc87af22cf685a209b79dd"
+    },
+    {
       "path": "sw.js",
       "bytes": 3921,
       "sha256": "d7911443bef58f36745d93cea66aeb6b4cf174bc496a369eb659e20dabc1fe2c"
-    },
-    {
-      "path": "THIRD_PARTY_NOTICES.md",
-      "bytes": 4318,
-      "sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
     }
   ]
 }
