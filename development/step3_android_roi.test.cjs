@@ -165,7 +165,10 @@ test('PWA includes Android adapter in new versioned app shell',()=>{
  assert.match(sw,/step3=androidroi-v1/);
  assert.match(sw,/pick=multi-v1/);
  assert.match(sw,/ui=review-clean-v1-food3-pixel-v9-nickname-consensus/);
- assert.match(html,/set\('ui','review-clean-v1-food3-pixel-v9-nickname-consensus'\)/);
+ const expectedUi=sw.match(/&ui=([a-zA-Z0-9_-]+)/)?.[1];
+ const htmlUi=html.match(/set\\('ui','([^']+)'\\)/)?.[1];
+ assert.ok(expectedUi&&htmlUi,'PWA user interface revision must be explicitly present');
+ assert.equal(htmlUi,expectedUi,'HTML dynamic assets and SW precache must use the same active UI revision');
  assert.match(html,/set\('pick','multi-v1'\)/);
  assert.match(html,/set\('step3','androidroi-v1'\)/);
 });
