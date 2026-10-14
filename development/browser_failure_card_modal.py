@@ -54,7 +54,7 @@ def main():
      errors=[]
      page.on('pageerror',lambda err:errors.append(str(err)))
      page.route(CDN,lambda r:r.fulfill(status=200,content_type='application/javascript',body='window.Tesseract={};'))
-     page.route(re.compile(r'/app\\.js\\?'),lambda r:r.fulfill(status=200,content_type='application/javascript',body=INSTRUMENTED))
+     page.route(re.compile(r'/app\.js\?'),lambda r:r.fulfill(status=200,content_type='application/javascript',body=INSTRUMENTED))
      page.goto(f'http://127.0.0.1:{server.server_address[1]}/?release={RELEASE}',wait_until='domcontentloaded',timeout=20000)
      page.wait_for_function('()=>!!window.__FAILURE_CARD_UI_TEST__ && !!window.POKESLEEP_CSV_GATE',timeout=20000)
      if page.locator('#tipsDialog').evaluate('(e)=>e.open'):
