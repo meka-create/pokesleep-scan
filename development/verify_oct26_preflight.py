@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Future-release synthetic preflight; source clone and numbers are disposable test data."""
-import copy,hashlib,json,pathlib,shutil,sys,tempfile
+import copy,datetime,hashlib,json,pathlib,shutil,sys,tempfile
 from master_auto_update import Hold,project,promote
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 NEW={"Misdreavus":"ムウマ","Mismagius":"ムウマージ"}
@@ -13,13 +13,21 @@ def main(upstream,out):
  assert set(NEW)<=set(by_name)
  assert all(by_name[n]["arrival"]=="2026-10-26" for n in NEW)
  assert all(by_name[n]["skill"]=="Cooking Advance S (Mystical Fire)" for n in NEW)
- try:
-  actual,report=project(upstream,prior,commit="a"*40)
- except Hold as e:
-  print("CURRENT ACTUAL UPSTREAM: HOLD:",e)
+ # The real upstream currently carries placeholders. The deterministic date
+ # checks are separate from the actual CI execution calendar.
+ before,pre_report=project(upstream,prior,commit="a"*40,
+                            today_jst=datetime.date(2026,10,25))
+ assert len(before["pokemon"])==249
+ assert {p["name"] for p in pre_report["deferredSpecies"]}==set(NEW)
+ print("AS-IS UPSTREAM BEFORE ARRIVAL: PASS — new species deferred, baseline preserved")
+ at_release,release_report=project(upstream,prior,commit="a"*40,
+                           today_jst=datetime.date(2026,10,26))
+ if release_report["deferredSpecies"]:
+  print("AS-IS UPSTREAM AT ARRIVAL: provisional species remain deferred:",
+        [x["name"] for x in release_report["deferredSpecies"]])
  else:
-  print("CURRENT ACTUAL UPSTREAM: import accepted; added:",report["addedSpecies"])
-  assert set(NEW)<=set(report["addedSpecies"])
+  print("AS-IS UPSTREAM AT ARRIVAL: ready species accepted:",
+        release_report["addedSpecies"])
  # Synthetic values — never actual or predicted game parameters.
  profiles={"Misdreavus":(3900,18,17.0,5.0),"Mismagius":(2700,28,19.0,5.4)}
  simulated=copy.deepcopy(original)
@@ -31,7 +39,12 @@ def main(upstream,out):
   p["ing2"]={"name":"mushroom","c2":2,"c3":3}
   p["ing3"]={"name":"herb","c3":4}
  source.write_text(json.dumps(simulated,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
- master,report=project(upstream,prior,commit="a"*40)
+ # Complete synthetic values may NOT be imported early.
+ before_synthetic,early=project(upstream,prior,commit="a"*40,
+                   today_jst=datetime.date(2026,10,25))
+ assert len(before_synthetic["pokemon"])==249 and not early["addedSpecies"]
+ master,report=project(upstream,prior,commit="a"*40,
+                       today_jst=datetime.date(2026,10,26))
  assert len(master["pokemon"])==251,report
  assert set(report["addedSpecies"])==set(NEW),report
  known={p["name_en"]:p for p in prior["pokemon"]}
@@ -40,7 +53,7 @@ def main(upstream,out):
  for name,ja in NEW.items():
   assert observed[name]["name"]==ja
   assert observed[name]["mainSkill"]=="マジカルフレイム (料理アドバンスS)"
- _,again=project(upstream,master,commit="a"*40)
+ _,again=project(upstream,master,commit="a"*40,today_jst=datetime.date(2026,10,27))
  assert not again["changed"],"second import was not idempotent"
  # End-to-end release promotion on a scratch copy, including app/sw/release tokens.
  with tempfile.TemporaryDirectory(prefix="oct26-release-") as folder:
