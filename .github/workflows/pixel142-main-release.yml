@@ -162,3 +162,11 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Real Chromium synthetic failure-card and dialogs
         run: python development/browser_failure_card_modal.py
+      - name: Existing real Chromium UI and CSV regressions
+        run: |
+          python development/browser_boot_smoke.py
+          python development/browser_unified_mobile_layout.py
+          python development/browser_choice_picker_kana.py
+          python development/browser_append_after_results.py
+          python development/browser_step3_review_audit.py
+          python development/browser_csv_download_audit.py
