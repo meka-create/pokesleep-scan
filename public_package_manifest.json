@@ -136,8 +136,8 @@
     },
     {
       "path": "development/master_auto_update.py",
-      "bytes": 13082,
-      "sha256": "39ef6acc65fe431c52c7346eb8ef899a846f2d11420ecf2b11b14c9ec0915352"
+      "bytes": 14889,
+      "sha256": "657cd08bb23165143b051c9f331a50e1952518629aa4a4d78508aabe49005020"
     },
     {
       "path": "development/master_auto_update.test.cjs",
@@ -266,8 +266,8 @@
     },
     {
       "path": "development/test_master_auto_update.py",
-      "bytes": 11235,
-      "sha256": "0f5f757099e6064abf9cb29d37f4666bf38da307124bc1a41c1de1c05c9368ee"
+      "bytes": 16788,
+      "sha256": "bd7641bdcc6a3560212f790e5f3914f284fdc747dcf2f74dedf56d850c4f0341"
     },
     {
       "path": "development/test_master_status.py",
@@ -296,8 +296,8 @@
     },
     {
       "path": "development/verify_oct26_preflight.py",
-      "bytes": 3812,
-      "sha256": "ee5b2749d5c57324b472fda9f451d30cfbf4aef545e59b123b3761ef1997d46b"
+      "bytes": 4779,
+      "sha256": "36e20919745edd9ca149a00131f1eb6ae8506a7750bb4d9e21328be82c45a8af"
     },
     {
       "path": "development/write_master_update_status.py",
