@@ -77,11 +77,25 @@ def read_strength(source):
 # Date comparisons use Japan Standard Time, irrespective of the CI runner locale.
 JST = datetime.timezone(datetime.timedelta(hours=9))
 def provisional_new_species(p):
-    if p.get('frequency') == 0 or p.get('carryLimit') == 0 or p.get('specialty') == 'unknown' or p.get('skill') == 'unknown':
+    """Only explicit/missing placeholder fields; never hide malformed *existing* species."""
+    if (p.get('frequency') in (None,0) or p.get('carryLimit') in (None,0) or
+        p.get('specialty') in (None,'unknown') or p.get('type') in (None,'unknown') or
+        p.get('skill') in (None,'unknown')):
         return True
-    return any(isinstance(p.get('ing'+str(n)),dict) and
-               str(p['ing'+str(n)].get('name','')).startswith('unknown')
-               for n in (1,2,3))
+    for k in FIELDS:
+        if p.get(k) is None:return True
+    # Two ingredient slots are required; the optional third slot may be None.
+    for n in (1,2,3):
+        ing=p.get('ing'+str(n))
+        if ing is None:
+            if n<=2:return True
+            continue
+        if not isinstance(ing,dict):return True
+        name=ing.get('name')
+        count=ing.get('c'+str(n))
+        if not isinstance(name,str) or not name or name.startswith('unknown'):return True
+        if type(count) is not int or count<=0:return True
+    return False
 
 def arrival_date(raw):
     check(isinstance(raw,str) and bool(re.fullmatch(r'\d{4}-\d{2}-\d{2}',raw)),
@@ -115,22 +129,31 @@ def project(src,prior,commit=None,today_jst=None):
     used_en=set();used_ja=set();used_ids=set();parsed=[];deferred=[]
     installed_names={x['name_en'] for x in prior['pokemon']}
     for p in pokemon:
-        en=p['name'];ja=names.get(en);skill=p['skill'];ident=(p.get('id'),p.get('form') or '')
-        check(en not in used_en and ja not in used_ja and
-              isinstance(ja,str) and bool(ja) and ident not in used_ids and
-              isinstance(ident[0],int) and ident[0]>0 and
-              skill in skills and isinstance(skills[skill].get('name'),str),
+        en=p['name'];ja=names.get(en);skill=p.get('skill');ident=(p.get('id'),p.get('form') or '')
+        # Check structural uniqueness even for deferred records; a bad new ID
+        # must never be masked by the "future species" allowance.
+        check(isinstance(en,str) and bool(en) and en not in used_en and
+              ident not in used_ids and isinstance(ident[0],int) and ident[0]>0,
               'pokemon identifier/translation collision')
-        used_en.add(en);used_ja.add(ja);used_ids.add(ident)
-        # Never skip existing species: even an upstream typo must HOLD, not
-        # silently replace previously validated 249-species statistics.
+        check(not (isinstance(ja,str) and ja.strip() and ja in used_ja),
+              'pokemon identifier/translation collision')
+        used_en.add(en);used_ids.add(ident)
+        if isinstance(ja,str) and ja.strip():used_ja.add(ja)
+        # Never skip an installed species; upstream corruption must HOLD.
         if en not in installed_names:
             when=arrival_date(p.get('arrival'))
-            provisional=provisional_new_species(p)
+            provisional=(provisional_new_species(p) or
+                         not isinstance(ja,str) or not ja.strip() or
+                         skill not in skills or
+                         not isinstance(skills[skill].get('name'),str) or
+                         not skills[skill]['name'].strip())
             if when>today_jst or provisional:
                 deferred.append({'name':en,'arrival':when.isoformat(),
                                  'reason':'before-arrival' if when>today_jst else 'provisional-data'})
                 continue
+        check(isinstance(ja,str) and bool(ja.strip()) and
+              skill in skills and isinstance(skills[skill].get('name'),str) and
+              bool(skills[skill]['name'].strip()),'pokemon identifier/translation collision')
         row={'name':ja,'name_en':en,'skill':skill,'mainSkill':skills[skill]['name']}
         for k in FIELDS:
             check(p.get(k) is not None,f'missing {en}.{k}')
