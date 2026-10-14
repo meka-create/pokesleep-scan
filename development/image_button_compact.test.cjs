@@ -19,9 +19,10 @@ test('desktop and phone share the compact 30px image button height',()=>{
  assert.doesNotMatch(html,/@media\(max-width:(?:680|760)px\)/,
    'PC and phone styles should no longer diverge for results and buttons');
 });
-test('large 44px touch targets remain on review controls, not the image button',()=>{
+test('compact 31px manual, confirmation and deletion buttons remain distinct from the image button',()=>{
  const block=html.match(/\/\* Mobile touch targets remain large without the extra review navigator\. \*\/\s*([\s\S]*?)<\/style>/);
  assert.ok(block,'missing touch-target rule');
  assert.doesNotMatch(block[1],/\.file-open\b/);
- assert.match(block[1],/\.nickconfirm,\.subskillconfirm,\.foodconfirm,\.speciesconfirm,\.manual-open\{min-height:44px\}/);
+ assert.match(block[1],/\.nickconfirm,\.subskillconfirm,\.foodconfirm,\.speciesconfirm,\.manual-open\{min-height:31px\}/);
+ assert.match(block[1],/\.card-primary-actions \.processing-delete\{[^}]*min-height:31px/);
 });
