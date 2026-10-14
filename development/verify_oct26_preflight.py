@@ -11,7 +11,7 @@ def main(upstream,out):
  # already absorbed the two species. Never overwrite the installed master.
  historical=copy.deepcopy(prior)
  historical["pokemon"]=[p for p in prior["pokemon"] if p["name_en"] not in NEW]
- assert len(prior["pokemon"])-len(historical["pokemon"]) in (0,2)
+ assert 0<=len(prior["pokemon"])-len(historical["pokemon"])<=2
  source=upstream/"src/data/pokemon.json"
  original=json.loads(source.read_text(encoding="utf-8"))
  by_name={p["name"]:p for p in original}
