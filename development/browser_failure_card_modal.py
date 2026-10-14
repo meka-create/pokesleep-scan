@@ -20,8 +20,8 @@ INSTRUMENTED=APP.replace(HOOK,"""window.__FAILURE_CARD_UI_TEST__={
     const r=makeProcessingFailureResult(file,'OCR',new Error('synthetic-only'),0,
       {sourceFile:file,sourceIndex:0});
     delete r.processingError;
-    r.classification.status='NO_EXACT_MATCH';
-    r.inference.status='NO_EXACT_MATCH';
+    r.classification.status='MISSING_INPUT';
+    r.inference.status='MISSING_INPUT';
     results=[r];
     checkpointSessionActive=false;
     document.querySelector('#resultsCard').hidden=false;
