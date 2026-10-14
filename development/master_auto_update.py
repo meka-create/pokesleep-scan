@@ -76,7 +76,6 @@ def read_strength(source):
 # and must never be published before its source-designated arrival date.
 # Date comparisons use Japan Standard Time, irrespective of the CI runner locale.
 JST = datetime.timezone(datetime.timedelta(hours=9))
-KNOWN_SPECIALTIES = frozenset(('Berries','Ingredients','Skills','All'))
 def provisional_new_species(p):
     if p.get('frequency') == 0 or p.get('carryLimit') == 0 or p.get('specialty') == 'unknown' or p.get('skill') == 'unknown':
         return True
@@ -85,7 +84,7 @@ def provisional_new_species(p):
                for n in (1,2,3))
 
 def arrival_date(raw):
-    check(isinstance(raw,str) and bool(re.fullmatch(r'\\d{4}-\\d{2}-\\d{2}',raw)),
+    check(isinstance(raw,str) and bool(re.fullmatch(r'\d{4}-\d{2}-\d{2}',raw)),
           'invalid pokemon arrival date')
     try:return datetime.date.fromisoformat(raw)
     except ValueError:raise Hold('invalid pokemon arrival date')
