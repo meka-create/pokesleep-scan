@@ -7,7 +7,7 @@
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 75,
+  "fileCount": 77,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 9328,
-      "sha256": "b8c82af1f8835867d7f10d9946fb5e8ad7f4f33a3e72fd918cb28910971af48b"
+      "bytes": 10893,
+      "sha256": "01812b554ae7ec9ac40ac03027e80880a7be39efd4bfc58468b0a532c494db2c"
     },
     {
       "path": ".gitignore",
@@ -288,6 +288,16 @@
       "path": "development/test_step2_meka142_benchmark.py",
       "bytes": 9308,
       "sha256": "e11c067015b7d58f33edc41c9cbf7e461f04a46e21d74d3df8a5ee40e751ca3b"
+    },
+    {
+      "path": "development/verify_oct26_classify_csv.cjs",
+      "bytes": 2438,
+      "sha256": "83acbd8b46e670fe9b26b46fd6d50c4b334438e4e53d8e954f400311eca0a081"
+    },
+    {
+      "path": "development/verify_oct26_preflight.py",
+      "bytes": 2669,
+      "sha256": "f99bb3375def1b1d256af247e278a8197e451472737a389f8e8a13744261c9f2"
     },
     {
       "path": "development/write_master_update_status.py",
