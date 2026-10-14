@@ -115,7 +115,7 @@ def main():
      assert page.evaluate('window.__FAILURE_CARD_UI_TEST__.stored()')=={'meta':1,'files':1,'rows':1,'active':True}
      page.locator('#tbl .processing-delete').click()
      page.locator('#appDialogPrimary').click()
-     assert page.evaluate('window.__FAILURE_CARD_UI_TEST__.count()')=={'results':0,'selected':0}
+     page.wait_for_function("() => {const x=window.__FAILURE_CARD_UI_TEST__.count();return x.results===0&&x.selected===0;}",timeout=8000)
      assert page.evaluate('window.__FAILURE_CARD_UI_TEST__.stored()')=={'meta':0,'files':0,'rows':0,'active':False},(w,'stale checkpoint remained after deletion')
      assert not errors,(w,errors)
      passed.append(f'{w}px: 31px controls, red-card deletion, safe cancel, backdrop dismissal')
