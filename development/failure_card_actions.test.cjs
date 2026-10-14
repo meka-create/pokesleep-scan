@@ -68,3 +68,24 @@ test('native image-choice dialog closes only for genuine outside coordinates',()
  assert.match(app,/imageSelectDialog\?\.addEventListener\('click',e=>\{if\(clickedDialogBackdrop\(e,imageSelectDialog\)\)closeImageSelectDialog\(\);\}\)/);
  assert.match(app,/appDialogSecondary'\)\?\.hidden&&clickedDialogBackdrop/);
 });
+
+test('deleting final result clears the checkpoint rather than persisting an unrestorable total-zero snapshot',async()=>{
+ const begin=app.indexOf('function checkpointCommitSnapshot('),end=app.indexOf('function cloneStableImageSource(',begin);
+ assert.ok(begin>=0&&end>begin);
+ const ctx={checkpointSessionActive:true,checkpointSupported:()=>true,
+  checkpointSaveChain:Promise.resolve(),checkpointClearNow:async()=>{ctx.cleared++;return true;},
+  cancelScheduledCheckpointResultSaves:()=>{ctx.cancelled++;},cleared:0,cancelled:0};
+ vm.createContext(ctx);vm.runInContext(app.slice(begin,end),ctx);
+ const accepted=await vm.runInContext("checkpointCommitSnapshot([],[],'completed',0,null)",ctx);
+ assert.equal(accepted,true);assert.equal(ctx.cleared,1);assert.equal(ctx.cancelled,1);
+ assert.equal(ctx.checkpointSessionActive,false);
+});
+test('failed checkpoint clear prevents the last-card deletion from being committed',async()=>{
+ const begin=app.indexOf('function checkpointCommitSnapshot('),end=app.indexOf('function cloneStableImageSource(',begin);
+ const ctx={checkpointSessionActive:true,checkpointSupported:()=>true,
+  checkpointSaveChain:Promise.resolve(),checkpointClearNow:async()=>{throw new Error('simulated write failure');},
+  checkpointPersistenceFailure:()=>false,cancelScheduledCheckpointResultSaves:()=>{}};
+ vm.createContext(ctx);vm.runInContext(app.slice(begin,end),ctx);
+ const accepted=await vm.runInContext("checkpointCommitSnapshot([],[],'completed',0,null)",ctx);
+ assert.equal(accepted,false);assert.equal(ctx.checkpointSessionActive,true);
+});
