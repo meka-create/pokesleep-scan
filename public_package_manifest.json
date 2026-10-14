@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 303413,
-      "sha256": "f3663b359908dfef7da47bf06a0c9feca00e8368f42bcfbf6d5b5bc1e6cae6e0"
+      "bytes": 303896,
+      "sha256": "353dfffefa8c3f1d90510cb2bb0c748b6ff7f3d9238d1bf0f57a1c7be538f187"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -96,8 +96,8 @@
     },
     {
       "path": "development/browser_failure_card_modal.py",
-      "bytes": 5359,
-      "sha256": "ae3d717c8935a2d3c31b8da9205d8e7a53c3b9c375fedb6f098ebe9a8ee0df86"
+      "bytes": 6765,
+      "sha256": "f0dbb68a45f385521f09aa52ec38424ff99a4592b2caf1d6ec0a2ba732346d6b"
     },
     {
       "path": "development/browser_step3_review_audit.py",
@@ -111,8 +111,8 @@
     },
     {
       "path": "development/failure_card_actions.test.cjs",
-      "bytes": 4956,
-      "sha256": "40e4794d2d8c2f80483782f1bb020570233c2bc0970f7e4da65ea4fea124fafe"
+      "bytes": 6528,
+      "sha256": "4d3d2176e3cb90abeb3d0b815ff4a61e4d5e346c1006aef73f1330b464b45feb"
     },
     {
       "path": "development/final_evidence_gate.py",
@@ -196,8 +196,8 @@
     },
     {
       "path": "development/step2_asset_revision.test.cjs",
-      "bytes": 1507,
-      "sha256": "7d8495f2ef6ff63a1e5ae50ca0e9436ca94f98c6f7303d25ca52621fdde522d0"
+      "bytes": 1638,
+      "sha256": "99dfd8abb403112fe16ca0f89f0fd12a450ebe98dbedf402f33803ee0fab1a7a"
     },
     {
       "path": "development/step2_food3_independent_pixel_witness.test.cjs",
@@ -336,8 +336,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 72410,
-      "sha256": "cf8f4d9e9ee1673d840c01ed59f5e58c7e667fec9b7702843bcd2850d12e384a"
+      "bytes": 72452,
+      "sha256": "29ea391d269d19929565dce64c710cf8d4c520893fb54a4b0d9b7cb1f9f50d36"
     },
     {
       "path": "manifest.webmanifest",
@@ -381,8 +381,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4012,
-      "sha256": "5673a4bad9a8aee8e9fd9ed5f57db1609586dcc7f4e3cd25e4de77a2274741a8"
+      "bytes": 4054,
+      "sha256": "7a088aaf0b85d48371d84c20646ad3456cfc2e1618270d4018b1b1718748ce1f"
     }
   ]
 }
