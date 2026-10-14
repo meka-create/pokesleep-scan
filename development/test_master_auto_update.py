@@ -298,4 +298,54 @@ class FutureSpeciesReadinessTest(unittest.TestCase):
         self.assertIn(self.prior['pokemon'][0]['name_en'],report['changedSpecies'])
         self.assertTrue(report['changed'])
 
+
+    def test_after_release_partial_identity_and_food_placeholders_are_deferred(self):
+        def make_pending(data):
+            p=data[-1]
+            p['ing2']=None
+            p['ing3']={'name':'unknown3','c3':0}
+        self.edit(make_pending)
+        partial,report=self.project_at('2026-10-26')
+        self.assertEqual(report['addedSpecies'],['SyntheticArrivalAlpha'])
+        self.assertEqual([x['name'] for x in report['deferredSpecies']],['SyntheticArrivalBeta'])
+        self.assertEqual(len(partial['pokemon']),len(self.prior['pokemon'])+1)
+        self.edit(lambda data:data[-1].update(ing2={'name':'milk','c2':2,'c3':3},
+                                              ing3={'name':'honey','c3':3}))
+        full,report2=self.project_at('2026-10-27',prior=partial)
+        self.assertEqual(report2['addedSpecies'],['SyntheticArrivalBeta'])
+        self.assertEqual(len(full['pokemon']),len(self.prior['pokemon'])+2)
+    def test_new_species_pending_translation_or_unregistered_skill_does_not_block_old_updates(self):
+        names=self.root/'src/i18n/ja/pokemons.json'
+        labels=json.loads(names.read_text(encoding='utf-8'))
+        del labels['pokemons']['SyntheticArrivalBeta']
+        save(names,labels)
+        self.edit(lambda data:data[-1].update(skill='Unreleased Special Skill'))
+        self.edit(lambda data:data[0].update(frequency=data[0]['frequency']+2))
+        master,report=self.project_at('2026-10-26')
+        self.assertIn(self.prior['pokemon'][0]['name_en'],report['changedSpecies'])
+        self.assertEqual(report['addedSpecies'],['SyntheticArrivalAlpha'])
+        self.assertEqual([x['name'] for x in report['deferredSpecies']],['SyntheticArrivalBeta'])
+        self.assertEqual(len(master['pokemon']),len(self.prior['pokemon'])+1)
+        # A translation collision must remain a hard HOLD, even if future-dated.
+        labels['pokemons']['SyntheticArrivalBeta']=self.prior['pokemon'][0]['name']
+        save(names,labels)
+        with self.assertRaisesRegex(Hold,'collision'):
+            self.project_at('2026-10-25')
+    def test_after_251_promotion_further_new_species_still_automatically_imports(self):
+        full,report=self.project_at('2026-10-26')
+        self.assertEqual(len(full['pokemon']),len(self.prior['pokemon'])+2)
+        next_master=copy.deepcopy(full)
+        template=copy.deepcopy(next(p for p in full['pokemon'] if p['name']=='ピカチュウ'))
+        template.update(name_en='SyntheticArrivalGamma',name='監査用ミライC',
+                        arrival='2026-11-09')
+        next_master['pokemon'].append(template)
+        make_fixture(self.root,next_master)
+        before,_=project(self.root,full,commit='a'*40,
+                         today_jst=self.date(2026,11,8))
+        self.assertEqual(len(before['pokemon']),len(full['pokemon']))
+        at,report2=project(self.root,full,commit='a'*40,
+                           today_jst=self.date(2026,11,9))
+        self.assertEqual(report2['addedSpecies'],['SyntheticArrivalGamma'])
+        self.assertEqual(len(at['pokemon']),len(full['pokemon'])+1)
+
 if __name__=='__main__': unittest.main()
