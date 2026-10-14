@@ -117,7 +117,7 @@ jobs:
       - name: Private nickname acceptance gate synthetic regressions
         run: python -m unittest discover -s development -p 'test_nickname_meka142_gate.py' -v
       - name: Missing carry and third-food advisory regression
-        run: node --test development/step3_carry_food3.test.cjs
+        run: node --test development/step3_carry_food3.test.cjs development/failure_card_actions.test.cjs
       - name: Prepare real Chromium browser tests
         shell: bash
         run: |
