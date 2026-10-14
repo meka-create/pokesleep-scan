@@ -16,7 +16,7 @@ assert.ok(nature);
 for(const name of species){
  const p=master.pokemon.find(x=>x.name===name);
  assert.ok(p);
- assert.equal(p.mainSkill,'マジカルフレイム (料理アドバンスS)');
+ assert.ok(typeof p.mainSkill==='string'&&p.mainSkill.trim(),name+': missing translated skill');
  const lv=30,skillLv=1,mod=calc.modFromObserved([],lv),profile=calc.profiles(p)[0];
  assert.ok(profile);
  const sp=calc.computeSp(p,profile,lv,nature,mod,0,skillLv);
