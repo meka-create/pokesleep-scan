@@ -174,7 +174,14 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
 /* Mobile touch targets remain large without the extra review navigator. */
 
  .results-head{flex-wrap:wrap;gap:10px}
- .nickconfirm,.subskillconfirm,.foodconfirm,.speciesconfirm,.manual-open{min-height:44px}
+ .nickconfirm,.subskillconfirm,.foodconfirm,.speciesconfirm,.manual-open{min-height:31px}
+ .manual-inline-actions .manual-confirm{min-height:31px}
+ .card-primary-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;width:100%;margin-top:7px}
+ .card-primary-actions .manual-open{margin-top:0;height:31px}
+ .card-primary-actions .processing-delete{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:31px;height:31px;margin-left:auto;padding:0 10px;border:1px solid #da9ea5;border-radius:8px;background:#fff1f2;color:#a12f3b;font-size:10px;font-weight:850;line-height:1;cursor:pointer}
+ .card-primary-actions .processing-delete svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+ .card-primary-actions .processing-delete:hover:not(:disabled){border-color:#bf6774;background:#ffe7ea}
+ .card-primary-actions .processing-delete:disabled{opacity:.48;cursor:wait}
 
 </style>
 </head>
