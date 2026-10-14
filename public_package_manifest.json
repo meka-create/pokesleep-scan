@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 303395,
-      "sha256": "4ed68fe341c3efef4cc0d5b15ecdfd280818d0b41b12aab36af82a79a6681495"
+      "bytes": 303413,
+      "sha256": "f3663b359908dfef7da47bf06a0c9feca00e8368f42bcfbf6d5b5bc1e6cae6e0"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -96,8 +96,8 @@
     },
     {
       "path": "development/browser_failure_card_modal.py",
-      "bytes": 5361,
-      "sha256": "e4786d05d133b630f791b675246013652cf6279dfd915a22890388a7527520a4"
+      "bytes": 5359,
+      "sha256": "ae3d717c8935a2d3c31b8da9205d8e7a53c3b9c375fedb6f098ebe9a8ee0df86"
     },
     {
       "path": "development/browser_step3_review_audit.py",
@@ -111,8 +111,8 @@
     },
     {
       "path": "development/failure_card_actions.test.cjs",
-      "bytes": 4941,
-      "sha256": "19edb4b5e76cf2ab33ec827a27bbe4dcaed502db395888c6ab32c99ea8eee942"
+      "bytes": 4956,
+      "sha256": "40e4794d2d8c2f80483782f1bb020570233c2bc0970f7e4da65ea4fea124fafe"
     },
     {
       "path": "development/final_evidence_gate.py",
