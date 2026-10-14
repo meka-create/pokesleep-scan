@@ -296,8 +296,8 @@
     },
     {
       "path": "development/verify_oct26_preflight.py",
-      "bytes": 2669,
-      "sha256": "f99bb3375def1b1d256af247e278a8197e451472737a389f8e8a13744261c9f2"
+      "bytes": 3812,
+      "sha256": "ee5b2749d5c57324b472fda9f451d30cfbf4aef545e59b123b3761ef1997d46b"
     },
     {
       "path": "development/write_master_update_status.py",
