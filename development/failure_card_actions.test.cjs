@@ -7,14 +7,14 @@ function portion(begin,end){const i=app.indexOf(begin),j=app.indexOf(end,i);asse
 const deleteSource=portion('async function deleteProcessingFailure(ri){','async function resumeAfterManualCompletion(ri){');
 const outsideSource=portion('function clickedDialogBackdrop(event,dialog){','function closeImageSelectDialog({restoreFocus=true}={}){');
 function harness({kind='readFailure',confirmed=true,save=true,paused=false}={}){
- const data=kind==='normal'?{classification:{status:'UNIQUE'}}:kind==='readFailure'?{classification:{status:'NO_EXACT_MATCH'}}:{classification:{status:'MISSING_INPUT'},processingError:{stage:'解析'}};
+ const data=kind==='normal'?{classification:{status:'UNIQUE'}}:kind==='readFailure'?{classification:{status:'MISSING_INPUT'}}:{classification:{status:'MISSING_INPUT'},processingError:{stage:'解析'}};
  data.sourceIndex=1;data.file='sample.png';
  const selected=[{name:'first.png'},{name:'sample.png'},{name:'last.png'}];
  const results=[{sourceIndex:0,file:'first.png'},{...data}];
  if(!paused)results.push({sourceIndex:2,file:'last.png'});
  const state={results,selected,analysisPause:paused?{result:results[1],index:1,batch:[...selected]}:null,checkpointSessionActive:true,isRunning:false,preManualCsvSnapshot:{old:true},calls:[],confirmed,saved:save};
  const ctx={...state,
-   statusView:r=>[r.processingError?'解析失敗':r.classification?.status==='NO_EXACT_MATCH'?'読取失敗':'完了',r.processingError||r.classification?.status==='NO_EXACT_MATCH'?'bad':'ok'],
+   statusView:r=>[r.processingError?'解析失敗':r.classification?.status==='MISSING_INPUT'?'読取失敗':'完了',r.processingError||r.classification?.status==='MISSING_INPUT'?'bad':'ok'],
    pausedFailureIndex:i=>paused&&i===1?1:-1,
    showAppDialog:async props=>{state.calls.push(['dialog',props]);return confirmed},
    checkpointCommitSnapshot:async(...args)=>{state.calls.push(['checkpoint',args]);return save},
@@ -33,7 +33,7 @@ function harness({kind='readFailure',confirmed=true,save=true,paused=false}={}){
  return {ctx,state,delete:()=>vm.runInContext('deleteProcessingFailure(1)',ctx)};
 }
 test('bad labels, not processingError alone, make deletion available',()=>{
- assert.match(app,/const deleteAction=cl==='bad'/);
+ assert.match(app,/const deleteAction=cl==='bad'&&st!=='要確認'/);
  assert.match(app,/class="card-primary-actions"/);
  assert.doesNotMatch(app,/processingErrorHtml=r\.processingError[^;]*class="processing-delete"/);
 });
