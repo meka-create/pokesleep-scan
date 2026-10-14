@@ -199,3 +199,11 @@ jobs:
           cd "$RUNNER_TEMP/oct26-upstream"
           npm ci --ignore-scripts --no-audit --no-fund
           SCAN_MASTER_PATH="$RUNNER_TEMP/oct26-master.json" npx vitest run src/util/Formatter/ScanStep3Importer.test.ts --reporter=dot
+      - name: Simulate next daily update after synthetic 251-species master was already published
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp "$RUNNER_TEMP/oct26-master.json" shared/MASTER_DATA.json
+          python -m pip install Pillow==11.3.0
+          python -m unittest discover -s development -p 'test_master_auto_update.py' -v
+          echo 'POST-PROMOTION REGRESSION: synthetic 251+ species master passed the daily updater test suite'
