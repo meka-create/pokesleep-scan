@@ -170,3 +170,32 @@ jobs:
           python development/browser_append_after_results.py
           python development/browser_step3_review_audit.py
           python development/browser_csv_download_audit.py
+
+  # Future-release simulation is independent of the present 251-entry upstream HOLD.
+  # Never publishes synthetic values. Running this on PR verifies the real upstream
+  # CSV importer along with the OCR master's Node/Python projections.
+  oct26-future-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Clone live upstream in isolated runner
+        run: git clone --depth 1 --single-branch https://github.com/nitoyon/pokesleep-tool.git "$RUNNER_TEMP/oct26-upstream"
+      - name: Future-release master projection (synthetic numbers only)
+        run: python development/verify_oct26_preflight.py "$RUNNER_TEMP/oct26-upstream" "$RUNNER_TEMP/oct26-master.json"
+      - name: 251-species runtime, simulated classifier, and CSV gate
+        run: node development/verify_oct26_classify_csv.cjs "$RUNNER_TEMP/oct26-master.json"
+      - name: Real pokesleep-tool 251-species CSV importer roundtrip
+        run: |
+          cp development/step3_real_upstream_importer.test.ts "$RUNNER_TEMP/oct26-upstream/src/util/Formatter/ScanStep3Importer.test.ts"
+          cd "$RUNNER_TEMP/oct26-upstream"
+          npm ci --ignore-scripts --no-audit --no-fund
+          SCAN_MASTER_PATH="$RUNNER_TEMP/oct26-master.json" npx vitest run src/util/Formatter/ScanStep3Importer.test.ts --reporter=dot
