@@ -138,3 +138,27 @@ jobs:
         run: python development/browser_step3_review_audit.py
       - name: Real Chromium CSV download and preflight tests
         run: python development/browser_csv_download_audit.py
+
+  # UI safety is verified independently because a real upstream master HOLD
+  # must not prevent us from checking unrelated interface changes.
+  failure-card-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Failure-card deletion and modal synthetic tests
+        run: node --test development/failure_card_actions.test.cjs development/image_button_compact.test.cjs
+      - name: Set up Chromium for focused UI checks
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Real Chromium synthetic failure-card and dialogs
+        run: python development/browser_failure_card_modal.py
