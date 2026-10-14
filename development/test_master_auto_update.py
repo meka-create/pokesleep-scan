@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Synthetic October 5, 2026 247 -> 249 migration and failure-rollback fixture."""
+"""Two-species migration, failure-rollback, and future-release lifecycle fixtures."""
 import copy, json, pathlib, tempfile, unittest, sys
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'development'))
@@ -166,7 +166,7 @@ class OctoberFifthTest(unittest.TestCase):
         save(temp_root/'shared/master_release.json',{
             'schema':1,'sourceRepo':'nitoyon/pokesleep-tool',
             'sourceCommit':'a'*40,'sha256':'a'*64,
-            'speciesCount':249,'ingredientCount':20,'natureCount':25,
+            'speciesCount':len(original['pokemon']),'ingredientCount':20,'natureCount':25,
             'subskillCount':17,'cutoff':original['cutoff'],
             'missingFoodTemplates':['未来の食材']})
         shutil.copy(ROOT/'food_color_features.js',temp_root/'food_color_features.js')
@@ -193,7 +193,7 @@ class OctoberFifthTest(unittest.TestCase):
         save(data,doc)
         with self.assertRaises(Hold):
             project(self.dir,self.pre,commit='a'*40)
-        self.assertEqual(len(self.pre['pokemon']),247)
+        self.assertEqual(len(self.pre['pokemon']),len(self.full['pokemon'])-2)
     def test_subskill_structure_change_fails_closed(self):
         sub=self.dir/'src/util/SubSkill.ts'
         sub.write_text(sub.read_text(encoding='utf-8').replace('subSkillNames','deprecatedSkillNames'),encoding='utf-8')
