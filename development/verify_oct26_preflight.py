@@ -54,7 +54,7 @@ def main(upstream,out):
                        today_jst=due_day)
  assert len(master["pokemon"])==len(historical["pokemon"])+2,report
  assert set(report["addedSpecies"])==set(NEW),report
- known={p["name_en"]:p for p in historical["pokemon"]}
+ known={p["name_en"]:p for p in before_synthetic["pokemon"]}
  observed={p["name_en"]:p for p in master["pokemon"]}
  assert all(observed.get(k)==v for k,v in known.items()),"existing 249 changed"
  for name,ja in NEW.items():
