@@ -96,8 +96,8 @@
     },
     {
       "path": "development/browser_failure_card_modal.py",
-      "bytes": 6724,
-      "sha256": "04d2be14c9414d2e761826c33fe521beca0880ab2f3e880b92e0723aa33fc60b"
+      "bytes": 6765,
+      "sha256": "f0dbb68a45f385521f09aa52ec38424ff99a4592b2caf1d6ec0a2ba732346d6b"
     },
     {
       "path": "development/browser_step3_review_audit.py",
