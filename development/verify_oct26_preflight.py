@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Future-release synthetic preflight; source clone and numbers are disposable test data."""
-import copy,json,pathlib,sys
-from master_auto_update import Hold,project
+import copy,hashlib,json,pathlib,shutil,sys,tempfile
+from master_auto_update import Hold,project,promote
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 NEW={"Misdreavus":"ムウマ","Mismagius":"ムウマージ"}
 def main(upstream,out):
@@ -42,6 +42,23 @@ def main(upstream,out):
   assert observed[name]["mainSkill"]=="マジカルフレイム (料理アドバンスS)"
  _,again=project(upstream,master,commit="a"*40)
  assert not again["changed"],"second import was not idempotent"
+ # End-to-end release promotion on a scratch copy, including app/sw/release tokens.
+ with tempfile.TemporaryDirectory(prefix="oct26-release-") as folder:
+  scratch=pathlib.Path(folder)
+  (scratch/"shared").mkdir(parents=True)
+  (scratch/"shared/MASTER_DATA.json").write_text(json.dumps(prior,ensure_ascii=False),encoding="utf-8")
+  for file in ("app.js","sw.js","release.json","food_color_features.js"):
+   shutil.copy2(ROOT/file,scratch/file)
+  assert promote(scratch,master,report),"release promotion failed"
+  bytes_=(scratch/"shared/MASTER_DATA.json").read_bytes()
+  receipt=json.loads((scratch/"shared/master_release.json").read_text(encoding="utf-8"))
+  release=json.loads((scratch/"release.json").read_text(encoding="utf-8"))["id"]
+  assert receipt["speciesCount"]==251
+  assert receipt["sha256"]==hashlib.sha256(bytes_).hexdigest()
+  assert release in (scratch/"app.js").read_text(encoding="utf-8")
+  assert release in (scratch/"sw.js").read_text(encoding="utf-8")
+  assert len(json.loads(bytes_)["pokemon"])==251
+  print("SYNTHETIC PROMOTION: PASS — 251 master SHA-256, release.json, app.js, sw.js")
  out.write_text(json.dumps(master,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
  print("SYNTHETIC MASTER: PASS; 249 untouched + 2 added; skill translation; idempotence")
  print("WARNING: synthetic numbers are not official and do not prove Oct26 real screenshots")
