@@ -136,8 +136,8 @@
     },
     {
       "path": "development/master_auto_update.py",
-      "bytes": 14889,
-      "sha256": "657cd08bb23165143b051c9f331a50e1952518629aa4a4d78508aabe49005020"
+      "bytes": 16070,
+      "sha256": "5a87dc70d9e7d4980645242d5f10601998c0b7375b93dc5016be44c7ce6b12a4"
     },
     {
       "path": "development/master_auto_update.test.cjs",
@@ -266,8 +266,8 @@
     },
     {
       "path": "development/test_master_auto_update.py",
-      "bytes": 16788,
-      "sha256": "bd7641bdcc6a3560212f790e5f3914f284fdc747dcf2f74dedf56d850c4f0341"
+      "bytes": 20163,
+      "sha256": "5d81148973090ab451b916738ab0ac20ed43108892c27b4b73081758af91978c"
     },
     {
       "path": "development/test_master_status.py",
@@ -291,13 +291,13 @@
     },
     {
       "path": "development/verify_oct26_classify_csv.cjs",
-      "bytes": 2438,
-      "sha256": "83acbd8b46e670fe9b26b46fd6d50c4b334438e4e53d8e954f400311eca0a081"
+      "bytes": 2455,
+      "sha256": "48782da5d1323993999bef2090a0302aaf16223919d11adb790b964c611481a0"
     },
     {
       "path": "development/verify_oct26_preflight.py",
-      "bytes": 4779,
-      "sha256": "36e20919745edd9ca149a00131f1eb6ae8506a7750bb4d9e21328be82c45a8af"
+      "bytes": 5345,
+      "sha256": "1ef2a011742b4e0133ff407c78aa4746a329914731323df0fec420cd1e5e680a"
     },
     {
       "path": "development/write_master_update_status.py",
