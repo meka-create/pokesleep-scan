@@ -27,6 +27,27 @@ INSTRUMENTED=APP.replace(HOOK,"""window.__FAILURE_CARD_UI_TEST__={
     document.querySelector('#resultsCard').hidden=false;
     render();
   },
+  // Exercise the actual IndexedDB stores, not only mocked checkpoint helpers.
+  persist:async()=>{
+    const file=selected[0],db=await openCheckpointDb(),
+      record=await checkpointFileRecord(file,0),
+      clone=checkpointResultClone(results[0]);
+    const tx=db.transaction(['meta','files','results'],'readwrite');
+    tx.objectStore('meta').put(checkpointMeta('completed',1,null));
+    tx.objectStore('files').put(record);
+    tx.objectStore('results').put(clone);
+    await checkpointTxDone(tx);
+    checkpointSessionActive=true;
+    return true;
+  },
+  stored:async()=>{
+    const db=await openCheckpointDb(),tx=db.transaction(['meta','files','results'],'readonly'),
+      meta=await checkpointRequest(tx.objectStore('meta').getAll()),
+      files=await checkpointRequest(tx.objectStore('files').getAll()),
+      rows=await checkpointRequest(tx.objectStore('results').getAll());
+    await checkpointTxDone(tx);
+    return {meta:meta.length,files:files.length,rows:rows.length,active:checkpointSessionActive};
+  },
   count:()=>({results:results.length,selected:selected.length}),
   openChoice:()=>openImageSelectDialog()
 };
@@ -90,9 +111,12 @@ def main():
      assert page.locator('#appDialog').evaluate('(e)=>e.open'),(w,'destructive dialog dismissed unexpectedly')
      page.locator('#appDialogSecondary').click()
      assert page.evaluate('window.__FAILURE_CARD_UI_TEST__.count()')=={'results':1,'selected':1}
+     page.evaluate('window.__FAILURE_CARD_UI_TEST__.persist()')
+     assert page.evaluate('window.__FAILURE_CARD_UI_TEST__.stored()')=={'meta':1,'files':1,'rows':1,'active':True}
      page.locator('#tbl .processing-delete').click()
      page.locator('#appDialogPrimary').click()
      assert page.evaluate('window.__FAILURE_CARD_UI_TEST__.count()')=={'results':0,'selected':0}
+     assert page.evaluate('window.__FAILURE_CARD_UI_TEST__.stored()')=={'meta':0,'files':0,'rows':0,'active':False},(w,'stale checkpoint remained after deletion')
      assert not errors,(w,errors)
      passed.append(f'{w}px: 31px controls, red-card deletion, safe cancel, backdrop dismissal')
      ctx.close()
