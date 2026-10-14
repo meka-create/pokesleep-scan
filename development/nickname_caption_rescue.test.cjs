@@ -95,6 +95,8 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  restored=restored.replace("codeRevision:'20261013-nickname-consensus-gated-v3'",
   "codeRevision:'20261013-food3-pixel-v6-direct-files'");
  const sha=crypto.createHash('sha256').update(restored,'utf8').digest('hex');
- assert.equal(sha,'365ae89c57ea414a0fcf196c965fb4023718953bca07c437a62c3a190a5d7c46',
+ // The approved main baseline includes PR #46/#47 failure-card UI changes, not
+ // a nickname OCR change. Frozen nickname-specific hashes remain untouched.
+ assert.equal(sha,'866fccd6bf9201db0fd7ffdbb519abe6433c7ab9fc0edf06e1d4b09ad0df46ec',
   'non-nickname implementation changed unexpectedly');
 });
