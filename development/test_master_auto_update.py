@@ -209,14 +209,15 @@ class FutureSpeciesReadinessTest(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = pathlib.Path(self.temp.name)
         self.prior = json.loads((ROOT/'shared/MASTER_DATA.json').read_text(encoding='utf-8'))
-        self.assertEqual(len(self.prior['pokemon']), 249)
+        self.assertGreaterEqual(len(self.prior['pokemon']), 249)
         extended = copy.deepcopy(self.prior)
-        for key,ja in [('Misdreavus','ムウマ'),('Mismagius','ムウマージ')]:
+        for key,ja in [('SyntheticArrivalAlpha','監査用ミライA'),('SyntheticArrivalBeta','監査用ミライB')]:
             template = copy.deepcopy(next(x for x in self.prior['pokemon'] if x['name']=='ピカチュウ'))
             template.update({'name':ja,'name_en':key,'arrival':'2026-10-26','type':'ghost',
                              'skill':'Cooking Advance S (Mystical Fire)',
                              'mainSkill':'マジカルフレイム (料理アドバンスS)'})
             extended['pokemon'].append(template)
+        self.assertEqual(len(extended['pokemon']),len(self.prior['pokemon'])+2)
         make_fixture(self.root,extended)
     def source(self):
         return self.root/'src/data/pokemon.json'
@@ -231,21 +232,21 @@ class FutureSpeciesReadinessTest(unittest.TestCase):
     def test_before_arrival_complete_data_does_not_publish_new_species(self):
         master,report=self.project_at('2026-10-25')
         self.assertFalse(report['changed'])
-        self.assertEqual(len(master['pokemon']),249)
+        self.assertEqual(len(master['pokemon']),len(self.prior['pokemon']))
         self.assertEqual({x['name'] for x in report['deferredSpecies']},
-                         {'Misdreavus','Mismagius'})
+                         {'SyntheticArrivalAlpha','SyntheticArrivalBeta'})
         self.assertEqual({x['reason'] for x in report['deferredSpecies']},
                          {'before-arrival'})
     def test_on_arrival_complete_data_imports_251_with_new_skill(self):
         master,report=self.project_at('2026-10-26')
         self.assertTrue(report['changed'])
-        self.assertEqual(len(master['pokemon']),251)
-        self.assertEqual(set(report['addedSpecies']),{'Misdreavus','Mismagius'})
+        self.assertEqual(len(master['pokemon']),len(self.prior['pokemon'])+2)
+        self.assertEqual(set(report['addedSpecies']),{'SyntheticArrivalAlpha','SyntheticArrivalBeta'})
         self.assertEqual(report['deferredSpecies'],[])
         old={x['name_en']:x for x in self.prior['pokemon']}
         new={x['name_en']:x for x in master['pokemon']}
         self.assertTrue(all(new[name]==value for name,value in old.items()))
-        self.assertEqual(new['Misdreavus']['mainSkill'],'マジカルフレイム (料理アドバンスS)')
+        self.assertEqual(new['SyntheticArrivalAlpha']['mainSkill'],'マジカルフレイム (料理アドバンスS)')
         _,repeat=self.project_at('2026-10-27',prior=master)
         self.assertFalse(repeat['changed'])
     def test_after_arrival_provisional_zero_unknown_keeps_only_new_species_deferred(self):
@@ -256,7 +257,7 @@ class FutureSpeciesReadinessTest(unittest.TestCase):
         self.edit(change)
         master,report=self.project_at('2026-10-26')
         self.assertFalse(report['changed'])
-        self.assertEqual(len(master['pokemon']),249)
+        self.assertEqual(len(master['pokemon']),len(self.prior['pokemon']))
         self.assertEqual({x['reason'] for x in report['deferredSpecies']},{'provisional-data'})
     def test_after_arrival_one_ready_other_placeholder_partial_then_later_import(self):
         def change(data):
@@ -265,14 +266,14 @@ class FutureSpeciesReadinessTest(unittest.TestCase):
             x['ing2']={'name':'unknown2','c2':0,'c3':0}
         self.edit(change)
         partial,report=self.project_at('2026-10-26')
-        self.assertEqual(len(partial['pokemon']),250)
-        self.assertEqual(report['addedSpecies'],['Misdreavus'])
-        self.assertEqual([x['name'] for x in report['deferredSpecies']],['Mismagius'])
+        self.assertEqual(len(partial['pokemon']),len(self.prior['pokemon'])+1)
+        self.assertEqual(report['addedSpecies'],['SyntheticArrivalAlpha'])
+        self.assertEqual([x['name'] for x in report['deferredSpecies']],['SyntheticArrivalBeta'])
         self.edit(lambda data:data.__setitem__(-1,{**data[-1], 'carryLimit':22,
                       'ing2':{'name':'mushroom','c2':1,'c3':2}}))
         complete,report2=self.project_at('2026-10-27',prior=partial)
-        self.assertEqual(len(complete['pokemon']),251)
-        self.assertEqual(report2['addedSpecies'],['Mismagius'])
+        self.assertEqual(len(complete['pokemon']),len(self.prior['pokemon'])+2)
+        self.assertEqual(report2['addedSpecies'],['SyntheticArrivalBeta'])
     def test_existing_species_corruption_is_not_silenced_by_future_deferral(self):
         self.edit(lambda data:data[0].update(frequency=0))
         with self.assertRaisesRegex(Hold,'invalid pokemon statistics'):
@@ -282,11 +283,10 @@ class FutureSpeciesReadinessTest(unittest.TestCase):
         self.edit(dup)
         with self.assertRaisesRegex(Hold,'collision'):
             self.project_at('2026-10-25')
-        make_fixture(self.root, {**self.prior,'pokemon':self.prior['pokemon']})
         # Regenerate the extended source separately for the calendar check.
         model=copy.deepcopy(self.prior)
         p=copy.deepcopy(self.prior['pokemon'][0])
-        p.update(name_en='Misdreavus',name='ムウマ',arrival='2026-02-30')
+        p.update(name_en='SyntheticArrivalAlpha',name='監査用ミライA',arrival='2026-02-30')
         model['pokemon'].append(p)
         make_fixture(self.root,model)
         with self.assertRaisesRegex(Hold,'arrival date'):
@@ -294,7 +294,7 @@ class FutureSpeciesReadinessTest(unittest.TestCase):
     def test_completed_original_species_revision_still_publishes_while_future_deferred(self):
         self.edit(lambda data:data[0].update(frequency=data[0]['frequency']+2))
         projected,report=self.project_at('2026-10-25')
-        self.assertEqual(len(projected['pokemon']),249)
+        self.assertEqual(len(projected['pokemon']),len(self.prior['pokemon']))
         self.assertIn(self.prior['pokemon'][0]['name_en'],report['changedSpecies'])
         self.assertTrue(report['changed'])
 
