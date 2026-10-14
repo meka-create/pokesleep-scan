@@ -5,7 +5,7 @@ Read-only upstream checkout -> validated master -> transactional git commit (CI)
 Unknown structures or removal of previous selectable options cause HOLD.
 """
 from __future__ import annotations
-import argparse, hashlib, json, math, pathlib, re, subprocess
+import argparse, datetime, hashlib, json, math, pathlib, re, subprocess
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 INPUTS = {'pokemon':'src/data/pokemon.json','names':'src/i18n/ja/pokemons.json',
           'data':'src/i18n/ja/data.json','skills':'src/i18n/ja/skills.json',
@@ -71,8 +71,29 @@ def read_strength(source):
           "legacy ingredient energy changed; manual OCR recalibration required")
     return result
 
-def project(src,prior,commit=None):
+# Future species are often committed early with zero/unknown placeholders. A
+# deferred species must be NEW to the installed master, have a valid identity,
+# and must never be published before its source-designated arrival date.
+# Date comparisons use Japan Standard Time, irrespective of the CI runner locale.
+JST = datetime.timezone(datetime.timedelta(hours=9))
+KNOWN_SPECIALTIES = frozenset(('Berries','Ingredients','Skills','All'))
+def provisional_new_species(p):
+    if p.get('frequency') == 0 or p.get('carryLimit') == 0 or p.get('specialty') == 'unknown' or p.get('skill') == 'unknown':
+        return True
+    return any(isinstance(p.get('ing'+str(n)),dict) and
+               str(p['ing'+str(n)].get('name','')).startswith('unknown')
+               for n in (1,2,3))
+
+def arrival_date(raw):
+    check(isinstance(raw,str) and bool(re.fullmatch(r'\\d{4}-\\d{2}-\\d{2}',raw)),
+          'invalid pokemon arrival date')
+    try:return datetime.date.fromisoformat(raw)
+    except ValueError:raise Hold('invalid pokemon arrival date')
+
+def project(src,prior,commit=None,today_jst=None):
     src=pathlib.Path(src)
+    today_jst = today_jst if today_jst is not None else datetime.datetime.now(JST).date()
+    check(type(today_jst) is datetime.date, 'today_jst must be a JST calendar date')
     paths={k:src/v for k,v in INPUTS.items()}
     check(all(p.is_file() for p in paths.values()),'missing upstream file')
     inp={k:(p.read_text(encoding='utf-8') if k in ('subskill','ingredientStrength') else read(p)) for k,p in paths.items()}
@@ -92,7 +113,8 @@ def project(src,prior,commit=None):
     check(set(old_n)==set(natures) and set(old_s)==set(ss),'unknown subskill/nature coefficients')
     check(set(prior['ingredients']).issubset(ingredients),'ingredient removed')
     check(all(isinstance(k,str) and k and isinstance(v,str) and v.strip() for k,v in ingredients.items()) and len(set(ingredients.values()))==len(ingredients),'ingredient translation missing or non-unique')
-    used_en=set();used_ja=set();used_ids=set();parsed=[]
+    used_en=set();used_ja=set();used_ids=set();parsed=[];deferred=[]
+    installed_names={x['name_en'] for x in prior['pokemon']}
     for p in pokemon:
         en=p['name'];ja=names.get(en);skill=p['skill'];ident=(p.get('id'),p.get('form') or '')
         check(en not in used_en and ja not in used_ja and
@@ -101,6 +123,15 @@ def project(src,prior,commit=None):
               skill in skills and isinstance(skills[skill].get('name'),str),
               'pokemon identifier/translation collision')
         used_en.add(en);used_ja.add(ja);used_ids.add(ident)
+        # Never skip existing species: even an upstream typo must HOLD, not
+        # silently replace previously validated 249-species statistics.
+        if en not in installed_names:
+            when=arrival_date(p.get('arrival'))
+            provisional=provisional_new_species(p)
+            if when>today_jst or provisional:
+                deferred.append({'name':en,'arrival':when.isoformat(),
+                                 'reason':'before-arrival' if when>today_jst else 'provisional-data'})
+                continue
         row={'name':ja,'name_en':en,'skill':skill,'mainSkill':skills[skill]['name']}
         for k in FIELDS:
             check(p.get(k) is not None,f'missing {en}.{k}')
@@ -163,6 +194,7 @@ def project(src,prior,commit=None):
             'addedSpecies':sorted(set(updated_by)-set(old_by)),
             'changedSpecies':sorted(k for k in old_by if old_by[k]!=updated_by[k]),
             'newIngredients':sorted(set(ingredients)-set(prior['ingredients'])),
+            'deferredSpecies':deferred,
             'changed':signature(master)!=signature(prior)}
     return master,result
 def known_food_images(root):
