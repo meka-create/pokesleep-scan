@@ -361,8 +361,8 @@
     },
     {
       "path": "master-update-status.json",
-      "bytes": 144,
-      "sha256": "6e19cf83556b097e206f3486dc8bc1bb5dd8daff08d5aecff42a47dfe6e5ec4b"
+      "bytes": 158,
+      "sha256": "09ce244b70ebdba58d8de65784b60887604d5e9ad1d40ad95965ca3343382353"
     },
     {
       "path": "master_data.js",
