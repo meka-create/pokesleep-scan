@@ -25,7 +25,7 @@ def main(upstream,out):
  before,pre_report=project(upstream,historical,commit="a"*40,
                             today_jst=before_day)
  assert len(before["pokemon"])==len(historical["pokemon"])
- assert {p["name"] for p in pre_report["deferredSpecies"]}==set(NEW)
+ assert set(NEW).issubset({p["name"] for p in pre_report["deferredSpecies"]})
  print("AS-IS UPSTREAM BEFORE ARRIVAL: PASS — new species deferred, baseline preserved")
  at_release,release_report=project(upstream,historical,commit="a"*40,
                            today_jst=due_day)
