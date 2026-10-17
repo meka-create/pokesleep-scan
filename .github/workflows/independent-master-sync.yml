@@ -55,7 +55,7 @@ jobs:
           import json,os,pathlib
           report=(pathlib.Path(os.environ["RUNNER_TEMP"])/"master-sync-report.txt").read_text(encoding="utf-8")
           status=json.loads(report.splitlines()[0])
-          pending=any(x.get("reason")=="provisional-data" for x in status.get("deferredSpecies",[]))
+          pending=bool(status.get("overdueNewSpecies",[]))
           with open(os.environ["GITHUB_OUTPUT"],"a",encoding="utf-8") as out:
               out.write(f"overdue_new_species={str(pending).lower()}\n")
           print("Post-arrival provisional species:",pending)
