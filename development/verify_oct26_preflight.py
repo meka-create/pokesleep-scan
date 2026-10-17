@@ -42,6 +42,10 @@ def main(upstream,out):
   if p["name"] not in profiles:continue
   freq,carry,ing,skill=profiles[p["name"]]
   p.update(frequency=freq,carryLimit=carry,ingRate=ing,skillRate=skill,specialty="Skills")
+  # The real unreleased skill is allowed to be unknown upstream. Populate
+  # the synthetic test fixture only; never invent skill in production data.
+  if p.get("skill") in (None,"unknown"):
+   p["skill"]="Cooking Advance S (Mystical Fire)"
   p["ing1"]={"name":"apple","c1":1,"c2":2,"c3":4}
   p["ing2"]={"name":"mushroom","c2":2,"c3":3}
   p["ing3"]={"name":"herb","c3":4}
