@@ -86,3 +86,24 @@ test('unknown food energy coefficients never become automatic classifier candida
  assert.equal(text.split('Object.hasOwn(BERRY_BASE,sp.type)').length,3);
  assert.doesNotMatch(text,/POKESLEEP_BASELINE_SKILLS/);
 });
+
+
+test('pending new species shows accurate copy; sync failure and local master faults stay failures',()=>{
+ const src=fs.readFileSync(path.join(root,'master-update-status.js'),'utf8');
+ const a=src.indexOf('function localFailure()'),b=src.indexOf('async function refresh()',a);
+ assert.ok(a>=0&&b>a,'health rendering segment must exist');
+ const ctx={window:{POKESLEEP_SHARED_MASTER:{getStatus:()=>({source:'verified-local-master'})}},
+   badge:{hidden:true},dialog:{open:false,close(){this.open=false}},
+   title:{textContent:''},message:{textContent:''},current:{state:'pending',reason:'init'}};
+ vm.createContext(ctx);
+ vm.runInContext(src.slice(a,b),ctx);
+ vm.runInContext("render({state:'attention',reason:'NEW_SPECIES_PENDING'})",ctx);
+ assert.equal(ctx.badge.hidden,false);
+ assert.match(ctx.title.textContent,/新しいポケモンのデータ/);
+ assert.match(ctx.message.textContent,/既存のマスターデータは正常/);
+ vm.runInContext("render({state:'attention',reason:'SYNC_FAILED'})",ctx);
+ assert.match(ctx.title.textContent,/マスター更新を確認できませんでした/);
+ ctx.window.POKESLEEP_SHARED_MASTER.getStatus=()=>({source:'fallback'});
+ vm.runInContext("render({state:'attention',reason:'NEW_SPECIES_PENDING'})",ctx);
+ assert.match(ctx.title.textContent,/マスター更新を確認できませんでした/);
+});
