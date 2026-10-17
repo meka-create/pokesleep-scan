@@ -25,7 +25,7 @@ def main(upstream,out):
  before,pre_report=project(upstream,historical,commit="a"*40,
                             today_jst=before_day)
  assert len(before["pokemon"])==len(historical["pokemon"])
- assert {p["name"] for p in pre_report["deferredSpecies"]}==set(NEW)
+ assert set(NEW).issubset({p["name"] for p in pre_report["deferredSpecies"]})
  print("AS-IS UPSTREAM BEFORE ARRIVAL: PASS — new species deferred, baseline preserved")
  at_release,release_report=project(upstream,historical,commit="a"*40,
                            today_jst=due_day)
@@ -42,6 +42,10 @@ def main(upstream,out):
   if p["name"] not in profiles:continue
   freq,carry,ing,skill=profiles[p["name"]]
   p.update(frequency=freq,carryLimit=carry,ingRate=ing,skillRate=skill,specialty="Skills")
+  # The real unreleased skill is allowed to be unknown upstream. Populate
+  # the synthetic test fixture only; never invent skill in production data.
+  if p.get("skill") in (None,"unknown"):
+   p["skill"]="Cooking Advance S (Mystical Fire)"
   p["ing1"]={"name":"apple","c1":1,"c2":2,"c3":4}
   p["ing2"]={"name":"mushroom","c2":2,"c3":3}
   p["ing3"]={"name":"herb","c3":4}

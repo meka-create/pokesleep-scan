@@ -217,6 +217,15 @@ def project(src,prior,commit=None,today_jst=None):
             'changedSpecies':sorted(k for k in old_by if old_by[k]!=updated_by[k]),
             'newIngredients':sorted(set(ingredients)-set(prior['ingredients'])),
             'deferredSpecies':deferred,
+            # Backfilled older alternate forms can have years-old arrival dates
+            # and placeholder values. Keep them deferred, but do not alarm the
+            # user about newly introduced historical source data. A due-date
+            # alert is only meaningful for arrivals in the current master era.
+            # Equality is intentional: one of two same-day new species may
+            # already be in the previously published master.
+            'overdueNewSpecies':sorted(x['name'] for x in deferred
+                if x['reason']=='provisional-data' and
+                arrival_date(x['arrival'])>=arrival_date(prior['cutoff'])),
             'changed':signature(master)!=signature(prior)}
     return master,result
 def known_food_images(root):

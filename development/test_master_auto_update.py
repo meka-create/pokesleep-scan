@@ -237,6 +237,7 @@ class FutureSpeciesReadinessTest(unittest.TestCase):
                          {'SyntheticArrivalAlpha','SyntheticArrivalBeta'})
         self.assertEqual({x['reason'] for x in report['deferredSpecies']},
                          {'before-arrival'})
+        self.assertEqual(report['overdueNewSpecies'],[])
     def test_on_arrival_complete_data_imports_251_with_new_skill(self):
         master,report=self.project_at('2026-10-26')
         self.assertTrue(report['changed'])
@@ -259,6 +260,7 @@ class FutureSpeciesReadinessTest(unittest.TestCase):
         self.assertFalse(report['changed'])
         self.assertEqual(len(master['pokemon']),len(self.prior['pokemon']))
         self.assertEqual({x['reason'] for x in report['deferredSpecies']},{'provisional-data'})
+        self.assertEqual(set(report['overdueNewSpecies']),{'SyntheticArrivalAlpha','SyntheticArrivalBeta'})
     def test_after_arrival_one_ready_other_placeholder_partial_then_later_import(self):
         def change(data):
             x=data[-1]
@@ -269,6 +271,7 @@ class FutureSpeciesReadinessTest(unittest.TestCase):
         self.assertEqual(len(partial['pokemon']),len(self.prior['pokemon'])+1)
         self.assertEqual(report['addedSpecies'],['SyntheticArrivalAlpha'])
         self.assertEqual([x['name'] for x in report['deferredSpecies']],['SyntheticArrivalBeta'])
+        self.assertEqual(report['overdueNewSpecies'],['SyntheticArrivalBeta'])
         self.edit(lambda data:data.__setitem__(-1,{**data[-1], 'carryLimit':22,
                       'ing2':{'name':'mushroom','c2':1,'c3':2}}))
         complete,report2=self.project_at('2026-10-27',prior=partial)
@@ -331,6 +334,38 @@ class FutureSpeciesReadinessTest(unittest.TestCase):
         save(names,labels)
         with self.assertRaisesRegex(Hold,'collision'):
             self.project_at('2026-10-25')
+    def test_historical_placeholder_does_not_raise_future_release_warning(self):
+        # Upstream may retroactively append incomplete forms with years-old
+        # arrival. They remain deferred but must not show update-failed UI.
+        def make_historical(data):
+            older=data[-2]
+            older.update(arrival='2023-07-17',frequency=0,
+                         carryLimit=0,skill='unknown')
+        self.edit(make_historical)
+        master,report=self.project_at('2026-10-17')
+        self.assertEqual(len(master['pokemon']),len(self.prior['pokemon']))
+        self.assertEqual(report['addedSpecies'],[])
+        self.assertEqual({x['name'] for x in report['deferredSpecies']},
+                         {'SyntheticArrivalAlpha','SyntheticArrivalBeta'})
+        self.assertEqual(report['overdueNewSpecies'],[])
+    def test_same_arrival_date_as_installed_cutoff_still_warns(self):
+        # Once the first October 26 species imports, cutoff becomes Oct26.
+        # The second same-day species must still be tracked as overdue.
+        self.edit(lambda data:data[-1].update(carryLimit=0))
+        partial,_=self.project_at('2026-10-26')
+        self.assertEqual(partial['cutoff'],'2026-10-26')
+        after,report=self.project_at('2026-10-27',prior=partial)
+        self.assertEqual(report['overdueNewSpecies'],['SyntheticArrivalBeta'])
+        self.assertEqual(len(after['pokemon']),len(partial['pokemon']))
+    def test_historical_placeholder_does_not_block_valid_existing_revision(self):
+        self.edit(lambda data:data[-1].update(arrival='2023-07-17',
+                    frequency=0,carryLimit=0,skill='unknown'))
+        self.edit(lambda data:data[0].update(frequency=data[0]['frequency']+2))
+        master,report=self.project_at('2026-10-17')
+        self.assertTrue(report['changed'])
+        self.assertEqual(report['overdueNewSpecies'],[])
+        self.assertIn(self.prior['pokemon'][0]['name_en'],report['changedSpecies'])
+
     def test_after_251_promotion_further_new_species_still_automatically_imports(self):
         full,report=self.project_at('2026-10-26')
         self.assertEqual(len(full['pokemon']),len(self.prior['pokemon'])+2)
