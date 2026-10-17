@@ -33,7 +33,7 @@ class MasterStatusTest(unittest.TestCase):
         self.assertIn("overdue_new_species:",w)
         self.assertIn("steps.stage.outputs.overdue_new_species",w)
         self.assertIn("needs.sync.outputs.overdue_new_species",w)
-        self.assertIn('status.get("deferredSpecies",[])',w)
+        self.assertIn('status.get("overdueNewSpecies",[])',w)
         self.assertIn("reason",w)
         self.assertIn("--pending",w)
     def test_invalid_result_or_naive_time_refused(self):
