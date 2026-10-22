@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "sourceRepo": "nitoyon/pokesleep-tool",
-  "sourceCommit": "f394104a0a9d44335a8697143464e5add9815643",
-  "sha256": "d60410ba1f92d80c67ca3ff40bc8aa7a2cd51d4c03fc33f9e99fa83bb8e77a38",
+  "sourceCommit": "8f48006811d9e58cd05949120b08982636341872",
+  "sha256": "0ab047c329adf000495261a5663ec4b77740f17b8409fe3fd31b376347769ffb",
   "speciesCount": 249,
   "ingredientCount": 19,
   "natureCount": 25,

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-12-independent-master-auto-v12",
-  "appBuildId": "v12-independent-master-auto-v12",
+  "releaseId": "master-8f48006811d9-0ab047c329",
+  "appBuildId": "v12-master-8f48006811d9-0ab047c329",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 303896,
-      "sha256": "353dfffefa8c3f1d90510cb2bb0c748b6ff7f3d9238d1bf0f57a1c7be538f187"
+      "bytes": 303894,
+      "sha256": "a017acc1d03ed265157b884e89d99e85e4217a05847cea00a7421045ebd5ee2f"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -371,18 +371,18 @@
     },
     {
       "path": "release.json",
-      "bytes": 53,
-      "sha256": "11a93a44c90d6470516e6918015284cb1d533708b3a803da9291bc5afcd09aff"
+      "bytes": 45,
+      "sha256": "8890d0bdcd760583d64b996b9ab368c50753d5fb2a9cda40bd7977f64d11c40c"
     },
     {
       "path": "shared/MASTER_DATA.json",
-      "bytes": 211799,
-      "sha256": "d60410ba1f92d80c67ca3ff40bc8aa7a2cd51d4c03fc33f9e99fa83bb8e77a38"
+      "bytes": 212306,
+      "sha256": "0ab047c329adf000495261a5663ec4b77740f17b8409fe3fd31b376347769ffb"
     },
     {
       "path": "shared/master_release.json",
       "bytes": 397,
-      "sha256": "e6f3624c04a120286cf43373dc8df7048b7d3fa0811e1189801479d4dc53d0a0"
+      "sha256": "4ed0eecfecc0adb62307147ab80127f99248f6ab5b904139e8669a60beae2787"
     },
     {
       "path": "shared_master.js",
@@ -391,8 +391,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4054,
-      "sha256": "7a088aaf0b85d48371d84c20646ad3456cfc2e1618270d4018b1b1718748ce1f"
+      "bytes": 4046,
+      "sha256": "ac1d3101666c77003ab7387418e4c1c9b8288aad3d00f9d57e85578088f60ece"
     }
   ]
 }
