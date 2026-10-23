@@ -838,7 +838,6 @@ function nicknameSupportDistance(candidate,existing,current,rawPaddle){
  if(!alts.length)return Infinity;
  return Math.min(...alts.map(x=>editDistance(candidate,x.text)));
 }
-
 async function paddleNickname(canvas,idx,total){
  let stage='ensure';
  try{
