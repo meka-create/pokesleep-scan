@@ -85,12 +85,13 @@ function mythicalSubskillApi(){
   speciesIsMythical:name=>name==='ミュウ'||name==='ダークライ',
   chosenSpecies:r=>r.species,
   foodCsvValue:f=>f?.name||'',mainSkillCsvValue:()=> 'メインスキル',
-  ribbonCsvValue:()=>0,shinyCsvValue:()=>0
+  ribbonCsvValue:()=>0,shinyCsvValue:()=>0,
+  mintCsvNature:r=>r.parsed.nature
  };
  vm.createContext(ctx);
  vm.runInContext(segment('function subskillReviewSlots(r){','function subskillNeedsReview(r){'),ctx);
  vm.runInContext(segment('function subskillReviewOptions(r,index){','function subskillReviewPreviewHtml(r,ri,index){'),ctx);
- vm.runInContext(segment('function toPokesleepToolCsvRow(r){','function buildCsvText(){'),ctx);
+ vm.runInContext(segment('function toPokesleepToolCsvRow(r,mintMode=','function buildCsvText(mintMode='),ctx);
  return ctx;
 }
 function mythicalSubskillRow(species,value='きのみの数S'){

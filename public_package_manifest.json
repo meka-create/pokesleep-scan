@@ -261,8 +261,8 @@
     },
     {
       "path": "development/step3_pixel142_safety.test.cjs",
-      "bytes": 7980,
-      "sha256": "f0f6726683ae293a3e2419261231db5e7dc1c0bd3ca8eedc8dcb6c6bbbd9bb19"
+      "bytes": 8031,
+      "sha256": "10ece4343ac7a9de0ea73eb0a2bb63c89560623f557ce0c2cc7bec688a48393f"
     },
     {
       "path": "development/step3_real_upstream_importer.test.ts",
