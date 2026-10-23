@@ -99,6 +99,6 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  // The surrounding-code baseline changes, while frozen nickname-specific hashes remain untouched.
  // The approved main baseline includes PR #46/#47 failure-card UI changes, not
  // a nickname OCR change. Frozen nickname-specific hashes remain untouched.
- assert.equal(sha,'2fe29f332b53e0fdcf97d16a7aca4151b0d99569d53bf795f023d675de63d5',
+ assert.equal(sha,'2fe29f332b53e0fdcf97d16a7aca4151b0d99569d53bf795f023d675de63d5e5',
   'non-nickname implementation changed unexpectedly');
 });
