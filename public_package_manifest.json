@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 11511,
-      "sha256": "8d6fb404b801ee571f592906540c65f4e0acae203eeddc14bfd4ef4e10541c05"
+      "bytes": 11508,
+      "sha256": "7225dec0ac0705d3144f1ebf17a91662944598ba3148f90d0e0c5b2eb011c281"
     },
     {
       "path": ".gitignore",
