@@ -122,8 +122,25 @@ def main():
                     "()=>window.__auditPaddleOutcome==='ready'", timeout=8000)
                 must(page.locator("#paddleWaitSwitch").is_hidden(),
                      "switch must disappear after engine readiness")
+                # Protect unrelated confirmations that predate the 90-second timer.
+                arm(page, "existing-warning")
+                page.evaluate("() => { void window.__auditPaddleOtherWarning(); }")
+                page.locator("#appDialog").wait_for(state="visible", timeout=8000)
+                page.clock.fast_forward(90_000)
+                must(page.locator("#appDialogTitle").inner_text()=="別の保存警告",
+                     "90-second Paddle notice must not replace an existing warning")
+                must(page.evaluate("window.__auditPaddleOutcome")=="waiting",
+                     "Paddle must keep waiting if another confirmation is already open")
+                must(page.locator("#paddleWaitSwitch").get_attribute("hidden") is None,
+                     "non-blocking Tesseract-only switch should remain available")
+                page.locator("#appDialogPrimary").click()
+                page.evaluate("window.__auditPaddleReady({predict(){return [];}})")
+                page.wait_for_function(
+                    "()=>window.__auditPaddleOutcome==='ready'", timeout=8000)
+                must(page.locator("#paddleWaitSwitch").is_hidden(),
+                     "switch must disappear after the prepared engine is ready")
                 must(not errors, "Uncaught browser errors: "+repr(errors))
-                print("PASS Chromium Paddle 90-second modal, explicit skip, warning preemption and late ready")
+                print("PASS Chromium Paddle 90-second modal, explicit skip, warning preemption, existing dialog protection and late ready")
                 ctx.close()
             finally:
                 browser.close()

@@ -157,3 +157,19 @@ test('shared dialog replacement never treats forced close as user consent to dow
 test('model download digest unavailable never retains an abandoned abort controller',()=>{
  assert.match(app,/paddleModelFetchControllers\.delete\(abortController\);throw new Error\('WebCrypto SHA-256 is unavailable/);
 });
+
+test('an unrelated open dialog is not dismissed by the 90-second Paddle prompt',async()=>{
+ const h=makeHarness(),engine={ready:true};
+ h.get('#appDialog').open=true;
+ const pending=h.context.ensurePaddle(0,1);
+ [...h.timers.values()][0].fn();
+ assert.equal(h.modal(),null,'Paddle must not replace an existing dialog');
+ assert.equal(h.get('#paddleWaitSwitch').hidden,false,'nonblocking opt-out is offered');
+ assert.equal(h.get('#paddleFloatingSwitch').hidden,false);
+ assert.equal(h.context.paddleInitDiagnostics.waitChoices.at(-1).action,'dialog-already-open-continue-waiting');
+ assert.equal(h.releases(),0,'full-accuracy initialization must remain active');
+ h.finish(engine);
+ assert.equal(await pending,engine);
+ assert.equal(h.get('#paddleWaitSwitch').hidden,true);
+ assert.equal(h.close(),0,'unrelated dialog must remain intact');
+});

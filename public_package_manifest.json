@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-24-paddle-wait-choice-audit-v2",
-  "appBuildId": "v12-paddle-wait-choice-20261024-audit-v2",
+  "releaseId": "2026-10-24-paddle-wait-dialog-guard-v3",
+  "appBuildId": "v12-paddle-wait-choice-20261024-dialog-guard-v3",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 308885,
-      "sha256": "f01005e59594499020394ac23cb853cb892c3ee8eb8f3822c49bf64875a0ba22"
+      "bytes": 309209,
+      "sha256": "38885aa278951eb3d0867743aa368603295ffc674cc29f528c687a6f2f84be83"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -101,8 +101,8 @@
     },
     {
       "path": "development/browser_paddle_wait_choice.py",
-      "bytes": 6911,
-      "sha256": "8a64596cb6e5bc56812d1f8126642d91d280c62c4333f3d9b32ddc5a584eaba2"
+      "bytes": 8206,
+      "sha256": "8fdf55cdea52d2946bac06fdf906ba0b7cf74666126e89634c2de8a6092a6e00"
     },
     {
       "path": "development/browser_step3_review_audit.py",
@@ -181,8 +181,8 @@
     },
     {
       "path": "development/paddle_wait_choice.test.cjs",
-      "bytes": 9164,
-      "sha256": "58cd43b9c9ec98c9dcc38348bae4111714f540c51cddd44bd1ce8faf5da1ef29"
+      "bytes": 10009,
+      "sha256": "2c44c16f7b7e502c58c6f30d01e79f5ce0c69ffc38ea3dc8553a65467c53d49c"
     },
     {
       "path": "development/publish_master_status.py",
@@ -382,7 +382,7 @@
     {
       "path": "release.json",
       "bytes": 53,
-      "sha256": "840f97792561bd1497ccd6e65b5571696a73a1b0b585127af6cc34895c1c3ec3"
+      "sha256": "08248a9ccecae8d0e3d6b53dc7a9c3e10d215ef492b5a4874b6fc0dbb4ab2148"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -402,7 +402,7 @@
     {
       "path": "sw.js",
       "bytes": 4054,
-      "sha256": "57a1d3ddc2e8a4d88fc8a2925fbc7d16798170d01f906e5b61e27b9f572ee61a"
+      "sha256": "32e69b86dc22546cecc4b41e2bf856988e03053f1593b2628c8b77b6c9e4ea0f"
     }
   ]
 }
