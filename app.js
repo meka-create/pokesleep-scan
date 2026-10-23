@@ -690,7 +690,69 @@ async function withPaddleFetchTrace(mode,fn){
  };
  try{return await fn();}finally{globalThis.fetch=orig;}
 }
+/* Time out the decision prompt, not the OCR engine. A user may always wait longer.
+   An abandoned import/SDK create can still settle later: generation checks reject it. */
+function recordPaddleWaitChoice(action){
+ if(!Array.isArray(paddleInitDiagnostics.waitChoices))paddleInitDiagnostics.waitChoices=[];
+ paddleInitDiagnostics.waitChoices.push({action,stage:paddleInitDiagnostics.stage,at:new Date().toISOString()});
+}
+function setPaddleWaitSwitchVisible(show){
+ const button=$('#paddleWaitSwitch');if(button)button.hidden=!show;
+ const floating=$('#paddleFloatingSwitch');if(floating)floating.hidden=!show;
+}
+function abandonPaddleForThisBatch(){
+ if(paddleSkipForBatch)return;
+ paddleSkipForBatch=true;recordPaddleWaitChoice('tesseract-only');
+ setPaddleWaitSwitchVisible(false);
+ for(const controller of paddleModelFetchControllers){try{controller.abort();}catch(_){}}
+ // No await: a stalled third-party SDK must not stall the OCR batch.
+ void releasePaddleRuntimePreservingDiagnostics();
+ const finish=paddleWaitSkipResolve;paddleWaitSkipResolve=null;
+ if(finish)finish(null);
+ if(paddleWaitChoiceDialogOpen&&$('#appDialogTitle')?.textContent==='高精度解析の準備に時間がかかっています'){
+  paddleWaitChoiceDialogOpen=false;closeAppDialog(true);
+ }
+}
+$('#paddleWaitSwitch')?.addEventListener('click',abandonPaddleForThisBatch);
+$('#paddleFloatingSwitch')?.addEventListener('click',abandonPaddleForThisBatch);
+async function paddlePrepareWithChoice(idx,total){
+ if(paddleSkipForBatch)return null;
+ if(paddleOcr)return paddleOcr;
+ let settled=false,choiceShown=false;
+ const preparation=ensurePaddleRaw(idx,total);
+ const optedOut=new Promise(resolve=>{paddleWaitSkipResolve=resolve;});
+ const timer=setTimeout(()=>{
+  if(settled||paddleSkipForBatch)return;
+  choiceShown=true;paddleWaitChoiceDialogOpen=true;
+  void showAppDialog({
+   title:'高精度解析の準備に時間がかかっています',
+   message:'ニックネームの高精度解析を準備しています。このまま待つか、高精度解析なしで続行するか選択してください。',
+   details:['90秒以上経過しました。完了すると自動的に高精度解析を続けます。','省略するとニックネームの読取精度が下がる場合があります。その他の項目は通常どおり解析します。'],
+   primaryLabel:'待機を続ける',secondaryLabel:'高精度解析なしで続行',tone:'warning'
+  }).then(keepWaiting=>{
+   paddleWaitChoiceDialogOpen=false;
+   if(settled||paddleSkipForBatch)return;
+   if(keepWaiting){recordPaddleWaitChoice('continue-waiting');setPaddleWaitSwitchVisible(true);}
+   else abandonPaddleForThisBatch();
+  });
+ },PADDLE_PREPARE_CHOICE_MS);
+ try{
+  const result=await Promise.race([preparation,optedOut]);
+  return paddleSkipForBatch?null:result;
+ }finally{
+  settled=true;clearTimeout(timer);paddleWaitSkipResolve=null;
+  setPaddleWaitSwitchVisible(false);
+  if(choiceShown&&paddleWaitChoiceDialogOpen&&$('#appDialogTitle')?.textContent==='高精度解析の準備に時間がかかっています'){
+   paddleWaitChoiceDialogOpen=false;closeAppDialog(true);
+  }
+ }
+}
+
 async function ensurePaddle(idx,total){
+ if(paddleSkipForBatch)throw new Error('高精度解析を省略しました（ユーザー選択）');
+ return paddlePrepareWithChoice(idx,total);
+}
+async function ensurePaddleRaw(idx,total){
  if(paddleOcr)return paddleOcr;
  if(paddleUnavailableError)throw paddleUnavailableError;
  if(paddleInitPromise)return paddleInitPromise;
@@ -775,69 +837,10 @@ function nicknameSupportDistance(candidate,existing,current,rawPaddle){
  return Math.min(...alts.map(x=>editDistance(candidate,x.text)));
 }
 
-/* Time out the decision prompt, not the OCR engine. A user may always wait longer.
-   An abandoned import/SDK create can still settle later: generation checks reject it. */
-function recordPaddleWaitChoice(action){
- if(!Array.isArray(paddleInitDiagnostics.waitChoices))paddleInitDiagnostics.waitChoices=[];
- paddleInitDiagnostics.waitChoices.push({action,stage:paddleInitDiagnostics.stage,at:new Date().toISOString()});
-}
-function setPaddleWaitSwitchVisible(show){
- const button=$('#paddleWaitSwitch');if(button)button.hidden=!show;
- const floating=$('#paddleFloatingSwitch');if(floating)floating.hidden=!show;
-}
-function abandonPaddleForThisBatch(){
- if(paddleSkipForBatch)return;
- paddleSkipForBatch=true;recordPaddleWaitChoice('tesseract-only');
- setPaddleWaitSwitchVisible(false);
- for(const controller of paddleModelFetchControllers){try{controller.abort();}catch(_){}}
- // No await: a stalled third-party SDK must not stall the OCR batch.
- void releasePaddleRuntimePreservingDiagnostics();
- const finish=paddleWaitSkipResolve;paddleWaitSkipResolve=null;
- if(finish)finish(null);
- if(paddleWaitChoiceDialogOpen&&$('#appDialogTitle')?.textContent==='高精度解析の準備に時間がかかっています'){
-  paddleWaitChoiceDialogOpen=false;closeAppDialog(true);
- }
-}
-$('#paddleWaitSwitch')?.addEventListener('click',abandonPaddleForThisBatch);
-$('#paddleFloatingSwitch')?.addEventListener('click',abandonPaddleForThisBatch);
-async function paddlePrepareWithChoice(idx,total){
- if(paddleSkipForBatch)return null;
- if(paddleOcr)return paddleOcr;
- let settled=false,choiceShown=false;
- const preparation=ensurePaddle(idx,total);
- const optedOut=new Promise(resolve=>{paddleWaitSkipResolve=resolve;});
- const timer=setTimeout(()=>{
-  if(settled||paddleSkipForBatch)return;
-  choiceShown=true;paddleWaitChoiceDialogOpen=true;
-  void showAppDialog({
-   title:'高精度解析の準備に時間がかかっています',
-   message:'ニックネームの高精度解析を準備しています。このまま待つか、高精度解析なしで続行するか選択してください。',
-   details:['90秒以上経過しました。完了すると自動的に高精度解析を続けます。','省略するとニックネームの読取精度が下がる場合があります。その他の項目は通常どおり解析します。'],
-   primaryLabel:'待機を続ける',secondaryLabel:'高精度解析なしで続行',tone:'warning'
-  }).then(keepWaiting=>{
-   paddleWaitChoiceDialogOpen=false;
-   if(settled||paddleSkipForBatch)return;
-   if(keepWaiting){recordPaddleWaitChoice('continue-waiting');setPaddleWaitSwitchVisible(true);}
-   else abandonPaddleForThisBatch();
-  });
- },PADDLE_PREPARE_CHOICE_MS);
- try{
-  const result=await Promise.race([preparation,optedOut]);
-  return paddleSkipForBatch?null:result;
- }finally{
-  settled=true;clearTimeout(timer);paddleWaitSkipResolve=null;
-  setPaddleWaitSwitchVisible(false);
-  if(choiceShown&&paddleWaitChoiceDialogOpen&&$('#appDialogTitle')?.textContent==='高精度解析の準備に時間がかかっています'){
-   paddleWaitChoiceDialogOpen=false;closeAppDialog(true);
-  }
- }
-}
-
 async function paddleNickname(canvas,idx,total){
  let stage='ensure';
  try{
-   const ocr=await paddlePrepareWithChoice(idx,total);
-   if(!ocr)throw new Error('高精度解析を省略しました（ユーザー選択）');
+   const ocr=await ensurePaddle(idx,total);
    stage='predict';
    $('#stat').textContent=`${idx+1}/${total}枚を解析中…`;
    const src=canvasWithPadding(cropNick(canvas,'paddle'),3,22);
@@ -868,16 +871,10 @@ async function improveNicknameWithPaddle(canvas,parsed,idx,total,fileName=''){
  parsed.nicknameNeedsReviewBeforePaddle=wasReview;
  const forceBench=!!$('#paddleAllBenchmark')?.checked && !!gtByFile(fileName);
  const highAccuracy=!!$('#paddleFallback')?.checked; // v8: this checkbox means Paddle ensemble for every nickname.
- if(paddleSkipForBatch){
-  parsed.nicknamePaddleUnavailable=true;
-  parsed.nicknameNeedsReview=parsed.nicknameNeedsReview||nicknameFallbackNeedsReview(parsed);
-  if(parsed.nicknameNeedsReview)parsed.nicknameReviewReason='高精度解析省略（ユーザー選択）';
-  return parsed;
- }
  if(!highAccuracy&&!forceBench)return parsed;
  const t0=performance.now();
  const pr=await paddleNickname(canvas,idx,total);pr.wallMs=Math.round(performance.now()-t0);parsed.nicknamePaddle=pr;
- if(!pr.ok){parsed.nicknamePaddleUnavailable=true;parsed.nicknameNeedsReview=parsed.nicknameNeedsReview||nicknameFallbackNeedsReview(parsed);if(parsed.nicknameNeedsReview)parsed.nicknameReviewReason=paddleSkipForBatch?'高精度解析省略（ユーザー選択）':'PaddleOCR unavailable';return parsed;}
+ if(!pr.ok){parsed.nicknamePaddleUnavailable=true;parsed.nicknameNeedsReview=parsed.nicknameNeedsReview||nicknameFallbackNeedsReview(parsed);if(parsed.nicknameNeedsReview)parsed.nicknameReviewReason='PaddleOCR unavailable';return parsed;}
  const existing=parsed.nicknameCandidates||[];
  const current=cleanNick(parsed.nickname);
  const paddle=normalizePaddleNickname(pr.text,current,existing,star);
