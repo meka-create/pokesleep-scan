@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   pixel142-release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 28
     steps:
       - uses: actions/checkout@v4
@@ -144,7 +144,7 @@ jobs:
   # UI safety is verified independently because a real upstream master HOLD
   # must not prevent us from checking unrelated interface changes.
   failure-card-ui:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -177,7 +177,7 @@ jobs:
   # Never publishes synthetic values. Running this on PR verifies the real upstream
   # CSV importer along with the OCR master's Node/Python projections.
   oct26-future-readiness:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 18
     steps:
       - uses: actions/checkout@v4
