@@ -28,20 +28,7 @@ def must(ok: bool, message: str):
 
 
 def arm(page, name: str):
-    page.evaluate(
-        """name => {
-          paddleSkipForBatch=false;
-          paddleOcr=null;
-          paddleInitPromise=new Promise(resolve => {
-            window.__auditPaddleReady=resolve;
-          });
-          window.__auditPaddleOutcome='waiting';
-          window.__auditPaddleProm=ensurePaddle(0,1)
-            .then(()=>{window.__auditPaddleOutcome='ready';})
-            .catch(e=>{window.__auditPaddleOutcome=String(e.message||e);});
-          window.__auditPaddleName=name;
-        }""", name
-    )
+    page.evaluate("name => window.__auditPaddleArm(name)", name)
 
 
 def main():
@@ -61,11 +48,40 @@ def main():
                 page.route(TESSERACT, lambda route: route.fulfill(
                     status=200, content_type="application/javascript",
                     body="window.Tesseract={createWorker:()=>{throw Error('OCR stub');}};"))
+                # app.js uses an IIFE: its internal functions are deliberately
+                # NOT exposed to page scripts. Inject a test-only hook into
+                # the fetched JS text just before the closing IIFE marker.
+                # No hook is committed to production app.js.
+                def serve_instrumented_app(route):
+                    response=route.fetch()
+                    original=response.body().decode("utf-8")
+                    marker="setTimeout(()=>{void initCheckpointRecovery();},0);"
+                    must(original.count(marker)==1,"Failed to find one production IIFE test injection point")
+                    hook="""
+                    window.__auditPaddleArm = name => {
+                      paddleSkipForBatch=false;
+                      paddleOcr=null;
+                      paddleInitPromise=new Promise(resolve=>{window.__auditPaddleReady=resolve;});
+                      window.__auditPaddleOutcome='waiting';
+                      window.__auditPaddleProm=ensurePaddle(0,1)
+                        .then(()=>{window.__auditPaddleOutcome='ready';})
+                        .catch(e=>{window.__auditPaddleOutcome=String(e.message||e);});
+                      window.__auditPaddleName=name;
+                    };
+                    window.__auditPaddleOtherWarning = () => showAppDialog({
+                      title:'別の保存警告', message:'自動復元保存に関する警告',
+                      primaryLabel:'閉じる', tone:'warning'
+                    });
+                    """
+                    route.fulfill(status=200,content_type="application/javascript",
+                                  body=original.replace(marker,hook+marker))
+                page.route("**/app.js*",serve_instrumented_app)
                 page.goto(f"http://127.0.0.1:{server.server_port}/",
                           wait_until="domcontentloaded", timeout=20000)
                 page.wait_for_function(
                     "() => !!window.POKESLEEP_MASTER && "
-                    "typeof window.POKESLEEP_CSV_GATE?.inspect==='function'",
+                    "typeof window.POKESLEEP_CSV_GATE?.inspect==='function' && "
+                    "typeof window.__auditPaddleArm==='function'",
                     timeout=20000)
                 if page.locator("#tipsDialog").evaluate("(el)=>el.open"):
                     page.locator("#tipsClose").click()
@@ -94,12 +110,7 @@ def main():
                 arm(page,"preemption")
                 page.clock.fast_forward(90_000)
                 page.locator("#appDialog").wait_for(state="visible", timeout=8000)
-                page.evaluate("""() => {
-                  window.__auditOtherDialog=showAppDialog({
-                    title:'別の保存警告', message:'自動復元保存に関する警告',
-                    primaryLabel:'閉じる', tone:'warning'
-                  });
-                }""")
+                page.evaluate("() => window.__auditPaddleOtherWarning()")
                 must(page.locator("#appDialogTitle").inner_text()=="別の保存警告",
                      "replacement warning must be displayed")
                 must(page.evaluate("window.__auditPaddleOutcome")=="waiting",
