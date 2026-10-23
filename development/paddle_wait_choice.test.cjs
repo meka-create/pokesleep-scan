@@ -9,7 +9,7 @@ function makeHarness(){
  let count=0,done=null,modal=null,closeCalls=0,releaseCalls=0;
  const get=id=>buttons[id]||(buttons[id]={hidden:true,events:{},addEventListener(type,fn){this.events[type]=fn;}});
  const context={Promise,Date,Error,console,
-  paddleInitDiagnostics:{stage:'model-mirror',waitChoices:[]},
+  paddleInitDiagnostics:{stage:'model-mirror',waitChoices:[]},paddleOcr:null,
   paddleModelFetchControllers:new Set(),
   setTimeout(fn,ms){const id=++count;timers.set(id,{fn,ms});return id;},
   clearTimeout(id){timers.delete(id);},
