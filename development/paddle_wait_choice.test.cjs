@@ -136,7 +136,7 @@ test('a late old SDK completion may not overwrite another batch fetch tracing',a
  let oldDone,newDone;
  const first=ctx.withPaddleFetchTrace('old',()=>new Promise(r=>{oldDone=r;}));
  const olderWrapper=ctx.fetch;
- ctx.paddleFetchTraceRelease();
+ vm.runInContext('paddleFetchTraceRelease?.()',ctx);
  assert.equal(ctx.fetch,original);
  const second=ctx.withPaddleFetchTrace('new',()=>new Promise(r=>{newDone=r;}));
  const newerWrapper=ctx.fetch;
