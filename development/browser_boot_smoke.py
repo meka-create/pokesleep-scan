@@ -155,7 +155,7 @@ def main():
                         timeout=20000)
                     _seed_v7_checkpoint(old_page)
                     old_page.reload(wait_until="domcontentloaded",timeout=20000)
-                    check("v7 IndexedDB checkpoint offers resume instead of deleting saved images",
+                    check("v7 checkpoint respects master SHA and preserves saved images",
                           lambda: _check_v7_checkpoint_migrated(old_page))
                 finally:
                     migration.close()
@@ -279,8 +279,15 @@ def _seed_v7_checkpoint(page):
 
 def _check_v7_checkpoint_migrated(page):
     page.locator("#appDialog").wait_for(state="visible",timeout=20000)
-    _assert(page.locator("#appDialogTitle").inner_text()=="前回の解析を復元しますか？",
-            "Valid v7 checkpoint should trigger the resume dialog, not get discarded")
+    # A legacy checkpoint is migratable only while its original master SHA
+    # matches. Master auto-update has since changed the real master digest.
+    legacy_master=page.evaluate(
+        "window.POKESLEEP_SHARED_MASTER?.getStatus()?.sha256") == (
+        "d60410ba1f92d80c67ca3ff40bc8aa7a2cd51d4c03fc33f9e99fa83bb8e77a38")
+    expected=("前回の解析を復元しますか？" if legacy_master
+              else "新しいマスターで再解析が必要です")
+    _assert(page.locator("#appDialogTitle").inner_text()==expected,
+            "Legacy v7 checkpoint must either resume on matching master or demand reanalysis while preserving bytes")
     snapshot=page.evaluate("""async () => {
       const req=indexedDB.open('bukkomi-scan-checkpoint-v1',2);
       const db=await new Promise((resolve,reject)=>{
@@ -302,10 +309,14 @@ def _check_v7_checkpoint_migrated(page):
     _assert(snapshot["fileCount"]==1 and snapshot["firstFile"]=="synthetic-v7.png"
             and snapshot["bytes"]==len(PNG),"v7 image bytes were lost during migration")
     meta=snapshot["meta"]
-    _assert(meta and meta.get("compatibilityId")=="checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8",
-            "v7 checkpoint compatibility ID was not migrated")
-    _assert(meta.get("migratedFrom",{}).get("releaseId")=="2026-10-12-android-roi-standard-inline-add-v7",
-            "Original v7 checkpoint provenance not retained")
+    if legacy_master:
+        _assert(meta and meta.get("compatibilityId")=="checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8",
+                "v7 checkpoint compatibility ID was not migrated")
+        _assert(meta.get("migratedFrom",{}).get("releaseId")=="2026-10-12-android-roi-standard-inline-add-v7",
+                "Original v7 checkpoint provenance not retained")
+    else:
+        _assert(meta and meta.get("compatibilityId")=="checkpoint-compat-2026-10-12-android-roi-standard-inline-add-v7",
+                "Old checkpoint compatibility ID changed despite master mismatch")
 
 
 def _check_master_change_checkpoint(page):
