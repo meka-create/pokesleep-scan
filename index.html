@@ -183,6 +183,12 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
  .card-primary-actions .processing-delete:hover:not(:disabled){border-color:#bf6774;background:#ffe7ea}
  .card-primary-actions .processing-delete:disabled{opacity:.48;cursor:wait}
 
+/* Existing progress controls: the optional action is hidden until the user
+   elects to wait past the 90-second Paddle preparation prompt. */
+.paddle-wait-switch{display:block;width:100%;min-height:36px;margin:10px 0 0;padding:7px 12px;border:1px solid #b84a35;border-radius:8px;background:#fff9f7;color:#b84a35;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.paddle-wait-switch[hidden]{display:none!important}
+.paddle-wait-switch:focus-visible{outline:2px solid #1d77ea;outline-offset:2px}
+.paddle-wait-switch-floating{margin:8px 0 0;font-size:12px}
 </style>
 </head>
 <body>
@@ -234,6 +240,7 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
         <div id="progress" class="is-idle">
           <div class="status-row"><div id="stat" class="status-text" aria-live="polite">画像を選択してください</div></div>
           <div class="bar" aria-hidden="true"><div id="bar"></div></div>
+          <button id="paddleWaitSwitch" class="paddle-wait-switch" type="button" hidden>高精度解析なしで続行</button>
         </div>
         <div id="originNotice" class="origin"></div>
         <input id="paddleFallback" type="checkbox" checked class="internal" aria-hidden="true">
@@ -265,6 +272,7 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
 <div id="floatingProgress" hidden role="status" aria-live="polite" aria-atomic="true">
   <div id="floatingStat" class="floating-status">解析済み 0 / 0</div>
   <div class="floating-bar" aria-hidden="true"><div id="floatingBar"></div></div>
+  <button id="paddleFloatingSwitch" class="paddle-wait-switch paddle-wait-switch-floating" type="button" hidden>高精度解析なしで続行</button>
 </div>
 
 <dialog id="masterUpdateDialog" class="info-dialog" aria-labelledby="masterUpdateTitle" aria-describedby="masterUpdateMessage"><div class="info-dialog-head"><h2 id="masterUpdateTitle" class="info-dialog-title">マスター更新を確認できませんでした</h2><button id="masterUpdateClose" class="info-close" type="button" aria-label="閉じる" title="閉じる">×</button></div><div class="info-dialog-body"><p id="masterUpdateMessage" class="info-copy">現在は保存済みのマスターデータを使用しています。新しく追加されたポケモンや食材には対応していない可能性があります。</p></div></dialog>

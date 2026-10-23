@@ -1,5 +1,5 @@
 (() => {
-const BUILD_ID='v12-master-8f48006811d9-0ab047c329';
+const BUILD_ID='v12-paddle-wait-choice-20261024-v1';
 'use strict';
 // The verified Android 1080x2400 OCR path is now the standard on every device.
 // Preserve the existing ROI adapter and its safe legacy fallback unchanged.
@@ -63,7 +63,7 @@ const NATURES=POKESLEEP_MASTER.natures.map(x=>x.ja);
 const SUBSKILLS=POKESLEEP_MASTER.subskills.map(x=>x.ja);
 const SPECIES_NAMES=[...new Set(POKESLEEP_MASTER.pokemon.map(x=>x.name))];
 const $=s=>document.querySelector(s);let selected=[],results=[],worker=null,paddleOcr=null,paddleInitPromise=null,paddleUnavailableError=null,paddleRuntimeGeneration=0,isRunning=false,analysisPause=null,checkpointPreparing=false,selectionSnapshotPreparing=false,selectionSnapshotGeneration=0,checkpointRestoreRunning=false,checkpointSessionActive=false,checkpointPersistenceWarningShown=false,renderPending=false,modalObjectUrl='',modalReturnFocus=null,appDialogResolver=null,appDialogReturnFocus=null,localProgressVisible=true,localProgressState='idle',localProgressMaxPct=0,floatingProgressState='idle',floatingProgressDone=0,floatingProgressTotal=0,floatingProgressReviews=0,floatingCompletionTimer=null,floatingCompletionPending=false,floatingCompletionDismissed=false,preManualCsvSnapshot=null,wakeLockSentinel=null,wakeLockRequestPromise=null,wakeLockRetryTimer=null;const checkpointFailureLog=[];const layoutCache=new WeakMap(),profileCardCache=new WeakMap(),stableSourcePromises=new WeakMap(),stableSourceFiles=new WeakSet();
-const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='master-8f48006811d9-0ab047c329',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
+const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-24-paddle-wait-choice-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
 function pullRefreshGuardActive(){return !!(isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing);}
 function analysisWakeLockShouldHold(){return !!((isRunning||checkpointPreparing)&&!analysisPause);}
 function wakeLockApiSupported(){return typeof navigator!=='undefined'&&!!navigator.wakeLock?.request;}
@@ -83,6 +83,9 @@ const PADDLE_MODEL_SPECS={
  rec:{name:'PP-OCRv5_mobile_rec',file:'PP-OCRv5_mobile_rec_onnx_infer.tar',bytes:16701440,sha256:'f7e792bc836f36e7ef895ad47c426d75b0b75b1650caa6d63fe9418441ffba8c'}
 };
 const paddleModelBlobUrls=[];
+const paddleModelFetchControllers=new Set();
+const PADDLE_PREPARE_CHOICE_MS=90*1000;
+let paddleSkipForBatch=false,paddleWaitSkipResolve=null,paddleWaitChoiceDialogOpen=false;
 function uploadHint(){return 'PNG / JPG / JPEG · 複数選択可';}
 function updateUploadSelectionUI(count,{error=false,errorMessage=''}={}){
  const label=$('.filelabel'),main=$('#uploadMain'),sub=$('#uploadSub');
@@ -308,7 +311,7 @@ function choicePickerFocusable(){const panel=$('#choicePickerPanel');if(!panel)r
 function moveChoicePickerOption(delta,{edge=''}={}){const buttons=choicePickerVisibleOptionButtons();if(!buttons.length)return false;let i=buttons.findIndex(b=>Number(b.dataset.optionIndex)===Number(choicePickerActiveOptionIndex));if(i<0)i=buttons.findIndex(b=>b===document.activeElement);if(edge==='first')i=0;else if(edge==='last')i=buttons.length-1;else i=(Math.max(0,i)+delta+buttons.length)%buttons.length;const target=buttons[i];setChoicePickerActive(Number(target.dataset.optionIndex),{focus:true,scroll:true});return true;}
 function handleChoicePickerKeydown(e){const picker=$('#choicePicker');if(!picker||picker.hidden)return;const panel=$('#choicePickerPanel');if(!panel)return;if(e.key==='Escape'){e.preventDefault();closeChoicePicker();return;}if(e.key==='Tab'){const focusable=choicePickerFocusable();if(!focusable.length){e.preventDefault();$('#choicePickerClose')?.focus();return;}const first=focusable[0],last=focusable.at(-1),active=document.activeElement;if(e.shiftKey&&(active===first||!panel.contains(active))){e.preventDefault();last.focus();}else if(!e.shiftKey&&(active===last||!panel.contains(active))){e.preventDefault();first.focus();}return;}const option=document.activeElement?.closest?.('.choice-picker-option'),search=document.activeElement===$('#choicePickerSearch');if(e.key==='ArrowDown'&&(option||search||document.activeElement===$('#choicePickerClose'))){e.preventDefault();if(option)moveChoicePickerOption(1);else setChoicePickerActive(choicePickerActiveOptionIndex,{focus:true,scroll:true});return;}if(e.key==='ArrowUp'&&(option||search||document.activeElement===$('#choicePickerClose'))){e.preventDefault();if(option)moveChoicePickerOption(-1);else moveChoicePickerOption(0,{edge:'last'});return;}if(option&&e.key==='Home'){e.preventDefault();moveChoicePickerOption(0,{edge:'first'});return;}if(option&&e.key==='End'){e.preventDefault();moveChoicePickerOption(0,{edge:'last'});return;}}
 $('#choicePickerClose')?.addEventListener('click',()=>closeChoicePicker());$('#choicePicker')?.addEventListener('click',e=>{if(e.target.closest?.('[data-choice-close]'))closeChoicePicker();});window.addEventListener('resize',()=>{if(!$('#choicePicker')?.hidden)positionChoicePicker();},{passive:true});window.addEventListener('scroll',()=>{if(!$('#choicePicker')?.hidden&&!choicePickerIsMobile())positionChoicePicker();},{passive:true,capture:true});document.addEventListener('keydown',handleChoicePickerKeydown);
-function resetPreviousAnalysis(){checkpointFailureLog.length=0;checkpointPersistenceWarningShown=false;if(!$('#imageModal')?.hidden)hideSourceImage({restoreFocus:false});results=[];preManualCsvSnapshot=null;analysisPause=null;renderPending=false;if(typeof checkpointSessionActive!=='undefined')checkpointSessionActive=false;if(typeof cancelScheduledCheckpointResultSaves==='function')cancelScheduledCheckpointResultSaves();setProgressState('idle');setFloatingProgress('idle');syncSessionGuard();render();}
+function resetPreviousAnalysis(){paddleSkipForBatch=false;setPaddleWaitSwitchVisible(false);checkpointFailureLog.length=0;checkpointPersistenceWarningShown=false;if(!$('#imageModal')?.hidden)hideSourceImage({restoreFocus:false});results=[];preManualCsvSnapshot=null;analysisPause=null;renderPending=false;if(typeof checkpointSessionActive!=='undefined')checkpointSessionActive=false;if(typeof cancelScheduledCheckpointResultSaves==='function')cancelScheduledCheckpointResultSaves();setProgressState('idle');setFloatingProgress('idle');syncSessionGuard();render();}
 function newSelectionBusy(){return !!(isRunning||checkpointPreparing||selectionSnapshotPreparing||checkpointRestoreRunning||analysisPause?.manualCommitBusy||analysisPause?.result?.recoveryBusy||results.some(r=>r?.recoveryBusy));}
 function applyPendingReleaseBeforeNewSelection(){const fn=window.__BUKKOMI_APPLY_PENDING_RELEASE_FOR_NEW_SESSION__;if(typeof fn!=='function')return false;try{return !!fn();}catch(e){console.warn('保留中の更新版へ切り替えられませんでした',e);return false;}}
 function isAcceptedImageFile(f){return !!f&&(/^image\/(?:png|jpeg)$/i.test(f.type||'')||/[.](?:png|jpe?g)$/i.test(f.name||''));}
@@ -478,7 +481,7 @@ function showAppDialog({title='お知らせ',message='',details=[],primaryLabel=
 function jumpToResultCard(ri,field=''){const row=document.querySelector(`#tbl tbody tr[data-ri="${ri}"]`);if(!row)return false;const selector={species:'.pokemon-cell',mainSkill:'.main-skill-cell',food1:'.foods',food2:'.foods',food3:'.foods'}[field]||'';const target=(selector&&row.querySelector(selector))||row;row.classList.remove('result-jump-highlight');target.classList.remove('result-field-highlight');void row.offsetWidth;row.classList.add('result-jump-highlight');target.classList.add('result-field-highlight');target.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>{const control=field==='species'?target.querySelector('.speciesedit,.species-single-confirm,.manual-species'):field==='mainSkill'?target.querySelector('.manual-main-skill,.manual-open'):field.startsWith('food')?target.querySelector(`.foodedit[data-fi="${Math.max(0,Number(field.slice(4))-1)}"],.manual-food[data-fi="${Math.max(0,Number(field.slice(4))-1)}"]`):null;if(control)control.focus?.({preventScroll:true});else{const hadTabIndex=target.hasAttribute('tabindex');if(!hadTabIndex)target.setAttribute('tabindex','-1');target.focus?.({preventScroll:true});if(!hadTabIndex)setTimeout(()=>target.removeAttribute('tabindex'),700);}},260);setTimeout(()=>{row.classList.remove('result-jump-highlight');target.classList.remove('result-field-highlight');},1800);return true;}
 $('#appDialogPrimary')?.addEventListener('click',()=>closeAppDialog(true));
 $('#appDialogSecondary')?.addEventListener('click',()=>closeAppDialog(false));
-$('#appDialog')?.addEventListener('cancel',e=>{e.preventDefault();closeAppDialog(false);});
+$('#appDialog')?.addEventListener('cancel',e=>{e.preventDefault();if(paddleWaitChoiceDialogOpen)return;closeAppDialog(false);});
 $('#appDialog')?.addEventListener('click',e=>{const jump=e.target.closest?.('.dialog-result-jump');if(jump){const ri=Number(jump.dataset.ri),field=jump.dataset.field||'';closeAppDialog(false);setTimeout(()=>jumpToResultCard(ri,field),0);return;}if(e.target===$('#appDialog')&&$('#appDialogSecondary')?.hidden&&clickedDialogBackdrop(e,$('#appDialog')))closeAppDialog(false);});
 function hideSourceImage({restoreFocus=true}={}){const m=$('#imageModal'),img=$('#imageModalImg');if(!m)return;m.hidden=true;m.setAttribute('aria-hidden','true');document.body.classList.remove('modal-open');if(img)img.removeAttribute('src');if(modalObjectUrl){URL.revokeObjectURL(modalObjectUrl);modalObjectUrl='';}const f=modalReturnFocus;modalReturnFocus=null;if(restoreFocus&&f&&document.contains(f))f.focus();}
 function closeSourceImage({fromHistory=false,restoreFocus=true}={}){const m=$('#imageModal');if(!m||m.hidden){if(!fromHistory)modalReturnFocus=null;return;}if(!fromHistory&&history.state?.pokesleepSourceImage){history.back();return;}hideSourceImage({restoreFocus});}
@@ -643,18 +646,19 @@ function paddleErrorInfo(e,stage){return {stage,name:String(e?.name||'Error'),me
 function hexFromBytes(bytes){return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');}
 function paddleVerifiedModelDigestAvailable(){return typeof globalThis.crypto?.subtle?.digest==='function';}
 async function fetchVerifiedPaddleModel(kind,blobUrls=paddleModelBlobUrls){
- const spec=PADDLE_MODEL_SPECS[kind],url=PADDLE_MODEL_MIRROR_BASE+spec.file+'?download=true',started=performance.now();
+ const spec=PADDLE_MODEL_SPECS[kind],url=PADDLE_MODEL_MIRROR_BASE+spec.file+'?download=true',started=performance.now(),abortController=new AbortController();
+ paddleModelFetchControllers.add(abortController);
  if(!paddleVerifiedModelDigestAvailable())throw new Error('WebCrypto SHA-256 is unavailable; verified model mirror skipped');
  let rec={kind,name:spec.name,url,expectedBytes:spec.bytes,expectedSha256:spec.sha256,ok:false};
  try{
-   const res=await paddleFetchWithTrace('verified-model-download:'+kind,url,{cache:'force-cache'});
+   const res=await paddleFetchWithTrace('verified-model-download:'+kind,url,{cache:'force-cache',signal:abortController.signal});
    if(!res.ok)throw new Error('HTTP '+res.status+' '+res.statusText);
    const buf=await res.arrayBuffer(),sha=hexFromBytes(new Uint8Array(await crypto.subtle.digest('SHA-256',buf)));
    rec={...rec,bytes:buf.byteLength,sha256:sha,contentType:res.headers.get('content-type')||'',elapsedMs:Math.round(performance.now()-started)};
    if(buf.byteLength!==spec.bytes)throw new Error('Model size mismatch: '+buf.byteLength+' != '+spec.bytes);
    if(sha!==spec.sha256)throw new Error('Model SHA-256 mismatch: '+sha);
    const blobUrl=URL.createObjectURL(new Blob([buf],{type:'application/x-tar'}));blobUrls.push(blobUrl);rec.ok=true;paddleInitDiagnostics.modelAssets.push(rec);return blobUrl;
- }catch(e){rec.errorName=String(e?.name||'Error');rec.error=String(e?.message||e);rec.elapsedMs=Math.round(performance.now()-started);paddleInitDiagnostics.modelAssets.push(rec);throw e;}
+ }catch(e){rec.errorName=String(e?.name||'Error');rec.error=String(e?.message||e);rec.elapsedMs=Math.round(performance.now()-started);paddleInitDiagnostics.modelAssets.push(rec);throw e;}finally{paddleModelFetchControllers.delete(abortController);}
 }
 function fetchTraceUrl(input){try{return typeof input==='string'?input:(input?.url||String(input));}catch(_){return '[unreadable request]';}}
 async function paddleFetchWithTrace(mode,input,init){
@@ -686,7 +690,71 @@ async function withPaddleFetchTrace(mode,fn){
  };
  try{return await fn();}finally{globalThis.fetch=orig;}
 }
+/* Time out the decision prompt, not the OCR engine. A user may always wait longer.
+   An abandoned import/SDK create can still settle later: generation checks reject it. */
+function recordPaddleWaitChoice(action){
+ if(!Array.isArray(paddleInitDiagnostics.waitChoices))paddleInitDiagnostics.waitChoices=[];
+ paddleInitDiagnostics.waitChoices.push({action,stage:paddleInitDiagnostics.stage,at:new Date().toISOString()});
+}
+function setPaddleWaitSwitchVisible(show){
+ const button=$('#paddleWaitSwitch');if(button)button.hidden=!show;
+ const floating=$('#paddleFloatingSwitch');if(floating)floating.hidden=!show;
+}
+function abandonPaddleForThisBatch(){
+ if(paddleSkipForBatch)return;
+ paddleSkipForBatch=true;recordPaddleWaitChoice('tesseract-only');
+ setPaddleWaitSwitchVisible(false);
+ for(const controller of paddleModelFetchControllers){try{controller.abort();}catch(_){}}
+ // No await: a stalled third-party SDK must not stall the OCR batch.
+ void releasePaddleRuntimePreservingDiagnostics();
+ const finish=paddleWaitSkipResolve;paddleWaitSkipResolve=null;
+ if(finish)finish(null);
+ if(paddleWaitChoiceDialogOpen&&$('#appDialogTitle')?.textContent==='高精度解析の準備に時間がかかっています'){
+  paddleWaitChoiceDialogOpen=false;closeAppDialog(true);
+ }
+}
+$('#paddleWaitSwitch')?.addEventListener('click',abandonPaddleForThisBatch);
+$('#paddleFloatingSwitch')?.addEventListener('click',abandonPaddleForThisBatch);
+async function paddlePrepareWithChoice(idx,total){
+ if(paddleSkipForBatch)return null;
+ if(paddleOcr)return paddleOcr;
+ let settled=false,choiceShown=false;
+ const preparation=ensurePaddleRaw(idx,total);
+ const optedOut=new Promise(resolve=>{paddleWaitSkipResolve=resolve;});
+ const timer=setTimeout(()=>{
+  if(settled||paddleSkipForBatch)return;
+  choiceShown=true;paddleWaitChoiceDialogOpen=true;
+  void showAppDialog({
+   title:'高精度解析の準備に時間がかかっています',
+   message:'ニックネームの高精度解析を準備しています。このまま待つか、高精度解析なしで続行するか選択してください。',
+   details:['90秒以上経過しました。完了すると自動的に高精度解析を続けます。','省略するとニックネームの読取精度が下がる場合があります。その他の項目は通常どおり解析します。'],
+   primaryLabel:'待機を続ける',secondaryLabel:'高精度解析なしで続行',tone:'warning'
+  }).then(keepWaiting=>{
+   paddleWaitChoiceDialogOpen=false;
+   if(settled||paddleSkipForBatch)return;
+   if(keepWaiting){recordPaddleWaitChoice('continue-waiting');setPaddleWaitSwitchVisible(true);}
+   else abandonPaddleForThisBatch();
+  });
+ },PADDLE_PREPARE_CHOICE_MS);
+ try{
+  const result=await Promise.race([preparation,optedOut]);
+  return paddleSkipForBatch?null:result;
+ }finally{
+  settled=true;clearTimeout(timer);paddleWaitSkipResolve=null;
+  setPaddleWaitSwitchVisible(false);
+  if(choiceShown&&paddleWaitChoiceDialogOpen&&$('#appDialogTitle')?.textContent==='高精度解析の準備に時間がかかっています'){
+   paddleWaitChoiceDialogOpen=false;closeAppDialog(true);
+  }
+ }
+}
+
 async function ensurePaddle(idx,total){
+ if(paddleSkipForBatch)throw new Error('高精度解析を省略しました（ユーザー選択）');
+ const engine=await paddlePrepareWithChoice(idx,total);
+ if(!engine)throw new Error('高精度解析を省略しました（ユーザー選択）');
+ return engine;
+}
+async function ensurePaddleRaw(idx,total){
  if(paddleOcr)return paddleOcr;
  if(paddleUnavailableError)throw paddleUnavailableError;
  if(paddleInitPromise)return paddleInitPromise;
@@ -1732,7 +1800,7 @@ async function deleteProcessingFailure(ri){
 }
 async function resumeAfterManualCompletion(ri){const r=results[ri];if(!analysisPause||analysisPause.result!==r||isRunning)return;const pause=analysisPause;if(pause.manualCommitBusy)return;const batch=pause.batch,nextIndex=pause.index+1;pause.manualCommitBusy=true;r.recoveryBusy='manual';render();await checkpointWriteResultAndMeta(r,'running',nextIndex,null);if(analysisPause!==pause||pause.result!==r){delete r.recoveryBusy;return;}analysisPause=null;delete r.recoveryBusy;syncSessionGuard();if(nextIndex<batch.length){if(typeof checkpointRehydrateRemainingSources==='function')await checkpointRehydrateRemainingSources(batch,nextIndex);await resetAnalysisRuntimeForRetry();await runAnalysisBatch(batch,nextIndex);}else{await saveAnalysisCheckpoint('completed',batch.length,null);await releaseAnalysisRuntimeAfterCompletion();render();refreshCompletedProgress();syncRunActionButton();}}
 async function runPrimaryAnalysisAction(){if(analysisPause){const failure=analysisPause.result,ri=results.indexOf(failure);if(ri<0||!failure?.processingError||failure.recoveryBusy||analysisPause.manualCommitBusy||isRunning)return false;await retryProcessingFailure(ri);return true;}return runAll();}
-async function runAll(){if(!selected.length||isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing||checkpointRestoreRunning)return;let batch=[...selected];if(results.length)checkpointFailureLog.length=0;results=[];preManualCsvSnapshot=null;analysisPause=null;render();checkpointPersistenceWarningShown=false;checkpointPreparing=true;syncSessionGuard();if(typeof syncAnalysisWakeLock==='function')void syncAnalysisWakeLock();$('#files').disabled=true;$('#run').disabled=true;setProgressState('running',{done:0,total:batch.length,message:'再開用データを準備しています…'});setFloatingProgress('running',{done:0,total:batch.length});let prepared=null;try{prepared=await initializeAnalysisCheckpoint(batch);if(prepared){batch=prepared;selected=[...batch];updateUploadSelectionUI(selected.length);}}finally{checkpointPreparing=false;syncSessionGuard();syncRunActionButton();if(typeof syncAnalysisWakeLock==='function')void syncAnalysisWakeLock();}if(!prepared){setProgressState('error',{done:0,total:batch.length,message:'自動復元データを準備できなかったため、解析を開始しませんでした。もう一度「解析する」を押してください。'});setFloatingProgress('idle');return false;}return runAnalysisBatch(batch,0);}
+async function runAll(){if(!selected.length||isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing||checkpointRestoreRunning)return;paddleSkipForBatch=false;paddleWaitSkipResolve=null;setPaddleWaitSwitchVisible(false);let batch=[...selected];if(results.length)checkpointFailureLog.length=0;results=[];preManualCsvSnapshot=null;analysisPause=null;render();checkpointPersistenceWarningShown=false;checkpointPreparing=true;syncSessionGuard();if(typeof syncAnalysisWakeLock==='function')void syncAnalysisWakeLock();$('#files').disabled=true;$('#run').disabled=true;setProgressState('running',{done:0,total:batch.length,message:'再開用データを準備しています…'});setFloatingProgress('running',{done:0,total:batch.length});let prepared=null;try{prepared=await initializeAnalysisCheckpoint(batch);if(prepared){batch=prepared;selected=[...batch];updateUploadSelectionUI(selected.length);}}finally{checkpointPreparing=false;syncSessionGuard();syncRunActionButton();if(typeof syncAnalysisWakeLock==='function')void syncAnalysisWakeLock();}if(!prepared){setProgressState('error',{done:0,total:batch.length,message:'自動復元データを準備できなかったため、解析を開始しませんでした。もう一度「解析する」を押してください。'});setFloatingProgress('idle');return false;}return runAnalysisBatch(batch,0);}
 
 function gtByFile(name){return (window.POKESLEEP_GT30||[]).find(x=>x.file===name)||null;}
 function eqArr(a,b){return Array.isArray(a)&&Array.isArray(b)&&a.length===b.length&&a.every((x,i)=>x===b[i]);}
