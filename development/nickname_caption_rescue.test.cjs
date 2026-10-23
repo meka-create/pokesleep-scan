@@ -95,8 +95,10 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  restored=restored.replace("codeRevision:'20261013-nickname-consensus-gated-v3'",
   "codeRevision:'20261013-food3-pixel-v6-direct-files'");
  const sha=crypto.createHash('sha256').update(restored,'utf8').digest('hex');
+ // PR #51 only changes the approved surrounding Paddle preparation UX and timeouts,
+ // leaving SHA-frozen nickname ensemble, parsing and production hooks untouched.
  // The approved main baseline includes PR #46/#47 failure-card UI changes, not
  // a nickname OCR change. Frozen nickname-specific hashes remain untouched.
- assert.equal(sha,'866fccd6bf9201db0fd7ffdbb519abe6433c7ab9fc0edf06e1d4b09ad0df46ec',
+ assert.equal(sha,'7b615d00635576fdbbbfb514b647bfa166a9b5f0c0564ac4e01e00a8ab6d9cd7',
   'non-nickname implementation changed unexpectedly');
 });
