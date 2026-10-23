@@ -114,6 +114,8 @@ jobs:
         run: node --test development/nickname_consensus_autoconfirm.test.cjs
       - name: Frozen nickname pipeline SHA-256 non-regression
         run: node --test development/nickname_freeze.test.cjs
+      - name: Paddle 90-second user-controlled wait and fallback regressions
+        run: node --test development/paddle_wait_choice.test.cjs
       - name: Private nickname acceptance gate synthetic regressions
         run: python -m unittest discover -s development -p 'test_nickname_meka142_gate.py' -v
       - name: Missing carry and third-food advisory regression
