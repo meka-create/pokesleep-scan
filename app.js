@@ -750,7 +750,9 @@ async function paddlePrepareWithChoice(idx,total){
 
 async function ensurePaddle(idx,total){
  if(paddleSkipForBatch)throw new Error('高精度解析を省略しました（ユーザー選択）');
- return paddlePrepareWithChoice(idx,total);
+ const engine=await paddlePrepareWithChoice(idx,total);
+ if(!engine)throw new Error('高精度解析を省略しました（ユーザー選択）');
+ return engine;
 }
 async function ensurePaddleRaw(idx,total){
  if(paddleOcr)return paddleOcr;
