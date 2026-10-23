@@ -84,6 +84,7 @@ const PADDLE_MODEL_SPECS={
 };
 const paddleModelBlobUrls=[];
 const paddleModelFetchControllers=new Set();
+let paddleFetchTraceRelease=null;
 const PADDLE_PREPARE_CHOICE_MS=90*1000;
 let paddleSkipForBatch=false,paddleWaitSkipResolve=null,paddleWaitChoiceDialogOpen=false;
 function uploadHint(){return 'PNG / JPG / JPEG · 複数選択可';}
@@ -477,7 +478,16 @@ document.addEventListener('drop',e=>{if(hasFileDrag(e)&&!e.target.closest?.('.fi
 $('#run').addEventListener('click',e=>{e.preventDefault();void runPrimaryAnalysisAction();});$('#csv').addEventListener('click',e=>{e.preventDefault();downloadCSV();});$('#copyCsv').addEventListener('click',e=>{e.preventDefault();copyCSV();});$('#diag').addEventListener('click',e=>{e.preventDefault();downloadDiagnostics();});$('#diagRawCsv')?.addEventListener('click',e=>{e.preventDefault();downloadDiagnosticRawCSV();});$('#reviewOnly')?.addEventListener('change',render);
 $('#tbl')?.addEventListener('focusout',()=>setTimeout(flushPendingRender,0));
 function closeAppDialog(result=false){const d=$('#appDialog');if(!d)return;const resolve=appDialogResolver;appDialogResolver=null;if(d.open){if(typeof d.close==='function')d.close();else d.removeAttribute('open');}const f=appDialogReturnFocus;appDialogReturnFocus=null;if(f&&document.contains(f))f.focus();if(resolve)resolve(!!result);}
-function showAppDialog({title='お知らせ',message='',details=[],primaryLabel='OK',secondaryLabel='',tone='info'}={}){const d=$('#appDialog'),titleEl=$('#appDialogTitle'),messageEl=$('#appDialogMessage'),detailsEl=$('#appDialogDetails'),primary=$('#appDialogPrimary'),secondary=$('#appDialogSecondary'),icon=$('#appDialogIcon');if(!d)return Promise.resolve(true);if(appDialogResolver)closeAppDialog(false);appDialogReturnFocus=document.activeElement;d.classList.toggle('is-warning',tone==='warning');d.classList.toggle('is-error',tone==='error');if(icon)icon.textContent=tone==='warning'?'!':tone==='error'?'×':'✓';if(titleEl)titleEl.textContent=title;if(messageEl)messageEl.textContent=message;if(detailsEl){detailsEl.replaceChildren();for(const item of details){const li=document.createElement('li');if(item&&typeof item==='object'&&Number.isInteger(item.ri)){const btn=document.createElement('button');btn.type='button';btn.className='dialog-result-jump';btn.dataset.ri=String(item.ri);if(item.field)btn.dataset.field=String(item.field);const file=document.createElement('span');file.className='dialog-result-file';file.textContent=item.file||'該当画像';const issue=document.createElement('span');issue.className='dialog-result-issue';issue.textContent=item.issue||item.text||'';btn.append(file,issue);li.classList.add('has-result-jump');li.appendChild(btn);}else li.textContent=String(item??'');detailsEl.appendChild(li);}}if(primary)primary.textContent=primaryLabel;if(secondary){secondary.textContent=secondaryLabel;secondary.hidden=!secondaryLabel;}return new Promise(resolve=>{appDialogResolver=resolve;if(typeof d.showModal==='function')d.showModal();else d.setAttribute('open','');setTimeout(()=>primary?.focus(),0);});}
+function showAppDialog({title='お知らせ',message='',details=[],primaryLabel='OK',secondaryLabel='',tone='info'}={}){const d=$('#appDialog'),titleEl=$('#appDialogTitle'),messageEl=$('#appDialogMessage'),detailsEl=$('#appDialogDetails'),primary=$('#appDialogPrimary'),secondary=$('#appDialogSecondary'),icon=$('#appDialogIcon');if(!d)return Promise.resolve(true);if(appDialogResolver){
+ if(paddleWaitChoiceDialogOpen){
+  // Another warning supersedes the 90-second choice. Continue preparing
+  // rather than interpreting automatic dialog replacement as "skip".
+  paddleWaitChoiceDialogOpen=false;
+  recordPaddleWaitChoice('dialog-interrupted-continue-waiting');
+  setPaddleWaitSwitchVisible(true);
+ }
+ closeAppDialog(false);
+}appDialogReturnFocus=document.activeElement;d.classList.toggle('is-warning',tone==='warning');d.classList.toggle('is-error',tone==='error');if(icon)icon.textContent=tone==='warning'?'!':tone==='error'?'×':'✓';if(titleEl)titleEl.textContent=title;if(messageEl)messageEl.textContent=message;if(detailsEl){detailsEl.replaceChildren();for(const item of details){const li=document.createElement('li');if(item&&typeof item==='object'&&Number.isInteger(item.ri)){const btn=document.createElement('button');btn.type='button';btn.className='dialog-result-jump';btn.dataset.ri=String(item.ri);if(item.field)btn.dataset.field=String(item.field);const file=document.createElement('span');file.className='dialog-result-file';file.textContent=item.file||'該当画像';const issue=document.createElement('span');issue.className='dialog-result-issue';issue.textContent=item.issue||item.text||'';btn.append(file,issue);li.classList.add('has-result-jump');li.appendChild(btn);}else li.textContent=String(item??'');detailsEl.appendChild(li);}}if(primary)primary.textContent=primaryLabel;if(secondary){secondary.textContent=secondaryLabel;secondary.hidden=!secondaryLabel;}return new Promise(resolve=>{appDialogResolver=resolve;if(typeof d.showModal==='function')d.showModal();else d.setAttribute('open','');setTimeout(()=>primary?.focus(),0);});}
 function jumpToResultCard(ri,field=''){const row=document.querySelector(`#tbl tbody tr[data-ri="${ri}"]`);if(!row)return false;const selector={species:'.pokemon-cell',mainSkill:'.main-skill-cell',food1:'.foods',food2:'.foods',food3:'.foods'}[field]||'';const target=(selector&&row.querySelector(selector))||row;row.classList.remove('result-jump-highlight');target.classList.remove('result-field-highlight');void row.offsetWidth;row.classList.add('result-jump-highlight');target.classList.add('result-field-highlight');target.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>{const control=field==='species'?target.querySelector('.speciesedit,.species-single-confirm,.manual-species'):field==='mainSkill'?target.querySelector('.manual-main-skill,.manual-open'):field.startsWith('food')?target.querySelector(`.foodedit[data-fi="${Math.max(0,Number(field.slice(4))-1)}"],.manual-food[data-fi="${Math.max(0,Number(field.slice(4))-1)}"]`):null;if(control)control.focus?.({preventScroll:true});else{const hadTabIndex=target.hasAttribute('tabindex');if(!hadTabIndex)target.setAttribute('tabindex','-1');target.focus?.({preventScroll:true});if(!hadTabIndex)setTimeout(()=>target.removeAttribute('tabindex'),700);}},260);setTimeout(()=>{row.classList.remove('result-jump-highlight');target.classList.remove('result-field-highlight');},1800);return true;}
 $('#appDialogPrimary')?.addEventListener('click',()=>closeAppDialog(true));
 $('#appDialogSecondary')?.addEventListener('click',()=>closeAppDialog(false));
@@ -648,7 +658,7 @@ function paddleVerifiedModelDigestAvailable(){return typeof globalThis.crypto?.s
 async function fetchVerifiedPaddleModel(kind,blobUrls=paddleModelBlobUrls){
  const spec=PADDLE_MODEL_SPECS[kind],url=PADDLE_MODEL_MIRROR_BASE+spec.file+'?download=true',started=performance.now(),abortController=new AbortController();
  paddleModelFetchControllers.add(abortController);
- if(!paddleVerifiedModelDigestAvailable())throw new Error('WebCrypto SHA-256 is unavailable; verified model mirror skipped');
+ if(!paddleVerifiedModelDigestAvailable()){paddleModelFetchControllers.delete(abortController);throw new Error('WebCrypto SHA-256 is unavailable; verified model mirror skipped');}
  let rec={kind,name:spec.name,url,expectedBytes:spec.bytes,expectedSha256:spec.sha256,ok:false};
  try{
    const res=await paddleFetchWithTrace('verified-model-download:'+kind,url,{cache:'force-cache',signal:abortController.signal});
@@ -677,7 +687,7 @@ function revokePaddleModelBlobUrls(urls){for(const url of (urls||[]).splice(0)){
 async function prepareVerifiedPaddleModels(generation){const mirrorBlobUrls=[];try{const settled=await Promise.allSettled([fetchVerifiedPaddleModel('det',mirrorBlobUrls),fetchVerifiedPaddleModel('rec',mirrorBlobUrls)]),failed=settled.find(x=>x.status==='rejected');if(failed)throw failed.reason;const detUrl=settled[0].value,recUrl=settled[1].value;if(generation!==paddleRuntimeGeneration)throw new Error('PaddleOCR runtime reset superseded model preparation');paddleModelBlobUrls.push(...mirrorBlobUrls);mirrorBlobUrls.length=0;return {detUrl,recUrl};}catch(e){revokePaddleModelBlobUrls(mirrorBlobUrls);throw e;}}
 async function withPaddleFetchTrace(mode,fn){
  const orig=globalThis.fetch;if(typeof orig!=='function')return fn();
- globalThis.fetch=async function(input,init){
+ const wrapped=async function(input,init){
    const url=fetchTraceUrl(input),method=String(init?.method||input?.method||'GET').toUpperCase(),started=performance.now();
    try{
      const res=await orig.call(this,input,init);
@@ -688,7 +698,13 @@ async function withPaddleFetchTrace(mode,fn){
      throw e;
    }
  };
- try{return await fn();}finally{globalThis.fetch=orig;}
+ const release=()=>{
+  if(globalThis.fetch===wrapped)globalThis.fetch=orig;
+  if(paddleFetchTraceRelease===release)paddleFetchTraceRelease=null;
+ };
+ globalThis.fetch=wrapped;
+ paddleFetchTraceRelease=release;
+ try{return await fn();}finally{release();}
 }
 /* Time out the decision prompt, not the OCR engine. A user may always wait longer.
    An abandoned import/SDK create can still settle later: generation checks reject it. */
@@ -705,6 +721,9 @@ function abandonPaddleForThisBatch(){
  paddleSkipForBatch=true;recordPaddleWaitChoice('tesseract-only');
  setPaddleWaitSwitchVisible(false);
  for(const controller of paddleModelFetchControllers){try{controller.abort();}catch(_){}}
+ // A never-settling SDK create also leaves its global fetch instrumentation
+ // installed. Restore it synchronously before running ordinary OCR.
+ paddleFetchTraceRelease?.();
  // No await: a stalled third-party SDK must not stall the OCR batch.
  void releasePaddleRuntimePreservingDiagnostics();
  const finish=paddleWaitSkipResolve;paddleWaitSkipResolve=null;
@@ -730,6 +749,9 @@ async function paddlePrepareWithChoice(idx,total){
    details:['90秒以上経過しました。完了すると自動的に高精度解析を続けます。','省略するとニックネームの読取精度が下がる場合があります。その他の項目は通常どおり解析します。'],
    primaryLabel:'待機を続ける',secondaryLabel:'高精度解析なしで続行',tone:'warning'
   }).then(keepWaiting=>{
+   // Other warnings may preempt this shared dialog. That is not user consent
+   // to downgrade nickname accuracy. The preemption handler resumes waiting.
+   if(!paddleWaitChoiceDialogOpen)return;
    paddleWaitChoiceDialogOpen=false;
    if(settled||paddleSkipForBatch)return;
    if(keepWaiting){recordPaddleWaitChoice('continue-waiting');setPaddleWaitSwitchVisible(true);}
