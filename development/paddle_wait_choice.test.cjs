@@ -107,7 +107,7 @@ test('canceling a hung Paddle SDK create restores global fetch immediately witho
   Promise,Date,Error,console,performance:{now:()=>123},
   fetch:original,fetchTraceUrl:x=>String(x),paddleInitDiagnostics:{stage:'create',fetchTrace:[],waitChoices:[]},
   paddleModelFetchControllers:new Set(),paddleOcr:null,
-  $:()=>({hidden:true}),
+  $:()=>({hidden:true,addEventListener(){}}),
   setPaddleWaitSwitchVisible(){},setTimeout(fn,ms){events.push({fn,ms});return events.length;},clearTimeout(){},
   showAppDialog(){return new Promise(()=>{});},closeAppDialog(){},
   releasePaddleRuntimePreservingDiagnostics(){return Promise.resolve();},
