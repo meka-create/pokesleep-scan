@@ -1,5 +1,5 @@
 (() => {
-const BUILD_ID='v12-paddle-wait-choice-20261024-dialog-guard-v3';
+const BUILD_ID='v12-mint-csv-choice-20261024-v4';
 'use strict';
 // The verified Android 1080x2400 OCR path is now the standard on every device.
 // Preserve the existing ROI adapter and its safe legacy fallback unchanged.
@@ -63,7 +63,7 @@ const NATURES=POKESLEEP_MASTER.natures.map(x=>x.ja);
 const SUBSKILLS=POKESLEEP_MASTER.subskills.map(x=>x.ja);
 const SPECIES_NAMES=[...new Set(POKESLEEP_MASTER.pokemon.map(x=>x.name))];
 const $=s=>document.querySelector(s);let selected=[],results=[],worker=null,paddleOcr=null,paddleInitPromise=null,paddleUnavailableError=null,paddleRuntimeGeneration=0,isRunning=false,analysisPause=null,checkpointPreparing=false,selectionSnapshotPreparing=false,selectionSnapshotGeneration=0,checkpointRestoreRunning=false,checkpointSessionActive=false,checkpointPersistenceWarningShown=false,renderPending=false,modalObjectUrl='',modalReturnFocus=null,appDialogResolver=null,appDialogReturnFocus=null,localProgressVisible=true,localProgressState='idle',localProgressMaxPct=0,floatingProgressState='idle',floatingProgressDone=0,floatingProgressTotal=0,floatingProgressReviews=0,floatingCompletionTimer=null,floatingCompletionPending=false,floatingCompletionDismissed=false,preManualCsvSnapshot=null,wakeLockSentinel=null,wakeLockRequestPromise=null,wakeLockRetryTimer=null;const checkpointFailureLog=[];const layoutCache=new WeakMap(),profileCardCache=new WeakMap(),stableSourcePromises=new WeakMap(),stableSourceFiles=new WeakSet();
-const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-24-paddle-wait-dialog-guard-v3',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
+const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-24-mint-csv-choice-v4',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
 function pullRefreshGuardActive(){return !!(isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing);}
 function analysisWakeLockShouldHold(){return !!((isRunning||checkpointPreparing)&&!analysisPause);}
 function wakeLockApiSupported(){return typeof navigator!=='undefined'&&!!navigator.wakeLock?.request;}
@@ -1942,17 +1942,55 @@ function mainSkillCsvValue(parsed,classification,speciesOverride=''){
 // Ribbon-tier inference gives only a minimum threshold, not measured hours. An unobserved CSV field must use the user's 0 default.
 function ribbonCsvValue(_classification){return 0;}
 function shinyCsvValue(r){return r?.parsed?.shiny===true||r?.shiny===true?1:0;}
-function toPokesleepToolCsvRow(r){const p=r.parsed,c=r.classification,species=chosenSpecies(r),foods=[0,1,2].map(i=>foodCsvValue(r.foods?.[i]||{})),subReview=new Set(subskillReviewSlots(r)),subs=[0,1,2,3,4].map(i=>subReview.has(i)?'':(p.subs?.[i]?.value||''));return [p.nickname,species,p.level??'',p.skillLevel??'',...foods,mainSkillCsvValue(p,c,r.speciesManualOverride||''),p.nature,...subs,ribbonCsvValue(c),shinyCsvValue(r)];}
-function buildCsvText(){const rows=[POKESLEEP_TOOL_CSV_HEADER,...results.map(toPokesleepToolCsvRow)];return rows.map(row=>row.map(csvCell).join(',')).join('\n');}
-function validatedCsvText(){
+// Export-only nature mapping: never change OCR/manual result objects or checkpoint data.
+function mintAffectedRows(){return results.filter(r=>r?.parsed?.natureEffect==='neutralized');}
+const MINT_AMPED_NATURES=new Set(['いじっぱり','やんちゃ','ゆうかん','なまいき','うっかりや','わんぱく','のうてんき','ようき','せっかち','むじゃき','がんばりや','きまぐれ','すなお']);
+function mintNeutralNature(species,originalNature){
+ if(species==='ストリンダー (ハイ)')return 'がんばりや';
+ if(species==='ストリンダー (ロー)')return 'まじめ';
+ if(species==='エレズン')return MINT_AMPED_NATURES.has(originalNature)?'がんばりや':'まじめ';
+ return 'まじめ';
+}
+function mintCsvNature(r,mode){
+ const original=r?.parsed?.nature??'';
+ if(mode!=='neutral'||r?.parsed?.natureEffect!=='neutralized')return original;
+ return mintNeutralNature(chosenSpecies(r),original);
+}
+function chooseMintCsvMode(action){
+ const count=mintAffectedRows().length;
+ if(!count)return Promise.resolve('original');
+ const dialog=$('#mintExportDialog');
+ if(!dialog||typeof dialog.showModal!=='function'||dialog.open)return Promise.resolve(null);
+ const original=dialog.querySelector('input[name="mintExportMode"][value="original"]');
+ const message=$('#mintExportMessage'),confirm=$('#mintExportConfirm');
+ if(!original||!message||!confirm)return Promise.resolve(null);
+ original.checked=true;
+ dialog.returnValue='cancel';
+ message.textContent=`まっしろミント使用個体 ${count}匹のCSV出力方法を選択してください。`;
+ confirm.textContent=`CSVを${action}`;
+ const focus=document.activeElement;
+ return new Promise(resolve=>{
+  const onClose=()=>{
+   dialog.removeEventListener('close',onClose);
+   if(focus&&document.contains(focus))focus.focus();
+   resolve(dialog.returnValue==='confirm'?(dialog.querySelector('input[name="mintExportMode"]:checked')?.value||'original'):null);
+  };
+  dialog.addEventListener('close',onClose);
+  try{dialog.showModal();original.focus();}
+  catch(_){dialog.removeEventListener('close',onClose);resolve(null);}
+ });
+}
+function toPokesleepToolCsvRow(r,mintMode='original'){const p=r.parsed,c=r.classification,species=chosenSpecies(r),foods=[0,1,2].map(i=>foodCsvValue(r.foods?.[i]||{})),subReview=new Set(subskillReviewSlots(r)),subs=[0,1,2,3,4].map(i=>subReview.has(i)?'':(p.subs?.[i]?.value||''));return [p.nickname,species,p.level??'',p.skillLevel??'',...foods,mainSkillCsvValue(p,c,r.speciesManualOverride||''),mintCsvNature(r,mintMode),...subs,ribbonCsvValue(c),shinyCsvValue(r)];}
+function buildCsvText(mintMode='original'){const rows=[POKESLEEP_TOOL_CSV_HEADER,...results.map(r=>toPokesleepToolCsvRow(r,mintMode))];return rows.map(row=>row.map(csvCell).join(',')).join('\n');}
+function validatedCsvText(mintMode='original'){
  const gate=window.POKESLEEP_CSV_GATE;
  if(!gate)throw Error('CSV検証プログラムを読み込めませんでした');
- const text=buildCsvText(),audit=gate.inspect(text,window.POKESLEEP_MASTER);
+ const text=buildCsvText(mintMode),audit=gate.inspect(text,window.POKESLEEP_MASTER);
  if(!audit.ok)throw Error(audit.errors.slice(0,6).join(' / '));
  return text;
 }
-async function safeExportText(){
- try{return validatedCsvText();}
+async function safeExportText(mintMode='original'){
+ try{return validatedCsvText(mintMode);}
  catch(err){
   await showAppDialog({title:'CSV検証に失敗しました',message:'CSVの整合性を確認できないため、出力を停止しました。値を再確認してください。',details:[String(err?.message||err)],primaryLabel:'閉じる',tone:'error'});
   return null;
@@ -1960,7 +1998,8 @@ async function safeExportText(){
 }
 async function downloadCSV(){
  if(isRunning||analysisPause||!results.length||!await confirmCsvAction('保存'))return;
- const text=await safeExportText();
+ const mintMode=await chooseMintCsvMode('保存');if(mintMode===null)return;
+ const text=await safeExportText(mintMode);
  if(text===null)return;
  const gate=window.POKESLEEP_CSV_GATE;
  try{
@@ -1970,6 +2009,6 @@ async function downloadCSV(){
   await showAppDialog({title:'CSVを保存できませんでした',message:'保存ファイル名を安全に確定できませんでした。',details:[String(err?.message||err)],primaryLabel:'閉じる',tone:'error'});
  }
 }
-async function copyCSV(){if(isRunning||analysisPause||!results.length||!await confirmCsvAction('コピー'))return;const text=await safeExportText();if(text===null)return;const btn=$('#copyCsv');try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(text);else throw new Error('Clipboard API unavailable');}catch(_){const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();if(!ok){await showAppDialog({title:'コピーできませんでした',message:'ブラウザのクリップボード機能を利用できませんでした。CSV保存を利用してください。',primaryLabel:'閉じる',tone:'error'});return;}}const old=btn.textContent;btn.textContent='コピーしました';btn.classList.add('copied');setTimeout(()=>{btn.textContent=old;btn.classList.remove('copied');},1500);}
+async function copyCSV(){if(isRunning||analysisPause||!results.length||!await confirmCsvAction('コピー'))return;const mintMode=await chooseMintCsvMode('コピー');if(mintMode===null)return;const text=await safeExportText(mintMode);if(text===null)return;const btn=$('#copyCsv');try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(text);else throw new Error('Clipboard API unavailable');}catch(_){const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();if(!ok){await showAppDialog({title:'コピーできませんでした',message:'ブラウザのクリップボード機能を利用できませんでした。CSV保存を利用してください。',primaryLabel:'閉じる',tone:'error'});return;}}const old=btn.textContent;btn.textContent='コピーしました';btn.classList.add('copied');setTimeout(()=>{btn.textContent=old;btn.classList.remove('copied');},1500);}
 setTimeout(()=>{void initCheckpointRecovery();},0);
 })();

@@ -297,3 +297,38 @@ test('raw diagnostic CSV and JSON maintain independent minute counters',async()=
  assert.match(csv2,/20261012_1805_2\.csv$/);
  await assert.rejects(h.gate.reserveFilename(when,'bad-kind'),/Unknown download category/);
 });
+
+test('white mint two-choice export alters only CSV nature and respects Toxel forms',()=>{
+ const app=fs.readFileSync(path.join(root,'app.js'),'utf8');
+ const begin=app.indexOf('function mintAffectedRows('),end=app.indexOf('function validatedCsvText(',begin);
+ assert.ok(begin>0&&end>begin,'Mint export-only functions exist');
+ const p=ai.pokemon.find(x=>x.name==='フシギダネ');
+ const subs=ai.subskills.slice(0,5).map(s=>({value:s.ja}));
+ const row=(species,nature,mint)=>({speciesManualOverride:species,
+  parsed:{nickname:'ミント試験',nature,natureEffect:mint?'neutralized':'normal',
+   level:30,skillLevel:1,mainSkill:p.mainSkill,subs},
+  classification:{status:'UNIQUE',candidates:[species]},
+  foods:Array.from({length:3},()=>({name:p.ing1.name,needsReview:false}))});
+ const rows=[row('フシギダネ','いじっぱり',true),row('フシギダネ','おだやか',false),
+  row('エレズン','いじっぱり',true),row('エレズン','てれや',true),
+  row('ストリンダー (ハイ)','いじっぱり',true),row('ストリンダー (ロー)','おだやか',true)];
+ const before=JSON.stringify(rows);
+ const context={results:rows,POKESLEEP_TOOL_CSV_HEADER:Array.from(harness().gate.HEADER),
+  chosenSpecies:r=>r.speciesManualOverride,subskillReviewSlots:()=>[],
+  mainSkillCsvValue:p=>p.mainSkill,foodCsvValue:f=>f.name,
+  ribbonCsvValue:()=>0,shinyCsvValue:()=>0,
+  csvCell:v=>String(v??'').replace(/([",\n])/g,s=>s),
+  $:()=>null,document:{},Promise};
+ vm.createContext(context);vm.runInContext(app.slice(begin,end),context);
+ const original=rows.map(r=>context.toPokesleepToolCsvRow(r,'original')[8]);
+ const neutral=rows.map(r=>context.toPokesleepToolCsvRow(r,'neutral')[8]);
+ assert.deepEqual(original,['いじっぱり','おだやか','いじっぱり','てれや','いじっぱり','おだやか']);
+ assert.deepEqual(neutral,['まじめ','おだやか','がんばりや','まじめ','がんばりや','まじめ']);
+ assert.equal(JSON.stringify(rows),before,'Conversion must not mutate raw OCR/edited records');
+ assert.equal(context.mintAffectedRows().length,5);
+ for(const r of rows)assert.equal(context.toPokesleepToolCsvRow(r,'neutral').length,16);
+ assert.equal(context.buildCsvText().split('\n').length,7);
+ assert.equal(context.buildCsvText('neutral').split('\n').length,7);
+ assert.equal(context.mintNeutralNature('ストリンダー (ハイ)','てれや'),'がんばりや');
+ assert.equal(context.mintNeutralNature('ストリンダー (ロー)','いじっぱり'),'まじめ');
+});

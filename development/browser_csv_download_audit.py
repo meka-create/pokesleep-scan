@@ -143,6 +143,48 @@ def main():
                       "Second filename must have ordinal suffix")
                 evidence["checks"].append("two physical Blob CSV downloads, valid rows and numbered names")
 
+
+                # Minted Pokémon: cancel, preserve original, or neutralize only the
+                # CSV output. The loaded OCR result must remain unchanged.
+                page.evaluate("""()=>{
+                  const p=POKESLEEP_MASTER.pokemon.find(x=>x.name==='フシギダネ');
+                  const subs=POKESLEEP_MASTER.subskills.slice(0,5).map(x=>({value:x.ja,needsReview:false}));
+                  window.__STEP2_AUDIT__.setRows([{
+                    file:'mint-synthetic.png',speciesManualOverride:p.name,
+                    classification:{status:'UNIQUE',candidates:[p.name],hits:[]},
+                    parsed:{nickname:'ミント使用',level:10,skillLevel:1,mainSkill:p.mainSkill,
+                      nature:'いじっぱり',natureEffect:'neutralized',mintDetection:{applied:true},subs},
+                    foods:Array.from({length:3},()=>({name:p.ing1.name,needsReview:false}))
+                  }]);
+                }""")
+                page.locator("#csv").click()
+                modal=page.locator("#mintExportDialog")
+                modal.wait_for(state="visible",timeout=10000)
+                check(page.locator("input[name='mintExportMode'][value='original']").is_checked(),
+                      "Original nature should be the default")
+                check("復元" not in modal.inner_text(),"Redundant restore disclaimer must be absent")
+                page.locator("#mintExportDialog button[value='cancel']").click()
+                modal.wait_for(state="hidden",timeout=10000)
+                for choice,expected in [("original","いじっぱり"),("neutral","まじめ")]:
+                    with page.expect_download(timeout=10000) as mint_info:
+                        page.locator("#csv").click()
+                        modal.wait_for(state="visible",timeout=10000)
+                        page.locator(f"input[name='mintExportMode'][value='{choice}']").check()
+                        page.locator("#mintExportConfirm").click()
+                    mint_rows=list(csv.reader(io.StringIO(
+                        Path(mint_info.value.path()).read_text(encoding="utf-8"))))
+                    check(len(mint_rows)==2 and len(mint_rows[1])==16 and mint_rows[1][8]==expected,
+                          f"Mint CSV nature failed for {choice}")
+                    check(page.evaluate("window.__STEP2_AUDIT__") is not None,
+                          "Synthetic export hook unavailable")
+                page.locator("#copyCsv").click()
+                modal.wait_for(state="visible",timeout=10000)
+                check("コピー" in page.locator("#mintExportConfirm").inner_text(),
+                      "Copy action was not labeled in mint choice")
+                page.locator("#mintExportDialog button[value='cancel']").click()
+                check(page.evaluate("window.__STEP2_AUDIT__") is not None,"Clipboard cancel failed")
+                evidence["checks"].append("white mint: cancel/keep/neutral CSV download and copy modal")
+
                 # Invalid species/level from the app's row writer must fail at
                 # the CSV gate rather than initiate a download.
                 page.evaluate("""()=>{

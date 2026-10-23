@@ -189,6 +189,16 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
 .paddle-wait-switch[hidden]{display:none!important}
 .paddle-wait-switch:focus-visible{outline:2px solid #1d77ea;outline-offset:2px}
 .paddle-wait-switch-floating{margin:8px 0 0;font-size:12px}
+
+.mint-export-options{border:0;padding:0;margin:16px 0 0;min-width:0;display:grid;gap:9px}
+.mint-export-legend{margin:0 0 8px;color:#59657a;font-size:12px;font-weight:800}
+.mint-export-option{display:flex;align-items:flex-start;gap:10px;border:1px solid #dce3ef;border-radius:12px;padding:13px 12px;background:#fff;cursor:pointer}
+.mint-export-option:has(input:checked){border-color:#5558e8;background:#f5f5ff;box-shadow:0 0 0 1px #5558e8}
+.mint-export-option input{flex:none;width:18px;height:18px;margin:2px 0 0;accent-color:#5558e8}
+.mint-export-option span{display:grid;gap:3px}
+.mint-export-option strong{color:#263147;font-size:13px;font-weight:900}
+.mint-export-option small{font-size:11px;color:#66718a;line-height:1.55;font-weight:650}
+.mint-export-dialog{max-height:min(88dvh,680px);overflow-y:auto}
 </style>
 </head>
 <body>
@@ -343,6 +353,29 @@ body.analysis-pull-guard{touch-action:pan-x pan-y pinch-zoom}
   </div>
 </dialog>
 
+
+<dialog id="mintExportDialog" class="app-dialog mint-export-dialog" aria-labelledby="mintExportTitle" aria-describedby="mintExportMessage">
+  <form method="dialog" class="app-dialog-wrap">
+    <div class="app-dialog-icon" aria-hidden="true">✓</div>
+    <h2 id="mintExportTitle" class="app-dialog-title">まっしろミント使用個体を検出しました</h2>
+    <p id="mintExportMessage" class="app-dialog-message"></p>
+    <fieldset class="mint-export-options">
+      <legend class="mint-export-legend">CSVの性格をどう出力しますか？</legend>
+      <label class="mint-export-option">
+        <input type="radio" name="mintExportMode" value="original" checked>
+        <span><strong>元の性格を維持して出力</strong><small>ゲーム内の性格をそのまま保存します。</small></span>
+      </label>
+      <label class="mint-export-option">
+        <input type="radio" name="mintExportMode" value="neutral">
+        <span><strong>ミント効果を反映して出力</strong><small>ミント使用個体のみ補正なしの性格に変更します。</small></span>
+      </label>
+    </fieldset>
+    <div class="app-dialog-actions">
+      <button class="app-dialog-btn secondary" type="submit" value="cancel">キャンセル</button>
+      <button id="mintExportConfirm" class="app-dialog-btn primary" type="submit" value="confirm">CSVを保存</button>
+    </div>
+  </form>
+</dialog>
 
 <div id="choicePicker" class="choice-picker" hidden aria-hidden="true">
   <div class="choice-picker-backdrop" data-choice-close></div>
