@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-24-paddle-wait-choice-v1",
-  "appBuildId": "v12-paddle-wait-choice-20261024-v1",
+  "releaseId": "2026-10-24-paddle-wait-choice-audit-v2",
+  "appBuildId": "v12-paddle-wait-choice-20261024-audit-v2",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 308873,
-      "sha256": "efff5cc382c45c053f2a624a7a94b2247ec94d625cc60dba6a6aa06d4ba4b938"
+      "bytes": 308885,
+      "sha256": "f01005e59594499020394ac23cb853cb892c3ee8eb8f3822c49bf64875a0ba22"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -381,8 +381,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 47,
-      "sha256": "3820484ebd2f744a8d10da1ba039bd9933fc474bfc5d2a0b8c0662fcb690795e"
+      "bytes": 53,
+      "sha256": "840f97792561bd1497ccd6e65b5571696a73a1b0b585127af6cc34895c1c3ec3"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -401,8 +401,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4048,
-      "sha256": "8bc4c0f1b57142cec584ae1f6273d5d7e177a6435f320401068a99bb06e9172d"
+      "bytes": 4054,
+      "sha256": "57a1d3ddc2e8a4d88fc8a2925fbc7d16798170d01f906e5b61e27b9f572ee61a"
     }
   ]
 }
