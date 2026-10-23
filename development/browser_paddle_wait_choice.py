@@ -110,7 +110,7 @@ def main():
                 arm(page,"preemption")
                 page.clock.fast_forward(90_000)
                 page.locator("#appDialog").wait_for(state="visible", timeout=8000)
-                page.evaluate("() => window.__auditPaddleOtherWarning()")
+                page.evaluate("() => { void window.__auditPaddleOtherWarning(); }")
                 must(page.locator("#appDialogTitle").inner_text()=="別の保存警告",
                      "replacement warning must be displayed")
                 must(page.evaluate("window.__auditPaddleOutcome")=="waiting",
