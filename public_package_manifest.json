@@ -91,8 +91,8 @@
     },
     {
       "path": "development/browser_csv_download_audit.py",
-      "bytes": 14862,
-      "sha256": "348a2a9431798010beacb184a6e289d2679fe76304820a40e9046cf4188184c1"
+      "bytes": 14945,
+      "sha256": "1162350fa83cc797582776dbd90c09af16d4d6495c47da9e3489cb3dc71914f1"
     },
     {
       "path": "development/browser_failure_card_modal.py",

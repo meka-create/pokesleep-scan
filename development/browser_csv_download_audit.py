@@ -177,6 +177,7 @@ def main():
                           f"Mint CSV nature failed for {choice}")
                     check(page.evaluate("window.__STEP2_AUDIT__") is not None,
                           "Synthetic export hook unavailable")
+                page.evaluate("document.querySelector('#copyCsv').disabled=false")
                 page.locator("#copyCsv").click()
                 modal.wait_for(state="visible",timeout=10000)
                 check("コピー" in page.locator("#mintExportConfirm").inner_text(),
