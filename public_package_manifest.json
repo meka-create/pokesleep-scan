@@ -181,8 +181,8 @@
     },
     {
       "path": "development/paddle_wait_choice.test.cjs",
-      "bytes": 9114,
-      "sha256": "4de2a0c6578bbd8122a2ceb83196dac1572cdce83d8eab2388c3b4dbe83bba20"
+      "bytes": 9164,
+      "sha256": "58cd43b9c9ec98c9dcc38348bae4111714f540c51cddd44bd1ce8faf5da1ef29"
     },
     {
       "path": "development/publish_master_status.py",
