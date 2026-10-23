@@ -20,7 +20,7 @@ function makeHarness(){
   ensurePaddleRaw(){return new Promise(resolve=>{done=resolve;});}
  };
  vm.createContext(context);
- vm.runInContext("let paddleSkipForBatch=false,paddleWaitSkipResolve=null,paddleWaitChoiceDialogOpen=false;const PADDLE_PREPARE_CHOICE_MS=90*1000;\n"+source,context);
+ vm.runInContext("let paddleFetchTraceRelease=null,paddleSkipForBatch=false,paddleWaitSkipResolve=null,paddleWaitChoiceDialogOpen=false;const PADDLE_PREPARE_CHOICE_MS=90*1000;\n"+source,context);
  return {context,timers,buttons,get,finish:v=>done?.(v),modal:()=>modal,close:()=>closeCalls,releases:()=>releaseCalls,async tick(){await Promise.resolve();await Promise.resolve();}};
 }
 test('before 90s no dialog or switch and Paddle result is preserved',async()=>{
