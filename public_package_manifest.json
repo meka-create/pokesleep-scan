@@ -101,8 +101,8 @@
     },
     {
       "path": "development/browser_paddle_wait_choice.py",
-      "bytes": 5733,
-      "sha256": "d8b76f3dbd7ce60451fb98026f27826edd49d2536b9ee683ac49ec8bd85ef6c6"
+      "bytes": 6911,
+      "sha256": "8a64596cb6e5bc56812d1f8126642d91d280c62c4333f3d9b32ddc5a584eaba2"
     },
     {
       "path": "development/browser_step3_review_audit.py",
@@ -162,7 +162,7 @@
     {
       "path": "development/nickname_caption_rescue.test.cjs",
       "bytes": 6655,
-      "sha256": "ae9d4bc43d7575fd55f0fb98102335cedc813eab52f683616b80984c546fe225"
+      "sha256": "33c11aebe8513b17d683207ef9f2ef0cf8067ffa04d92ef38afabc628c351a6c"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
