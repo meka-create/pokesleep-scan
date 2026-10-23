@@ -20,7 +20,7 @@ function makeHarness(){
   ensurePaddleRaw(){return new Promise(resolve=>{done=resolve;});}
  };
  vm.createContext(context);
- vm.runInContext("let paddleSkipForBatch=false,paddleWaitSkipResolve=null,paddleWaitChoiceDialogOpen=false;const PADDLE_PREPARE_CHOICE_MS=90*1000;\n"+source,context);
+ vm.runInContext("let paddleFetchTraceRelease=null,paddleSkipForBatch=false,paddleWaitSkipResolve=null,paddleWaitChoiceDialogOpen=false;const PADDLE_PREPARE_CHOICE_MS=90*1000;\n"+source,context);
  return {context,timers,buttons,get,finish:v=>done?.(v),modal:()=>modal,close:()=>closeCalls,releases:()=>releaseCalls,async tick(){await Promise.resolve();await Promise.resolve();}};
 }
 test('before 90s no dialog or switch and Paddle result is preserved',async()=>{
@@ -95,4 +95,65 @@ test('existing progress layout and frozen nickname OCR hooks are preserved',()=>
  assert.match(app,/const ocr=await ensurePaddle\(idx,total\)/);
  assert.match(app,/function recordPaddleWaitChoice/);
  assert.match(app,/paddleModelFetchControllers/);
+});
+
+
+test('canceling a hung Paddle SDK create restores global fetch immediately without losing OCR progress',async()=>{
+ const a=app.indexOf('async function withPaddleFetchTrace('),b=app.indexOf('/* Time out the decision prompt',a);
+ assert.ok(a>=0&&b>a,'fetch wrapper must be independent from frozen nickname logic');
+ const events=[];
+ const original=async url=>({ok:true,status:200,statusText:'OK',url:String(url),type:'basic',headers:{get:()=>''}});
+ const context={
+  Promise,Date,Error,console,performance:{now:()=>123},
+  fetch:original,fetchTraceUrl:x=>String(x),paddleInitDiagnostics:{stage:'create',fetchTrace:[],waitChoices:[]},
+  paddleModelFetchControllers:new Set(),paddleOcr:null,
+  $:()=>({hidden:true,addEventListener(){}}),
+  setPaddleWaitSwitchVisible(){},setTimeout(fn,ms){events.push({fn,ms});return events.length;},clearTimeout(){},
+  showAppDialog(){return new Promise(()=>{});},closeAppDialog(){},
+  releasePaddleRuntimePreservingDiagnostics(){return Promise.resolve();},
+  ensurePaddleRaw(){return context.withPaddleFetchTrace('sdk-create',()=>new Promise(()=>{}));},
+  recordPaddleWaitChoice(action){context.paddleInitDiagnostics.waitChoices.push({action});}
+ };
+ vm.createContext(context);
+ vm.runInContext('let paddleFetchTraceRelease=null,paddleSkipForBatch=false,paddleWaitSkipResolve=null,paddleWaitChoiceDialogOpen=false;const PADDLE_PREPARE_CHOICE_MS=90000;\n'
+    +app.slice(a,b)+source,context);
+ const pending=context.ensurePaddle(0,1);
+ assert.notEqual(context.fetch,original,'SDK trace wrapper is active before skip');
+ assert.equal(events[0].ms,90000);
+ events[0].fn();
+ context.abandonPaddleForThisBatch();
+ await assert.rejects(pending,/ユーザー選択/);
+ assert.equal(context.fetch,original,'skipping must restore the original global fetch without waiting for SDK');
+ const resp=await context.fetch('https://example.test/normal-sync');
+ assert.equal(resp.status,200,'normal sync still uses original fetch');
+});
+test('a late old SDK completion may not overwrite another batch fetch tracing',async()=>{
+ const a=app.indexOf('async function withPaddleFetchTrace('),b=app.indexOf('/* Time out the decision prompt',a);
+ const original=async()=>({ok:true,status:200,statusText:'OK',url:'test',type:'basic',headers:{get:()=>''}});
+ const ctx={Promise,Date,Error,console,performance:{now:()=>0},fetch:original,fetchTraceUrl:x=>String(x),
+  paddleInitDiagnostics:{fetchTrace:[]}};
+ vm.createContext(ctx);vm.runInContext('let paddleFetchTraceRelease=null;\n'+app.slice(a,b),ctx);
+ let oldDone,newDone;
+ const first=ctx.withPaddleFetchTrace('old',()=>new Promise(r=>{oldDone=r;}));
+ const olderWrapper=ctx.fetch;
+ vm.runInContext('paddleFetchTraceRelease?.()',ctx);
+ assert.equal(ctx.fetch,original);
+ const second=ctx.withPaddleFetchTrace('new',()=>new Promise(r=>{newDone=r;}));
+ const newerWrapper=ctx.fetch;
+ assert.notEqual(newerWrapper,olderWrapper);
+ oldDone('old');assert.equal(await first,'old');
+ assert.equal(ctx.fetch,newerWrapper,'late old finally must not undo newer wrapper');
+ newDone('new');assert.equal(await second,'new');
+ assert.equal(ctx.fetch,original);
+});
+test('shared dialog replacement never treats forced close as user consent to downgrade',()=>{
+ const label='dialog-interrupted-continue-waiting';
+ assert.match(app,/if\(paddleWaitChoiceDialogOpen\)\{\s*\/\/ Another warning supersedes/);
+ assert.match(app,/recordPaddleWaitChoice\('dialog-interrupted-continue-waiting'\)/);
+ assert.match(app,/if\(!paddleWaitChoiceDialogOpen\)return;\s*paddleWaitChoiceDialogOpen=false/);
+ assert.match(app,/if\(paddleWaitChoiceDialogOpen\)return;closeAppDialog\(false\)/);
+ assert.ok(label);
+});
+test('model download digest unavailable never retains an abandoned abort controller',()=>{
+ assert.match(app,/paddleModelFetchControllers\.delete\(abortController\);throw new Error\('WebCrypto SHA-256 is unavailable/);
 });

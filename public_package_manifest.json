@@ -1,13 +1,13 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-24-paddle-wait-choice-v1",
-  "appBuildId": "v12-paddle-wait-choice-20261024-v1",
+  "releaseId": "2026-10-24-paddle-wait-choice-audit-v2",
+  "appBuildId": "v12-paddle-wait-choice-20261024-audit-v2",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 78,
+  "fileCount": 79,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 11508,
-      "sha256": "7225dec0ac0705d3144f1ebf17a91662944598ba3148f90d0e0c5b2eb011c281"
+      "bytes": 11644,
+      "sha256": "195dc611b7d6c28fb31482be69c2df08d3a20966d3de8885370a4ef60670725f"
     },
     {
       "path": ".gitignore",
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 307895,
-      "sha256": "e671071b7a987ec35784accbbcc4e207cdeebc83262cd8acf6dabd87dc68cf4b"
+      "bytes": 308885,
+      "sha256": "f01005e59594499020394ac23cb853cb892c3ee8eb8f3822c49bf64875a0ba22"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -98,6 +98,11 @@
       "path": "development/browser_failure_card_modal.py",
       "bytes": 6765,
       "sha256": "f0dbb68a45f385521f09aa52ec38424ff99a4592b2caf1d6ec0a2ba732346d6b"
+    },
+    {
+      "path": "development/browser_paddle_wait_choice.py",
+      "bytes": 6911,
+      "sha256": "8a64596cb6e5bc56812d1f8126642d91d280c62c4333f3d9b32ddc5a584eaba2"
     },
     {
       "path": "development/browser_step3_review_audit.py",
@@ -157,7 +162,7 @@
     {
       "path": "development/nickname_caption_rescue.test.cjs",
       "bytes": 6655,
-      "sha256": "ae9d4bc43d7575fd55f0fb98102335cedc813eab52f683616b80984c546fe225"
+      "sha256": "4fc4aeff70b0d08e9c67e0c01e84a3752b7c4906d03d8bfa7685346f01afbe5c"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -176,8 +181,8 @@
     },
     {
       "path": "development/paddle_wait_choice.test.cjs",
-      "bytes": 5269,
-      "sha256": "53d07855fe3d616e15c697b80a4366ab62eec6774a65ddae5e839c5e1891e59a"
+      "bytes": 9164,
+      "sha256": "58cd43b9c9ec98c9dcc38348bae4111714f540c51cddd44bd1ce8faf5da1ef29"
     },
     {
       "path": "development/publish_master_status.py",
@@ -376,8 +381,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 47,
-      "sha256": "3820484ebd2f744a8d10da1ba039bd9933fc474bfc5d2a0b8c0662fcb690795e"
+      "bytes": 53,
+      "sha256": "840f97792561bd1497ccd6e65b5571696a73a1b0b585127af6cc34895c1c3ec3"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -396,8 +401,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4048,
-      "sha256": "8bc4c0f1b57142cec584ae1f6273d5d7e177a6435f320401068a99bb06e9172d"
+      "bytes": 4054,
+      "sha256": "57a1d3ddc2e8a4d88fc8a2925fbc7d16798170d01f906e5b61e27b9f572ee61a"
     }
   ]
 }
