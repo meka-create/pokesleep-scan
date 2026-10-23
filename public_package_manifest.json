@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 307894,
-      "sha256": "436609af8b711b8218b77c67ea8361f7bcf67f0838ae6e8619be9c1de0c1b68f"
+      "bytes": 307893,
+      "sha256": "2ab744f3cff74cafe84d73281ce9e990009ed3fb9799e404b3d1fa55483442fc"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -81,8 +81,8 @@
     },
     {
       "path": "development/browser_boot_smoke.py",
-      "bytes": 22886,
-      "sha256": "6372dcdc3434e8152ce271c5916490107822956907dc554c92ebd978f0a8fede"
+      "bytes": 23598,
+      "sha256": "c8f54959fd16747a2fbdf1cea929ba7ec95ed4cac4a70f79fc5a20c38581d350"
     },
     {
       "path": "development/browser_choice_picker_kana.py",
