@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-24-paddle-wait-dialog-guard-v3",
-  "appBuildId": "v12-paddle-wait-choice-20261024-dialog-guard-v3",
+  "releaseId": "2026-10-24-mint-csv-choice-v4",
+  "appBuildId": "v12-mint-csv-choice-20261024-v4",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 309209,
-      "sha256": "38885aa278951eb3d0867743aa368603295ffc674cc29f528c687a6f2f84be83"
+      "bytes": 311608,
+      "sha256": "d7ac67594f1987598ef0ef1f3b67fbe3afd72cc6ad7e92e2686d1320f5c355f4"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -91,8 +91,8 @@
     },
     {
       "path": "development/browser_csv_download_audit.py",
-      "bytes": 11874,
-      "sha256": "6e185c790c2e995402d822bbf11a129bbf9a2ad42e5b79b1dc9fe14dc87b9ff6"
+      "bytes": 14945,
+      "sha256": "1162350fa83cc797582776dbd90c09af16d4d6495c47da9e3489cb3dc71914f1"
     },
     {
       "path": "development/browser_failure_card_modal.py",
@@ -161,8 +161,8 @@
     },
     {
       "path": "development/nickname_caption_rescue.test.cjs",
-      "bytes": 6672,
-      "sha256": "c6fd7ccd33e1ca3cd386c0875c9610288dd319726060a2573f87e67c2efdf27d"
+      "bytes": 6670,
+      "sha256": "12b3d5bad39a62436c180dcc4aa3f05c2bdc923ff789b70b1296ba0a8be1e59f"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -241,8 +241,8 @@
     },
     {
       "path": "development/step2_shared_csv.test.cjs",
-      "bytes": 17431,
-      "sha256": "3ec3b99396a4431bb3f9c907e5b35d24de31611c9fb8fd26ed0c0d312cbc3999"
+      "bytes": 19955,
+      "sha256": "ae147683d112d86d5da6cd3bf10957a17a99453c712401ba045d148c802dc70b"
     },
     {
       "path": "development/step3_android_roi.test.cjs",
@@ -261,8 +261,8 @@
     },
     {
       "path": "development/step3_pixel142_safety.test.cjs",
-      "bytes": 7980,
-      "sha256": "f0f6726683ae293a3e2419261231db5e7dc1c0bd3ca8eedc8dcb6c6bbbd9bb19"
+      "bytes": 8031,
+      "sha256": "10ece4343ac7a9de0ea73eb0a2bb63c89560623f557ce0c2cc7bec688a48393f"
     },
     {
       "path": "development/step3_real_upstream_importer.test.ts",
@@ -356,8 +356,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 73297,
-      "sha256": "393ef5749e53d6f2f69febad9bebb31a8258c8e658ef660b32512a796bf3b808"
+      "bytes": 75531,
+      "sha256": "0ac7f4a09549422721129cc76280a782781985f729e349649914efe52ecd52ff"
     },
     {
       "path": "manifest.webmanifest",
@@ -381,8 +381,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 53,
-      "sha256": "08248a9ccecae8d0e3d6b53dc7a9c3e10d215ef492b5a4874b6fc0dbb4ab2148"
+      "bytes": 44,
+      "sha256": "e8ddadad4b13202e52cc1698be46509f448facb6f378d425ada9b0ea29c7e5b8"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -401,8 +401,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4054,
-      "sha256": "32e69b86dc22546cecc4b41e2bf856988e03053f1593b2628c8b77b6c9e4ea0f"
+      "bytes": 4045,
+      "sha256": "751208521974d74572ef0115cd138b4ca73497a97a4d4170112b9ee17142d8ee"
     }
   ]
 }
