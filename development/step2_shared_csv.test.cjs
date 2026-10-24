@@ -332,3 +332,50 @@ test('white mint two-choice export alters only CSV nature and respects Toxel for
  assert.equal(context.mintNeutralNature('ストリンダー (ハイ)','てれや'),'がんばりや');
  assert.equal(context.mintNeutralNature('ストリンダー (ロー)','いじっぱり'),'まじめ');
 });
+
+test('all 25 original Toxel natures map to form-preserving neutral importable CSV',()=>{
+ const h=harness(),gate=h.gate;
+ const app=fs.readFileSync(path.join(root,'app.js'),'utf8');
+ const begin=app.indexOf('function mintAffectedRows('),end=app.indexOf('function validatedCsvText(',begin);
+ assert.ok(begin>0&&end>begin);
+ const source=app.slice(begin,end);
+ const mons=new Map(ai.pokemon.map(x=>[x.name,x]));
+ const subs=ai.subskills.slice(0,5).map(s=>({value:s.ja,needsReview:false}));
+ const mk=(species,nature,mint)=>{const p=mons.get(species);assert.ok(p);
+  return {speciesManualOverride:species,
+   parsed:{nickname:'ミント変換テスト',nature,natureEffect:mint?'neutralized':'normal',
+     level:30,skillLevel:1,mainSkill:p.mainSkill,subs},
+   classification:{status:'UNIQUE',candidates:[species]},
+   foods:Array.from({length:3},()=>({name:p.ing1.name,needsReview:false}))};
+ };
+ const rows=ai.natures.map(n=>mk('エレズン',n.ja,true));
+ rows.push(mk('ストリンダー (ハイ)','いじっぱり',true),
+  mk('ストリンダー (ロー)','おだやか',true),
+  mk('ピカチュウ','ようき',true),
+  mk('ピカチュウ','おっとり',false));
+ const originalJSON=JSON.stringify(rows);
+ const ctx={results:rows,POKESLEEP_TOOL_CSV_HEADER:gate.HEADER,
+  chosenSpecies:r=>r.speciesManualOverride,subskillReviewSlots:()=>[],
+  mainSkillCsvValue:p=>p.mainSkill,foodCsvValue:f=>f.name,
+  ribbonCsvValue:()=>0,shinyCsvValue:()=>0,csvCell:v=>{
+   const s=String(v??'');return /[",\\n]/.test(s)?'"'+s.replaceAll('"','""')+'"':s;},
+  $:()=>null,document:{},Promise};
+ vm.createContext(ctx);vm.runInContext(source,ctx);
+ const adapted=rows.map(r=>Array.from(ctx.toPokesleepToolCsvRow(r,'neutral')));
+ const high=new Set(['いじっぱり','やんちゃ','ゆうかん','なまいき',
+  'うっかりや','わんぱく','のうてんき','ようき','せっかち',
+  'むじゃき','がんばりや','きまぐれ','すなお']);
+ for(let i=0;i<ai.natures.length;i++)
+  assert.equal(adapted[i][8],high.has(ai.natures[i].ja)?'がんばりや':'まじめ');
+ assert.equal(adapted[25][8],'がんばりや');
+ assert.equal(adapted[26][8],'まじめ');
+ assert.equal(adapted[27][8],'まじめ');
+ assert.equal(adapted[28][8],'おっとり');
+ const unchanged=gate.inspect(ctx.buildCsvText('original'),ai);
+ assert.equal(unchanged.ok,true,JSON.stringify(unchanged.errors));
+ const switched=gate.inspect(ctx.buildCsvText('neutral'),ai);
+ assert.equal(switched.ok,true,JSON.stringify(switched.errors));
+ assert.equal(switched.rows.length,rows.length+1);
+ assert.ok(switched.rows.every(r=>r.length===16));
+ assert.equal(JSON.stringify(rows),originalJSON,'Raw OCR records changed');
+});
