@@ -202,6 +202,11 @@ def main():
                     page.locator(f"input[name='mintExportMode'][value='{mode}']").check()
                     page.locator("#mintExportConfirm").click()
                     modal.wait_for(state="hidden",timeout=10000)
+                    # Closing a native dialog resolves the export choice
+                    # asynchronously; wait for the *new* clipboard write to finish.
+                    page.wait_for_function(
+                        "expected => typeof window.__AUDIT_COPIED__ === 'string' && window.__AUDIT_COPIED__.includes(','+expected+',')",
+                        arg=expected,timeout=8000)
                     copied=page.evaluate("window.__AUDIT_COPIED__")
                     check(isinstance(copied,str) and copied.strip(),
                           "Clipboard writeText was never reached")
