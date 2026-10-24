@@ -20,6 +20,7 @@ HOOK="setTimeout(()=>{void initCheckpointRecovery();},0);"
 assert JS.count(HOOK)==1
 INSTRUMENTED=JS.replace(HOOK,'''window.__STEP2_AUDIT__={
   setRows:rows=>{results=rows;},
+  currentRows:()=>results.map(r=>({nature:r.parsed?.nature,natureEffect:r.parsed?.natureEffect})),
   runExport:()=>downloadCSV(),
   runCopy:()=>copyCSV(),
   check:()=>({name:typeof diagnosticsJsonFilename(new Date()),
@@ -177,14 +178,42 @@ def main():
                           f"Mint CSV nature failed for {choice}")
                     check(page.evaluate("window.__STEP2_AUDIT__") is not None,
                           "Synthetic export hook unavailable")
-                page.evaluate("document.querySelector('#copyCsv').disabled=false")
+                # Clipboard success was previously untested: use a deterministic
+                # test-only clipboard sink, then assert the actual copied CSV text.
+                page.evaluate("""()=>{
+                    window.__AUDIT_COPIED__=null;
+                    Object.defineProperty(navigator,'clipboard',{configurable:true,
+                        value:{writeText:async text=>{window.__AUDIT_COPIED__=text;}}});
+                    document.querySelector('#copyCsv').disabled=false;
+                }""")
                 page.locator("#copyCsv").click()
                 modal.wait_for(state="visible",timeout=10000)
                 check("コピー" in page.locator("#mintExportConfirm").inner_text(),
                       "Copy action was not labeled in mint choice")
                 page.locator("#mintExportDialog button[value='cancel']").click()
-                check(page.evaluate("window.__STEP2_AUDIT__") is not None,"Clipboard cancel failed")
-                evidence["checks"].append("white mint: cancel/keep/neutral CSV download and copy modal")
+                modal.wait_for(state="hidden",timeout=10000)
+                check(page.evaluate("window.__AUDIT_COPIED__") is None,
+                      "Cancel unexpectedly copied CSV data")
+                for mode,expected in [("neutral","まじめ"),("original","いじっぱり")]:
+                    page.locator("#copyCsv").click()
+                    modal.wait_for(state="visible",timeout=10000)
+                    check(page.locator("input[name='mintExportMode'][value='original']").is_checked(),
+                          "Each new export must default to unchanged original nature")
+                    page.locator(f"input[name='mintExportMode'][value='{mode}']").check()
+                    page.locator("#mintExportConfirm").click()
+                    modal.wait_for(state="hidden",timeout=10000)
+                    copied=page.evaluate("window.__AUDIT_COPIED__")
+                    check(isinstance(copied,str) and copied.strip(),
+                          "Clipboard writeText was never reached")
+                    copied_rows=list(csv.reader(io.StringIO(copied),strict=True))
+                    check(len(copied_rows)==2 and len(copied_rows[1])==16
+                          and copied_rows[1][8]==expected,
+                          f"Actual clipboard CSV incorrect for {mode}")
+                    persisted=page.evaluate("window.__STEP2_AUDIT__.currentRows()")
+                    check(persisted==[{"nature":"いじっぱり","natureEffect":"neutralized"}],
+                          "CSV export mutated the original analysis state")
+                evidence["checks"].append(
+                    "white mint: cancel/keep/neutral 16-column downloads and real clipboard contents; original state immutable")
 
                 # Invalid species/level from the app's row writer must fail at
                 # the CSV gate rather than initiate a download.

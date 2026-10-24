@@ -105,3 +105,35 @@ describe("real upstream Japanese CSV importer, generated from the live independe
   expect(result.warnings).toHaveLength(3);
  });
 });
+
+describe("White Mint compatible nature-only CSV (independent upstream importer)",()=>{
+ test("neutral natures for Toxel and both Toxtricity forms retain correct upstream nature factors",()=>{
+  const cases:[string,string,string][]=[
+   ["エレズン","いじっぱり","がんばりや"],
+   ["エレズン","おだやか","まじめ"],
+   ["ストリンダー (ハイ)","いじっぱり","がんばりや"],
+   ["ストリンダー (ロー)","おだやか","まじめ"]
+  ];
+  const rows=cases.map(([species,original,exportNature],i)=>{
+   const p=master.pokemon.find(x=>x.name===species);
+   expect(p,original).toBeDefined();
+   const r=row(p!,1000+i);
+   r[8]=exportNature;
+   return r;
+  });
+  const imported=importFromCsvTsv(serialize([header,...rows]),"csv",t);
+  expect(imported.warnings).toEqual([]);
+  expect(imported.items).toHaveLength(cases.length);
+  for(let i=0;i<cases.length;i++){
+   const [,original,nature]=cases[i];
+   expect(original).not.toBe(nature);
+   const iv=imported.items[i].iv;
+   expect((jaData as any).natures[iv.nature.name]).toBe(nature);
+   expect(iv.nature.isNeautral).toBe(true);
+   expect(iv.nature.energyRecoveryFactor).toBe(1);
+   expect(iv.nature.mainSkillChanceFactor).toBe(1);
+   expect(iv.nature.ingredientFindingFactor).toBe(1);
+   expect(iv.nature.speedOfHelpFactor).toBe(1);
+  }
+ });
+});
