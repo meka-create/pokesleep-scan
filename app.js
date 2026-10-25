@@ -121,7 +121,7 @@ function floatingProgressShouldShow(){if(localProgressVisible)return false;if(fl
 function renderFloatingProgress(){const box=$('#floatingProgress'),bar=$('#floatingBar'),stat=$('#floatingStat');if(!box||!bar||!stat)return;const show=floatingProgressShouldShow();box.hidden=!show;if(!show)return;box.classList.remove('is-running','is-complete','is-error');box.classList.add(`is-${floatingProgressState}`);const pct=floatingProgressTotal?Math.max(0,Math.min(100,Math.round(floatingProgressDone/floatingProgressTotal*100))):(floatingProgressState==='complete'?100:0);bar.style.width=`${pct}%`;if(floatingProgressState==='running')stat.textContent=`解析済み ${floatingProgressDone} / ${floatingProgressTotal}`;else if(floatingProgressState==='complete')stat.textContent=`解析完了　${floatingProgressDone} / ${floatingProgressTotal}${floatingProgressReviews?`　·　要確認 ${floatingProgressReviews}件`:''}`;else if(floatingProgressState==='error')stat.textContent=`解析を${analysisPause?'一時停止':'中断'}しました　${floatingProgressDone} / ${floatingProgressTotal}`;}
 function scheduleFloatingCompletionDismiss(){cancelFloatingCompletionTimer();if(floatingProgressState!=='complete')return;if(document.hidden){floatingCompletionPending=true;return;}floatingCompletionPending=false;floatingCompletionTimer=setTimeout(()=>{floatingCompletionDismissed=true;renderFloatingProgress();},5000);}
 function setFloatingProgress(state,{done=0,total=0,reviews=0}={}){if(state==='idle'||state==='ready'){cancelFloatingCompletionTimer();floatingProgressState=state;floatingProgressDone=0;floatingProgressTotal=total||0;floatingProgressReviews=0;floatingCompletionPending=false;floatingCompletionDismissed=true;renderFloatingProgress();return;}if(state==='running'){cancelFloatingCompletionTimer();const continuing=floatingProgressState==='running';floatingProgressState='running';floatingProgressTotal=total||floatingProgressTotal;floatingProgressDone=continuing?Math.max(floatingProgressDone,Math.max(0,done)):Math.max(0,done);floatingProgressReviews=0;floatingCompletionPending=false;floatingCompletionDismissed=false;renderFloatingProgress();return;}if(state==='complete'){floatingProgressState='complete';floatingProgressTotal=total||floatingProgressTotal;floatingProgressDone=Math.max(floatingProgressDone,done,total||0);floatingProgressReviews=reviews||0;floatingCompletionDismissed=false;renderFloatingProgress();scheduleFloatingCompletionDismiss();return;}if(state==='error'){cancelFloatingCompletionTimer();floatingProgressState='error';floatingProgressTotal=total||floatingProgressTotal;floatingProgressDone=Math.max(floatingProgressDone,done);floatingCompletionPending=false;floatingCompletionDismissed=false;renderFloatingProgress();}}
-function initFloatingProgressProxy(){const local=$('#progress');if(!local)return;const update=v=>{localProgressVisible=v;renderFloatingProgress();};if('IntersectionObserver'in window){const io=new IntersectionObserver(entries=>{const e=entries[0];update(!!e&&e.isIntersecting&&e.intersectionRatio>=.45);},{threshold:[0,.45,1]});io.observe(local);}else{const check=()=>{const r=local.getBoundingClientRect(),h=window.innerHeight||document.documentElement.clientHeight,visible=Math.max(0,Math.min(r.bottom,h)-Math.max(r.top,0));update(visible>=Math.min(r.height*.45,24));};window.addEventListener('scroll',check,{passive:true});window.addEventListener('resize',check);check();}document.addEventListener('visibilitychange',()=>{if(!document.hidden&&floatingCompletionPending&&floatingProgressState==='complete'){floatingCompletionDismissed=false;renderFloatingProgress();scheduleFloatingCompletionDismiss();}});}
+function initFloatingProgressProxy(){const local=$('#progress');if(!local)return;const update=v=>{localProgressVisible=v;renderFloatingProgress();Promise.resolve().then(()=>scanSpeedRender());};if('IntersectionObserver'in window){const io=new IntersectionObserver(entries=>{const e=entries[0];update(!!e&&e.isIntersecting&&e.intersectionRatio>=.45);},{threshold:[0,.45,1]});io.observe(local);}else{const check=()=>{const r=local.getBoundingClientRect(),h=window.innerHeight||document.documentElement.clientHeight,visible=Math.max(0,Math.min(r.bottom,h)-Math.max(r.top,0));update(visible>=Math.min(r.height*.45,24));};window.addEventListener('scroll',check,{passive:true});window.addEventListener('resize',check);check();}document.addEventListener('visibilitychange',()=>{if(!document.hidden&&floatingCompletionPending&&floatingProgressState==='complete'){floatingCompletionDismissed=false;renderFloatingProgress();scheduleFloatingCompletionDismiss();}});}
 initFloatingProgressProxy();
 
 function checkpointSupported(){return typeof indexedDB!=='undefined';}
@@ -638,7 +638,7 @@ const SCAN_SPEED_LIMITS={baselineImages:4,window:3,slowNeeded:2,recoveryImages:3
  ratio:2.15,firstFloorMs:4800,extraFloorMs:550,verySlowFirstMs:9500,verySlowExtraMs:1150};
 const scanSpeedState={schema:1,samples:[],baseline:[],events:[],active:false,
  recoveredInRow:0,battery:{supported:false,charging:null,status:'unknown'},slowSamples:0};
-let scanSpeedBatteryBound=null;
+let scanSpeedBatteryBound=null,scanSpeedBatteryHandler=null,scanSpeedBatteryEpoch=0;
 function scanSpeedMedian(values){
  const v=values.filter(x=>Number.isFinite(x)&&x>0).sort((a,b)=>a-b);
  if(!v.length)return null;const n=v.length>>1;return v.length%2?v[n]:(v[n-1]+v[n])/2;
@@ -656,10 +656,13 @@ function scanSpeedWarningText(){
   '充電中ならケーブルを外し、端末が熱くなっていないか確認してください。解析は続行します。';
 }
 function scanSpeedRender(){
- const visible=!!(scanSpeedState.active&&isRunning&&!analysisPause&&localProgressState==='running');
- for(const id of ['#speedWarning','#floatingSpeedWarning']){
+ const running=!!(scanSpeedState.active&&isRunning&&!analysisPause&&localProgressState==='running');
+ // Only the progress panel currently in view announces the warning, never both.
+ const showLocal=running&&localProgressVisible;
+ const showFloating=running&&!localProgressVisible&&floatingProgressShouldShow();
+ for(const [id,show] of [['#speedWarning',showLocal],['#floatingSpeedWarning',showFloating]]){
   const el=$(id);if(!el)continue;
-  if(!visible){el.hidden=true;el.textContent='';continue;}
+  if(!show){el.hidden=true;el.textContent='';continue;}
   const msg=scanSpeedWarningText();if(el.textContent!==msg)el.textContent=msg;el.hidden=false;
  }
 }
@@ -668,21 +671,40 @@ function scanSpeedBatterySample(battery){
   status:typeof battery?.charging==='boolean'?'available':'unknown'};
  scanSpeedRender();
 }
+function scanSpeedBatteryDetach(){
+ if(scanSpeedBatteryBound&&scanSpeedBatteryHandler){
+  try{scanSpeedBatteryBound.removeEventListener?.('chargingchange',scanSpeedBatteryHandler);}
+  catch(_){/* A broken optional battery API must not interrupt OCR. */}
+ }
+ scanSpeedBatteryBound=null;scanSpeedBatteryHandler=null;
+}
 function scanSpeedBatteryStart(){
+ // Ignore late getBattery resolutions/rejections and events from earlier runs.
+ const epoch=++scanSpeedBatteryEpoch;scanSpeedBatteryDetach();
  scanSpeedState.battery={supported:false,charging:null,status:'unavailable'};
  if(typeof navigator==='undefined'||typeof navigator.getBattery!=='function')return;
  scanSpeedState.battery={supported:true,charging:null,status:'pending'};
  try{Promise.resolve(navigator.getBattery()).then(battery=>{
+  if(epoch!==scanSpeedBatteryEpoch)return;
   if(!battery){scanSpeedState.battery.status='unavailable';return;}
-  if(scanSpeedBatteryBound!==battery){
-   scanSpeedBatteryBound=battery;
-   battery.addEventListener?.('chargingchange',()=>scanSpeedBatterySample(battery));
-  }
+  scanSpeedBatteryBound=battery;
+  scanSpeedBatteryHandler=()=>{
+   if(epoch===scanSpeedBatteryEpoch)scanSpeedBatterySample(battery);
+  };
+  try{battery.addEventListener?.('chargingchange',scanSpeedBatteryHandler);}
+  catch(_){/* Charging is advisory only. */}
   scanSpeedBatterySample(battery);
- }).catch(()=>{scanSpeedState.battery={supported:false,charging:null,status:'error'};});
- }catch(_){scanSpeedState.battery={supported:false,charging:null,status:'error'};}
+ }).catch(()=>{
+  if(epoch===scanSpeedBatteryEpoch)
+   scanSpeedState.battery={supported:false,charging:null,status:'error'};
+ });
+ }catch(_){
+  if(epoch===scanSpeedBatteryEpoch)
+   scanSpeedState.battery={supported:false,charging:null,status:'error'};
+ }
 }
 function scanSpeedReset(){
+ ++scanSpeedBatteryEpoch;scanSpeedBatteryDetach();
  scanSpeedState.samples.length=0;scanSpeedState.baseline.length=0;scanSpeedState.events.length=0;
  scanSpeedState.active=false;scanSpeedState.recoveredInRow=0;scanSpeedState.slowSamples=0;
  scanSpeedState.battery={supported:false,charging:null,status:'unknown'};

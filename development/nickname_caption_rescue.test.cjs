@@ -94,11 +94,24 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  restored=restored.replace(post,old);
  restored=restored.replace("codeRevision:'20261013-nickname-consensus-gated-v3'",
   "codeRevision:'20261013-food3-pixel-v6-direct-files'");
+ // Auto master-sync intentionally rotates only these release tokens. Normalize
+ // their values so a legitimate new master does not require a manual SHA edit.
+ // All OCR/control-flow code remains covered by the surrounding-code digest.
+ const releaseTokens=[
+  [/const BUILD_ID='[^']+'/,"const BUILD_ID='v12-AUTO-RELEASE'"],
+  [/CHECKPOINT_RELEASE_ID='[^']+'/,"CHECKPOINT_RELEASE_ID='AUTO-RELEASE'"],
+  [/version:'v12-[^']+'/,"version:'v12-AUTO-RELEASE'"]
+ ];
+ for(const [regex,canonical] of releaseTokens){
+  assert.equal([...restored.matchAll(new RegExp(regex.source,'g'))].length,1,
+   'release token must appear exactly once: '+regex.source);
+  restored=restored.replace(regex,canonical);
+ }
  const sha=crypto.createHash('sha256').update(restored,'utf8').digest('hex');
  // PR #54 adds export-only mint choices without changing frozen nickname helpers.
  // The surrounding-code baseline changes, while frozen nickname-specific hashes remain untouched.
  // The approved main baseline includes PR #46/#47 failure-card UI changes, not
  // a nickname OCR change. Frozen nickname-specific hashes remain untouched.
- assert.equal(sha,'6dd9aa9dd42cebabcea8bde0c0fcced7826d9ca9e679374e4a99cec0c528c10b',
+ assert.equal(sha,'d8dfaf0fe04f1f1f6fa06e3f518124d76ea73304d202f75a9bb1d6eb76384108',
   'non-nickname implementation changed unexpectedly');
 });
