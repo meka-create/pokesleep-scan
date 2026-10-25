@@ -21,11 +21,11 @@ test('single Pages publisher: do not race automatic branch deployment with a sec
  // Verified Pages source already builds/deploys main on both normal and bot pushes.
  // A duplicate deploy-pages job causes GitHub Pages HTTP 400 in-progress errors.
  assert.doesNotMatch(sync,/^  deploy-pages:/m);
- assert.doesNotMatch(sync,/actions\\/deploy-pages@|actions\\/upload-pages-artifact@/);
+ assert.ok(!sync.includes('actions/deploy-pages@') && !sync.includes('actions/upload-pages-artifact@'), 'duplicate deployers are forbidden');
  assert.doesNotMatch(sync,/pages: write|id-token: write/);
  const pushes=[...sync.matchAll(/git push origin HEAD:main/g)];
  assert.equal(pushes.length,2,'master and health commits still publish through main');
- assert.match(sync,/cron: '0 19 \\* \\* \\*'/);
+ assert.match(sync,/cron: '0 19 [*] [*] [*]'/);
 });
 test('production CI includes deployment graph regression',()=>{
  assert.match(ci,/node --test development\/master_deploy_workflow\.test\.cjs/);
