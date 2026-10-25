@@ -48,6 +48,9 @@ jobs:
           node --check classifier.js
           node --check food_matcher.js
           node --test development/runtime_smoke.test.cjs development/step2_shared_csv.test.cjs development/master_auto_update.test.cjs
+          # Auto-release token rotation must never invalidate frozen nickname
+          # or accidentally disable the passive performance diagnostics.
+          node --test development/nickname_freeze.test.cjs development/nickname_caption_rescue.test.cjs development/performance_profile.test.cjs development/speed_warning.test.cjs
           python development/generate_public_package_manifest.py --check
           # The importer prints one machine-readable JSON report before its
           # optional PROMOTED line. Propagate only the verified overdue flag.

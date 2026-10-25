@@ -8,6 +8,7 @@ function fixture(charging=false){
  const ctx={Date,console,results:[],performance:{now:()=>100},
   document:{hidden:false,addEventListener(){}},$:id=>els[id]||null,
   isRunning:true,analysisPause:null,localProgressState:'running',
+  localProgressVisible:true,floatingProgressShouldShow:()=>true,
   ...(charging?{navigator:{getBattery:async()=>({charging:true,addEventListener(){}})}}:{})};
  vm.createContext(ctx);vm.runInContext(app.slice(i,j),ctx);
  return {ctx,els};
@@ -32,7 +33,11 @@ test('2-of-3 sustained slowdown warns; 3 clean images dismiss automatically',()=
  add(ctx,4,6000,700);add(ctx,5);const row=add(ctx,6,6100,730);
  assert.equal(row.performanceProfile.speedMonitor.transition,'slowdown');
  assert.match(els['#speedWarning'].textContent,/解析速度が低下/);
+ assert.equal(els['#floatingSpeedWarning'].hidden,true);
+ ctx.localProgressVisible=false;ctx.scanSpeedRender();
+ assert.equal(els['#speedWarning'].hidden,true);
  assert.equal(els['#floatingSpeedWarning'].hidden,false);
+ ctx.localProgressVisible=true;ctx.scanSpeedRender();
  add(ctx,7);add(ctx,8);assert.equal(ctx.scanSpeedSummary().active,true);
  assert.equal(add(ctx,9).performanceProfile.speedMonitor.transition,'recovered');
  assert.equal(els['#speedWarning'].hidden,true);
@@ -59,9 +64,51 @@ test('charging status is optional and charging annotation never interrupts OCR',
 test('checkpoint restoration keeps warning and 3-image recovery',()=>{
  const {ctx}=fixture(),rows=[];for(let n=0;n<4;n++)rows.push(add(ctx,n));
  rows.push(add(ctx,4,5700,680),add(ctx,5,5900,710));
+ const eventAt=rows.at(-1).performanceProfile.speedMonitor.transitionAt;
+ assert.match(eventAt,/^\d{4}-\d{2}-\d{2}T/);
  ctx.scanSpeedReset();ctx.scanSpeedRestoreProfiles(rows);
  assert.equal(ctx.scanSpeedSummary().active,true);
+ assert.equal(ctx.scanSpeedSummary().events[0].at,eventAt,'restore must preserve original warning time');
  add(ctx,6);add(ctx,7);add(ctx,8);assert.equal(ctx.scanSpeedSummary().active,false);
+});
+test('stale charging result and previous battery listeners cannot leak across scans',async()=>{
+ const {ctx}=fixture();
+ const managers=[];
+ let resolveFirst;
+ const pending=new Promise(resolve=>resolveFirst=resolve);
+ const listeners=new Map();
+ const battery=charging=>({
+  charging,addEventListener(_name,fn){listeners.set(this,fn);},
+  removeEventListener(_name,fn){if(listeners.get(this)===fn)listeners.delete(this);}
+ });
+ const old=battery(true),fresh=battery(false);
+ ctx.navigator={getBattery:()=>managers.length++===0?pending:Promise.resolve(fresh)};
+ ctx.scanSpeedBatteryStart();
+ ctx.scanSpeedReset();
+ ctx.scanSpeedBatteryStart();
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(ctx.scanSpeedSummary().battery.charging,false);
+ resolveFirst(old);
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(ctx.scanSpeedSummary().battery.charging,false,'late old BatteryManager must be ignored');
+ assert.equal(listeners.has(old),false);
+ assert.equal(listeners.has(fresh),true);
+ ctx.scanSpeedBatteryFinish();
+ assert.equal(listeners.has(fresh),false,'charging listener must be detached on batch finish');
+ assert.equal(ctx.scanSpeedSummary().battery.charging,false,'battery snapshot must survive completion');
+ ctx.scanSpeedReset();
+ assert.equal(listeners.has(fresh),false,'charging listener must remain detached after reset');
+ const oldEvent=listeners.get(fresh);
+ if(oldEvent)oldEvent();
+ assert.equal(ctx.scanSpeedSummary().battery.charging,null);
+});
+test('unsupported Battery Status API does not prevent slowdown warning',()=>{
+ const {ctx,els}=fixture();
+ ctx.scanSpeedBatteryStart();for(let n=0;n<4;n++)add(ctx,n);
+ add(ctx,4,6000,700);add(ctx,5,6100,710);
+ assert.equal(ctx.scanSpeedSummary().battery.status,'unavailable');
+ assert.equal(ctx.scanSpeedSummary().active,true);
+ assert.match(els['#speedWarning'].textContent,/発熱や高負荷/);
 });
 test('UI, persisted profile and diagnostic hooks are present',()=>{
  for(const id of ['speedWarning','floatingSpeedWarning'])assert.match(html,new RegExp('id="'+id+'"[^>]*hidden'));

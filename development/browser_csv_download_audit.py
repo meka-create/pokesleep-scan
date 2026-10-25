@@ -25,6 +25,42 @@ INSTRUMENTED=JS.replace(HOOK,'''window.__STEP2_AUDIT__={
   runCopy:()=>copyCSV(),
   check:()=>({name:typeof diagnosticsJsonFilename(new Date()),
               raw:typeof diagnosticRawCsvFilename(new Date())}),
+  probeSpeedWarning:phase=>{
+    // Synthesize per-call timing; no real screenshot or recognizer is used.
+    const make=(n,firstMs=2200,extraMs=265)=>{
+      const calls=12,p={schema:1,sourceIndex:n,startedAt:new Date().toISOString(),failed:false,
+        visibility:{hiddenAtStart:false,hiddenAtEnd:false,hiddenMs:0},
+        tesseract:{calls:calls+1,totalMs:firstMs+extraMs*calls,
+          byStage:{initialTesseract:{calls:1,totalMs:firstMs}}}};
+      scanSpeedObserve({performanceProfile:p});
+      return p.speedMonitor;
+    };
+    if(phase==='warn'){
+      scanSpeedReset();isRunning=true;localProgressVisible=true;
+      setProgressState('running',{done:0,total:20});
+      setFloatingProgress('running',{done:0,total:20});
+      for(let n=0;n<4;n++)make(n);
+      make(4,6100,720);make(5,6200,725);
+      return {summary:scanSpeedSummary(),local:!$('#speedWarning').hidden,
+        floating:!$('#floatingSpeedWarning').hidden,
+        text:$('#speedWarning').textContent};
+    }
+    if(phase==='floating'){
+      localProgressVisible=false;renderFloatingProgress();scanSpeedRender();
+      return {local:!$('#speedWarning').hidden,floating:!$('#floatingSpeedWarning').hidden};
+    }
+    if(phase==='recover'){
+      localProgressVisible=true;scanSpeedRender();
+      for(let n=6;n<9;n++)make(n);
+      const recovered=scanSpeedSummary();
+      const hidden=$('#speedWarning').hidden&&$('#floatingSpeedWarning').hidden;
+      scanSpeedReset();isRunning=false;
+      setProgressState('complete',{done:20,total:20});
+      setFloatingProgress('complete',{done:20,total:20});
+      return {summary:recovered,hidden};
+    }
+    throw Error('Unknown speed-warning probe phase');
+  },
   probePerformance:async()=>{
     // Test-only synthetic OCR, never a user image and never production OCR.
     // This records actual Chromium wall-clock time and exercises JSON output.
@@ -297,6 +333,25 @@ def main():
                       "Missing carry failed real 16-column CSV export")
                 evidence["checks"].append(
                     "missing carry: no manual editor, unblocked actual CSV, retained raw diagnostic")
+                # Audit the actual DOM and responsive progress switching with
+                # simulated per-call delays, not real user screenshots.
+                warning=page.evaluate("window.__STEP2_AUDIT__.probeSpeedWarning('warn')")
+                check(warning["summary"]["active"] and warning["local"]
+                      and not warning["floating"],
+                      "Sustained slowdown did not show exactly one visible warning")
+                check("解析速度が低下しています" in warning["text"],
+                      "Warning UI did not display the required Japanese text")
+                floating=page.evaluate("window.__STEP2_AUDIT__.probeSpeedWarning('floating')")
+                check(not floating["local"] and floating["floating"],
+                      "Warning did not follow the floating progress UI")
+                recovered=page.evaluate("window.__STEP2_AUDIT__.probeSpeedWarning('recover')")
+                check(not recovered["summary"]["active"] and recovered["hidden"],
+                      "Three fast images failed to dismiss both speed warning banners")
+                check([e["kind"] for e in recovered["summary"]["events"]]
+                      == ["slowdown","recovered"],
+                      "Warning transitions missing from diagnostic session summary")
+                evidence["checks"].append(
+                    "STEP3: real Chromium warning DOM, floating handoff, auto-recovery and diagnostics")
                 # STEP 2 readiness: real Chromium, real timing hooks, real
                 # downloaded diagnostics JSON, with explicitly synthetic OCR.
                 probe=page.evaluate("window.__STEP2_AUDIT__.probePerformance()")
