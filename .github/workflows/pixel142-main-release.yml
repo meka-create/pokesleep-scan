@@ -116,6 +116,8 @@ jobs:
         run: node --test development/nickname_freeze.test.cjs
       - name: Passive Tesseract and per-image performance timing tests
         run: node --test development/performance_profile.test.cjs
+      - name: Sustained OCR speed-warning detection regression
+        run: node --test development/speed_warning.test.cjs
       - name: Paddle 90-second user-controlled wait and fallback regressions
         run: node --test development/paddle_wait_choice.test.cjs
       - name: Private nickname acceptance gate synthetic regressions
