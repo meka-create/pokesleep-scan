@@ -12,19 +12,20 @@ test('daily 04:00 JST and first merge both bootstrap the independent sync',()=>{
 test('status publisher always runs after sync, including failed sync',()=>{
  assert.match(sync,/publish-status:\s*\n\s*needs: \[sync\]\s*\n\s*if: always\(\)/);
  assert.match(sync,/SYNC_RESULT: \$\{\{ needs\.sync\.result \}\}/);
- const status=sync.slice(sync.indexOf('  publish-status:'),sync.indexOf('  deploy-pages:'));
+ const status=sync.slice(sync.indexOf('  publish-status:'));
+ assert.ok(status.startsWith('  publish-status:'), 'status job must remain present');
  assert.match(status,/git add -- master-update-status\.json public_package_manifest\.json/);
  assert.doesNotMatch(status,/git add -A|git add -- shared\/MASTER_DATA\.json/);
 });
-test('GITHUB_TOKEN master push always includes an explicit Pages deployment',()=>{
- assert.match(sync,/  deploy-pages:/);
- assert.match(sync,/needs: \[sync, publish-status\]/);
- assert.match(sync,/if: always\(\) && needs\.publish-status\.result == 'success'/);
- assert.match(sync,/pages: write/);
- assert.match(sync,/id-token: write/);
- assert.match(sync,/environment:\s*\n\s*name: github-pages/);
- assert.match(sync,/ref: main[\s\S]*?uses: actions\/upload-pages-artifact@v3[\s\S]*?uses: actions\/deploy-pages@v4/);
- assert.match(sync,/Verify the final public state and its release hashes/);
+test('single Pages publisher: do not race automatic branch deployment with a second uploader',()=>{
+ // Verified Pages source already builds/deploys main on both normal and bot pushes.
+ // A duplicate deploy-pages job causes GitHub Pages HTTP 400 in-progress errors.
+ assert.doesNotMatch(sync,/^  deploy-pages:/m);
+ assert.ok(!sync.includes('actions/deploy-pages@') && !sync.includes('actions/upload-pages-artifact@'), 'duplicate deployers are forbidden');
+ assert.doesNotMatch(sync,/pages: write|id-token: write/);
+ const pushes=[...sync.matchAll(/git push origin HEAD:main/g)];
+ assert.equal(pushes.length,2,'master and health commits still publish through main');
+ assert.match(sync,/cron: '0 19 [*] [*] [*]'/);
 });
 test('production CI includes deployment graph regression',()=>{
  assert.match(ci,/node --test development\/master_deploy_workflow\.test\.cjs/);
