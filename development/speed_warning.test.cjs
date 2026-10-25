@@ -93,8 +93,11 @@ test('stale charging result and previous battery listeners cannot leak across sc
  assert.equal(ctx.scanSpeedSummary().battery.charging,false,'late old BatteryManager must be ignored');
  assert.equal(listeners.has(old),false);
  assert.equal(listeners.has(fresh),true);
+ ctx.scanSpeedBatteryFinish();
+ assert.equal(listeners.has(fresh),false,'charging listener must be detached on batch finish');
+ assert.equal(ctx.scanSpeedSummary().battery.charging,false,'battery snapshot must survive completion');
  ctx.scanSpeedReset();
- assert.equal(listeners.has(fresh),false,'charging listener must be detached on reset');
+ assert.equal(listeners.has(fresh),false,'charging listener must remain detached after reset');
  const oldEvent=listeners.get(fresh);
  if(oldEvent)oldEvent();
  assert.equal(ctx.scanSpeedSummary().battery.charging,null);

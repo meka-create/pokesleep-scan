@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 324951,
-      "sha256": "e1d9a9067aa6bc9c4e8bfaad0865354b433966c5735fe97ff3bef19fcafd105d"
+      "bytes": 325141,
+      "sha256": "bdb241ea259bd5953286388a98b973172462738c30a2d887517dd1da6134acfc"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -162,7 +162,7 @@
     {
       "path": "development/nickname_caption_rescue.test.cjs",
       "bytes": 7368,
-      "sha256": "9a8c609bb8bcf264e66feec092022e5509a69b42ff160ce05284541930149365"
+      "sha256": "7494eaa4146904a3599eb1ec7b42818892e54e0005ff53ff7c952ebde5e96bd6"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -211,8 +211,8 @@
     },
     {
       "path": "development/speed_warning.test.cjs",
-      "bytes": 6545,
-      "sha256": "8414f4c34ce8b00a772eb9fe47f307404a7096efb5536aca6370a50457597159"
+      "bytes": 6784,
+      "sha256": "e253621beb9653083b00da0f162fe76334277b62977bb1ba71495519ac2540c6"
     },
     {
       "path": "development/step2_asset_revision.test.cjs",
