@@ -25,6 +25,31 @@ INSTRUMENTED=JS.replace(HOOK,'''window.__STEP2_AUDIT__={
   runCopy:()=>copyCSV(),
   check:()=>({name:typeof diagnosticsJsonFilename(new Date()),
               raw:typeof diagnosticRawCsvFilename(new Date())}),
+  probePerformance:async()=>{
+    // Test-only synthetic OCR, never a user image and never production OCR.
+    // This records actual Chromium wall-clock time and exercises JSON output.
+    if(!results.length)throw Error('No synthetic row is loaded');
+    const original=worker;
+    const before=JSON.stringify({parsed:results[0].parsed,
+      foods:results[0].foods,classification:results[0].classification});
+    try{
+      scanPerfStart(0);scanPerfStage('initialTesseract');
+      worker={recognize:async()=>{await new Promise(r=>setTimeout(r,15));
+        return {data:{text:'synthetic-only',words:[]}};}};
+      const reading=await trackedWorkerRecognize(null);
+      scanPerfStage('resultAssemblyAndPreviews');
+      const profile=scanPerfFinish(false);
+      results[0].performanceProfile=profile;
+      await scanPerfMeasureBatch('workerPrepare',async()=>{
+        await new Promise(r=>setTimeout(r,4));});
+      const diag=diagnosticObject();
+      return {reading:reading.data.text,profile,
+        resultProfile:diag.results[0].performanceProfile,
+        totals:diag.performanceDiagnostics,
+        unchanged:before===JSON.stringify({parsed:results[0].parsed,
+          foods:results[0].foods,classification:results[0].classification})};
+    }finally{worker=original;scanPerfFinish(true);}
+  },
   testMew:()=>{
     const species='ミュウ',profile=manualProfilesForSpecies(species)[0];
     const r={
@@ -272,6 +297,39 @@ def main():
                       "Missing carry failed real 16-column CSV export")
                 evidence["checks"].append(
                     "missing carry: no manual editor, unblocked actual CSV, retained raw diagnostic")
+                # STEP 2 readiness: real Chromium, real timing hooks, real
+                # downloaded diagnostics JSON, with explicitly synthetic OCR.
+                probe=page.evaluate("window.__STEP2_AUDIT__.probePerformance()")
+                check(probe["reading"]=="synthetic-only" and probe["unchanged"],
+                      "Telemetry changed OCR result fields or mock recognition return")
+                profile=probe["profile"]
+                check(profile["schema"]==1 and profile["tesseract"]["calls"]==1,
+                      "Per-image Tesseract counter was not populated")
+                check(profile["tesseract"]["totalMs"]>=10,
+                      "Chromium Tesseract wall-clock time was not recorded")
+                check(profile["tesseract"]["byStage"]["initialTesseract"]["calls"]==1,
+                      "The first-pass OCR time was assigned to the wrong stage")
+                check(probe["totals"]["profiledImages"]==1
+                      and probe["totals"]["tesseractCalls"]==1
+                      and probe["totals"]["workerPrepare"]["calls"]>=1,
+                      "Batch/session diagnostics are not populated")
+                check(probe["resultProfile"]==profile,
+                      "Diagnostic serializer dropped the per-image profile")
+                # Exercise the visible user path: menu -> troubleshooting -> save.
+                page.locator("#moreBtn").click()
+                page.locator("#troubleshootingMenuItem").click()
+                page.locator("#troubleshootingDialog").wait_for(state="visible", timeout=10000)
+                with page.expect_download(timeout=10000) as diagnostics_info:
+                    page.locator("#diag").click()
+                diagnostics=json.loads(Path(diagnostics_info.value.path()).read_text(encoding="utf-8"))
+                check(diagnostics["results"][0]["performanceProfile"]==profile,
+                      "Downloaded diagnostics JSON lost per-image performance timing")
+                check(diagnostics["performanceDiagnostics"]["tesseractCalls"]==1,
+                      "Downloaded diagnostics JSON lost session timing")
+                check(diagnostics["results"][0].get("elapsedMs") is None,
+                      "Synthetic test unexpectedly impersonated measured full-image OCR time")
+                evidence["checks"].append(
+                    "STEP2: real Chromium diagnostic JSON includes per-image OCR and batch timings (synthetic OCR)")
                 context.close()
             finally:
                 browser.close()
