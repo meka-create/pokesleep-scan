@@ -7,7 +7,7 @@
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 80,
+  "fileCount": 81,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 11781,
-      "sha256": "3b6bbdb7379af8d14aad9a91b6daf68e29061c73a0305b545616200190b483f6"
+      "bytes": 11904,
+      "sha256": "605e1981ac05c41aed44ca8bae15ffc2bbd3984686c65ca0546ea802b35f3649"
     },
     {
       "path": ".gitignore",
@@ -208,6 +208,11 @@
       "path": "development/runtime_smoke.test.cjs",
       "bytes": 2353,
       "sha256": "1d85a83ce5bda029d4c8b8ded7b4cbf78ae0b92a1b1f3c7cf8463c1d534e3ace"
+    },
+    {
+      "path": "development/speed_warning.test.cjs",
+      "bytes": 4246,
+      "sha256": "7af80abae68990ba5df497d149ac94d7519638adb84661d3005ad999c44145ad"
     },
     {
       "path": "development/step2_asset_revision.test.cjs",
