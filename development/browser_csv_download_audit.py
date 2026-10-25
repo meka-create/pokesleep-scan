@@ -322,7 +322,7 @@ def main():
                       "Downloaded diagnostics JSON lost per-image performance timing")
                 check(diagnostics["performanceDiagnostics"]["tesseractCalls"]==1,
                       "Downloaded diagnostics JSON lost session timing")
-                check(diagnostics["results"][0]["elapsedMs"] is None,
+                check(diagnostics["results"][0].get("elapsedMs") is None,
                       "Synthetic test unexpectedly impersonated measured full-image OCR time")
                 evidence["checks"].append(
                     "STEP2: real Chromium diagnostic JSON includes per-image OCR and batch timings (synthetic OCR)")
