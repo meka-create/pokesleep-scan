@@ -50,7 +50,7 @@ test('extreme slowdown detected even when all early samples are slow',()=>{
  assert.equal(ctx.scanSpeedSummary().active,true);
 });
 test('charging status is optional and charging annotation never interrupts OCR',async()=>{
- const {ctx,els}=fixture(true);ctx.scanSpeedBatteryStart();await Promise.resolve();await Promise.resolve();
+ const {ctx,els}=fixture(true);ctx.scanSpeedBatteryStart();await new Promise(resolve=>setImmediate(resolve));
  for(let n=0;n<4;n++)add(ctx,n);add(ctx,4,5700,680);add(ctx,5,5800,700);
  assert.equal(ctx.scanSpeedSummary().battery.charging,true);
  assert.match(els['#speedWarning'].textContent,/充電中です/);

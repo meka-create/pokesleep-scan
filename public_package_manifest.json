@@ -211,8 +211,8 @@
     },
     {
       "path": "development/speed_warning.test.cjs",
-      "bytes": 4246,
-      "sha256": "7af80abae68990ba5df497d149ac94d7519638adb84661d3005ad999c44145ad"
+      "bytes": 4248,
+      "sha256": "89de4b00ada93aa518355080b69a5e0ed154b01a0f485a6ca893a6e580d448be"
     },
     {
       "path": "development/step2_asset_revision.test.cjs",
