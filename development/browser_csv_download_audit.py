@@ -315,6 +315,10 @@ def main():
                       "Batch/session diagnostics are not populated")
                 check(probe["resultProfile"]==profile,
                       "Diagnostic serializer dropped the per-image profile")
+                # Exercise the visible user path: menu -> troubleshooting -> save.
+                page.locator("#moreBtn").click()
+                page.locator("#troubleshootingMenuItem").click()
+                page.locator("#troubleshootingDialog").wait_for(state="visible", timeout=10000)
                 with page.expect_download(timeout=10000) as diagnostics_info:
                     page.locator("#diag").click()
                 diagnostics=json.loads(Path(diagnostics_info.value.path()).read_text(encoding="utf-8"))
