@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-25-performance-telemetry-step1-v1",
-  "appBuildId": "v12-performance-telemetry-step1-20261025-v1",
+  "releaseId": "2026-10-25-ocr-speed-warning-v1",
+  "appBuildId": "v12-ocr-speed-warning-20261025-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 315990,
-      "sha256": "f25632f891073d55be422659d2b14f4c780b43f19dbbfef2eb39df88439456cd"
+      "bytes": 323730,
+      "sha256": "6ec1f70812b443af80842ad2272477566a2b4121a8e6e9ed520eb9ecc35b84e4"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -162,7 +162,7 @@
     {
       "path": "development/nickname_caption_rescue.test.cjs",
       "bytes": 6670,
-      "sha256": "71d791bce28af015e553a73823834dd9bbd31946dd0547f66b50460916de4c7c"
+      "sha256": "68d6656b8062f744715bb8d0f909e81aa333b0b7aa5b562e159c7bc37d3c4d33"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -361,8 +361,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 75531,
-      "sha256": "0ac7f4a09549422721129cc76280a782781985f729e349649914efe52ecd52ff"
+      "bytes": 76229,
+      "sha256": "18289f35658a499b725a6acfd9ea8c382a0b7b275ad5b671c0cc73687b0429aa"
     },
     {
       "path": "manifest.webmanifest",
@@ -386,8 +386,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 56,
-      "sha256": "bc33fd8d871ea55a2c1cd8ed7cb163a1b3b4d5bf13b18dadedfa8597b53ada52"
+      "bytes": 46,
+      "sha256": "413588590b4eea624d1822ef02660d187605f42c29c8cdb4034a0b7957cc8b38"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -406,8 +406,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4057,
-      "sha256": "5508c93308d5e43d719045420d02bd2699a4b9d5b4092672e243e6bf2b20e4af"
+      "bytes": 4047,
+      "sha256": "97652805a9066d13ac79d2cafa983142b543d6f5d6a39b46bed312bda6f3e188"
     }
   ]
 }

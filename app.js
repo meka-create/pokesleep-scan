@@ -1,5 +1,5 @@
 (() => {
-const BUILD_ID='v12-performance-telemetry-step1-20261025-v1';
+const BUILD_ID='v12-ocr-speed-warning-20261025-v1';
 'use strict';
 // The verified Android 1080x2400 OCR path is now the standard on every device.
 // Preserve the existing ROI adapter and its safe legacy fallback unchanged.
@@ -63,7 +63,7 @@ const NATURES=POKESLEEP_MASTER.natures.map(x=>x.ja);
 const SUBSKILLS=POKESLEEP_MASTER.subskills.map(x=>x.ja);
 const SPECIES_NAMES=[...new Set(POKESLEEP_MASTER.pokemon.map(x=>x.name))];
 const $=s=>document.querySelector(s);let selected=[],results=[],worker=null,paddleOcr=null,paddleInitPromise=null,paddleUnavailableError=null,paddleRuntimeGeneration=0,isRunning=false,analysisPause=null,checkpointPreparing=false,selectionSnapshotPreparing=false,selectionSnapshotGeneration=0,checkpointRestoreRunning=false,checkpointSessionActive=false,checkpointPersistenceWarningShown=false,renderPending=false,modalObjectUrl='',modalReturnFocus=null,appDialogResolver=null,appDialogReturnFocus=null,localProgressVisible=true,localProgressState='idle',localProgressMaxPct=0,floatingProgressState='idle',floatingProgressDone=0,floatingProgressTotal=0,floatingProgressReviews=0,floatingCompletionTimer=null,floatingCompletionPending=false,floatingCompletionDismissed=false,preManualCsvSnapshot=null,wakeLockSentinel=null,wakeLockRequestPromise=null,wakeLockRetryTimer=null;const checkpointFailureLog=[];const layoutCache=new WeakMap(),profileCardCache=new WeakMap(),stableSourcePromises=new WeakMap(),stableSourceFiles=new WeakSet();
-const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-25-performance-telemetry-step1-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
+const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-25-ocr-speed-warning-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
 function pullRefreshGuardActive(){return !!(isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing);}
 function analysisWakeLockShouldHold(){return !!((isRunning||checkpointPreparing)&&!analysisPause);}
 function wakeLockApiSupported(){return typeof navigator!=='undefined'&&!!navigator.wakeLock?.request;}
@@ -265,7 +265,7 @@ async function loadAnalysisCheckpoint(){
  }catch(e){console.warn('解析チェックポイントを読み込めませんでした',e);return {loadError:true,errorName:String(e?.name||'不明'),errorMessage:String(e?.message||e||'詳細なし')};}
 }
 function restoreCheckpointResults(rawResults,files){preManualCsvSnapshot=null;return (rawResults||[]).map(raw=>{const r=raw&&typeof raw==='object'?raw:null;if(!r)return null;const i=Number.isInteger(r.sourceIndex)?r.sourceIndex:null;r.sourceFile=i!=null?files[i]||null:null;delete r.recoveryBusy;if(typeof applyResultReviewSafetyGuards==='function')applyResultReviewSafetyGuards(r);if(!r.processingError&&!Array.isArray(r.preManualCsvRow)&&typeof toDiagnosticRawCsvRow==='function'){const row=toDiagnosticRawCsvRow(r);if(row){r.preManualCsvRow=row;r.preManualCsvRowDerivedFromCheckpoint=true;}}return r;}).filter(Boolean);}
-async function restoreAnalysisCheckpoint(snapshot){const {meta,files,rawResults}=snapshot||{};if(!meta||!files?.length||!checkpointMetaCompatible(meta)||!checkpointMasterMatches(meta)||checkpointIntegrityError(meta,files,rawResults))return false;if(typeof restoreOcrMemoryGuardSnapshot==='function')restoreOcrMemoryGuardSnapshot(meta);selected=files;const restored=restoreCheckpointResults(rawResults,files),runningNext=Math.max(0,Math.min(files.length,Number(meta.nextIndex)||0)),pausedIndex=Math.max(0,Math.min(files.length-1,Number(meta.pauseIndex??meta.nextIndex)||0));results=restored.filter(r=>!Number.isInteger(r?.sourceIndex)||(meta.status==='completed'||(meta.status==='paused'?r.sourceIndex<=pausedIndex:r.sourceIndex<runningNext)));checkpointSessionActive=true;analysisPause=null;renderPending=false;updateUploadSelectionUI(selected.length);$('#files').disabled=false;syncRunActionButton();render();if(meta.status==='completed'){analysisPause=null;syncSessionGuard();refreshCompletedProgress();render();try{await regenerateRestoredReviewPreviews(results);}finally{await releaseAnalysisRuntimeAfterCompletion();}return true;}if(meta.status==='paused'){const pauseIndex=pausedIndex,failure=results.find(r=>r?.processingError&&r.sourceIndex===pauseIndex);if(failure){analysisPause={batch:[...selected],index:pauseIndex,result:failure};setProgressState('error',{done:pauseIndex,total:selected.length,message:`前回の解析を復元しました　${pauseIndex}/${selected.length}枚完了 · ${pauseIndex+1}枚目「${failure.file||selected[pauseIndex]?.name||'該当画像'}」で一時停止しています。上部の「停止した画像から再開」で再解析できます。`});setFloatingProgress('error',{done:pauseIndex,total:selected.length});syncSessionGuard();render();void regenerateRestoredReviewPreviews(results);return true;}}const nextIndex=runningNext;analysisPause=null;syncSessionGuard();render();if(nextIndex>=selected.length){await saveAnalysisCheckpoint('completed',selected.length,null);refreshCompletedProgress();await releaseAnalysisRuntimeAfterCompletion();return true;}await regenerateRestoredReviewPreviews(results);await resetWorker();await runAnalysisBatch([...selected],nextIndex);return true;}
+async function restoreAnalysisCheckpoint(snapshot){const {meta,files,rawResults}=snapshot||{};if(!meta||!files?.length||!checkpointMetaCompatible(meta)||!checkpointMasterMatches(meta)||checkpointIntegrityError(meta,files,rawResults))return false;if(typeof restoreOcrMemoryGuardSnapshot==='function')restoreOcrMemoryGuardSnapshot(meta);selected=files;const restored=restoreCheckpointResults(rawResults,files),runningNext=Math.max(0,Math.min(files.length,Number(meta.nextIndex)||0)),pausedIndex=Math.max(0,Math.min(files.length-1,Number(meta.pauseIndex??meta.nextIndex)||0));results=restored.filter(r=>!Number.isInteger(r?.sourceIndex)||(meta.status==='completed'||(meta.status==='paused'?r.sourceIndex<=pausedIndex:r.sourceIndex<runningNext)));scanSpeedRestoreProfiles(results);checkpointSessionActive=true;analysisPause=null;renderPending=false;updateUploadSelectionUI(selected.length);$('#files').disabled=false;syncRunActionButton();render();if(meta.status==='completed'){analysisPause=null;syncSessionGuard();refreshCompletedProgress();render();try{await regenerateRestoredReviewPreviews(results);}finally{await releaseAnalysisRuntimeAfterCompletion();}return true;}if(meta.status==='paused'){const pauseIndex=pausedIndex,failure=results.find(r=>r?.processingError&&r.sourceIndex===pauseIndex);if(failure){analysisPause={batch:[...selected],index:pauseIndex,result:failure};setProgressState('error',{done:pauseIndex,total:selected.length,message:`前回の解析を復元しました　${pauseIndex}/${selected.length}枚完了 · ${pauseIndex+1}枚目「${failure.file||selected[pauseIndex]?.name||'該当画像'}」で一時停止しています。上部の「停止した画像から再開」で再解析できます。`});setFloatingProgress('error',{done:pauseIndex,total:selected.length});syncSessionGuard();render();void regenerateRestoredReviewPreviews(results);return true;}}const nextIndex=runningNext;analysisPause=null;syncSessionGuard();render();if(nextIndex>=selected.length){await saveAnalysisCheckpoint('completed',selected.length,null);refreshCompletedProgress();await releaseAnalysisRuntimeAfterCompletion();return true;}await regenerateRestoredReviewPreviews(results);await resetWorker();await runAnalysisBatch([...selected],nextIndex);return true;}
 async function initCheckpointRecovery(){if(checkpointRestoreRunning||isRunning||selected.length||results.length)return;checkpointRestoreRunning=true;syncSessionGuard();try{const snapshot=await loadAnalysisCheckpoint();if(!snapshot||isRunning||selected.length||results.length)return;if(snapshot.loadError){await showAppDialog({title:'前回の解析データを読み込めませんでした',message:'Safariの保存領域への接続を再確立しても読み込みに失敗しました。保存データは削除していません。ページをもう一度開き直して復元を試してください。',details:[`例外名: ${snapshot.errorName||'不明'}`,`例外内容: ${snapshot.errorMessage||'詳細なし'}`],primaryLabel:'閉じる',tone:'warning'});return;}if(snapshot.incompatible||snapshot.expired)return;if(snapshot.invalid){await showAppDialog({title:'前回の解析を安全に復元できませんでした',message:'保存データの一部が不足しているため、完了結果として表示しません。元画像を選び直して解析してください。保存データは新しい解析を開始するまで保持します。',details:[snapshot.reason||'保存データの整合性エラー'],primaryLabel:'閉じる',tone:'warning'});return;}if(snapshot.masterChanged){
  const ok=await showAppDialog({title:'新しいマスターで再解析が必要です',message:'保存された画像は残っていますが、旧マスターで計算した解析結果は再利用できません。新しいマスターで最初から解析し直しますか？',details:[`保存画像: ${snapshot.files.length}枚`],primaryLabel:'新マスターで再解析',secondaryLabel:'今回は保留',tone:'warning'});
  if(!ok)return;
@@ -312,7 +312,7 @@ function choicePickerFocusable(){const panel=$('#choicePickerPanel');if(!panel)r
 function moveChoicePickerOption(delta,{edge=''}={}){const buttons=choicePickerVisibleOptionButtons();if(!buttons.length)return false;let i=buttons.findIndex(b=>Number(b.dataset.optionIndex)===Number(choicePickerActiveOptionIndex));if(i<0)i=buttons.findIndex(b=>b===document.activeElement);if(edge==='first')i=0;else if(edge==='last')i=buttons.length-1;else i=(Math.max(0,i)+delta+buttons.length)%buttons.length;const target=buttons[i];setChoicePickerActive(Number(target.dataset.optionIndex),{focus:true,scroll:true});return true;}
 function handleChoicePickerKeydown(e){const picker=$('#choicePicker');if(!picker||picker.hidden)return;const panel=$('#choicePickerPanel');if(!panel)return;if(e.key==='Escape'){e.preventDefault();closeChoicePicker();return;}if(e.key==='Tab'){const focusable=choicePickerFocusable();if(!focusable.length){e.preventDefault();$('#choicePickerClose')?.focus();return;}const first=focusable[0],last=focusable.at(-1),active=document.activeElement;if(e.shiftKey&&(active===first||!panel.contains(active))){e.preventDefault();last.focus();}else if(!e.shiftKey&&(active===last||!panel.contains(active))){e.preventDefault();first.focus();}return;}const option=document.activeElement?.closest?.('.choice-picker-option'),search=document.activeElement===$('#choicePickerSearch');if(e.key==='ArrowDown'&&(option||search||document.activeElement===$('#choicePickerClose'))){e.preventDefault();if(option)moveChoicePickerOption(1);else setChoicePickerActive(choicePickerActiveOptionIndex,{focus:true,scroll:true});return;}if(e.key==='ArrowUp'&&(option||search||document.activeElement===$('#choicePickerClose'))){e.preventDefault();if(option)moveChoicePickerOption(-1);else moveChoicePickerOption(0,{edge:'last'});return;}if(option&&e.key==='Home'){e.preventDefault();moveChoicePickerOption(0,{edge:'first'});return;}if(option&&e.key==='End'){e.preventDefault();moveChoicePickerOption(0,{edge:'last'});return;}}
 $('#choicePickerClose')?.addEventListener('click',()=>closeChoicePicker());$('#choicePicker')?.addEventListener('click',e=>{if(e.target.closest?.('[data-choice-close]'))closeChoicePicker();});window.addEventListener('resize',()=>{if(!$('#choicePicker')?.hidden)positionChoicePicker();},{passive:true});window.addEventListener('scroll',()=>{if(!$('#choicePicker')?.hidden&&!choicePickerIsMobile())positionChoicePicker();},{passive:true,capture:true});document.addEventListener('keydown',handleChoicePickerKeydown);
-function resetPreviousAnalysis(){scanPerfResetSession();paddleSkipForBatch=false;setPaddleWaitSwitchVisible(false);checkpointFailureLog.length=0;checkpointPersistenceWarningShown=false;if(!$('#imageModal')?.hidden)hideSourceImage({restoreFocus:false});results=[];preManualCsvSnapshot=null;analysisPause=null;renderPending=false;if(typeof checkpointSessionActive!=='undefined')checkpointSessionActive=false;if(typeof cancelScheduledCheckpointResultSaves==='function')cancelScheduledCheckpointResultSaves();setProgressState('idle');setFloatingProgress('idle');syncSessionGuard();render();}
+function resetPreviousAnalysis(){scanPerfResetSession();scanSpeedReset();paddleSkipForBatch=false;setPaddleWaitSwitchVisible(false);checkpointFailureLog.length=0;checkpointPersistenceWarningShown=false;if(!$('#imageModal')?.hidden)hideSourceImage({restoreFocus:false});results=[];preManualCsvSnapshot=null;analysisPause=null;renderPending=false;if(typeof checkpointSessionActive!=='undefined')checkpointSessionActive=false;if(typeof cancelScheduledCheckpointResultSaves==='function')cancelScheduledCheckpointResultSaves();setProgressState('idle');setFloatingProgress('idle');syncSessionGuard();render();}
 function newSelectionBusy(){return !!(isRunning||checkpointPreparing||selectionSnapshotPreparing||checkpointRestoreRunning||analysisPause?.manualCommitBusy||analysisPause?.result?.recoveryBusy||results.some(r=>r?.recoveryBusy));}
 function applyPendingReleaseBeforeNewSelection(){const fn=window.__BUKKOMI_APPLY_PENDING_RELEASE_FOR_NEW_SESSION__;if(typeof fn!=='function')return false;try{return !!fn();}catch(e){console.warn('保留中の更新版へ切り替えられませんでした',e);return false;}}
 function isAcceptedImageFile(f){return !!f&&(/^image\/(?:png|jpeg)$/i.test(f.type||'')||/[.](?:png|jpe?g)$/i.test(f.name||''));}
@@ -631,7 +631,143 @@ function scanPerfSessionSummary(){
   tesseractCalls:ps.reduce((acc,p)=>acc+(p.tesseract?.calls||0),0),
   tesseractMs:sum(p=>p.tesseract?.totalMs),
   workerPrepare:{...scanPerfSession.workerPrepare},checkpointWrites:{...scanPerfSession.checkpointWrites},
-  batches:scanPerfSession.batches.map(x=>({...x}))};
+  batches:scanPerfSession.batches.map(x=>({...x})),speedWatch:scanSpeedSummary()};
+}
+// Passive OCR speed watch: no changes to OCR, confidence or CSV output.
+const SCAN_SPEED_LIMITS={baselineImages:4,window:3,slowNeeded:2,recoveryImages:3,
+ ratio:2.15,firstFloorMs:4800,extraFloorMs:550,verySlowFirstMs:9500,verySlowExtraMs:1150};
+const scanSpeedState={schema:1,samples:[],baseline:[],events:[],active:false,
+ recoveredInRow:0,battery:{supported:false,charging:null,status:'unknown'},slowSamples:0};
+let scanSpeedBatteryBound=null;
+function scanSpeedMedian(values){
+ const v=values.filter(x=>Number.isFinite(x)&&x>0).sort((a,b)=>a-b);
+ if(!v.length)return null;const n=v.length>>1;return v.length%2?v[n]:(v[n-1]+v[n])/2;
+}
+function scanSpeedBaseline(){
+ return {initialMs:scanSpeedMedian(scanSpeedState.baseline.map(s=>s.firstMs)),
+  extraPerCallMs:scanSpeedMedian(scanSpeedState.baseline.map(s=>s.extraMs)),
+  count:scanSpeedState.baseline.length};
+}
+function scanSpeedWarningText(){
+ const reason=scanSpeedState.battery.charging===true
+  ?'充電中です。発熱の影響が考えられます。'
+  :'発熱や高負荷による影響の可能性があります。';
+ return '解析速度が低下しています。'+reason+
+  '充電中ならケーブルを外し、端末が熱くなっていないか確認してください。解析は続行します。';
+}
+function scanSpeedRender(){
+ const visible=!!(scanSpeedState.active&&isRunning&&!analysisPause&&localProgressState==='running');
+ for(const id of ['#speedWarning','#floatingSpeedWarning']){
+  const el=$(id);if(!el)continue;
+  if(!visible){el.hidden=true;el.textContent='';continue;}
+  const msg=scanSpeedWarningText();if(el.textContent!==msg)el.textContent=msg;el.hidden=false;
+ }
+}
+function scanSpeedBatterySample(battery){
+ scanSpeedState.battery={supported:true,charging:typeof battery?.charging==='boolean'?battery.charging:null,
+  status:typeof battery?.charging==='boolean'?'available':'unknown'};
+ scanSpeedRender();
+}
+function scanSpeedBatteryStart(){
+ scanSpeedState.battery={supported:false,charging:null,status:'unavailable'};
+ if(typeof navigator==='undefined'||typeof navigator.getBattery!=='function')return;
+ scanSpeedState.battery={supported:true,charging:null,status:'pending'};
+ try{Promise.resolve(navigator.getBattery()).then(battery=>{
+  if(!battery){scanSpeedState.battery.status='unavailable';return;}
+  if(scanSpeedBatteryBound!==battery){
+   scanSpeedBatteryBound=battery;
+   battery.addEventListener?.('chargingchange',()=>scanSpeedBatterySample(battery));
+  }
+  scanSpeedBatterySample(battery);
+ }).catch(()=>{scanSpeedState.battery={supported:false,charging:null,status:'error'};});
+ }catch(_){scanSpeedState.battery={supported:false,charging:null,status:'error'};}
+}
+function scanSpeedReset(){
+ scanSpeedState.samples.length=0;scanSpeedState.baseline.length=0;scanSpeedState.events.length=0;
+ scanSpeedState.active=false;scanSpeedState.recoveredInRow=0;scanSpeedState.slowSamples=0;
+ scanSpeedState.battery={supported:false,charging:null,status:'unknown'};
+ scanSpeedRender();
+}
+function scanSpeedSample(profile){
+ const t=profile?.tesseract,first=t?.byStage?.initialTesseract;
+ const initialCalls=Number(first?.calls)||0,otherCalls=(Number(t?.calls)||0)-initialCalls;
+ const initialMs=Number(first?.totalMs)/initialCalls;
+ const otherMs=(Number(t?.totalMs)-Number(first?.totalMs))/otherCalls;
+ const v=profile?.visibility||{};
+ return {sourceIndex:profile?.sourceIndex??null,
+  eligible:!!(profile&&!profile.failed&&!v.hiddenAtStart&&!v.hiddenAtEnd&&!v.hiddenMs&&
+   initialCalls===1&&otherCalls>=4&&Number.isFinite(initialMs)&&initialMs>0&&
+   Number.isFinite(otherMs)&&otherMs>0),
+  firstMs:scanPerfRounded(initialMs),extraMs:scanPerfRounded(otherMs),extraCalls:otherCalls};
+}
+function scanSpeedObserve(result){
+ try{
+  const profile=result?.performanceProfile;if(!profile)return;
+  const sample=scanSpeedSample(profile),base=scanSpeedBaseline();
+  const slowNormal=sample.eligible&&base.count>=SCAN_SPEED_LIMITS.baselineImages&&
+   sample.firstMs>Math.max(SCAN_SPEED_LIMITS.firstFloorMs,base.initialMs*SCAN_SPEED_LIMITS.ratio)&&
+   sample.extraMs>Math.max(SCAN_SPEED_LIMITS.extraFloorMs,base.extraPerCallMs*SCAN_SPEED_LIMITS.ratio);
+  const slowExtreme=sample.eligible&&sample.firstMs>SCAN_SPEED_LIMITS.verySlowFirstMs&&
+   sample.extraMs>SCAN_SPEED_LIMITS.verySlowExtraMs;
+  sample.slow=!!(slowNormal||slowExtreme);
+  if(sample.eligible&&!sample.slow&&scanSpeedState.baseline.length<SCAN_SPEED_LIMITS.baselineImages)
+   scanSpeedState.baseline.push({firstMs:sample.firstMs,extraMs:sample.extraMs});
+  if(sample.eligible){
+   scanSpeedState.samples.push({sourceIndex:sample.sourceIndex,slow:sample.slow});
+   if(scanSpeedState.samples.length>SCAN_SPEED_LIMITS.window)scanSpeedState.samples.shift();
+  }
+  let transition=null;
+  if(sample.eligible){
+   if(sample.slow){scanSpeedState.recoveredInRow=0;scanSpeedState.slowSamples++;}
+   else scanSpeedState.recoveredInRow++;
+   if(!scanSpeedState.active&&scanSpeedState.samples.length>=SCAN_SPEED_LIMITS.window&&
+    scanSpeedState.samples.filter(s=>s.slow).length>=SCAN_SPEED_LIMITS.slowNeeded){
+    scanSpeedState.active=true;transition='slowdown';
+   }else if(scanSpeedState.active&&scanSpeedState.recoveredInRow>=SCAN_SPEED_LIMITS.recoveryImages){
+    scanSpeedState.active=false;transition='recovered';
+   }
+  }
+  const b=scanSpeedBaseline();
+  profile.speedMonitor={schema:1,eligible:sample.eligible,initialMs:sample.firstMs,
+   extraPerCallMs:sample.extraMs,extraCalls:sample.extraCalls,
+   baselineInitialMs:b.initialMs,baselineExtraPerCallMs:b.extraPerCallMs,
+   ratioInitial:b.initialMs?scanPerfRounded(sample.firstMs/b.initialMs):null,
+   ratioExtra:b.extraPerCallMs?scanPerfRounded(sample.extraMs/b.extraPerCallMs):null,
+   slow:sample.slow,warningActive:scanSpeedState.active,charging:scanSpeedState.battery.charging,transition};
+  if(transition){
+   scanSpeedState.events.push({at:new Date().toISOString(),sourceIndex:sample.sourceIndex,
+    kind:transition,initialMs:sample.firstMs,extraPerCallMs:sample.extraMs,
+    baselineInitialMs:b.initialMs,baselineExtraPerCallMs:b.extraPerCallMs,
+    charging:scanSpeedState.battery.charging});
+   if(scanSpeedState.events.length>30)scanSpeedState.events.shift();
+  }
+  scanSpeedRender();
+ }catch(e){console.warn('速度監視のみ失敗しました。画像解析は続行します。',e);}
+}
+function scanSpeedRestoreProfiles(saved){
+ scanSpeedReset();
+ for(const r of saved||[]){
+  const p=r?.performanceProfile?.speedMonitor;if(!p)continue;
+  if(p.eligible){
+   if(scanSpeedState.baseline.length<SCAN_SPEED_LIMITS.baselineImages&&!p.slow)
+    scanSpeedState.baseline.push({firstMs:p.initialMs,extraMs:p.extraPerCallMs});
+   scanSpeedState.samples.push({sourceIndex:r.sourceIndex,slow:!!p.slow});
+   if(scanSpeedState.samples.length>SCAN_SPEED_LIMITS.window)scanSpeedState.samples.shift();
+   scanSpeedState.recoveredInRow=p.slow?0:scanSpeedState.recoveredInRow+1;
+   if(p.slow)scanSpeedState.slowSamples++;
+  }
+  scanSpeedState.active=!!p.warningActive;
+  if(p.transition)scanSpeedState.events.push({at:r.performanceProfile.startedAt,
+   sourceIndex:r.sourceIndex,kind:p.transition,charging:p.charging});
+ }
+ scanSpeedState.events=scanSpeedState.events.slice(-30);
+ scanSpeedRender();
+}
+function scanSpeedSummary(){
+ return {schema:1,method:'initial/extra-per-call OCR latency, 2 of 3 slow, 3 clean recover',
+  thresholds:{...SCAN_SPEED_LIMITS},baseline:scanSpeedBaseline(),active:scanSpeedState.active,
+  slowSamples:scanSpeedState.slowSamples,battery:{...scanSpeedState.battery},
+  events:scanSpeedState.events.map(e=>({...e}))};
 }
 async function trackedWorkerRecognize(input){
  const current=worker;if(!current)throw new Error('解析エンジンが初期化されていません');
@@ -1847,15 +1983,15 @@ async function analyzeSingleImage(inputFile,idx,total,{sourceIndex=null,displayN
   const li=layoutInfo(canvas),result={file:name,sourceFile,sourceIndex:Number.isInteger(sourceIndex)?sourceIndex:null,raw,rawFirstPass,parsed,nicknameReviewAtAnalysis,inference,foods,classification,foodConflictSlots:safeFood.conflictSlots,nicknamePreview,foodPreviews,classificationPreview,subskillPreviews:['','','','',''],subskillPreviewErrors:['','','','',''],layout:{adaptive:li.adaptive,canvasHeight:canvas.height,time:li.time?{start:li.time.start,end:li.time.end,peak:li.time.peak}:null,carry:li.carry?{start:li.carry.start,end:li.carry.end,peak:li.carry.peak}:null,main:li.main?{start:li.main.start,end:li.main.end,peak:li.main.peak}:null,detail:li.detail?{start:li.detail.start,end:li.detail.end,peak:li.detail.peak}:null},elapsedMs:Math.round(performance.now()-fileT0)};applyResultReviewSafetyGuards(result);for(let fi=0;fi<result.foods.length;fi++){if(result.foods[fi]?.needsReview)result.foodPreviews[fi]=POKESLEEP_FOOD_MATCHER.cropFood(canvas,`food${fi+1}`).toDataURL('image/png');}result.preManualCsvRow=toDiagnosticRawCsvRow(result);generateSubskillReviewPreviewsFromCanvas(result,canvas);result.performanceProfile=scanPerfFinish(false);return result;
  }catch(e){const err=new Error(runtimeErrorText(e));err.processingStage=stage;err.processingElapsedMs=performance.now()-fileT0;err.processingSourceFile=sourceFile||inputFile;err.performanceProfile=scanPerfFinish(true);throw err;}
 }
-function refreshCompletedProgress(){const total=results.length,reviews=results.filter(resultNeedsReview).length,failures=results.filter(r=>!!r.processingError).length,successes=total-failures;if(!total){preManualCsvSnapshot=null;setProgressState(selected.length?'ready':'idle',{total:selected.length});setFloatingProgress(selected.length?'ready':'idle',{total:selected.length});return;}capturePreManualCsvSnapshot({force:true});setProgressState('complete',{done:total,total,reviews,message:failures?`解析が完了しました　${successes}件成功 / ${total}件　·　解析失敗 ${failures}件　·　要確認 ${reviews}件`:''});setFloatingProgress('complete',{done:total,total,reviews});}
+function refreshCompletedProgress(){const total=results.length,reviews=results.filter(resultNeedsReview).length,failures=results.filter(r=>!!r.processingError).length,successes=total-failures;if(!total){preManualCsvSnapshot=null;setProgressState(selected.length?'ready':'idle',{total:selected.length});setFloatingProgress(selected.length?'ready':'idle',{total:selected.length});return;}capturePreManualCsvSnapshot({force:true});setProgressState('complete',{done:total,total,reviews,message:failures?`解析が完了しました　${successes}件成功 / ${total}件　·　解析失敗 ${failures}件　·　要確認 ${reviews}件`:''});setFloatingProgress('complete',{done:total,total,reviews});scanSpeedRender();}
 function pausedFailureIndex(ri){return analysisPause&&results[ri]===analysisPause.result?analysisPause.index:-1;}
-function setPausedAnalysis(batch,index,failure){analysisPause={batch,index,result:failure};if(typeof syncAnalysisWakeLock==='function')void syncAnalysisWakeLock();const total=batch.length,done=Math.max(0,index),name=failure?.file||batch[index]?.name||'該当画像',stage=failure?.processingError?.stage||'解析';setProgressState('error',{done,total,message:`解析を一時停止しました　${done}/${total}枚完了 · ${index+1}枚目「${name}」の${stage}で停止しています。上部の「停止した画像から再開」または失敗カードから再開できます。`});setFloatingProgress('error',{done,total});syncSessionGuard();syncRunActionButton();}
-async function runAnalysisBatch(batch,startIndex=0){if(isRunning)return false;const batchT0=performance.now();if(startIndex>=batch.length){analysisPause=null;await saveAnalysisCheckpoint('completed',batch.length,null);refreshCompletedProgress();await releaseAnalysisRuntimeAfterCompletion();syncSessionGuard();render();return true;}let activeIndex=startIndex,activeFile='',activeStage='解析エンジン準備';isRunning=true;syncSessionGuard();if(typeof syncAnalysisWakeLock==='function')void syncAnalysisWakeLock();renderPending=false;$('#files').disabled=true;$('#run').disabled=true;$('#csv').disabled=true;$('#copyCsv').disabled=true;$('#diag').disabled=true;if($('#diagRawCsv'))$('#diagRawCsv').disabled=true;render();setProgressState('running',{done:startIndex,total:batch.length,message:startIndex?`${startIndex}/${batch.length}枚完了 · 続きから解析中…`:'解析を開始します…'});setFloatingProgress('running',{done:startIndex,total:batch.length});await saveAnalysisCheckpoint('running',startIndex,null);try{
+function setPausedAnalysis(batch,index,failure){analysisPause={batch,index,result:failure};if(typeof syncAnalysisWakeLock==='function')void syncAnalysisWakeLock();const total=batch.length,done=Math.max(0,index),name=failure?.file||batch[index]?.name||'該当画像',stage=failure?.processingError?.stage||'解析';setProgressState('error',{done,total,message:`解析を一時停止しました　${done}/${total}枚完了 · ${index+1}枚目「${name}」の${stage}で停止しています。上部の「停止した画像から再開」または失敗カードから再開できます。`});setFloatingProgress('error',{done,total});scanSpeedRender();syncSessionGuard();syncRunActionButton();}
+async function runAnalysisBatch(batch,startIndex=0){if(isRunning)return false;const batchT0=performance.now();if(startIndex>=batch.length){analysisPause=null;await saveAnalysisCheckpoint('completed',batch.length,null);refreshCompletedProgress();await releaseAnalysisRuntimeAfterCompletion();syncSessionGuard();render();return true;}let activeIndex=startIndex,activeFile='',activeStage='解析エンジン準備';isRunning=true;syncSessionGuard();if(typeof syncAnalysisWakeLock==='function')void syncAnalysisWakeLock();renderPending=false;$('#files').disabled=true;$('#run').disabled=true;$('#csv').disabled=true;$('#copyCsv').disabled=true;$('#diag').disabled=true;if($('#diagRawCsv'))$('#diagRawCsv').disabled=true;render();setProgressState('running',{done:startIndex,total:batch.length,message:startIndex?`${startIndex}/${batch.length}枚完了 · 続きから解析中…`:'解析を開始します…'});setFloatingProgress('running',{done:startIndex,total:batch.length});scanSpeedBatteryStart();scanSpeedRender();await saveAnalysisCheckpoint('running',startIndex,null);try{
  try{await scanPerfMeasureBatch('workerPrepare',()=>ensureWorker());}catch(e){console.error(e);activeStage='解析エンジン準備';const file=batch[startIndex],source=await stableImageSource(file).catch(()=>file),failed=makeProcessingFailureResult(file,activeStage,e,0,{sourceFile:source,sourceIndex:startIndex});batch[startIndex]=source;selected[startIndex]=source;results.push(failed);setPausedAnalysis(batch,startIndex,failed);await checkpointWriteResultAndMeta(failed,'paused',startIndex,startIndex);renderDuringAnalysis();return false;}
- for(let i=startIndex;i<batch.length;i++){activeIndex=i;const file=batch[i];activeFile=file.name;activeStage='画像データ準備';try{const analyzed=await analyzeSingleImage(file,i,batch.length,{sourceIndex:i,displayName:file.name});const source=analyzed.sourceFile||file;batch[i]=source;selected[i]=source;results.push(analyzed);await scanPerfMeasureBatch('checkpointWrites',()=>checkpointWriteResultAndMeta(analyzed,'running',i+1,null));}catch(e){console.error(e);activeStage=e.processingStage||activeStage;const source=e.processingSourceFile||file;batch[i]=source;selected[i]=source;const failed=makeProcessingFailureResult(file,activeStage,e,e.processingElapsedMs||0,{sourceFile:source,sourceIndex:i});failed.performanceProfile=e.performanceProfile||null;results.push(failed);console.warn(`解析を一時停止: ${file.name} / ${activeStage}: ${runtimeErrorText(e)}`);setPausedAnalysis(batch,i,failed);await checkpointWriteResultAndMeta(failed,'paused',i,i);renderDuringAnalysis();return false;}if(i<batch.length-1){try{const recycled=await maybeRecycleOcrWorkerForMemorySafety(i+1,batch.length);if(recycled)await saveAnalysisCheckpoint('running',i+1,null);}catch(e){console.error(e);const nextIndex=i+1,nextFile=batch[nextIndex],source=await stableImageSource(nextFile).catch(()=>nextFile),failed=makeProcessingFailureResult(nextFile,'解析エンジン再準備',e,0,{sourceFile:source,sourceIndex:nextIndex});batch[nextIndex]=source;selected[nextIndex]=source;results.push(failed);console.warn(`解析を一時停止: ${nextFile.name} / 解析エンジン再準備: ${runtimeErrorText(e)}`);setPausedAnalysis(batch,nextIndex,failed);await checkpointWriteResultAndMeta(failed,'paused',nextIndex,nextIndex);renderDuringAnalysis();return false;}renderDuringAnalysis();}setProgressState('running',{done:i+1,total:batch.length,message:`${i+1}/${batch.length}枚を解析中…`});setFloatingProgress('running',{done:i+1,total:batch.length});await new Promise(r=>setTimeout(r,0));}
+ for(let i=startIndex;i<batch.length;i++){activeIndex=i;const file=batch[i];activeFile=file.name;activeStage='画像データ準備';try{const analyzed=await analyzeSingleImage(file,i,batch.length,{sourceIndex:i,displayName:file.name});const source=analyzed.sourceFile||file;batch[i]=source;selected[i]=source;results.push(analyzed);scanSpeedObserve(analyzed);await scanPerfMeasureBatch('checkpointWrites',()=>checkpointWriteResultAndMeta(analyzed,'running',i+1,null));}catch(e){console.error(e);activeStage=e.processingStage||activeStage;const source=e.processingSourceFile||file;batch[i]=source;selected[i]=source;const failed=makeProcessingFailureResult(file,activeStage,e,e.processingElapsedMs||0,{sourceFile:source,sourceIndex:i});failed.performanceProfile=e.performanceProfile||null;results.push(failed);console.warn(`解析を一時停止: ${file.name} / ${activeStage}: ${runtimeErrorText(e)}`);setPausedAnalysis(batch,i,failed);await checkpointWriteResultAndMeta(failed,'paused',i,i);renderDuringAnalysis();return false;}if(i<batch.length-1){try{const recycled=await maybeRecycleOcrWorkerForMemorySafety(i+1,batch.length);if(recycled)await saveAnalysisCheckpoint('running',i+1,null);}catch(e){console.error(e);const nextIndex=i+1,nextFile=batch[nextIndex],source=await stableImageSource(nextFile).catch(()=>nextFile),failed=makeProcessingFailureResult(nextFile,'解析エンジン再準備',e,0,{sourceFile:source,sourceIndex:nextIndex});batch[nextIndex]=source;selected[nextIndex]=source;results.push(failed);console.warn(`解析を一時停止: ${nextFile.name} / 解析エンジン再準備: ${runtimeErrorText(e)}`);setPausedAnalysis(batch,nextIndex,failed);await checkpointWriteResultAndMeta(failed,'paused',nextIndex,nextIndex);renderDuringAnalysis();return false;}renderDuringAnalysis();}setProgressState('running',{done:i+1,total:batch.length,message:`${i+1}/${batch.length}枚を解析中…`});setFloatingProgress('running',{done:i+1,total:batch.length});await new Promise(r=>setTimeout(r,0));}
  analysisPause=null;await saveAnalysisCheckpoint('completed',batch.length,null);refreshCompletedProgress();await releaseAnalysisRuntimeAfterCompletion();return true;
  }catch(e){console.error(e);const doneIndexes=new Set(results.map(r=>r.sourceIndex).filter(Number.isInteger)),nextIndex=[...Array(batch.length).keys()].find(i=>!doneIndexes.has(i));if(Number.isInteger(nextIndex)){const file=batch[nextIndex],source=await stableImageSource(file).catch(()=>file),failed=makeProcessingFailureResult(file,'解析中断',e,0,{sourceFile:source,sourceIndex:nextIndex});batch[nextIndex]=source;selected[nextIndex]=source;results.push(failed);setPausedAnalysis(batch,nextIndex,failed);await checkpointWriteResultAndMeta(failed,'paused',nextIndex,nextIndex);renderDuringAnalysis();}else{analysisPause=null;await clearAnalysisCheckpoint();setProgressState('error',{done:results.length,total:batch.length,message:`予期しないエラーで解析を中断しました${activeFile?`（${activeFile} / ${activeStage}）`:''}: ${runtimeErrorText(e)}`});setFloatingProgress('error',{done:results.length,total:batch.length});}return false;
- }finally{scanPerfSession.batches.push({startIndex,total:batch.length,wallMs:scanPerfRounded(performance.now()-batchT0),recordedImages:results.filter(x=>Number.isInteger(x?.sourceIndex)&&x.sourceIndex>=startIndex).length});if(scanPerfSession.batches.length>20)scanPerfSession.batches.shift();isRunning=false;syncSessionGuard();if(typeof syncAnalysisWakeLock==='function')void syncAnalysisWakeLock();$('#files').disabled=false;syncRunActionButton();if(reviewEditorActive())renderPending=true;else{renderPending=false;render();}}}
+ }finally{scanPerfSession.batches.push({startIndex,total:batch.length,wallMs:scanPerfRounded(performance.now()-batchT0),recordedImages:results.filter(x=>Number.isInteger(x?.sourceIndex)&&x.sourceIndex>=startIndex).length});if(scanPerfSession.batches.length>20)scanPerfSession.batches.shift();isRunning=false;syncSessionGuard();if(typeof syncAnalysisWakeLock==='function')void syncAnalysisWakeLock();$('#files').disabled=false;syncRunActionButton();scanSpeedRender();if(reviewEditorActive())renderPending=true;else{renderPending=false;render();}}}
 async function retryProcessingFailure(ri){const old=results[ri];if(!old?.processingError||old.recoveryBusy||isRunning)return;const pauseIndex=pausedFailureIndex(ri);if(pauseIndex>=0){const pause=analysisPause,batch=pause.batch;old.recoveryBusy='retry';render();let recovered=null;try{recovered=await checkpointReadStableFile(pauseIndex);}catch(e){console.warn('停止画像をチェックポイントから再構築できませんでした。現在の画像データから新しい参照を作って再試行します。',e);}if(!recovered)recovered=cloneStableImageSource(batch[pauseIndex]||old.sourceFile);if(recovered){batch[pauseIndex]=recovered;selected[pauseIndex]=recovered;old.sourceFile=recovered;}if(typeof checkpointRehydrateRemainingSources==='function')await checkpointRehydrateRemainingSources(batch,pauseIndex+1);await resetAnalysisRuntimeForRetry();await checkpointPrepareRetry(pauseIndex);results.splice(ri,1);analysisPause=null;await runAnalysisBatch(batch,pauseIndex);return;}old.recoveryBusy='retry';render();try{await resetAnalysisRuntimeForRetry();await ensureWorker();const source=old.sourceFile;if(!source)throw new Error('再解析に使える画像データがありません。画像を再選択してください。');const next=await analyzeSingleImage(source,0,1,{sourceIndex:old.sourceIndex,displayName:old.file});next.recoveryFrom=old.processingError;results[ri]=next;}catch(e){const source=e.processingSourceFile||old.sourceFile;const failed=makeProcessingFailureResult({name:old.file},e.processingStage||'再解析',e,e.processingElapsedMs||0,{sourceFile:source,sourceIndex:old.sourceIndex});failed.recoveryAttempted=true;results[ri]=failed;}finally{render();refreshCompletedProgress();syncSessionGuard();}}
 function pickReplacementImage(){return new Promise(resolve=>{const input=document.createElement('input');input.type='file';input.accept='image/png,image/jpeg,.png,.jpg,.jpeg';input.style.position='fixed';input.style.left='-9999px';let settled=false;const finish=file=>{if(settled)return;settled=true;input.remove();resolve(file||null);};input.addEventListener('change',()=>finish(input.files?.[0]||null),{once:true});input.addEventListener('cancel',()=>finish(null),{once:true});document.body.appendChild(input);input.click();});}
 async function reselectProcessingFailure(ri){const old=results[ri];if(!old?.processingError||old.recoveryBusy||isRunning)return;const file=await pickReplacementImage();if(!file)return;if(!isAcceptedImageFile(file)){await showAppDialog({title:'画像を選択できません',message:'PNG / JPG / JPEG の画像を選択してください。',primaryLabel:'閉じる',tone:'error'});return;}const pauseIndex=pausedFailureIndex(ri);if(pauseIndex>=0){const pause=analysisPause,batch=pause.batch;old.recoveryBusy='reselect';render();const stable=await checkpointReplaceFile(pauseIndex,file);if(!stable){delete old.recoveryBusy;render();return;}selected[pauseIndex]=stable;batch[pauseIndex]=stable;if(typeof checkpointRehydrateRemainingSources==='function')await checkpointRehydrateRemainingSources(batch,pauseIndex+1);await resetAnalysisRuntimeForRetry();await checkpointPrepareRetry(pauseIndex);results.splice(ri,1);analysisPause=null;updateUploadSelectionUI(selected.length);await runAnalysisBatch(batch,pauseIndex);return;}old.recoveryBusy='reselect';render();const si=Number.isInteger(old.sourceIndex)?old.sourceIndex:null;if(si!=null&&si>=0&&si<selected.length)selected[si]=file;try{await resetAnalysisRuntimeForRetry();await ensureWorker();const next=await analyzeSingleImage(file,0,1,{sourceIndex:si,displayName:file.name});next.recoveryFrom=old.processingError;results[ri]=next;}catch(e){const failed=makeProcessingFailureResult(file,e.processingStage||'画像再選択',e,e.processingElapsedMs||0,{sourceFile:e.processingSourceFile||file,sourceIndex:si});failed.recoveryAttempted=true;results[ri]=failed;}finally{updateUploadSelectionUI(selected.length);render();refreshCompletedProgress();syncSessionGuard();}}
