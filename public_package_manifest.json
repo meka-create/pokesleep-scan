@@ -1,13 +1,13 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-24-mint-csv-choice-v4",
-  "appBuildId": "v12-mint-csv-choice-20261024-v4",
+  "releaseId": "2026-10-25-performance-telemetry-step1-v1",
+  "appBuildId": "v12-performance-telemetry-step1-20261025-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 79,
+  "fileCount": 80,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 311608,
-      "sha256": "d7ac67594f1987598ef0ef1f3b67fbe3afd72cc6ad7e92e2686d1320f5c355f4"
+      "bytes": 315990,
+      "sha256": "f25632f891073d55be422659d2b14f4c780b43f19dbbfef2eb39df88439456cd"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -162,7 +162,7 @@
     {
       "path": "development/nickname_caption_rescue.test.cjs",
       "bytes": 6670,
-      "sha256": "12b3d5bad39a62436c180dcc4aa3f05c2bdc923ff789b70b1296ba0a8be1e59f"
+      "sha256": "71d791bce28af015e553a73823834dd9bbd31946dd0547f66b50460916de4c7c"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -183,6 +183,11 @@
       "path": "development/paddle_wait_choice.test.cjs",
       "bytes": 10009,
       "sha256": "2c44c16f7b7e502c58c6f30d01e79f5ce0c69ffc38ea3dc8553a65467c53d49c"
+    },
+    {
+      "path": "development/performance_profile.test.cjs",
+      "bytes": 3721,
+      "sha256": "9408da03f5a87057530361cb3875fbc554039744e659424789f38257bbb87c9f"
     },
     {
       "path": "development/publish_master_status.py",
@@ -381,8 +386,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 44,
-      "sha256": "e8ddadad4b13202e52cc1698be46509f448facb6f378d425ada9b0ea29c7e5b8"
+      "bytes": 56,
+      "sha256": "bc33fd8d871ea55a2c1cd8ed7cb163a1b3b4d5bf13b18dadedfa8597b53ada52"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -401,8 +406,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4045,
-      "sha256": "751208521974d74572ef0115cd138b4ca73497a97a4d4170112b9ee17142d8ee"
+      "bytes": 4057,
+      "sha256": "5508c93308d5e43d719045420d02bd2699a4b9d5b4092672e243e6bf2b20e4af"
     }
   ]
 }
