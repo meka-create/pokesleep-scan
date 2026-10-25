@@ -68,4 +68,5 @@ test('UI, persisted profile and diagnostic hooks are present',()=>{
  for(const needle of ['results.push(analyzed);scanSpeedObserve(analyzed);',
   'speedWatch:scanSpeedSummary()','scanSpeedRestoreProfiles(results)'])
   assert.ok(app.includes(needle),'missing '+needle);
+ assert.match(app,/scanPerfResetSession\(\);scanSpeedReset\(\);results=\[\];/, 'new analyses must not reuse old warning baselines');
 });
