@@ -64,8 +64,11 @@ test('charging status is optional and charging annotation never interrupts OCR',
 test('checkpoint restoration keeps warning and 3-image recovery',()=>{
  const {ctx}=fixture(),rows=[];for(let n=0;n<4;n++)rows.push(add(ctx,n));
  rows.push(add(ctx,4,5700,680),add(ctx,5,5900,710));
+ const eventAt=rows.at(-1).performanceProfile.speedMonitor.transitionAt;
+ assert.match(eventAt,/^\d{4}-\d{2}-\d{2}T/);
  ctx.scanSpeedReset();ctx.scanSpeedRestoreProfiles(rows);
  assert.equal(ctx.scanSpeedSummary().active,true);
+ assert.equal(ctx.scanSpeedSummary().events[0].at,eventAt,'restore must preserve original warning time');
  add(ctx,6);add(ctx,7);add(ctx,8);assert.equal(ctx.scanSpeedSummary().active,false);
 });
 test('stale charging result and previous battery listeners cannot leak across scans',async()=>{

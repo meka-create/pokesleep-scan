@@ -757,7 +757,9 @@ function scanSpeedObserve(result){
    ratioExtra:b.extraPerCallMs?scanPerfRounded(sample.extraMs/b.extraPerCallMs):null,
    slow:sample.slow,warningActive:scanSpeedState.active,charging:scanSpeedState.battery.charging,transition};
   if(transition){
-   scanSpeedState.events.push({at:new Date().toISOString(),sourceIndex:sample.sourceIndex,
+   const transitionAt=new Date().toISOString();
+   profile.speedMonitor.transitionAt=transitionAt;
+   scanSpeedState.events.push({at:transitionAt,sourceIndex:sample.sourceIndex,
     kind:transition,initialMs:sample.firstMs,extraPerCallMs:sample.extraMs,
     baselineInitialMs:b.initialMs,baselineExtraPerCallMs:b.extraPerCallMs,
     charging:scanSpeedState.battery.charging});
@@ -779,7 +781,7 @@ function scanSpeedRestoreProfiles(saved){
    if(p.slow)scanSpeedState.slowSamples++;
   }
   scanSpeedState.active=!!p.warningActive;
-  if(p.transition)scanSpeedState.events.push({at:r.performanceProfile.startedAt,
+  if(p.transition)scanSpeedState.events.push({at:p.transitionAt||r.performanceProfile.startedAt,
    sourceIndex:r.sourceIndex,kind:p.transition,charging:p.charging});
  }
  scanSpeedState.events=scanSpeedState.events.slice(-30);
