@@ -1,5 +1,5 @@
 {
-  "cutoff": "2026-10-05",
+  "cutoff": "2026-10-26",
   "ingredients": {
     "apple": "とくせんリンゴ",
     "avocado": "つやつやアボカド",
@@ -3919,6 +3919,42 @@
       }
     },
     {
+      "name": "ムウマ",
+      "name_en": "Misdreavus",
+      "skill": "Cooking Power-Up S",
+      "mainSkill": "料理パワーアップS",
+      "arrival": "2026-10-26",
+      "frequency": 2800,
+      "carryLimit": 13,
+      "ingRate": 15,
+      "skillRate": 4.7,
+      "evolutionCount": 0,
+      "evolutionLeft": 1,
+      "specialty": "Skills",
+      "type": "ghost",
+      "ing1": {
+        "key": "potato",
+        "name": "ほっこりポテト",
+        "c1": 1,
+        "c2": 2,
+        "c3": 4
+      },
+      "ing2": {
+        "key": "coffee",
+        "name": "めざましコーヒー",
+        "c1": null,
+        "c2": 2,
+        "c3": 3
+      },
+      "ing3": {
+        "key": "tomato",
+        "name": "あんみんトマト",
+        "c1": null,
+        "c2": null,
+        "c3": 4
+      }
+    },
+    {
       "name": "ソーナンス",
       "name_en": "Wobbuffet",
       "skill": "Energizing Cheer S",
@@ -6469,6 +6505,42 @@
       "ing3": {
         "key": "potato",
         "name": "ほっこりポテト",
+        "c1": null,
+        "c2": null,
+        "c3": 4
+      }
+    },
+    {
+      "name": "ムウマージ",
+      "name_en": "Mismagius",
+      "skill": "Cooking Advance S (Mystical Fire)",
+      "mainSkill": "マジカルフレイム (料理アドバンスS)",
+      "arrival": "2026-10-26",
+      "frequency": 2400,
+      "carryLimit": 17,
+      "ingRate": 14.2,
+      "skillRate": 3.6,
+      "evolutionCount": 1,
+      "evolutionLeft": 0,
+      "specialty": "Skills",
+      "type": "ghost",
+      "ing1": {
+        "key": "potato",
+        "name": "ほっこりポテト",
+        "c1": 1,
+        "c2": 2,
+        "c3": 4
+      },
+      "ing2": {
+        "key": "coffee",
+        "name": "めざましコーヒー",
+        "c1": null,
+        "c2": 2,
+        "c3": 3
+      },
+      "ing3": {
+        "key": "tomato",
+        "name": "あんみんトマト",
         "c1": null,
         "c2": null,
         "c3": 4
@@ -9308,14 +9380,14 @@
   "provenance": {
     "origin": "pokesleep-scan independent upstream data",
     "upstream": "https://github.com/nitoyon/pokesleep-tool",
-    "sourceCommit": "8f48006811d9e58cd05949120b08982636341872",
+    "sourceCommit": "9d4518000258a9353f5e1cb63ee17288f1ad0411",
     "sourceFilesSha256": {
-      "pokemon": "f21985e517c2b491a825885378581692ee74c69cd93a242ec49db6bbc9148124",
+      "pokemon": "d2a1596a53c55b312cc0b81a9e0d06c603b49a0f2b7e51a7b60ff0467495b44c",
       "names": "6023b3bcb4dc03c528b52d2c7df37e71910b431eef85c13030e9248b2181fe82",
       "data": "4f27b042f8458fc51e5a5171d6eabb115965376180d6be8e58498a5ba0052dd8",
       "skills": "a3a063db9536d8e7f52e5f0486912a62dc54337c924fa126599ec0254555bb03",
       "subskill": "b4143b66befc8932456d62fd77a33b92c78564c053985d5ff2962ae5b5f4ac69",
-      "ingredientStrength": "4910a10e84a6eee7b017c392f957ea9ce6392ae2a9dc513655221a068466be46"
+      "ingredientStrength": "ef3cc866b6d0433aecc8163d7636cb313e78b9b6579d5f68c072c18d087908fb"
     },
     "verification": "source structure checked; real importer E2E in STEP 3"
   }

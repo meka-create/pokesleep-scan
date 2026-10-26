@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-25-ocr-speed-warning-v1",
-  "appBuildId": "v12-ocr-speed-warning-20261025-v1",
+  "releaseId": "master-9d4518000258-d0a40e122d",
+  "appBuildId": "v12-master-9d4518000258-d0a40e122d",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -42,7 +42,7 @@
     {
       "path": "app.js",
       "bytes": 325141,
-      "sha256": "bdb241ea259bd5953286388a98b973172462738c30a2d887517dd1da6134acfc"
+      "sha256": "c59020b6ab9fb9bb86bffd190fc89acd9022525432179a86b0cfaaa7e48be322"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -391,18 +391,18 @@
     },
     {
       "path": "release.json",
-      "bytes": 46,
-      "sha256": "413588590b4eea624d1822ef02660d187605f42c29c8cdb4034a0b7957cc8b38"
+      "bytes": 45,
+      "sha256": "eba1f319506afb2ece4dfc1b3bdf069b75fb9715fd7bcfb2f51916ea8a8c7cb4"
     },
     {
       "path": "shared/MASTER_DATA.json",
-      "bytes": 212306,
-      "sha256": "0ab047c329adf000495261a5663ec4b77740f17b8409fe3fd31b376347769ffb"
+      "bytes": 213992,
+      "sha256": "d0a40e122de9f82367ae2e59cad7f15e8425fb02ce7896a914932a93cca269ba"
     },
     {
       "path": "shared/master_release.json",
       "bytes": 397,
-      "sha256": "4ed0eecfecc0adb62307147ab80127f99248f6ab5b904139e8669a60beae2787"
+      "sha256": "8793b323a0e4d4c69b3ed0272d1961b7bb94606d7fa75df5a6d5950f1ced1b85"
     },
     {
       "path": "shared_master.js",
@@ -411,8 +411,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4047,
-      "sha256": "97652805a9066d13ac79d2cafa983142b543d6f5d6a39b46bed312bda6f3e188"
+      "bytes": 4046,
+      "sha256": "d380cfe9d363b49ca25755cd739cc08f412f59951d7783890c427137e04f83f2"
     }
   ]
 }
