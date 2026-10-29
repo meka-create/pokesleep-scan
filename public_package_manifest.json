@@ -30,6 +30,11 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 4318,
+      "sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
+    },
+    {
       "path": "android_roi.js",
       "bytes": 6991,
       "sha256": "d08d08bfd1f42ac12035ef3cb41049061b54ee19959d7e26033c52c1cf0a367b"
@@ -58,6 +63,16 @@
       "path": "csv_gate.js",
       "bytes": 8676,
       "sha256": "128f9bed6ba539d7b2cff5768fdee6c07babfa76970b25a1939ce649d46cd686"
+    },
+    {
+      "path": "development/ROADMAP_20261013.md",
+      "bytes": 6298,
+      "sha256": "3eb3bbcf9eff1579500faff34aca999728ebf80db69d7e7e42ed09af97c35581"
+    },
+    {
+      "path": "development/STEP1_INDEPENDENT_MASTER.md",
+      "bytes": 2247,
+      "sha256": "d67d0a641509a88a5e7099c07418867e154f5e675f11bea0552084d7011bc445"
     },
     {
       "path": "development/browser_append_after_results.py",
@@ -195,11 +210,6 @@
       "sha256": "fa5970688bc8863d9931c5bd80fbaceef8fc45b6ad7e528fae77c1c4c358a51f"
     },
     {
-      "path": "development/ROADMAP_20261013.md",
-      "bytes": 6298,
-      "sha256": "3eb3bbcf9eff1579500faff34aca999728ebf80db69d7e7e42ed09af97c35581"
-    },
-    {
       "path": "development/runtime_smoke.test.cjs",
       "bytes": 2353,
       "sha256": "1d85a83ce5bda029d4c8b8ded7b4cbf78ae0b92a1b1f3c7cf8463c1d534e3ace"
@@ -208,11 +218,6 @@
       "path": "development/speed_warning.test.cjs",
       "bytes": 6784,
       "sha256": "e253621beb9653083b00da0f162fe76334277b62977bb1ba71495519ac2540c6"
-    },
-    {
-      "path": "development/STEP1_INDEPENDENT_MASTER.md",
-      "bytes": 2247,
-      "sha256": "d67d0a641509a88a5e7099c07418867e154f5e675f11bea0552084d7011bc445"
     },
     {
       "path": "development/step2_asset_revision.test.cjs",
@@ -375,11 +380,6 @@
       "sha256": "8b3751a6c224f95dd9435284e28273c6a94066f351256b1c74958506eb8b918c"
     },
     {
-      "path": "master_data.js",
-      "bytes": 131939,
-      "sha256": "b0f3bc100966de43dfdd4bd2d6b2036d8f7609b718b241a60674612aaf384ab4"
-    },
-    {
       "path": "master-update-status.js",
       "bytes": 3587,
       "sha256": "fa65b53ef53090cce5cb50681af4630a26ae740499239334cab60eda3cd9d2a7"
@@ -390,14 +390,14 @@
       "sha256": "7cf9f54227ca027c61cb01c91f5c9b1e5a5e3a781576e151f2d3472bbedf0c56"
     },
     {
+      "path": "master_data.js",
+      "bytes": 131939,
+      "sha256": "b0f3bc100966de43dfdd4bd2d6b2036d8f7609b718b241a60674612aaf384ab4"
+    },
+    {
       "path": "release.json",
       "bytes": 44,
       "sha256": "b77e0c494ff2e5462c451fa637ff299da08caf3d27894d363db605c1904944a2"
-    },
-    {
-      "path": "shared_master.js",
-      "bytes": 5816,
-      "sha256": "bc817438a9c541c141501cf314e62eee32f61acb9bdc87af22cf685a209b79dd"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -410,14 +410,14 @@
       "sha256": "8793b323a0e4d4c69b3ed0272d1961b7bb94606d7fa75df5a6d5950f1ced1b85"
     },
     {
+      "path": "shared_master.js",
+      "bytes": 5816,
+      "sha256": "bc817438a9c541c141501cf314e62eee32f61acb9bdc87af22cf685a209b79dd"
+    },
+    {
       "path": "sw.js",
       "bytes": 4045,
       "sha256": "1224ec168400f69aee52a3cc26b7402dd11184a9c8e19b224a741d5fe3321854"
-    },
-    {
-      "path": "THIRD_PARTY_NOTICES.md",
-      "bytes": 4318,
-      "sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
     }
   ]
 }
