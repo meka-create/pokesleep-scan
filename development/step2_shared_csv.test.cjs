@@ -213,14 +213,14 @@ test('unseen together-sleep hours use user-policy 0, not ribbon threshold',()=>{
  assert.equal(context.ribbonCsvValue({status:'UNIQUE',hits:[{ribbonTier:4}]}),0);
 });
 test('ordinary species cannot export unresolved blank subskills',()=>{
- const bad=[...fields];bad[9]='';
+ const bad=[...fields];bad[10]='';
  const v=inspect(bad);
  assert.equal(v.ok,false,JSON.stringify(v));
  assert.ok(v.errors.some(x=>x.includes('empty subskill')));
 });
 test('mythical subskills may be blank, with explicit CSV gate warnings',()=>{
  const dark=ai.pokemon.find(p=>p.name==='ダークライ');
- const v=[...fields];v[1]=dark.name;v[4]=dark.ing1.name;v[5]='';v[6]='';v[7]=dark.mainSkill;v[9]='';
+ const v=[...fields];v[1]=dark.name;v[4]=dark.ing1.name;v[5]='';v[6]='';v[7]=dark.mainSkill;v[10]='';
  const r=inspect(v);
  assert.equal(r.ok,true,JSON.stringify(r.errors));
  assert.ok(r.warnings.some(x=>x.includes('empty mythical subskill')));
@@ -249,7 +249,7 @@ test('species-canonical CSV skill normalizes random and legendary screen aliases
               '食材ゲットS');
 });
 
-test('all active master species have at least one valid 16-column importer row',()=>{
+test('all active master species have at least one valid 18-column importer row',()=>{
  const context={window:{}};
  vm.createContext(context);
  vm.runInContext(legacy,context,{filename:'master_data.js'});
@@ -261,8 +261,8 @@ test('all active master species have at least one valid 16-column importer row',
   const foods=pr.items.map(item=>item.name==='―'?'':item.name);
   const nature=p.name==='ストリンダー (ハイ)'?'いじっぱり':'てれや';
   return ['検証用_'+p.name,p.name,'10','1',...foods,
-    p.name==='ミュウ'?'きのみバースト':p.mainSkill,nature,
-    ...ai.subskills.slice(0,5).map(x=>x.ja),'0','0'];
+    p.name==='ミュウ'?'きのみバースト':p.mainSkill,nature,'0',
+    ...ai.subskills.slice(0,5).map(x=>x.ja),'0','0',''];
  });
  assert.equal(rows.length,ai.pokemon.length);
  const h=harness(),csv=h.gate.serialize([Array.from(h.gate.HEADER),...rows]);
