@@ -1,5 +1,5 @@
 (() => {
-const BUILD_ID='v12-master-9d4518000258-d0a40e122d';
+const BUILD_ID='v12-pokesleep-mint-csv18-20261029-v1';
 'use strict';
 // The verified Android 1080x2400 OCR path is now the standard on every device.
 // Preserve the existing ROI adapter and its safe legacy fallback unchanged.
@@ -63,7 +63,7 @@ const NATURES=POKESLEEP_MASTER.natures.map(x=>x.ja);
 const SUBSKILLS=POKESLEEP_MASTER.subskills.map(x=>x.ja);
 const SPECIES_NAMES=[...new Set(POKESLEEP_MASTER.pokemon.map(x=>x.name))];
 const $=s=>document.querySelector(s);let selected=[],results=[],worker=null,paddleOcr=null,paddleInitPromise=null,paddleUnavailableError=null,paddleRuntimeGeneration=0,isRunning=false,analysisPause=null,checkpointPreparing=false,selectionSnapshotPreparing=false,selectionSnapshotGeneration=0,checkpointRestoreRunning=false,checkpointSessionActive=false,checkpointPersistenceWarningShown=false,renderPending=false,modalObjectUrl='',modalReturnFocus=null,appDialogResolver=null,appDialogReturnFocus=null,localProgressVisible=true,localProgressState='idle',localProgressMaxPct=0,floatingProgressState='idle',floatingProgressDone=0,floatingProgressTotal=0,floatingProgressReviews=0,floatingCompletionTimer=null,floatingCompletionPending=false,floatingCompletionDismissed=false,preManualCsvSnapshot=null,wakeLockSentinel=null,wakeLockRequestPromise=null,wakeLockRetryTimer=null;const checkpointFailureLog=[];const layoutCache=new WeakMap(),profileCardCache=new WeakMap(),stableSourcePromises=new WeakMap(),stableSourceFiles=new WeakSet();
-const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='master-9d4518000258-d0a40e122d',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
+const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-29-tool-mint-csv18-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
 function pullRefreshGuardActive(){return !!(isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing);}
 function analysisWakeLockShouldHold(){return !!((isRunning||checkpointPreparing)&&!analysisPause);}
 function wakeLockApiSupported(){return typeof navigator!=='undefined'&&!!navigator.wakeLock?.request;}
@@ -2111,7 +2111,7 @@ function renderBenchmark(){
 }
 function diagnosticRawFoodCsvValue(food){const name=String(food?.name||'').trim();return !name||name===NO_FOOD?'':name;}
 function diagnosticRawSpeciesValue(r){if(!r)return'';const manual=String(r.speciesManualOverride||'').trim();if(manual)return manual;const c=r.classification?.candidates||[];return c.length===1?c[0]:'';}
-function toDiagnosticRawCsvRow(r){if(!r||r.processingError||!r.parsed)return null;const p=r.parsed,c=r.classification||r.inference||{},species=diagnosticRawSpeciesValue(r),foods=[0,1,2].map(i=>diagnosticRawFoodCsvValue(r.foods?.[i])),subs=[0,1,2,3,4].map(i=>p.subs?.[i]?.value||'');return [p.nickname||'',species,p.level??'',p.skillLevel??'',...foods,mainSkillCsvValue(p,c,r.speciesManualOverride||''),p.nature||'',...subs,ribbonCsvValue(c),shinyCsvValue(r)];}
+function toDiagnosticRawCsvRow(r){if(!r||r.processingError||!r.parsed)return null;const p=r.parsed,c=r.classification||r.inference||{},species=diagnosticRawSpeciesValue(r),foods=[0,1,2].map(i=>diagnosticRawFoodCsvValue(r.foods?.[i])),subs=[0,1,2,3,4].map(i=>p.subs?.[i]?.value||'');return [p.nickname||'',species,p.level??'',p.skillLevel??'',...foods,mainSkillCsvValue(p,c,r.speciesManualOverride||''),p.nature||'',p.natureEffect==='neutralized'?'1':'0',...subs,ribbonCsvValue(c),shinyCsvValue(r),''];}
 function diagnosticDownloadTimestamp(d=new Date()){const pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;}
 function diagnosticRawCsvFilename(d=new Date()){return `pokesleep_ocr_raw_before_review_${diagnosticDownloadTimestamp(d)}.csv`;}
 function diagnosticsJsonFilename(d=new Date()){return `pokesleep_ocr_v12_diagnostics_${diagnosticDownloadTimestamp(d)}.json`;}
@@ -2130,7 +2130,7 @@ async function downloadDiagnosticRawCSV(){
 }
 function diagnosticObject(){
  const b=benchmarkSummary();
- return {version:'v12-master-9d4518000258-d0a40e122d',buildId:BUILD_ID,codeRevision:'20261013-nickname-consensus-gated-v3',foodReviewMargin:FOOD_REVIEW_MARGIN,mintGreenRatioThreshold:MINT_GREEN_RATIO_MIN,noFoodTemplateConfig:{schema:1,scoreMin:NO_FOOD_EMPTY_SCORE_MIN,marginMin:NO_FOOD_EMPTY_MARGIN_MIN,requiresUniqueSpecies:true,requiresLegalSpeciesSlot:true,emptyReference:'embedded-data-url',emptyReferenceSha256:FOOD_EMPTY_REFERENCE_SHA256},paddleRuntime:{...paddleInitDiagnostics,attempts:[...paddleInitDiagnostics.attempts]},checkpointPersistence:{sessionActive:typeof checkpointSessionActive!=='undefined'?!!checkpointSessionActive:false,failures:typeof checkpointFailureLog!=='undefined'?checkpointFailureLog.map(x=>({...x})):[]},performanceDiagnostics:scanPerfSessionSummary(),ocrMemoryGuard:{...(typeof ocrMemoryGuardSnapshot==='function'?ocrMemoryGuardSnapshot():{}),restoredFromCheckpoint:typeof ocrMemoryGuardRestoredSnapshot!=='undefined'&&ocrMemoryGuardRestoredSnapshot?{...ocrMemoryGuardRestoredSnapshot}:null},createdAt:new Date().toISOString(),preManualCsvSnapshot:diagnosticPreManualCsvSnapshot(),userAgent:navigator.userAgent,hardwareConcurrency:navigator.hardwareConcurrency||null,deviceMemory:navigator.deviceMemory||null,selectedFiles:selected.map(x=>({name:x.name,size:x.size,type:x.type})),benchmark:b,results:results.map(r=>({file:r.file,sourceIndex:Number.isInteger(r.sourceIndex)?r.sourceIndex:null,elapsedMs:r.elapsedMs,performanceProfile:r.performanceProfile||null,layout:r.layout||null,rawFirstPass:r.rawFirstPass||null,rawFinal:cloneRaw(r.raw),structuredRescue:r.parsed.structuredRescue||null,parsed:{nickname:r.parsed.nickname,nicknameBeforePaddle:r.parsed.nicknameBeforePaddle,nicknameNeedsReview:r.parsed.nicknameNeedsReview,nicknameResolvedBy:r.parsed.nicknameResolvedBy||'',nicknameReviewReason:r.parsed.nicknameReviewReason||'',nicknamePaddleUnavailable:!!r.parsed.nicknamePaddleUnavailable,nicknameCandidates:r.parsed.nicknameCandidates||[],nicknamePaddle:r.parsed.nicknamePaddle||null,nicknameReviewAtAnalysis:r.nicknameReviewAtAnalysis||null,nicknameManualConfirmed:!!r.parsed.nicknameManualConfirmed,level:r.parsed.level,levelNeedsReview:!!r.parsed.levelNeedsReview,levelReviewReason:r.parsed.levelReviewReason||'',sp:r.parsed.sp,helpSeconds:r.parsed.helpSeconds,carry:r.parsed.carry,carryNeedsReview:!!r.parsed.carryNeedsReview,carryOcrUnresolved:!Number.isInteger(r.parsed.carry)||!!r.parsed.carryNeedsReview,carryRetry:r.parsed.carryRetry||null,skillLevel:r.parsed.skillLevel,mainSkill:r.parsed.mainSkill,mainSkillNeedsReview:!!r.parsed.mainSkillNeedsReview,mainSkillReviewReason:r.parsed.mainSkillReviewReason||'',versatileSkill:r.parsed.versatileSkill||'',versatileSkillLabel:mewVersatileSkillLabel(r.parsed.versatileSkill),mainSkillOutput:mainSkillForOutput(r.parsed,r.classification,r.speciesManualOverride||''),nature:r.parsed.nature,natureNeedsReview:!!r.parsed.natureNeedsReview,natureEvidence:r.parsed.natureEvidence||null,natureEffect:r.parsed.natureEffect||'normal',mintDetection:r.parsed.mintDetection||null,subskills:r.parsed.subs.map(x=>x.value),subskillEvidence:r.parsed.subs.map(x=>({value:x.value,needsReview:!!x.needsReview,reviewReason:x.reviewReason||'',reviewCandidates:x.reviewCandidates||[],evidence:x.evidence||[]})),subskillDuplicateRejects:r.parsed.subskillDuplicateRejects||[],subskillReviewSlots:subskillReviewSlots(r).map(i=>LEVELS[i]),sleepTogetherValue:sleepTogetherValue(r.classification)},inference:{status:r.inference.status,natureEffect:r.inference.natureEffect||r.parsed.natureEffect||'normal',missing:r.inference.missing||[],stages:r.inference.stages||null,candidates:r.inference.candidates||[],carryConsistentCandidates:r.inference.carryConsistentCandidates||[]},foods:r.foods,classification:{status:r.classification.status,candidates:r.classification.candidates,speciesManualOverride:r.speciesManualOverride||'',ribbonTier:sleepTogetherTier(r.classification),sleepTogetherValue:sleepTogetherValue(r.classification),foodConflictPreserved:!!r.classification.foodConflictPreserved,foodConflictSlots:r.foodConflictSlots||[]},reviewState:resultReviewState(r),processingError:r.processingError||null,processingErrorResolved:r.processingErrorResolved||null,manualPreviewErrors:r.manualPreviewErrors||null,manualPreviewSourceError:r.manualPreviewSourceError||null,manualCompletion:r.manualCompletion||null}))};
+ return {version:'v12-pokesleep-mint-csv18-20261029-v1',buildId:BUILD_ID,codeRevision:'20261013-nickname-consensus-gated-v3',foodReviewMargin:FOOD_REVIEW_MARGIN,mintGreenRatioThreshold:MINT_GREEN_RATIO_MIN,noFoodTemplateConfig:{schema:1,scoreMin:NO_FOOD_EMPTY_SCORE_MIN,marginMin:NO_FOOD_EMPTY_MARGIN_MIN,requiresUniqueSpecies:true,requiresLegalSpeciesSlot:true,emptyReference:'embedded-data-url',emptyReferenceSha256:FOOD_EMPTY_REFERENCE_SHA256},paddleRuntime:{...paddleInitDiagnostics,attempts:[...paddleInitDiagnostics.attempts]},checkpointPersistence:{sessionActive:typeof checkpointSessionActive!=='undefined'?!!checkpointSessionActive:false,failures:typeof checkpointFailureLog!=='undefined'?checkpointFailureLog.map(x=>({...x})):[]},performanceDiagnostics:scanPerfSessionSummary(),ocrMemoryGuard:{...(typeof ocrMemoryGuardSnapshot==='function'?ocrMemoryGuardSnapshot():{}),restoredFromCheckpoint:typeof ocrMemoryGuardRestoredSnapshot!=='undefined'&&ocrMemoryGuardRestoredSnapshot?{...ocrMemoryGuardRestoredSnapshot}:null},createdAt:new Date().toISOString(),preManualCsvSnapshot:diagnosticPreManualCsvSnapshot(),userAgent:navigator.userAgent,hardwareConcurrency:navigator.hardwareConcurrency||null,deviceMemory:navigator.deviceMemory||null,selectedFiles:selected.map(x=>({name:x.name,size:x.size,type:x.type})),benchmark:b,results:results.map(r=>({file:r.file,sourceIndex:Number.isInteger(r.sourceIndex)?r.sourceIndex:null,elapsedMs:r.elapsedMs,performanceProfile:r.performanceProfile||null,layout:r.layout||null,rawFirstPass:r.rawFirstPass||null,rawFinal:cloneRaw(r.raw),structuredRescue:r.parsed.structuredRescue||null,parsed:{nickname:r.parsed.nickname,nicknameBeforePaddle:r.parsed.nicknameBeforePaddle,nicknameNeedsReview:r.parsed.nicknameNeedsReview,nicknameResolvedBy:r.parsed.nicknameResolvedBy||'',nicknameReviewReason:r.parsed.nicknameReviewReason||'',nicknamePaddleUnavailable:!!r.parsed.nicknamePaddleUnavailable,nicknameCandidates:r.parsed.nicknameCandidates||[],nicknamePaddle:r.parsed.nicknamePaddle||null,nicknameReviewAtAnalysis:r.nicknameReviewAtAnalysis||null,nicknameManualConfirmed:!!r.parsed.nicknameManualConfirmed,level:r.parsed.level,levelNeedsReview:!!r.parsed.levelNeedsReview,levelReviewReason:r.parsed.levelReviewReason||'',sp:r.parsed.sp,helpSeconds:r.parsed.helpSeconds,carry:r.parsed.carry,carryNeedsReview:!!r.parsed.carryNeedsReview,carryOcrUnresolved:!Number.isInteger(r.parsed.carry)||!!r.parsed.carryNeedsReview,carryRetry:r.parsed.carryRetry||null,skillLevel:r.parsed.skillLevel,mainSkill:r.parsed.mainSkill,mainSkillNeedsReview:!!r.parsed.mainSkillNeedsReview,mainSkillReviewReason:r.parsed.mainSkillReviewReason||'',versatileSkill:r.parsed.versatileSkill||'',versatileSkillLabel:mewVersatileSkillLabel(r.parsed.versatileSkill),mainSkillOutput:mainSkillForOutput(r.parsed,r.classification,r.speciesManualOverride||''),nature:r.parsed.nature,natureNeedsReview:!!r.parsed.natureNeedsReview,natureEvidence:r.parsed.natureEvidence||null,natureEffect:r.parsed.natureEffect||'normal',mintDetection:r.parsed.mintDetection||null,subskills:r.parsed.subs.map(x=>x.value),subskillEvidence:r.parsed.subs.map(x=>({value:x.value,needsReview:!!x.needsReview,reviewReason:x.reviewReason||'',reviewCandidates:x.reviewCandidates||[],evidence:x.evidence||[]})),subskillDuplicateRejects:r.parsed.subskillDuplicateRejects||[],subskillReviewSlots:subskillReviewSlots(r).map(i=>LEVELS[i]),sleepTogetherValue:sleepTogetherValue(r.classification)},inference:{status:r.inference.status,natureEffect:r.inference.natureEffect||r.parsed.natureEffect||'normal',missing:r.inference.missing||[],stages:r.inference.stages||null,candidates:r.inference.candidates||[],carryConsistentCandidates:r.inference.carryConsistentCandidates||[]},foods:r.foods,classification:{status:r.classification.status,candidates:r.classification.candidates,speciesManualOverride:r.speciesManualOverride||'',ribbonTier:sleepTogetherTier(r.classification),sleepTogetherValue:sleepTogetherValue(r.classification),foodConflictPreserved:!!r.classification.foodConflictPreserved,foodConflictSlots:r.foodConflictSlots||[]},reviewState:resultReviewState(r),processingError:r.processingError||null,processingErrorResolved:r.processingErrorResolved||null,manualPreviewErrors:r.manualPreviewErrors||null,manualPreviewSourceError:r.manualPreviewSourceError||null,manualCompletion:r.manualCompletion||null}))};
 }
 function triggerBlobDownload(blob,filename){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;a.rel='noopener';a.style.display='none';document.body.appendChild(a);try{a.click();}finally{setTimeout(()=>{a.remove();URL.revokeObjectURL(url);},1500);}}
 async function downloadDiagnostics(){
@@ -2143,7 +2143,7 @@ async function downloadDiagnostics(){
  }
 }
 function csvCell(v){v=String(v??'');return /[",\n]/.test(v)?'"'+v.replaceAll('"','""')+'"':v;}
-const POKESLEEP_TOOL_CSV_HEADER=['ニックネーム','ポケモン','レベル','スキルレベル','食材1','食材2','食材3','メインスキル','せいかく','Lv10','Lv25','Lv50','Lv70','Lv80','一緒に眠った時間','色違い'];
+const POKESLEEP_TOOL_CSV_HEADER=['ニックネーム','ポケモン','レベル','スキルレベル','食材1','食材2','食材3','メインスキル','せいかく','まっしろミント','Lv10','Lv25','Lv50','Lv70','Lv80','一緒に眠った時間','色違い','お気に入り'];
 function csvWarnings(){const nw=results.filter(x=>x.parsed.nicknameNeedsReview).length,sw=results.reduce((n,r)=>n+subskillReviewSlots(r).length,0),mw=results.filter(x=>x.manualEditOpen&&!x.manualCompleted).length;return [nw?`ニックネーム要確認 ${nw}件（現在の読み取り値を出力）`:'',sw?`サブスキル要確認 ${sw}枠（pokesleep-toolでは未設定として読み込まれます）`:'',mw?`手動補完中 ${mw}件（確定前の編集内容はCSVに反映されません）`:'' ].filter(Boolean);}
 function csvFoodResolvedForPokesleepTool(species,food,index){if(!food||food.needsReview)return false;const name=String(food.name||'').trim();if(!name)return false;if(name===NO_FOOD)return noneFoodAllowed(species,index);if(typeof manualProfilesForSpecies==='function')return manualProfilesForSpecies(species).some(p=>p[index]===name);return true;}
 function csvCompatibilityBlockers(){let speciesRows=0,levelRows=0,skillLevelRows=0,foodSlots=0,versatileRows=0,natureRows=0,mainSkillRows=0,subskillSlots=0;const details=[];for(let ri=0;ri<results.length;ri++){const r=results[ri],label=r.file||r.parsed?.nickname||'名称不明';const species=chosenSpecies(r);if(!species){speciesRows++;details.push({ri,file:label,issue:'ポケモン種族を確定してください',field:'species'});continue;}if(levelDataNeedsReview(r)){levelRows++;details.push({ri,file:label,issue:'レベルを再確認してください',field:'level'});}if(skillLevelDataNeedsReview(r)){skillLevelRows++;details.push({ri,file:label,issue:'スキルレベルを再確認してください',field:'skillLevel'});}if(species==='ミュウ'){const versatileKey=detailedMewVersatileSkill(r.parsed);if(!MEW_VERSATILE_KEYS.has(versatileKey)||!mewVersatileCsvLabel(versatileKey)){versatileRows++;details.push({ri,file:label,issue:'オールマイティーの具体スキルを確定してください',field:'mainSkill'});}}if(mainSkillDataNeedsReview(r)){mainSkillRows++;details.push({ri,file:label,issue:'メインスキルを確定してください',field:'mainSkill'});}const natureUnsafe=typeof natureDataNeedsReview==='function'?natureDataNeedsReview(r):!!r?.parsed?.natureNeedsReview||!String(r?.parsed?.nature||'').trim();if(natureUnsafe){natureRows++;details.push({ri,file:label,issue:'せいかくを確定してください',field:'nature'});}const illegal=new Set(typeof speciesFoodReviewSlots==='function'?speciesFoodReviewSlots(species,r.foods):[]),bad=[];for(let i=0;i<3;i++)if(illegal.has(i)||!csvFoodResolvedForPokesleepTool(species,r.foods?.[i],i))bad.push(i);if(bad.length){foodSlots+=bad.length;details.push({ri,file:label,issue:`${bad.map(i=>`食材${i+1}`).join('・')}を確定してください`,field:`food${bad[0]+1}`});}
@@ -2172,55 +2172,19 @@ function mainSkillCsvValue(parsed,classification,speciesOverride=''){
 // Ribbon-tier inference gives only a minimum threshold, not measured hours. An unobserved CSV field must use the user's 0 default.
 function ribbonCsvValue(_classification){return 0;}
 function shinyCsvValue(r){return r?.parsed?.shiny===true||r?.shiny===true?1:0;}
-// Export-only nature mapping: never change OCR/manual result objects or checkpoint data.
-function mintAffectedRows(){return results.filter(r=>r?.parsed?.natureEffect==='neutralized');}
-const MINT_AMPED_NATURES=new Set(['いじっぱり','やんちゃ','ゆうかん','なまいき','うっかりや','わんぱく','のうてんき','ようき','せっかち','むじゃき','がんばりや','きまぐれ','すなお']);
-function mintNeutralNature(species,originalNature){
- if(species==='ストリンダー (ハイ)')return 'がんばりや';
- if(species==='ストリンダー (ロー)')return 'まじめ';
- if(species==='エレズン')return MINT_AMPED_NATURES.has(originalNature)?'がんばりや':'まじめ';
- return 'まじめ';
-}
-function mintCsvNature(r,mode){
- const original=r?.parsed?.nature??'';
- if(mode!=='neutral'||r?.parsed?.natureEffect!=='neutralized')return original;
- return mintNeutralNature(chosenSpecies(r),original);
-}
-function chooseMintCsvMode(action){
- const count=mintAffectedRows().length;
- if(!count)return Promise.resolve('original');
- const dialog=$('#mintExportDialog');
- if(!dialog||typeof dialog.showModal!=='function'||dialog.open)return Promise.resolve(null);
- const original=dialog.querySelector('input[name="mintExportMode"][value="original"]');
- const message=$('#mintExportMessage'),confirm=$('#mintExportConfirm');
- if(!original||!message||!confirm)return Promise.resolve(null);
- original.checked=true;
- dialog.returnValue='cancel';
- message.textContent=`まっしろミント使用個体 ${count}匹のCSV出力方法を選択してください。`;
- confirm.textContent=`CSVを${action}`;
- const focus=document.activeElement;
- return new Promise(resolve=>{
-  const onClose=()=>{
-   dialog.removeEventListener('close',onClose);
-   if(focus&&document.contains(focus))focus.focus();
-   resolve(dialog.returnValue==='confirm'?(dialog.querySelector('input[name="mintExportMode"]:checked')?.value||'original'):null);
-  };
-  dialog.addEventListener('close',onClose);
-  try{dialog.showModal();original.focus();}
-  catch(_){dialog.removeEventListener('close',onClose);resolve(null);}
- });
-}
-function toPokesleepToolCsvRow(r,mintMode='original'){const p=r.parsed,c=r.classification,species=chosenSpecies(r),foods=[0,1,2].map(i=>foodCsvValue(r.foods?.[i]||{})),subReview=new Set(subskillReviewSlots(r)),subs=[0,1,2,3,4].map(i=>subReview.has(i)?'':(p.subs?.[i]?.value||''));return [p.nickname,species,p.level??'',p.skillLevel??'',...foods,mainSkillCsvValue(p,c,r.speciesManualOverride||''),mintCsvNature(r,mintMode),...subs,ribbonCsvValue(c),shinyCsvValue(r)];}
-function buildCsvText(mintMode='original'){const rows=[POKESLEEP_TOOL_CSV_HEADER,...results.map(r=>toPokesleepToolCsvRow(r,mintMode))];return rows.map(row=>row.map(csvCell).join(',')).join('\n');}
-function validatedCsvText(mintMode='original'){
+// Export-only: preserve the original nature and write an independent mint flag.
+function mintCsvFlag(r){return r?.parsed?.natureEffect==='neutralized'?'1':'0';}
+function toPokesleepToolCsvRow(r){const p=r.parsed,c=r.classification,species=chosenSpecies(r),foods=[0,1,2].map(i=>foodCsvValue(r.foods?.[i]||{})),subReview=new Set(subskillReviewSlots(r)),subs=[0,1,2,3,4].map(i=>subReview.has(i)?'':(p.subs?.[i]?.value||''));return [p.nickname,species,p.level??'',p.skillLevel??'',...foods,mainSkillCsvValue(p,c,r.speciesManualOverride||''),p.nature??'',mintCsvFlag(r),...subs,ribbonCsvValue(c),shinyCsvValue(r),''];}
+function buildCsvText(){const rows=[POKESLEEP_TOOL_CSV_HEADER,...results.map(r=>toPokesleepToolCsvRow(r))];return rows.map(row=>row.map(csvCell).join(',')).join('\n');}
+function validatedCsvText(){
  const gate=window.POKESLEEP_CSV_GATE;
  if(!gate)throw Error('CSV検証プログラムを読み込めませんでした');
- const text=buildCsvText(mintMode),audit=gate.inspect(text,window.POKESLEEP_MASTER);
+ const text=buildCsvText(),audit=gate.inspect(text,window.POKESLEEP_MASTER);
  if(!audit.ok)throw Error(audit.errors.slice(0,6).join(' / '));
  return text;
 }
-async function safeExportText(mintMode='original'){
- try{return validatedCsvText(mintMode);}
+async function safeExportText(){
+ try{return validatedCsvText();}
  catch(err){
   await showAppDialog({title:'CSV検証に失敗しました',message:'CSVの整合性を確認できないため、出力を停止しました。値を再確認してください。',details:[String(err?.message||err)],primaryLabel:'閉じる',tone:'error'});
   return null;
@@ -2228,8 +2192,7 @@ async function safeExportText(mintMode='original'){
 }
 async function downloadCSV(){
  if(isRunning||analysisPause||!results.length||!await confirmCsvAction('保存'))return;
- const mintMode=await chooseMintCsvMode('保存');if(mintMode===null)return;
- const text=await safeExportText(mintMode);
+ const text=await safeExportText();
  if(text===null)return;
  const gate=window.POKESLEEP_CSV_GATE;
  try{
@@ -2239,6 +2202,6 @@ async function downloadCSV(){
   await showAppDialog({title:'CSVを保存できませんでした',message:'保存ファイル名を安全に確定できませんでした。',details:[String(err?.message||err)],primaryLabel:'閉じる',tone:'error'});
  }
 }
-async function copyCSV(){if(isRunning||analysisPause||!results.length||!await confirmCsvAction('コピー'))return;const mintMode=await chooseMintCsvMode('コピー');if(mintMode===null)return;const text=await safeExportText(mintMode);if(text===null)return;const btn=$('#copyCsv');try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(text);else throw new Error('Clipboard API unavailable');}catch(_){const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();if(!ok){await showAppDialog({title:'コピーできませんでした',message:'ブラウザのクリップボード機能を利用できませんでした。CSV保存を利用してください。',primaryLabel:'閉じる',tone:'error'});return;}}const old=btn.textContent;btn.textContent='コピーしました';btn.classList.add('copied');setTimeout(()=>{btn.textContent=old;btn.classList.remove('copied');},1500);}
+async function copyCSV(){if(isRunning||analysisPause||!results.length||!await confirmCsvAction('コピー'))return;const text=await safeExportText();if(text===null)return;const btn=$('#copyCsv');try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(text);else throw new Error('Clipboard API unavailable');}catch(_){const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();if(!ok){await showAppDialog({title:'コピーできませんでした',message:'ブラウザのクリップボード機能を利用できませんでした。CSV保存を利用してください。',primaryLabel:'閉じる',tone:'error'});return;}}const old=btn.textContent;btn.textContent='コピーしました';btn.classList.add('copied');setTimeout(()=>{btn.textContent=old;btn.classList.remove('copied');},1500);}
 setTimeout(()=>{void initCheckpointRecovery();},0);
 })();
