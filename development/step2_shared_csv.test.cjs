@@ -354,3 +354,36 @@ test('all Toxel nature names survive new mint flag; reject neutral-mint contradi
  assert.equal(rows.length,ai.natures.length);
  assert.equal(typeof begin,'number');assert.ok(end>begin);
 });
+
+test('legacy 16-column CSV and displaced mint flag fail the current CSV gate',()=>{
+ const gate=harness().gate,header=Array.from(gate.HEADER);
+ const legacyHead=header.filter((_,i)=>i!==9&&i!==17),legacyRow=fields.filter((_,i)=>i!==9&&i!==17);
+ assert.equal(legacyHead.length,16);assert.equal(legacyRow.length,16);
+ assert.equal(gate.inspect(gate.serialize([legacyHead,legacyRow]),ai).ok,false);
+ const shifted=[...fields];shifted.splice(9,1);shifted.push('0');
+ assert.equal(shifted.length,18);
+ assert.equal(gate.inspect(gate.serialize([header,shifted]),ai).ok,false);
+});
+test('real raw diagnostic snapshot is 3 columns plus 18, keeping nature and mint',()=>{
+ const app=fs.readFileSync(path.join(root,'app.js'),'utf8');
+ const b=app.indexOf('function capturePreManualCsvSnapshot(');
+ const e=app.indexOf('function diagnosticPreManualCsvSnapshot(',b);
+ assert.ok(b>=0&&e>b);
+ const gate=harness().gate,raw=[...fields];raw[8]='いじっぱり';raw[9]='1';
+ const ctx={results:[{sourceIndex:0,file:'synthetic.png',preManualCsvRow:raw}],
+  selected:[{name:'synthetic.png'}],preManualCsvSnapshot:null,Date,
+  POKESLEEP_TOOL_CSV_HEADER:Array.from(gate.HEADER),
+  diagnosticSnapshotStatus:()=> 'ready',diagnosticRawCsvFilename:()=> 'synthetic.csv',
+  csvCell:v=>gate.serialize([[v]])};
+ vm.createContext(ctx);vm.runInContext(app.slice(b,e),ctx);
+ const s=ctx.capturePreManualCsvSnapshot(),parsed=gate.parse(s.csvText);
+ assert.equal(s.header.length,21);
+ assert.equal(s.header[12],'まっしろミント');
+ assert.equal(s.rows[0].length,21);
+ assert.equal(s.rows[0][11],'いじっぱり');
+ assert.equal(s.rows[0][12],'1');
+ assert.equal(s.rawRows[0].length,18);
+ assert.equal(parsed[0].length,21);
+ assert.equal(parsed[1].length,21);
+ assert.equal(gate.inspect(s.csvText,ai).ok,false);
+});

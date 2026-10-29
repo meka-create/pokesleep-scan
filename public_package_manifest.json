@@ -7,7 +7,7 @@
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 82,
+  "fileCount": 83,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -66,8 +66,13 @@
     },
     {
       "path": "development/ROADMAP_20261013.md",
-      "bytes": 6298,
-      "sha256": "3eb3bbcf9eff1579500faff34aca999728ebf80db69d7e7e42ed09af97c35581"
+      "bytes": 6526,
+      "sha256": "4a26cbc0fa5c43382121c3da12179f51dce458ff191f9b128469b633e87bc4b4"
+    },
+    {
+      "path": "development/ROADMAP_CURRENT.md",
+      "bytes": 3839,
+      "sha256": "3747be835425330f95b1abcb0e699c6a80dc8783b8e324390a023b92d2237faa"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -256,8 +261,8 @@
     },
     {
       "path": "development/step2_shared_csv.test.cjs",
-      "bytes": 20902,
-      "sha256": "475280a114eea605459b0ac80766cb8b9e4820cbe5ac16a8caa41fe09c0c3d5f"
+      "bytes": 22692,
+      "sha256": "744dffa5df9bc88f7a7b35bb6ca4863d4cd651ca42b553f8acb0dc38858d83bb"
     },
     {
       "path": "development/step3_android_roi.test.cjs",
