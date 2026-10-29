@@ -7,7 +7,7 @@ from csv18_roundtrip_acceptance import evaluate, parse_csv
 from final_evidence_gate import COLS
 
 
-def encode(rows, ending="\\n"):
+def encode(rows, ending="\n"):
     out = io.StringIO(newline="")
     w = csv.writer(out, lineterminator="\n")
     w.writerows([COLS, *rows])
