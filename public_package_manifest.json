@@ -281,8 +281,8 @@
     },
     {
       "path": "development/step3_real_upstream_importer.test.ts",
-      "bytes": 8397,
-      "sha256": "62e04f1220935bd7c8d8924cf782282683bd6d93fd63f871fe30c6e870860a75"
+      "bytes": 8488,
+      "sha256": "647f16b5320d19ac0e89e3e4b36073be7569e4b758f1df0883bf958f75021a3c"
     },
     {
       "path": "development/test_final_evidence_gate.py",
@@ -316,8 +316,8 @@
     },
     {
       "path": "development/verify_oct26_classify_csv.cjs",
-      "bytes": 2455,
-      "sha256": "48782da5d1323993999bef2090a0302aaf16223919d11adb790b964c611481a0"
+      "bytes": 2462,
+      "sha256": "c8fdf897955a91655597d9a612a61899b48a954e81f69d3f57575b44c89bf858"
     },
     {
       "path": "development/verify_oct26_preflight.py",

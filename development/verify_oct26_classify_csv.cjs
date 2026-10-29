@@ -1,5 +1,5 @@
 'use strict';
-// Synthetic observed SP / screenshot-text and 16-column CSV tests; not live OCR.
+// Synthetic observed SP / screenshot-text and 18-column CSV tests; not live OCR.
 const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('node:vm');
 const master=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
 const baseline=JSON.parse(fs.readFileSync('shared/MASTER_DATA.json','utf8'));
@@ -34,10 +34,10 @@ for(const name of species){
  const p=master.pokemon.find(x=>x.name===name);
  const food=slot=>[p.ing1,p.ing2,p.ing3].filter(Boolean).find(f=>Number.isInteger(f['c'+slot])&&f['c'+slot]>0)?.name||'';
  rows.push([name,p.name,'30','1',food(1),food(2),food(3),p.mainSkill,nature.ja,
-  ...master.subskills.slice(0,5).map(x=>x.ja),'0','0']);
+  '0',...master.subskills.slice(0,5).map(x=>x.ja),'0','0','']);
 }
-assert.ok(rows.every(x=>x.length===16));
+assert.ok(rows.every(x=>x.length===18));
 const csv=gate.serialize(rows),check=gate.inspect(csv,master);
 assert.equal(check.ok,true,JSON.stringify(check.errors));
 assert.equal(gate.serialize(gate.parse(csv)),csv);
-console.log('SYNTHETIC CSV GATE: PASS; two 16-column rows and roundtrip');
+console.log('SYNTHETIC CSV GATE: PASS; two 18-column rows and roundtrip');

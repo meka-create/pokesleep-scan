@@ -151,7 +151,7 @@ describe("REAL production scan exporter -> latest upstream importer",()=>{
   ] as const;
   imported.items.forEach((item,i)=>{
    expect((jaData as any).natures[item.iv.nature.name]).toBe(expected[i][0]);
-   expect(item.iv.nature.mint).toBe(expected[i][1]);
+   expect(item.iv.nature.mint, 'mint mismatch for row '+i+' species '+item.iv.pokemonName+' nature '+item.iv.nature.name).toBe(expected[i][1]);
    if(expected[i][1])expect(item.iv.nature.speedOfHelpFactor).toBe(1);
   });
   expect(imported.items[0].nickname).toBe('ミント,「試験」');
