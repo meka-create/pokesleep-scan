@@ -22,6 +22,7 @@ import io
 import zipfile
 from collections import Counter
 from pathlib import Path
+from final_evidence_gate import RAW as CSV18_RAW, LEGACY_RAW as CSV16_RAW
 
 EXPECTED_COUNT = 142
 FIELD_NAMES = (
@@ -205,6 +206,11 @@ def evaluate(golden_rows, diagnostics, verified_image_sizes=None):
         raise ValueError("Pre-manual snapshot missing, incomplete, or derived from old checkpoint data")
     if len(snap.get("rows", [])) != EXPECTED_COUNT:
         raise ValueError("Pre-manual snapshot rows are missing")
+    raw_header=tuple(snap.get('header') or ())
+    if raw_header not in (CSV16_RAW,CSV18_RAW):
+        raise ValueError('Unexpected immutable raw CSV schema/header (expected 19 or 21 columns)')
+    expected_width=len(raw_header)
+    expected_mint_index=12 if expected_width==21 else None
     indexed = {}
     for result in results:
         i = result.get("sourceIndex")
@@ -237,7 +243,9 @@ def evaluate(golden_rows, diagnostics, verified_image_sizes=None):
             raise ValueError("Duplicate diagnostics mapping to same original image")
         seen.add(golden["assetId"])
         snap_row = snap["rows"][i]
-        if len(snap_row) != 19 or snap_row[0] != i + 1 or snap_row[1] != file or snap_row[2] != "解析成功":
+        if (len(snap_row) != expected_width or snap_row[0] != i + 1
+                or snap_row[1] != file or snap_row[2] != "解析成功"
+                or (expected_mint_index is not None and snap_row[expected_mint_index] not in ('0','1'))):
             raise ValueError(f"Missing/misaligned immutable raw row {i}")
         mapping.append({"sourceIndex": i, "assetId": golden["assetId"], "originalFile": golden["画像ファイル"], "selectedAlias": file})
         observed, flags = _observation(row)

@@ -7,7 +7,7 @@
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 83,
+  "fileCount": 86,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 12057,
-      "sha256": "9655a3e8ed46654f7caa009deb52c80a6ca819e671bcccb7d6ed2aa3318c3710"
+      "bytes": 12251,
+      "sha256": "ce86aab2aef44b361876091eb92596d9ac881018bb5c4e55a49adb704f6ad6ea"
     },
     {
       "path": ".gitignore",
@@ -65,14 +65,19 @@
       "sha256": "128f9bed6ba539d7b2cff5768fdee6c07babfa76970b25a1939ce649d46cd686"
     },
     {
+      "path": "development/CSV18_DEVICE_ACCEPTANCE.md",
+      "bytes": 3887,
+      "sha256": "9435811e0f51bcbda3abc65187ef6b7043119a23f9054f82417d0f34a6f2783c"
+    },
+    {
       "path": "development/ROADMAP_20261013.md",
       "bytes": 6526,
       "sha256": "4a26cbc0fa5c43382121c3da12179f51dce458ff191f9b128469b633e87bc4b4"
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 3839,
-      "sha256": "3747be835425330f95b1abcb0e699c6a80dc8783b8e324390a023b92d2237faa"
+      "bytes": 4010,
+      "sha256": "85e4d15bb2c7183e46e83a54e156d71485cfcc9f7b6a691fb7019963e2d05b81"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -120,14 +125,19 @@
       "sha256": "cf24f8b25e6bc7f7f3b9d94a55edd3759ee21645e5be3e10688e50b13ecae668"
     },
     {
+      "path": "development/csv18_roundtrip_acceptance.py",
+      "bytes": 5765,
+      "sha256": "fa37bf47021f4eedc24b92c6cf457fd795837837fea68b98e50aa909955e87da"
+    },
+    {
       "path": "development/failure_card_actions.test.cjs",
       "bytes": 6528,
       "sha256": "4d3d2176e3cb90abeb3d0b815ff4a61e4d5e346c1006aef73f1330b464b45feb"
     },
     {
       "path": "development/final_evidence_gate.py",
-      "bytes": 4916,
-      "sha256": "9082d5c2b21e58c8be8a9bac8a74ef27f0af8f91e54c06d13ed976ff5aabcfd9"
+      "bytes": 6208,
+      "sha256": "7349a5c59fc7d7dca0f58fcae7028b8eafdf32dd8e5dae9fefc8c3dc8c5530df"
     },
     {
       "path": "development/generate_public_package_manifest.py",
@@ -241,8 +251,8 @@
     },
     {
       "path": "development/step2_meka142_benchmark.py",
-      "bytes": 15339,
-      "sha256": "63cc811d93fed04b0649903398d812dbb6f9e384e919b8ea80c630ce37b75173"
+      "bytes": 15835,
+      "sha256": "6b7b3e3435fe7fdf64784dc1bd6e4a15982b0db877d5ad7c4c209e49c84818be"
     },
     {
       "path": "development/step2_mythical_empty_dash.test.cjs",
@@ -290,9 +300,14 @@
       "sha256": "5cd89fd4faeb4a6994bd85eefb43b7b05ff21e98e4ef69568097af1d8d2f27bb"
     },
     {
+      "path": "development/test_csv18_roundtrip_acceptance.py",
+      "bytes": 3602,
+      "sha256": "4b72083170808cf41ec44ae6b5b15bca8a7e2ada597f81d8fa2d09f164da535b"
+    },
+    {
       "path": "development/test_final_evidence_gate.py",
-      "bytes": 3014,
-      "sha256": "a00cb083bb9bb6dadeef1d8789425c807e563c63713a4540ec195165be95dd4c"
+      "bytes": 4196,
+      "sha256": "11c9ec9ff1778172416323531ecb7713ca16ac6d9f6dbcc468903b5575d61d79"
     },
     {
       "path": "development/test_master_auto_update.py",
@@ -316,8 +331,8 @@
     },
     {
       "path": "development/test_step2_meka142_benchmark.py",
-      "bytes": 9308,
-      "sha256": "e11c067015b7d58f33edc41c9cbf7e461f04a46e21d74d3df8a5ee40e751ca3b"
+      "bytes": 10204,
+      "sha256": "9af428db3ad8249380dbef4abb9e4ada6f291b77f31ddfcb7b19a70ca4c5e6fd"
     },
     {
       "path": "development/verify_oct26_classify_csv.cjs",
