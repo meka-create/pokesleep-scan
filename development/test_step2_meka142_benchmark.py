@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 from step2_meka142_benchmark import EXPECTED_COUNT, FIELD_NAMES, evaluate, read_golden, verify_images, verify_raw_csv
+from final_evidence_gate import COLS, RAW, LEGACY_RAW
 
 
 def fixture():
@@ -40,13 +41,13 @@ def fixture():
             "foods": [{"name": x, "needsReview": False, "manualOverride": False}
                       for x in ("あまいミツ", "あんみんトマト", "ほっこりポテト")],
         })
-    raw_rows = [[i + 1, selected[i]["name"], "解析成功", *["" for _ in range(16)]]
+    raw_rows = [[i + 1, selected[i]["name"], "解析成功", *(["0"] * len(COLS))]
                 for i in range(EXPECTED_COUNT)]
-    assert all(len(row) == 19 for row in raw_rows)
+    assert all(len(row) == 21 for row in raw_rows)
     diag = {"version": "v12-synthetic", "results": results, "selectedFiles": selected,
             "preManualCsvSnapshot": {"schema": 2, "rowCount": EXPECTED_COUNT,
                                      "successfulRowCount": EXPECTED_COUNT,
-                                     "header": [f"column_{j}" for j in range(19)],
+                                     "header": list(RAW),
                                      "rows": raw_rows, "skipped": [], "derivedRows": []}}
     return golden, diag
 
@@ -78,6 +79,20 @@ class Meka142BenchmarkTest(unittest.TestCase):
         self.assertEqual(rep["totals"]["review_or_manual"], 3)
         self.assertFalse(rep["allFieldsAutomaticallyCorrect"])
 
+    def test_both_historical_19_and_current_21_column_raw_snapshots(self):
+        golden, diag = fixture()
+        self.assertEqual(evaluate(golden,diag)['totalFields'],2272)
+        snap=diag['preManualCsvSnapshot']
+        snap['header']=list(LEGACY_RAW)
+        snap['rows']=[[cell for j,cell in enumerate(row) if j not in (12,20)] for row in snap['rows']]
+        self.assertTrue(all(len(row)==19 for row in snap['rows']))
+        self.assertEqual(evaluate(golden,diag)['totalFields'],2272)
+        snap['rows'][0].append('extra')
+        with self.assertRaisesRegex(ValueError,'Missing/misaligned'):evaluate(golden,diag)
+    def test_current_21_column_snapshot_rejects_missing_mint(self):
+        golden,diag=fixture()
+        diag['preManualCsvSnapshot']['rows'][0][12]=''
+        with self.assertRaisesRegex(ValueError,'Missing/misaligned'):evaluate(golden,diag)
     def test_derived_pre_manual_snapshot_refused(self):
         golden, diag = fixture()
         diag["preManualCsvSnapshot"]["derivedRows"].append({"sourceIndex": 1})
