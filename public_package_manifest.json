@@ -1,13 +1,13 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "master-9d4518000258-d0a40e122d",
-  "appBuildId": "v12-master-9d4518000258-d0a40e122d",
+  "releaseId": "2026-10-29-tool-mint-csv18-v1",
+  "appBuildId": "v12-pokesleep-mint-csv18-20261029-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 81,
+  "fileCount": 82,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 11904,
-      "sha256": "605e1981ac05c41aed44ca8bae15ffc2bbd3984686c65ca0546ea802b35f3649"
+      "bytes": 12057,
+      "sha256": "9655a3e8ed46654f7caa009deb52c80a6ca819e671bcccb7d6ed2aa3318c3710"
     },
     {
       "path": ".gitignore",
@@ -30,19 +30,14 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "path": "THIRD_PARTY_NOTICES.md",
-      "bytes": 4318,
-      "sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
-    },
-    {
       "path": "android_roi.js",
       "bytes": 6991,
       "sha256": "d08d08bfd1f42ac12035ef3cb41049061b54ee19959d7e26033c52c1cf0a367b"
     },
     {
       "path": "app.js",
-      "bytes": 325141,
-      "sha256": "c59020b6ab9fb9bb86bffd190fc89acd9022525432179a86b0cfaaa7e48be322"
+      "bytes": 322994,
+      "sha256": "5df87cbc7c5a2003ecf50b0f9bfd487ba27d785e8c8a40f5c71106da0def938e"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -61,18 +56,8 @@
     },
     {
       "path": "csv_gate.js",
-      "bytes": 8245,
-      "sha256": "21dc417084295317019f1338616c6b27c24e85d903c1269bde2daefef90d2ba3"
-    },
-    {
-      "path": "development/ROADMAP_20261013.md",
-      "bytes": 6298,
-      "sha256": "3eb3bbcf9eff1579500faff34aca999728ebf80db69d7e7e42ed09af97c35581"
-    },
-    {
-      "path": "development/STEP1_INDEPENDENT_MASTER.md",
-      "bytes": 2247,
-      "sha256": "d67d0a641509a88a5e7099c07418867e154f5e675f11bea0552084d7011bc445"
+      "bytes": 8676,
+      "sha256": "128f9bed6ba539d7b2cff5768fdee6c07babfa76970b25a1939ce649d46cd686"
     },
     {
       "path": "development/browser_append_after_results.py",
@@ -91,8 +76,8 @@
     },
     {
       "path": "development/browser_csv_download_audit.py",
-      "bytes": 24335,
-      "sha256": "cbb4b8066e5d875de17ea670a48c427ced39d2c15369e317150a07a02bb79c09"
+      "bytes": 22574,
+      "sha256": "dd48e5764740050274bf4dff79ea9294272771e45564aca6aee18f498bf20db7"
     },
     {
       "path": "development/browser_failure_card_modal.py",
@@ -130,6 +115,11 @@
       "sha256": "84413c3e43434b0bb2b856998cc6ad5787db8ba900f79f563f1a37561eba3bf6"
     },
     {
+      "path": "development/generate_upstream_import_fixture.cjs",
+      "bytes": 2768,
+      "sha256": "f6d287579de84cf64007aea043e4f2e45da97401f058d6ec7d5ba570657e3d5e"
+    },
+    {
       "path": "development/image_button_compact.test.cjs",
       "bytes": 1729,
       "sha256": "0cdc38eb95d751f45731578919653703e9572b781aa80e2837892c03170dbad1"
@@ -162,7 +152,7 @@
     {
       "path": "development/nickname_caption_rescue.test.cjs",
       "bytes": 7368,
-      "sha256": "7494eaa4146904a3599eb1ec7b42818892e54e0005ff53ff7c952ebde5e96bd6"
+      "sha256": "48e623286dbf50870271a7cc7586914a43c1e5114b413f4deed6b31eff940832"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -205,6 +195,11 @@
       "sha256": "fa5970688bc8863d9931c5bd80fbaceef8fc45b6ad7e528fae77c1c4c358a51f"
     },
     {
+      "path": "development/ROADMAP_20261013.md",
+      "bytes": 6298,
+      "sha256": "3eb3bbcf9eff1579500faff34aca999728ebf80db69d7e7e42ed09af97c35581"
+    },
+    {
       "path": "development/runtime_smoke.test.cjs",
       "bytes": 2353,
       "sha256": "1d85a83ce5bda029d4c8b8ded7b4cbf78ae0b92a1b1f3c7cf8463c1d534e3ace"
@@ -213,6 +208,11 @@
       "path": "development/speed_warning.test.cjs",
       "bytes": 6784,
       "sha256": "e253621beb9653083b00da0f162fe76334277b62977bb1ba71495519ac2540c6"
+    },
+    {
+      "path": "development/STEP1_INDEPENDENT_MASTER.md",
+      "bytes": 2247,
+      "sha256": "d67d0a641509a88a5e7099c07418867e154f5e675f11bea0552084d7011bc445"
     },
     {
       "path": "development/step2_asset_revision.test.cjs",
@@ -251,8 +251,8 @@
     },
     {
       "path": "development/step2_shared_csv.test.cjs",
-      "bytes": 22649,
-      "sha256": "7775f34125e33ea2a86f3789f9d54c0919c317ac2a6f7359831bf2c62e5a7fdf"
+      "bytes": 20893,
+      "sha256": "288ddf65448a0286dfd21cda254c35465278d56ed47a2e01936a096e1c653aaf"
     },
     {
       "path": "development/step3_android_roi.test.cjs",
@@ -276,8 +276,8 @@
     },
     {
       "path": "development/step3_real_upstream_importer.test.ts",
-      "bytes": 7109,
-      "sha256": "6a7a4da268617d272a8e6e5c622ae0189961ca3a04696207d165b9c446f14f8f"
+      "bytes": 8397,
+      "sha256": "62e04f1220935bd7c8d8924cf782282683bd6d93fd63f871fe30c6e870860a75"
     },
     {
       "path": "development/test_final_evidence_gate.py",
@@ -366,13 +366,18 @@
     },
     {
       "path": "index.html",
-      "bytes": 76229,
-      "sha256": "18289f35658a499b725a6acfd9ea8c382a0b7b275ad5b671c0cc73687b0429aa"
+      "bytes": 73996,
+      "sha256": "d7fa52a09153a1e18201f16da6a59a4b089a18c0b9d130cc500152aae4a70906"
     },
     {
       "path": "manifest.webmanifest",
       "bytes": 1250,
       "sha256": "8b3751a6c224f95dd9435284e28273c6a94066f351256b1c74958506eb8b918c"
+    },
+    {
+      "path": "master_data.js",
+      "bytes": 131939,
+      "sha256": "b0f3bc100966de43dfdd4bd2d6b2036d8f7609b718b241a60674612aaf384ab4"
     },
     {
       "path": "master-update-status.js",
@@ -385,14 +390,14 @@
       "sha256": "7cf9f54227ca027c61cb01c91f5c9b1e5a5e3a781576e151f2d3472bbedf0c56"
     },
     {
-      "path": "master_data.js",
-      "bytes": 131939,
-      "sha256": "b0f3bc100966de43dfdd4bd2d6b2036d8f7609b718b241a60674612aaf384ab4"
+      "path": "release.json",
+      "bytes": 44,
+      "sha256": "b77e0c494ff2e5462c451fa637ff299da08caf3d27894d363db605c1904944a2"
     },
     {
-      "path": "release.json",
-      "bytes": 45,
-      "sha256": "eba1f319506afb2ece4dfc1b3bdf069b75fb9715fd7bcfb2f51916ea8a8c7cb4"
+      "path": "shared_master.js",
+      "bytes": 5816,
+      "sha256": "bc817438a9c541c141501cf314e62eee32f61acb9bdc87af22cf685a209b79dd"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -405,14 +410,14 @@
       "sha256": "8793b323a0e4d4c69b3ed0272d1961b7bb94606d7fa75df5a6d5950f1ced1b85"
     },
     {
-      "path": "shared_master.js",
-      "bytes": 5816,
-      "sha256": "bc817438a9c541c141501cf314e62eee32f61acb9bdc87af22cf685a209b79dd"
+      "path": "sw.js",
+      "bytes": 4045,
+      "sha256": "1224ec168400f69aee52a3cc26b7402dd11184a9c8e19b224a741d5fe3321854"
     },
     {
-      "path": "sw.js",
-      "bytes": 4046,
-      "sha256": "d380cfe9d363b49ca25755cd739cc08f412f59951d7783890c427137e04f83f2"
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 4318,
+      "sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
     }
   ]
 }
