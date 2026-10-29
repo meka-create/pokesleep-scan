@@ -137,3 +137,31 @@ describe("White Mint compatible nature-only CSV (independent upstream importer)"
   }
  });
 });
+
+describe("REAL production scan exporter -> latest upstream importer",()=>{
+ const p=process.env.SCAN_EXPORTED_CSV_PATH;
+ (p?test:test.skip)("production 18-column CSV imports without loss and round-trips",()=>{
+  const csv=readFileSync(p!,"utf8");
+  const imported=importFromCsvTsv(csv,"csv",t);
+  expect(imported.warnings).toEqual([]);
+  expect(imported.items).toHaveLength(6);
+  const expected=[
+   ["いじっぱり",true],["おだやか",false],["てれや",false],
+   ["いじっぱり",true],["いじっぱり",true],["おだやか",true]
+  ] as const;
+  imported.items.forEach((item,i)=>{
+   expect((jaData as any).natures[item.iv.nature.name]).toBe(expected[i][0]);
+   expect(item.iv.nature.mint).toBe(expected[i][1]);
+   if(expected[i][1])expect(item.iv.nature.speedOfHelpFactor).toBe(1);
+  });
+  expect(imported.items[0].nickname).toBe('ミント,「試験」');
+  const exported=exportToCsvTsv(imported.items,t,"csv");
+  const importedAgain=importFromCsvTsv(exported,"csv",t);
+  expect(importedAgain.warnings).toEqual([]);
+  expect(importedAgain.items).toHaveLength(6);
+  for(let i=0;i<6;i++){
+   expect(importedAgain.items[i].iv.nature.isEqual(imported.items[i].iv.nature)).toBe(true);
+   expect(importedAgain.items[i].nickname).toBe(imported.items[i].nickname);
+  }
+ });
+});

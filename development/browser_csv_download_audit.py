@@ -193,10 +193,10 @@ def main():
                     check(not raw.startswith(b"\xef\xbb\xbf"),"Unexpected BOM in actual download")
                     check(b"\r" not in raw,"Unexpected CR in actual download")
                     rows=list(csv.reader(io.StringIO(raw.decode("utf-8"),newline=""),strict=True))
-                    check(len(rows)==2 and len(rows[1])==16,"CSV download row or column count")
+                    check(len(rows)==2 and len(rows[1])==18,"CSV download row or column count")
                     check(rows[1][0]=='監査,"テスト"',"Nickname quoting not round-tripped")
-                    check(rows[1][14]=='0',"Inferred ribbon threshold leaked as observed hours")
-                    check(rows[1][15]=='0',"Unobserved shiny should default 0")
+                    check(rows[1][15]=='0',"Inferred ribbon threshold leaked as observed hours")
+                    check(rows[1][16]=='0',"Unobserved shiny should default 0")
                     downloads.append(name)
                 check(downloads[0]!=downloads[1],"Two files used identical names")
                 check(re.search(r"\d{8}_\d{4}\.csv$",downloads[0]) is not None,
@@ -206,41 +206,38 @@ def main():
                 evidence["checks"].append("two physical Blob CSV downloads, valid rows and numbered names")
 
 
-                # Minted Pokémon: cancel, preserve original, or neutralize only the
-                # CSV output. The loaded OCR result must remain unchanged.
+                # Minted Pokemon: export original nature + independent mint flag.
+                # No export-choice dialog; a real Blob download and a real
+                # clipboard write must both use the new 18-column schema.
                 page.evaluate("""()=>{
                   const p=POKESLEEP_MASTER.pokemon.find(x=>x.name==='フシギダネ');
                   const subs=POKESLEEP_MASTER.subskills.slice(0,5).map(x=>({value:x.ja,needsReview:false}));
-                  window.__STEP2_AUDIT__.setRows([{
+                  const mk=(nickname,nature,mint)=>({
                     file:'mint-synthetic.png',speciesManualOverride:p.name,
                     classification:{status:'UNIQUE',candidates:[p.name],hits:[]},
-                    parsed:{nickname:'ミント使用',level:10,skillLevel:1,mainSkill:p.mainSkill,
-                      nature:'いじっぱり',natureEffect:'neutralized',mintDetection:{applied:true},subs},
+                    parsed:{nickname,level:10,skillLevel:1,mainSkill:p.mainSkill,
+                      nature,natureEffect:mint?'neutralized':'normal',mintDetection:{applied:mint},subs},
                     foods:Array.from({length:3},()=>({name:p.ing1.name,needsReview:false}))
-                  }]);
+                  });
+                  window.__STEP2_AUDIT__.setRows([mk('ミント使用','いじっぱり',true),
+                                                  mk('ミント未使用','おだやか',false)]);
                 }""")
-                page.locator("#csv").click()
-                modal=page.locator("#mintExportDialog")
-                modal.wait_for(state="visible",timeout=10000)
-                check(page.locator("input[name='mintExportMode'][value='original']").is_checked(),
-                      "Original nature should be the default")
-                check("復元" not in modal.inner_text(),"Redundant restore disclaimer must be absent")
-                page.locator("#mintExportDialog button[value='cancel']").click()
-                modal.wait_for(state="hidden",timeout=10000)
-                for choice,expected in [("original","いじっぱり"),("neutral","まじめ")]:
-                    with page.expect_download(timeout=10000) as mint_info:
-                        page.locator("#csv").click()
-                        modal.wait_for(state="visible",timeout=10000)
-                        page.locator(f"input[name='mintExportMode'][value='{choice}']").check()
-                        page.locator("#mintExportConfirm").click()
-                    mint_rows=list(csv.reader(io.StringIO(
-                        Path(mint_info.value.path()).read_text(encoding="utf-8"))))
-                    check(len(mint_rows)==2 and len(mint_rows[1])==16 and mint_rows[1][8]==expected,
-                          f"Mint CSV nature failed for {choice}")
-                    check(page.evaluate("window.__STEP2_AUDIT__") is not None,
-                          "Synthetic export hook unavailable")
-                # Clipboard success was previously untested: use a deterministic
-                # test-only clipboard sink, then assert the actual copied CSV text.
+                check(page.locator("#mintExportDialog").count()==0,
+                      "Obsolete two-choice export modal must be removed")
+                with page.expect_download(timeout=10000) as mint_info:
+                    page.locator("#csv").click()
+                mint_rows=list(csv.reader(io.StringIO(
+                    Path(mint_info.value.path()).read_text(encoding="utf-8"))))
+                check(len(mint_rows)==3 and all(len(r)==18 for r in mint_rows),
+                      "Real mint download must have 18 columns")
+                check(mint_rows[0][9]=="まっしろミント" and mint_rows[0][17]=="お気に入り",
+                      "Latest Japanese upstream schema not used")
+                check(mint_rows[1][8:10]==["いじっぱり","1"],
+                      "Mint used: original nature and usage flag not preserved")
+                check(mint_rows[2][8:10]==["おだやか","0"],
+                      "Mint unused: original nature or usage flag not preserved")
+                check(mint_rows[1][17]=="" and mint_rows[2][17]=="",
+                      "Favorites must stay blank until recognized")
                 page.evaluate("""()=>{
                     window.__AUDIT_COPIED__=null;
                     Object.defineProperty(navigator,'clipboard',{configurable:true,
@@ -248,38 +245,19 @@ def main():
                     document.querySelector('#copyCsv').disabled=false;
                 }""")
                 page.locator("#copyCsv").click()
-                modal.wait_for(state="visible",timeout=10000)
-                check("コピー" in page.locator("#mintExportConfirm").inner_text(),
-                      "Copy action was not labeled in mint choice")
-                page.locator("#mintExportDialog button[value='cancel']").click()
-                modal.wait_for(state="hidden",timeout=10000)
-                check(page.evaluate("window.__AUDIT_COPIED__") is None,
-                      "Cancel unexpectedly copied CSV data")
-                for mode,expected in [("neutral","まじめ"),("original","いじっぱり")]:
-                    page.locator("#copyCsv").click()
-                    modal.wait_for(state="visible",timeout=10000)
-                    check(page.locator("input[name='mintExportMode'][value='original']").is_checked(),
-                          "Each new export must default to unchanged original nature")
-                    page.locator(f"input[name='mintExportMode'][value='{mode}']").check()
-                    page.locator("#mintExportConfirm").click()
-                    modal.wait_for(state="hidden",timeout=10000)
-                    # Closing a native dialog resolves the export choice
-                    # asynchronously; wait for the *new* clipboard write to finish.
-                    page.wait_for_function(
-                        "expected => typeof window.__AUDIT_COPIED__ === 'string' && window.__AUDIT_COPIED__.includes(','+expected+',')",
-                        arg=expected,timeout=8000)
-                    copied=page.evaluate("window.__AUDIT_COPIED__")
-                    check(isinstance(copied,str) and copied.strip(),
-                          "Clipboard writeText was never reached")
-                    copied_rows=list(csv.reader(io.StringIO(copied),strict=True))
-                    check(len(copied_rows)==2 and len(copied_rows[1])==16
-                          and copied_rows[1][8]==expected,
-                          f"Actual clipboard CSV incorrect for {mode}")
-                    persisted=page.evaluate("window.__STEP2_AUDIT__.currentRows()")
-                    check(persisted==[{"nature":"いじっぱり","natureEffect":"neutralized"}],
-                          "CSV export mutated the original analysis state")
+                page.wait_for_function("() => typeof window.__AUDIT_COPIED__ === 'string'",
+                                       timeout=8000)
+                copied=page.evaluate("window.__AUDIT_COPIED__")
+                copied_rows=list(csv.reader(io.StringIO(copied),strict=True))
+                check(copied_rows==mint_rows,
+                      "Clipboard contents differ from real 18-column mint download")
+                persisted=page.evaluate("window.__STEP2_AUDIT__.currentRows()")
+                check(persisted==[
+                    {"nature":"いじっぱり","natureEffect":"neutralized"},
+                    {"nature":"おだやか","natureEffect":"normal"}],
+                    "CSV export mutated the original analysis state")
                 evidence["checks"].append(
-                    "white mint: cancel/keep/neutral 16-column downloads and real clipboard contents; original state immutable")
+                    "mint: real 18-column download and clipboard retain original natures and independent 1/0 usage flags")
 
                 # Invalid species/level from the app's row writer must fail at
                 # the CSV gate rather than initiate a download.
@@ -302,11 +280,11 @@ def main():
                 page.locator("#appDialogPrimary").click()
                 evidence["checks"].append("invalid level blocked at actual UI export action")
 
-                # Mew's visible em dash is UI-only; blank 16-column importer values remain empty.
+                # Mew's visible em dash is UI-only; blank 18-column importer values remain empty.
                 mew=page.evaluate("window.__STEP2_AUDIT__.testMew()")
                 check(not mew["errors"],"Mew manual draft unexpectedly invalid: "+str(mew["errors"]))
-                check(mew["gate"],"Mew 16-column importer CSV failed validation")
-                check(mew["csv"][10:14]==["","","",""],"Mew missing subskills were not blank CSV cells")
+                check(mew["gate"],"Mew 18-column importer CSV failed validation")
+                check(mew["csv"][11:15]==["","","",""],"Mew missing subskills were not blank CSV cells")
                 check("―" not in mew["csv"],"UI dash leaked into Mew CSV")
                 labels=page.locator("select.manual-sub option[value='']").all_text_contents()
                 check(len(labels)==5 and all(v=="―" for v in labels),
@@ -320,7 +298,7 @@ def main():
                 check(carry["carry"] is None,"Missing carry was filled without image evidence")
                 check(carry["review"]["carry"] is False,"Carry-only review still blocks completion")
                 check(not carry["blocker"],"Missing carry blocked exportable CSV fields")
-                check(carry["gate"] and len(carry["row"])==16,"Missing-carry CSV was invalid")
+                check(carry["gate"] and len(carry["row"])==18,"Missing-carry CSV was invalid")
                 check(carry["diagnostics"]["carryOcrUnresolved"] is True,
                       "Raw carry OCR uncertainty was lost from diagnostics")
                 check(carry["diagnostics"]["carry"] is None,
@@ -329,8 +307,8 @@ def main():
                     page.locator("#csv").click()
                 carry_csv=Path(info.value.path()).read_text(encoding="utf-8")
                 carry_rows=list(csv.reader(io.StringIO(carry_csv)))
-                check(len(carry_rows)==2 and len(carry_rows[1])==16,
-                      "Missing carry failed real 16-column CSV export")
+                check(len(carry_rows)==2 and len(carry_rows[1])==18,
+                      "Missing carry failed real 18-column CSV export")
                 evidence["checks"].append(
                     "missing carry: no manual editor, unblocked actual CSV, retained raw diagnostic")
                 # Audit the actual DOM and responsive progress switching with
