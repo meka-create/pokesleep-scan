@@ -86,12 +86,12 @@ function mythicalSubskillApi(){
   chosenSpecies:r=>r.species,
   foodCsvValue:f=>f?.name||'',mainSkillCsvValue:()=> 'メインスキル',
   ribbonCsvValue:()=>0,shinyCsvValue:()=>0,
-  mintCsvNature:r=>r.parsed.nature
+  mintCsvFlag:r=>r?.parsed?.natureEffect==='neutralized'?'1':'0'
  };
  vm.createContext(ctx);
  vm.runInContext(segment('function subskillReviewSlots(r){','function subskillNeedsReview(r){'),ctx);
  vm.runInContext(segment('function subskillReviewOptions(r,index){','function subskillReviewPreviewHtml(r,ri,index){'),ctx);
- vm.runInContext(segment('function toPokesleepToolCsvRow(r,mintMode=','function buildCsvText(mintMode='),ctx);
+ vm.runInContext(segment('function toPokesleepToolCsvRow(r){','function buildCsvText()'),ctx);
  return ctx;
 }
 function mythicalSubskillRow(species,value='きのみの数S'){
@@ -131,8 +131,8 @@ test('reviewed mythical empty slot exports as empty CSV field, never a dash',asy
   assert.equal(sub.manualConfirmed,true);
   assert.equal(c.subskillReviewSlots(row).includes(0),false);
   const fields=Array.from(c.toPokesleepToolCsvRow(row));
-  assert.equal(fields[9],'');
-  assert.notEqual(fields[9],'―');
+  assert.equal(fields[10],'');
+  assert.notEqual(fields[10],'―');
   // The confirmed empty slot can still be reopened for review.
   sub.reviewSelection='―';sub.needsReview=true;delete sub.manualConfirmed;
   assert.equal(c.subskillReviewSlots(row).includes(0),true);

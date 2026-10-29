@@ -128,9 +128,9 @@ test('missing crypto preserves local master',async()=>{
 const specimen=ai.pokemon.find(p=>p.name==='フシギダネ');
 const fields=['サンプル,"ポケモン"','フシギダネ','10','1',
  specimen.ing1.name,specimen.ing1.name,specimen.ing1.name,
- specimen.mainSkill,'てれや',...ai.subskills.slice(0,5).map(s=>s.ja),'0','0'];
+ specimen.mainSkill,'てれや','0',...ai.subskills.slice(0,5).map(s=>s.ja),'0','0',''];
 function inspect(fields,m=ai){const h=harness();return h.gate.inspect(h.gate.serialize([Array.from(h.gate.HEADER),fields]),m);}
-test('CSV 16 columns escaped fields, LF and round-trip',()=>{
+test('CSV 18 columns escaped fields, LF and round-trip',()=>{
  const h=harness(),raw=h.gate.serialize([Array.from(h.gate.HEADER),fields]);
  const r=h.gate.inspect(raw,ai);
  assert.equal(r.ok,true,JSON.stringify(r.errors));
@@ -146,7 +146,7 @@ test('unknown species, invalid food, empty nickname, bad controls and levels fai
  }
 });
 test('duplicate subskills, main skill mismatch and unknown nature fail',()=>{
- for(const [column,value] of [[10,fields[9]],[7,'偽スキル'],[8,'偽せいかく']]){
+ for(const [column,value] of [[11,fields[10]],[7,'偽スキル'],[8,'偽せいかく']]){
   const bad=[...fields];bad[column]=value;
   assert.equal(inspect(bad).ok,false);
  }
@@ -213,14 +213,14 @@ test('unseen together-sleep hours use user-policy 0, not ribbon threshold',()=>{
  assert.equal(context.ribbonCsvValue({status:'UNIQUE',hits:[{ribbonTier:4}]}),0);
 });
 test('ordinary species cannot export unresolved blank subskills',()=>{
- const bad=[...fields];bad[9]='';
+ const bad=[...fields];bad[10]='';
  const v=inspect(bad);
  assert.equal(v.ok,false,JSON.stringify(v));
  assert.ok(v.errors.some(x=>x.includes('empty subskill')));
 });
 test('mythical subskills may be blank, with explicit CSV gate warnings',()=>{
  const dark=ai.pokemon.find(p=>p.name==='ダークライ');
- const v=[...fields];v[1]=dark.name;v[4]=dark.ing1.name;v[5]='';v[6]='';v[7]=dark.mainSkill;v[9]='';
+ const v=[...fields];v[1]=dark.name;v[4]=dark.ing1.name;v[5]='';v[6]='';v[7]=dark.mainSkill;v[10]='';
  const r=inspect(v);
  assert.equal(r.ok,true,JSON.stringify(r.errors));
  assert.ok(r.warnings.some(x=>x.includes('empty mythical subskill')));
@@ -249,7 +249,7 @@ test('species-canonical CSV skill normalizes random and legendary screen aliases
               '食材ゲットS');
 });
 
-test('all active master species have at least one valid 16-column importer row',()=>{
+test('all active master species have at least one valid 18-column importer row',()=>{
  const context={window:{}};
  vm.createContext(context);
  vm.runInContext(legacy,context,{filename:'master_data.js'});
@@ -261,8 +261,8 @@ test('all active master species have at least one valid 16-column importer row',
   const foods=pr.items.map(item=>item.name==='―'?'':item.name);
   const nature=p.name==='ストリンダー (ハイ)'?'いじっぱり':'てれや';
   return ['検証用_'+p.name,p.name,'10','1',...foods,
-    p.name==='ミュウ'?'きのみバースト':p.mainSkill,nature,
-    ...ai.subskills.slice(0,5).map(x=>x.ja),'0','0'];
+    p.name==='ミュウ'?'きのみバースト':p.mainSkill,nature,'0',
+    ...ai.subskills.slice(0,5).map(x=>x.ja),'0','0',''];
  });
  assert.equal(rows.length,ai.pokemon.length);
  const h=harness(),csv=h.gate.serialize([Array.from(h.gate.HEADER),...rows]);
@@ -298,84 +298,59 @@ test('raw diagnostic CSV and JSON maintain independent minute counters',async()=
  await assert.rejects(h.gate.reserveFilename(when,'bad-kind'),/Unknown download category/);
 });
 
-test('white mint two-choice export alters only CSV nature and respects Toxel forms',()=>{
+test('mint: 18-column export keeps original nature and writes an independent 1/0 flag',()=>{
  const app=fs.readFileSync(path.join(root,'app.js'),'utf8');
- const begin=app.indexOf('function mintAffectedRows('),end=app.indexOf('function validatedCsvText(',begin);
- assert.ok(begin>0&&end>begin,'Mint export-only functions exist');
- const p=ai.pokemon.find(x=>x.name==='フシギダネ');
- const subs=ai.subskills.slice(0,5).map(s=>({value:s.ja}));
- const row=(species,nature,mint)=>({speciesManualOverride:species,
-  parsed:{nickname:'ミント試験',nature,natureEffect:mint?'neutralized':'normal',
-   level:30,skillLevel:1,mainSkill:p.mainSkill,subs},
-  classification:{status:'UNIQUE',candidates:[species]},
-  foods:Array.from({length:3},()=>({name:p.ing1.name,needsReview:false}))});
- const rows=[row('フシギダネ','いじっぱり',true),row('フシギダネ','おだやか',false),
-  row('エレズン','いじっぱり',true),row('エレズン','てれや',true),
-  row('ストリンダー (ハイ)','いじっぱり',true),row('ストリンダー (ロー)','おだやか',true)];
- const before=JSON.stringify(rows);
- const context={results:rows,POKESLEEP_TOOL_CSV_HEADER:Array.from(harness().gate.HEADER),
-  chosenSpecies:r=>r.speciesManualOverride,subskillReviewSlots:()=>[],
-  mainSkillCsvValue:p=>p.mainSkill,foodCsvValue:f=>f.name,
-  ribbonCsvValue:()=>0,shinyCsvValue:()=>0,
-  csvCell:v=>String(v??'').replace(/([",\n])/g,s=>s),
-  $:()=>null,document:{},Promise};
- vm.createContext(context);vm.runInContext(app.slice(begin,end),context);
- const original=rows.map(r=>context.toPokesleepToolCsvRow(r,'original')[8]);
- const neutral=rows.map(r=>context.toPokesleepToolCsvRow(r,'neutral')[8]);
- assert.deepEqual(original,['いじっぱり','おだやか','いじっぱり','てれや','いじっぱり','おだやか']);
- assert.deepEqual(neutral,['まじめ','おだやか','がんばりや','まじめ','がんばりや','まじめ']);
- assert.equal(JSON.stringify(rows),before,'Conversion must not mutate raw OCR/edited records');
- assert.equal(context.mintAffectedRows().length,5);
- for(const r of rows)assert.equal(context.toPokesleepToolCsvRow(r,'neutral').length,16);
- assert.equal(context.buildCsvText().split('\n').length,7);
- assert.equal(context.buildCsvText('neutral').split('\n').length,7);
- assert.equal(context.mintNeutralNature('ストリンダー (ハイ)','てれや'),'がんばりや');
- assert.equal(context.mintNeutralNature('ストリンダー (ロー)','いじっぱり'),'まじめ');
-});
-
-test('all 25 original Toxel natures map to form-preserving neutral importable CSV',()=>{
- const h=harness(),gate=h.gate;
- const app=fs.readFileSync(path.join(root,'app.js'),'utf8');
- const begin=app.indexOf('function mintAffectedRows('),end=app.indexOf('function validatedCsvText(',begin);
- assert.ok(begin>0&&end>begin);
- const source=app.slice(begin,end);
- const mons=new Map(ai.pokemon.map(x=>[x.name,x]));
- const subs=ai.subskills.slice(0,5).map(s=>({value:s.ja,needsReview:false}));
- const mk=(species,nature,mint)=>{const p=mons.get(species);assert.ok(p);
-  return {speciesManualOverride:species,
-   parsed:{nickname:'ミント変換テスト',nature,natureEffect:mint?'neutralized':'normal',
-     level:30,skillLevel:1,mainSkill:p.mainSkill,subs},
+ const begin=app.indexOf('function mintCsvFlag('),end=app.indexOf('function validatedCsvText(',begin);
+ assert.ok(begin>=0&&end>begin,'18-column app export functions must exist');
+ const mons=new Map(ai.pokemon.map(p=>[p.name,p]));
+ const subs=ai.subskills.slice(0,5).map(x=>({value:x.ja,needsReview:false}));
+ const make=(species,nature,minted)=>{
+  const p=mons.get(species);assert.ok(p);
+  return {speciesManualOverride:species,parsed:{nickname:'ミント試験',nature,
+   natureEffect:minted?'neutralized':'normal',level:30,skillLevel:1,mainSkill:p.mainSkill,subs},
    classification:{status:'UNIQUE',candidates:[species]},
-   foods:Array.from({length:3},()=>({name:p.ing1.name,needsReview:false}))};
+   foods:[0,1,2].map(()=>({name:p.ing1.name,needsReview:false}))};
  };
- const rows=ai.natures.map(n=>mk('エレズン',n.ja,true));
- rows.push(mk('ストリンダー (ハイ)','いじっぱり',true),
-  mk('ストリンダー (ロー)','おだやか',true),
-  mk('ピカチュウ','ようき',true),
-  mk('ピカチュウ','おっとり',false));
- const originalJSON=JSON.stringify(rows);
+ const rows=[make('フシギダネ','いじっぱり',true),make('フシギダネ','おだやか',false),
+  make('エレズン','いじっぱり',true),make('ストリンダー (ハイ)','いじっぱり',true),
+  make('ストリンダー (ロー)','おだやか',true),make('ピカチュウ','てれや',false)];
+ const before=JSON.stringify(rows),gate=harness().gate;
  const ctx={results:rows,POKESLEEP_TOOL_CSV_HEADER:gate.HEADER,
   chosenSpecies:r=>r.speciesManualOverride,subskillReviewSlots:()=>[],
   mainSkillCsvValue:p=>p.mainSkill,foodCsvValue:f=>f.name,
-  ribbonCsvValue:()=>0,shinyCsvValue:()=>0,csvCell:v=>{
-   const s=String(v??'');return /[",\\n]/.test(s)?'"'+s.replaceAll('"','""')+'"':s;},
-  $:()=>null,document:{},Promise};
- vm.createContext(ctx);vm.runInContext(source,ctx);
- const adapted=rows.map(r=>Array.from(ctx.toPokesleepToolCsvRow(r,'neutral')));
- const high=new Set(['いじっぱり','やんちゃ','ゆうかん','なまいき',
-  'うっかりや','わんぱく','のうてんき','ようき','せっかち',
-  'むじゃき','がんばりや','きまぐれ','すなお']);
- for(let i=0;i<ai.natures.length;i++)
-  assert.equal(adapted[i][8],high.has(ai.natures[i].ja)?'がんばりや':'まじめ');
- assert.equal(adapted[25][8],'がんばりや');
- assert.equal(adapted[26][8],'まじめ');
- assert.equal(adapted[27][8],'まじめ');
- assert.equal(adapted[28][8],'おっとり');
- const unchanged=gate.inspect(ctx.buildCsvText('original'),ai);
- assert.equal(unchanged.ok,true,JSON.stringify(unchanged.errors));
- const switched=gate.inspect(ctx.buildCsvText('neutral'),ai);
- assert.equal(switched.ok,true,JSON.stringify(switched.errors));
- assert.equal(switched.rows.length,rows.length+1);
- assert.ok(switched.rows.every(r=>r.length===16));
- assert.equal(JSON.stringify(rows),originalJSON,'Raw OCR records changed');
+  ribbonCsvValue:()=>0,shinyCsvValue:()=>0,
+  csvCell:v=>{const s=String(v??'');return /[",\n]/.test(s)?'"'+s.replaceAll('"','""')+'"':s;}};
+ vm.createContext(ctx);vm.runInContext(app.slice(begin,end),ctx);
+ const actual=rows.map(r=>Array.from(ctx.toPokesleepToolCsvRow(r)));
+ assert.ok(actual.every(x=>x.length===18));
+ assert.deepEqual(actual.map(x=>x[8]),rows.map(x=>x.parsed.nature));
+ assert.deepEqual(actual.map(x=>x[9]),['1','0','1','1','1','0']);
+ assert.ok(actual.every(x=>x[17]===''));
+ const checked=gate.inspect(ctx.buildCsvText(),ai);
+ assert.equal(checked.ok,true,JSON.stringify(checked.errors));
+ assert.equal(JSON.stringify(rows),before,'raw OCR/manual rows mutated');
+ assert.ok(!app.includes('chooseMintCsvMode('),'obsolete export modal still in app');
+});
+test('all Toxel nature names survive new mint flag; reject neutral-mint contradictions',()=>{
+ const h=harness(),gate=h.gate,app=fs.readFileSync(path.join(root,'app.js'),'utf8');
+ const begin=app.indexOf('function mintCsvFlag('),end=app.indexOf('function validatedCsvText(',begin);
+ const p=ai.pokemon.find(x=>x.name==='エレズン'),natures=new Set(['てれや','がんばりや','すなお','きまぐれ','まじめ']);
+ const rows=ai.natures.map(n=>[...fields].map((v,i)=>{
+  if(i===1)return p.name;
+  if(i===4||i===5||i===6)return p.ing1.name;
+  if(i===7)return p.mainSkill;
+  if(i===8)return n.ja;
+  if(i===9)return natures.has(n.ja)?'0':'1';
+  return v;
+ }));
+ const csv=gate.serialize([Array.from(gate.HEADER),...rows]);
+ assert.equal(gate.inspect(csv,ai).ok,true,JSON.stringify(gate.inspect(csv,ai).errors));
+ const bad=[...rows[0]];bad[8]='てれや';bad[9]='1';
+ assert.equal(gate.inspect(gate.serialize([Array.from(gate.HEADER),bad]),ai).ok,false);
+ for(const [i,value] of [[9,'true'],[9,'2'],[17,'❤']]){
+  const row=[...rows[0]];row[i]=value;
+  assert.equal(gate.inspect(gate.serialize([Array.from(gate.HEADER),row]),ai).ok,false);
+ }
+ assert.equal(rows.length,ai.natures.length);
+ assert.equal(typeof begin,'number');assert.ok(end>begin);
 });

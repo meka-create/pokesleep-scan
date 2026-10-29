@@ -69,10 +69,11 @@ jobs:
         run: |
           set -euo pipefail
           # Upstream was cloned for the master projection check above.
+          node development/generate_upstream_import_fixture.cjs "$RUNNER_TEMP/scan-produced.csv"
           cp development/step3_real_upstream_importer.test.ts "$RUNNER_TEMP/upstream/src/util/Formatter/ScanStep3Importer.test.ts"
           ( cd "$RUNNER_TEMP/upstream"
             npm ci --ignore-scripts --no-audit --no-fund
-            SCAN_MASTER_PATH="$GITHUB_WORKSPACE/shared/MASTER_DATA.json" npx vitest run src/util/Formatter/ScanStep3Importer.test.ts --reporter=dot
+            SCAN_MASTER_PATH="$GITHUB_WORKSPACE/shared/MASTER_DATA.json" SCAN_EXPORTED_CSV_PATH="$RUNNER_TEMP/scan-produced.csv" npx vitest run src/util/Formatter/ScanStep3Importer.test.ts --reporter=dot
           )
       - name: Kana-folded prefix-search and nickname-caption regression
         run: node --test development/review_picker_kana_prefix.test.cjs
