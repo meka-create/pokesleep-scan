@@ -30,6 +30,11 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 4318,
+      "sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
+    },
+    {
       "path": "android_roi.js",
       "bytes": 10755,
       "sha256": "c1e5c91646be6c197f629404cfe340808dc089633d0d805bf73adbfaeaab8e37"
@@ -58,6 +63,26 @@
       "path": "csv_gate.js",
       "bytes": 8947,
       "sha256": "d78405f3cd613b1f06f588b36254d85048aac199611062b60ff9009863196cbf"
+    },
+    {
+      "path": "development/CSV18_DEVICE_ACCEPTANCE.md",
+      "bytes": 5442,
+      "sha256": "0da122bbb06b567203d845af7f1d5b5da121b94b2be89186fabe2d2d1610748d"
+    },
+    {
+      "path": "development/ROADMAP_20261013.md",
+      "bytes": 6526,
+      "sha256": "4a26cbc0fa5c43382121c3da12179f51dce458ff191f9b128469b633e87bc4b4"
+    },
+    {
+      "path": "development/ROADMAP_CURRENT.md",
+      "bytes": 16069,
+      "sha256": "51fa27ad52d302f51051d134935443f81bc4859c3f6ad4066da9fcf69242a6ef"
+    },
+    {
+      "path": "development/STEP1_INDEPENDENT_MASTER.md",
+      "bytes": 2247,
+      "sha256": "d67d0a641509a88a5e7099c07418867e154f5e675f11bea0552084d7011bc445"
     },
     {
       "path": "development/browser_append_after_results.py",
@@ -98,11 +123,6 @@
       "path": "development/browser_unified_mobile_layout.py",
       "bytes": 5874,
       "sha256": "cf24f8b25e6bc7f7f3b9d94a55edd3759ee21645e5be3e10688e50b13ecae668"
-    },
-    {
-      "path": "development/CSV18_DEVICE_ACCEPTANCE.md",
-      "bytes": 5442,
-      "sha256": "0da122bbb06b567203d845af7f1d5b5da121b94b2be89186fabe2d2d1610748d"
     },
     {
       "path": "development/csv18_roundtrip_acceptance.py",
@@ -215,16 +235,6 @@
       "sha256": "fa5970688bc8863d9931c5bd80fbaceef8fc45b6ad7e528fae77c1c4c358a51f"
     },
     {
-      "path": "development/ROADMAP_20261013.md",
-      "bytes": 6526,
-      "sha256": "4a26cbc0fa5c43382121c3da12179f51dce458ff191f9b128469b633e87bc4b4"
-    },
-    {
-      "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 16069,
-      "sha256": "51fa27ad52d302f51051d134935443f81bc4859c3f6ad4066da9fcf69242a6ef"
-    },
-    {
       "path": "development/runtime_smoke.test.cjs",
       "bytes": 2353,
       "sha256": "1d85a83ce5bda029d4c8b8ded7b4cbf78ae0b92a1b1f3c7cf8463c1d534e3ace"
@@ -233,11 +243,6 @@
       "path": "development/speed_warning.test.cjs",
       "bytes": 6784,
       "sha256": "e253621beb9653083b00da0f162fe76334277b62977bb1ba71495519ac2540c6"
-    },
-    {
-      "path": "development/STEP1_INDEPENDENT_MASTER.md",
-      "bytes": 2247,
-      "sha256": "d67d0a641509a88a5e7099c07418867e154f5e675f11bea0552084d7011bc445"
     },
     {
       "path": "development/step2_asset_revision.test.cjs",
@@ -425,11 +430,6 @@
       "sha256": "8b3751a6c224f95dd9435284e28273c6a94066f351256b1c74958506eb8b918c"
     },
     {
-      "path": "master_data.js",
-      "bytes": 131939,
-      "sha256": "b0f3bc100966de43dfdd4bd2d6b2036d8f7609b718b241a60674612aaf384ab4"
-    },
-    {
       "path": "master-update-status.js",
       "bytes": 3587,
       "sha256": "fa65b53ef53090cce5cb50681af4630a26ae740499239334cab60eda3cd9d2a7"
@@ -438,6 +438,11 @@
       "path": "master-update-status.json",
       "bytes": 144,
       "sha256": "d119273bb05366a374c551ba1c21d376bcf92f77308e2ffeb0a91a62c74b22a5"
+    },
+    {
+      "path": "master_data.js",
+      "bytes": 131939,
+      "sha256": "b0f3bc100966de43dfdd4bd2d6b2036d8f7609b718b241a60674612aaf384ab4"
     },
     {
       "path": "nickname_spatial.js",
@@ -450,11 +455,6 @@
       "sha256": "fc5d270fd7affcb325c7a7184490397b51ced9e2b43e525bd8e89e0eec511023"
     },
     {
-      "path": "shared_master.js",
-      "bytes": 5816,
-      "sha256": "bc817438a9c541c141501cf314e62eee32f61acb9bdc87af22cf685a209b79dd"
-    },
-    {
       "path": "shared/MASTER_DATA.json",
       "bytes": 213992,
       "sha256": "d0a40e122de9f82367ae2e59cad7f15e8425fb02ce7896a914932a93cca269ba"
@@ -465,14 +465,14 @@
       "sha256": "8793b323a0e4d4c69b3ed0272d1961b7bb94606d7fa75df5a6d5950f1ced1b85"
     },
     {
+      "path": "shared_master.js",
+      "bytes": 5816,
+      "sha256": "bc817438a9c541c141501cf314e62eee32f61acb9bdc87af22cf685a209b79dd"
+    },
+    {
       "path": "sw.js",
       "bytes": 4092,
       "sha256": "d40525f18a4824779b02e8df7f1ca57500ea087edb521b9b0b0582ec6486b305"
-    },
-    {
-      "path": "THIRD_PARTY_NOTICES.md",
-      "bytes": 4318,
-      "sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
     }
   ]
 }
