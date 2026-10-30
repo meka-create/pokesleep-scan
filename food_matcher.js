@@ -13,7 +13,44 @@ function cropData(canvas){const ctx=canvas.getContext('2d',{willReadFrequently:t
 function scoreVariant(crop,v){const {w:W,h:H,d,bg}=crop,{w,h,data:t}=v;if(w>=W||h>=H)return -2;const bx=Math.round((W-w)/2),by=Math.round((H-h)/2)-5;let best=-2;for(let y=Math.max(0,by-8);y<=Math.min(H-h,by+8);y+=4)for(let x=Math.max(0,bx-10);x<=Math.min(W-w,bx+10);x+=4){let dot=0,nd=0,nv=0,n=0;for(let ty=0;ty<h;ty++)for(let tx=0;tx<w;tx++){const ti=(ty*w+tx)*4,a=t[ti+3]/255;if(a<=.08)continue;const si=((y+ty)*W+x+tx)*4;for(let c=0;c<3;c++){const dv=crop.d[si+c]-bg[c],vv=(t[ti+c]-bg[c])*a;dot+=dv*vv;nd+=dv*dv;nv+=vv*vv;}n++;}if(n&&nd>0&&nv>0){const s=dot/Math.sqrt(nd*nv);if(s>best)best=s;}}return best;}
 function scoreShapeVariant(crop,v){const {w:W,h:H,d,bg}=crop,{w,h,data:t}=v;if(w>=W||h>=H)return -2;const bx=Math.round((W-w)/2),by=Math.round((H-h)/2)-5;let best=-2;for(let y=Math.max(0,by-8);y<=Math.min(H-h,by+8);y+=4)for(let x=Math.max(0,bx-10);x<=Math.min(W-w,bx+10);x+=4){let inter=0,tm=0,cm=0;for(let ty=0;ty<h;ty++)for(let tx=0;tx<w;tx++){const ti=(ty*w+tx)*4,isTemplate=t[ti+3]/255>.08,si=((y+ty)*W+x+tx)*4,dr=crop.d[si]-bg[0],dg=crop.d[si+1]-bg[1],db=crop.d[si+2]-bg[2],isCrop=Math.sqrt(dr*dr+dg*dg+db*db)>25;if(isTemplate)tm++;if(isCrop)cm++;if(isTemplate&&isCrop)inter++;}if(tm+cm){const s=2*inter/(tm+cm);if(s>best)best=s;}}return best;}
 function matchCanvas(canvas,allowed){const crop=cropData(canvas),vals=[];for(const label of allowed||[]){let best=-2;for(const v of variants(label)){const s=scoreVariant(crop,v);if(s>best)best=s;}vals.push({name:label,score:best});}vals.sort((a,b)=>b.score-a.score);const top=vals[0]||{name:'',score:0},second=vals[1]||{name:'',score:0};return {name:top.name,score:top.score,second:second.name,secondScore:second.score,margin:top.score-second.score,ranking:vals};}
-function matchDimmedFoodIcon(canvas,allowed,maxColorScore=Infinity){const color=matchCanvas(canvas,allowed);if(!Array.isArray(color.ranking)||color.ranking.length<2||color.margin>.04||color.score>maxColorScore)return color;const crop=cropData(canvas),shape=[];for(const label of allowed||[]){let best=-2;for(const v of variants(label)){const s=scoreShapeVariant(crop,v);if(s>best)best=s;}shape.push({name:label,score:best});}shape.sort((a,b)=>b.score-a.score);const top=shape[0]||{name:'',score:0},second=shape[1]||{name:'',score:0},shapeMargin=top.score-second.score;if(top.name&&top.name===color.second&&shapeMargin>=.04){return {name:top.name,score:top.score,second:second.name,secondScore:second.score,margin:shapeMargin,ranking:shape,dimmedShapeArbitration:true,colorRanking:color.ranking};}return color;}
+// Two different visual matchers are NOT independent votes that may override
+// one another. In particular, a locked Lv30 food icon can be desaturated and
+// look potato-shaped even when the color matcher prefers coffee. Preserve
+// both observations and FAIL CLOSED: user review, never silent shape override.
+// Kept pure to regression-test without exposing private screenshots.
+function arbitrateDimmedFoodEvidence(color,shape){
+ const leading=shape?.[0],runner=shape?.[1],margin=(leading?.score??-2)-(runner?.score??-2);
+ const opinion={name:leading?.name||'',score:leading?.score??-2,
+  second:runner?.name||'',secondScore:runner?.score??-2,
+  margin,ranking:shape,automatic:false,method:'dimmed-shape-advisory'};
+ if(leading?.name&&leading.name!==color.name&&margin>=.04){
+  return {...color,needsReview:true,reviewReason:'dimmed-color-shape-disagreement',
+   dimmedShapeConflict:true,shapeReview:opinion};
+ }
+ // A weak color decision and a non-distinctive shape opinion cannot establish
+ // a food either. No false confirmation just because the global margin is .015.
+ if(!leading?.name||margin<.04){
+  return {...color,needsReview:true,reviewReason:'dimmed-shape-not-corroborated',
+   shapeReview:opinion};
+ }
+ return {...color,shapeReview:opinion};
+}
+function matchDimmedFoodIcon(canvas,allowed,maxColorScore=Infinity){
+ const color=matchCanvas(canvas,allowed);
+ if(!Array.isArray(color.ranking)||color.ranking.length<2||
+    color.margin>.04||color.score>maxColorScore)return color;
+ const crop=cropData(canvas),shape=[];
+ for(const label of allowed||[]){
+  let best=-2;
+  for(const v of variants(label)){
+   const score=scoreShapeVariant(crop,v);
+   if(score>best)best=score;
+  }
+  shape.push({name:label,score:best});
+ }
+ shape.sort((a,b)=>b.score-a.score);
+ return arbitrateDimmedFoodEvidence(color,shape);
+}
 function uniqueProfiles(hits){const out=[];for(const h of hits||[]){const k=h.foods.join('\u0001');if(!out.some(x=>x.key===k))out.push({key:k,foods:[...h.foods]});}return out;}
 function resolveSlots(screenCanvas,inference,level){const ps=uniqueProfiles(inference?.hits||[]),keys=['food1','food2','food3'];return keys.map((key,i)=>{const allowed=[...new Set(ps.map(p=>p.foods[i]).filter(Boolean))];
 // ― denotes a genuinely absent icon. The independent empty-slot matcher
@@ -170,5 +207,5 @@ function explicitThirdFoodDash(screenCanvas){
  const data=screenCanvas.getContext('2d',{willReadFrequently:true}).getImageData(x,y,w,h).data;
  return explicitThirdFoodDashStats(data,w,h);
 }
-window.POKESLEEP_FOOD_MATCHER={cropFood,matchCanvas,resolveSlots,reviewShapeOpinion,iconSelfCorrelation,thirdFoodSelfMatchFromScores,thirdFoodSelfMatch,lockedFood3PixelWitnessFromRgba,lockedFood3PixelWitness,explicitThirdFoodDashStats,explicitThirdFoodDash};
+window.POKESLEEP_FOOD_MATCHER={cropFood,matchCanvas,resolveSlots,arbitrateDimmedFoodEvidence,reviewShapeOpinion,iconSelfCorrelation,thirdFoodSelfMatchFromScores,thirdFoodSelfMatch,lockedFood3PixelWitnessFromRgba,lockedFood3PixelWitness,explicitThirdFoodDashStats,explicitThirdFoodDash};
 })();
