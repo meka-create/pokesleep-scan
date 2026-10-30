@@ -92,6 +92,12 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
    expectedSha,'unaudited change in '+a);
   restored=restored.slice(0,startAt)+baseline+restored.slice(endAt);
  }
+ // New locked-food evidence is outside the frozen nickname pipeline.
+ // Verify the exact reviewed snippet before restoring the historical
+ // app fingerprint; do not alter any preexisting expected digest.
+ approvedSpan('  // An already-reviewed, locked Lv30 second food can be corroborated',
+  '  // Apply the existing weak-food3 safety review BEFORE independent pixel',
+  'a33b570cba5294e6c03e80deecd2f9bc8f39799b87b23455fc672efec9fb915a','');
  // Review-picker code is outside the frozen OCR pipeline. Restore only
  // the exact audited UI helper and two option labels before the historical
  // whole-app fingerprint check; do not change its expected SHA.
