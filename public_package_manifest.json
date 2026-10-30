@@ -1,13 +1,13 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-30-meka142-targeted-quality-v2",
-  "appBuildId": "v12-meka142-targeted-quality-20261030-v2",
+  "releaseId": "2026-10-31-nickname-level-review-rank-v1",
+  "appBuildId": "v12-nickname-level-review-rank-20261031-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 93,
+  "fileCount": 94,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 12727,
-      "sha256": "6c58fbd18c2985a5037e9e2d393b8fa6c8e85373e1647a6282eacdd6485a50ef"
+      "bytes": 12877,
+      "sha256": "42aa2dc0b1c94819d73a547ebe7e34cabb203a164696e46a6e660116b07192e4"
     },
     {
       "path": ".gitignore",
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 329800,
-      "sha256": "2bebcd545f105d9e493c88c7ee02491c28c9682061543e24ed1e1ff678dfe811"
+      "bytes": 331327,
+      "sha256": "7529f25b44bad4a2ea3ec369e9b142b0e6274976357f6e05d9fd3e118ae18daf"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 16069,
-      "sha256": "51fa27ad52d302f51051d134935443f81bc4859c3f6ad4066da9fcf69242a6ef"
+      "bytes": 17536,
+      "sha256": "e9c460adde0d64297e7b5c93a89b101f3be0ce50bbe415870ec8f149dd51d175"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -186,8 +186,8 @@
     },
     {
       "path": "development/nickname_caption_rescue.test.cjs",
-      "bytes": 23065,
-      "sha256": "d1d70f42c75666b639c64328222e9bc5c8d028724f27821f5cb43cde96ef849f"
+      "bytes": 24652,
+      "sha256": "9350166365418b6bf16c1a778a19b3976183b12dcbb9b1acfda2f4716e4e826f"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -198,6 +198,11 @@
       "path": "development/nickname_freeze.test.cjs",
       "bytes": 4589,
       "sha256": "7bc28ab54d52bf486fa4e3ec706c66598bdc1d7a4792c71ea1b56d602269cef2"
+    },
+    {
+      "path": "development/nickname_level_candidate_ranking.test.cjs",
+      "bytes": 3574,
+      "sha256": "6d9246c2d2402155396b545241f6071713863cb0166b67d0faa95e3758c123f1"
     },
     {
       "path": "development/nickname_meka142_gate.py",
@@ -451,8 +456,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 53,
-      "sha256": "fc5d270fd7affcb325c7a7184490397b51ced9e2b43e525bd8e89e0eec511023"
+      "bytes": 55,
+      "sha256": "fc74f5528552d35cfe27ba19e54d9e4c8468b0d61c15761b2b76c302386ce082"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -471,8 +476,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4092,
-      "sha256": "d40525f18a4824779b02e8df7f1ca57500ea087edb521b9b0b0582ec6486b305"
+      "bytes": 4094,
+      "sha256": "b70b7d0a00bcbd42cd37c4613368ec93b4db3a8f8b85a696c135ba7631c64f6d"
     }
   ]
 }
