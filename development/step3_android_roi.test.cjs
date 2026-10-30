@@ -249,7 +249,8 @@ test('two lower green bars work with no top banner and broad vertical capture sh
   const sub=p.rectFor('sub10');
   assert.ok(sub,'Subskills unexpectedly disabled for shift='+shift);
   const baseline=a.inspect(canvasFor([[863,921],[1876,1934]],1225));
-  assert.equal(sub[1]-baseline.rectFor('sub10')[1],Math.round(shift*691/1080),
+  assert.equal(sub[1]-baseline.rectFor('sub10')[1],
+   Math.round((1290+shift)*691/1080)-Math.round(1290*691/1080),
    'Subskill crop was not aligned to the orange bottom at shift='+shift);
  }
 });
