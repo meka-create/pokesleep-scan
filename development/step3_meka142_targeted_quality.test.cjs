@@ -48,7 +48,7 @@ test('credible exact Tesseract witness vetoes review; weak and off-level alterna
  }
 });
 test('a shared small kana with an unrelated consonant disagreement does not create review',()=>{
- const r=caseNick('チョビトンボ',60,[['Lv.60チョビトンポ',85]]);
+ const r=caseNick('キョコクタン',60,[['Lv.60キョコクダン',85]]);
  nick.reviewConflictingSmallKanaNickname(r);assert.equal(r.nicknameNeedsReview,false);
 });
 test('only post-classification review hook is added, and preview is retained',()=>{
