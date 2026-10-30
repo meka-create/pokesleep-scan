@@ -1,5 +1,5 @@
 (() => {
-const BUILD_ID='v12-nickname-lv-consensus-85-20261031-v1';
+const BUILD_ID='v12-final-two-field-evidence-20261031-v1';
 'use strict';
 // The verified Android 1080x2400 OCR path is now the standard on every device.
 // Preserve the existing ROI adapter and its safe legacy fallback unchanged.
@@ -63,7 +63,7 @@ const NATURES=POKESLEEP_MASTER.natures.map(x=>x.ja);
 const SUBSKILLS=POKESLEEP_MASTER.subskills.map(x=>x.ja);
 const SPECIES_NAMES=[...new Set(POKESLEEP_MASTER.pokemon.map(x=>x.name))];
 const $=s=>document.querySelector(s);let selected=[],results=[],worker=null,paddleOcr=null,paddleInitPromise=null,paddleUnavailableError=null,paddleRuntimeGeneration=0,isRunning=false,analysisPause=null,checkpointPreparing=false,selectionSnapshotPreparing=false,selectionSnapshotGeneration=0,checkpointRestoreRunning=false,checkpointSessionActive=false,checkpointPersistenceWarningShown=false,renderPending=false,modalObjectUrl='',modalReturnFocus=null,appDialogResolver=null,appDialogReturnFocus=null,localProgressVisible=true,localProgressState='idle',localProgressMaxPct=0,floatingProgressState='idle',floatingProgressDone=0,floatingProgressTotal=0,floatingProgressReviews=0,floatingCompletionTimer=null,floatingCompletionPending=false,floatingCompletionDismissed=false,preManualCsvSnapshot=null,wakeLockSentinel=null,wakeLockRequestPromise=null,wakeLockRetryTimer=null;const checkpointFailureLog=[];const layoutCache=new WeakMap(),profileCardCache=new WeakMap(),stableSourcePromises=new WeakMap(),stableSourceFiles=new WeakSet();
-const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-31-nickname-lv-consensus-85-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
+const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-31-final-two-field-evidence-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
 function pullRefreshGuardActive(){return !!(isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing);}
 function analysisWakeLockShouldHold(){return !!((isRunning||checkpointPreparing)&&!analysisPause);}
 function wakeLockApiSupported(){return typeof navigator!=='undefined'&&!!navigator.wakeLock?.request;}
@@ -2178,6 +2178,19 @@ async function analyzeSingleImage(inputFile,idx,total,{sourceIndex=null,displayN
      second.reviewReason='';
     }
    }catch(e){second.crossSlotError=runtimeErrorText(e);}
+  }
+  // Final fallback for a narrowly sub-.040 locked food2. Require the color
+  // and shape metrics to agree on both candidate orderings and clear
+  // independent strict score/margin floors. Never change the chosen food.
+  if(second?.needsReview&&inference?.status==='UNIQUE'){
+   const witness=POKESLEEP_FOOD_MATCHER.secondFoodColorShapeNearMarginWitness(
+    second,parsed.level,inference.status);
+   if(witness&&witness.name===second.name){
+    second.colorShapeEvidence=witness;
+    second.needsReview=false;
+    second.reviewReason='';
+    second.method='image-locked-food2-color-shape-agreement';
+   }
   }
   // Apply the existing weak-food3 safety review BEFORE independent pixel
   // corroboration, not only at the final result-rendering stage. Without
