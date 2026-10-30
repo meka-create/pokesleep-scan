@@ -181,8 +181,8 @@
     },
     {
       "path": "development/nickname_caption_rescue.test.cjs",
-      "bytes": 9175,
-      "sha256": "4898c2acba86044749ba5a9f2b744c937459b39702df38c33603335760de3879"
+      "bytes": 9176,
+      "sha256": "abc1fa75594224a2fc250768e214d450dd72f5b76a581c3a51fa182b058581ab"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
