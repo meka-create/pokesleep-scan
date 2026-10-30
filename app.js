@@ -1285,8 +1285,9 @@ function reviewConflictingSmallKanaNickname(parsed){
   .map(x=>exactSeparatedNickname(x.text,parsed.level,'front')).filter(Boolean);
  if(tess.includes(current))return parsed;
  const small=/[ぁぃぅぇぉゃゅょっァィゥェォャュョッ]/;
+ const removeSmall=x=>x.replace(/[ぁぃぅぇぉゃゅょっァィゥェォャュョッ]/g,'');
  const conflicting=tess.some(t=>t!==current&&small.test(t)&&
-  editDistance(t,current)<=2);
+  editDistance(t,current)<=2&&removeSmall(t)===removeSmall(current));
  if(!conflicting)return parsed;
  parsed.nicknameNeedsReview=true;
  parsed.nicknameReviewReason='小書き仮名のOCR候補が競合（要確認）';
