@@ -109,6 +109,8 @@ jobs:
         run: node --test development/step2_mythical_subskill_dash.test.cjs
       - name: STEP 2 mythical empty third-food dash pixel-proof regression
         run: node --test development/step2_mythical_empty_dash.test.cjs
+      - name: STEP 2 strict locked second-food within-image witness regression
+        run: node --test development/locked_food2_self_witness.test.cjs
       - name: STEP 2 third-food independent-icon corroboration regression
         run: node --test development/step2_food3_selfmatch.test.cjs
       - name: STEP 2 fresh asset query and diagnostics fingerprint
