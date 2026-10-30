@@ -4,7 +4,7 @@ const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const src=fs.readFileSync(path.join(__dirname,'..','app.js'),'utf8');
 function part(a,b){const i=src.indexOf(a),j=src.indexOf(b,i+a.length);assert.ok(i>=0&&j>i,a);return src.slice(i,j);}
-const ctx={parseSpText:s=>{const m=String(s).match(/sp\\s*([0-9][0-9,.]*)/i);return m?+m[1].replace(/\\D/g,''):null;}};
+const ctx={parseSpText:s=>{const m=String(s).match(/sp\s*([0-9][0-9,.]*)/i);return m?+m[1].replace(/\D/g,''):null;}};
 vm.createContext(ctx);vm.runInContext(part('function corroboratedHeaderSpCandidate(parsed,readings){','// Candidate124:'),ctx);
 function data(){return {p:{level:40,sp:2345,carry:19},a:[{psm:'6',sp:5432,level:null,confidence:43,text:'card 5,432 Lv.40'},{psm:'11',sp:5432,level:40,confidence:59,text:'sp 5,432 Lv.40'}]};}
 test('two OCR passes agree on a different SP with explicit same-card level',()=>{const {p,a}=data();assert.equal(ctx.corroboratedHeaderSpCandidate(p,a),5432);});
