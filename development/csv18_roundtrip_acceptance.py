@@ -51,10 +51,12 @@ def parse_csv(data: bytes, label: str) -> list[tuple[str, ...]]:
     return [tuple(row) for row in records[1:]]
 
 
-def evaluate(scan_csv: bytes, returned_csv: bytes, require_both_mint_states: bool = False) -> dict:
-    """Strict lossless comparison, allowing only row permutation and file line endings.
+def evaluate(scan_csv: bytes, returned_csv: bytes, require_both_mint_states: bool = False,
+             allow_extra_box_rows: bool = False) -> dict:
+    """Strict by default; optional Box-superset comparison for existing entries.
 
-    Never reports nicknames, species or raw values. Duplicate records are counted.
+    Even in subset mode every scanned row (including duplicate occurrences)
+    must be matched exactly. No private names or row values are reported.
     """
     source = parse_csv(scan_csv, "scan")
     returned = parse_csv(returned_csv, "returned")
@@ -62,6 +64,8 @@ def evaluate(scan_csv: bytes, returned_csv: bytes, require_both_mint_states: boo
     unmatched_source = Counter(source) - Counter(returned)
     unmatched_returned = Counter(returned) - Counter(source)
     equal = not unmatched_source and not unmatched_returned
+    source_rows_preserved = not unmatched_source
+    accepted_match = source_rows_preserved if allow_extra_box_rows else equal
     coverage = mints > 0 and mints < len(source)
     changed_fields = set()
     source_pairs = {}
@@ -77,24 +81,28 @@ def evaluate(scan_csv: bytes, returned_csv: bytes, require_both_mint_states: boo
         if len(records) == len(other) == 1:
             changed_fields.update(i + 1 for i, (a, b) in
                                   enumerate(zip(records[0], other[0])) if a != b)
-    status = "PASS" if equal and (coverage or not require_both_mint_states) else "HOLD"
+    status = "PASS" if accepted_match and (coverage or not require_both_mint_states) else "HOLD"
     return {
         "result": status, "schemaColumns": 18,
         "scanRows": len(source), "returnedRows": len(returned),
         "mintUsedRows": mints, "mintUnusedRows": len(source) - mints,
         "bothMintStatesCovered": coverage,
         "requireBothMintStates": bool(require_both_mint_states),
+        "allowExtraBoxRows": bool(allow_extra_box_rows),
+        "sourceRowsPresentUnmodified": source_rows_preserved,
         "logicalRowsIdentical": equal,
         "rowOrderIdentical": source == returned,
         "byteIdentical": scan_csv == returned_csv,
-        "matchingLogicalCells": 18 * len(source) if equal else None,
+        "matchingLogicalCells": 18 * len(source) if accepted_match else None,
         "unmatchedScanRowOccurrences": sum(unmatched_source.values()),
         "unmatchedReturnedRowOccurrences": sum(unmatched_returned.values()),
+        "additionalUnverifiedBoxRows": sum(unmatched_returned.values()),
         "changedColumnNumbersForUniqueNicknameSpecies": sorted(changed_fields),
         "scanSha256": hashlib.sha256(scan_csv).hexdigest(),
         "returnedSha256": hashlib.sha256(returned_csv).hexdigest(),
         "privacy": "No names, Pokémon values, or full CSV rows are printed",
-        "scope": "Verifies two supplied CSV files; does not independently prove Pixel/OCR or website UI operation",
+        "scope": ("Verifies scanned rows against returned Box. Existing Box rows are not "
+                  "independently checked for previous changes; OCR image accuracy not established"),
     }
 
 
@@ -104,11 +112,13 @@ def main() -> int:
     parser.add_argument("--returned", required=True, type=Path,
                         help="CSV exported after importing into pokesleep-tool")
     parser.add_argument("--require-both-mint-states", action="store_true",
-                        help="Require at least one mint-used and one mint-unused Pokémon")
+                        help="Require mint-used and mint-unused rows in the scanned CSV")
+    parser.add_argument("--allow-extra-box-rows", action="store_true",
+                        help="Ignore unrelated existing Box entries; still match all scanned rows")
     args = parser.parse_args()
     try:
         report = evaluate(args.scan.read_bytes(), args.returned.read_bytes(),
-                          args.require_both_mint_states)
+                          args.require_both_mint_states, args.allow_extra_box_rows)
     except (OSError, ValueError) as exc:
         # Sanitized errors only; do not echo raw file paths or private CSV data.
         reason = str(exc) if isinstance(exc, ValueError) else "Cannot read one of the files"
