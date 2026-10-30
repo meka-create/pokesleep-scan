@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-30-two-green-anchors-v1",
-  "appBuildId": "v12-two-green-anchors-20261030-v1",
+  "releaseId": "2026-10-30-footer-viewport-witness-v1",
+  "appBuildId": "v12-footer-viewport-witness-20261030-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -36,13 +36,13 @@
     },
     {
       "path": "android_roi.js",
-      "bytes": 7897,
-      "sha256": "bea44d328abc894a7ebf5c97fca8f27c64b69f162bda43667b4380cd2c8a6bea"
+      "bytes": 10755,
+      "sha256": "c1e5c91646be6c197f629404cfe340808dc089633d0d805bf73adbfaeaab8e37"
     },
     {
       "path": "app.js",
-      "bytes": 323649,
-      "sha256": "2cb701a2bb7f9784a7a048273101853c45b313f47099639eea2306350fb6d4b8"
+      "bytes": 323661,
+      "sha256": "818da5fbb4baed9178d16f2aaa4721bf1208b03194d6eb65cc16266afbcf59da"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 7432,
-      "sha256": "de45810dcab62fe720a797b36d53707932b6e855970f36fa3eb9b8295a26d3f9"
+      "bytes": 8604,
+      "sha256": "daeabaa14d4661ce0170850f902467c0d4cd38b0f0f87b0ac2235158e9364e07"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -281,8 +281,8 @@
     },
     {
       "path": "development/step3_android_roi.test.cjs",
-      "bytes": 16723,
-      "sha256": "44516b6a62701613fdd7e39975ed0b51f78db95e52db3f30040c1393777d3f26"
+      "bytes": 20341,
+      "sha256": "748739b961c0838d99ab5f83904d652aa0e1f3deba62862a6fb0c011174fec86"
     },
     {
       "path": "development/step3_carry_food3.test.cjs",
@@ -421,8 +421,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 46,
-      "sha256": "3f6b48262adf0b368b8f4828f4946a2c60b87337a725b6d80e056fe075523232"
+      "bytes": 52,
+      "sha256": "7b51c1d9c911723f9873be98cbe32568a84deae61e7f53362c58989ac7b8ad2c"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -441,8 +441,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4047,
-      "sha256": "13a9d13d5e941771501b1ae3f681ab36ac9f4e97ede4d97a94c6a86841b5112f"
+      "bytes": 4053,
+      "sha256": "aebc1bb34a9c7acdfc940d06ff6fa8714bf653df51b1b8a93524f6d256471fd5"
     }
   ]
 }
