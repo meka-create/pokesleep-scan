@@ -107,6 +107,15 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
    'release token must appear exactly once: '+regex.source);
   restored=restored.replace(regex,canonical);
  }
+ // PR #64 changes only the CSV export warning, not nickname OCR. Check the
+ // exact approved warning implementation, then restore the previously audited
+ // export-only function before comparing the ORIGINAL frozen surrounding digest.
+ // Do not expand this exception to other functions or update the baseline SHA.
+ const newCsvWarnings="function csvWarnings(){const blank=results.filter(x=>!String(x?.parsed?.nickname||'').trim()).length,nw=results.filter(x=>x?.parsed?.nicknameNeedsReview&&String(x?.parsed?.nickname||'').trim()).length,sw=results.reduce((n,r)=>n+subskillReviewSlots(r).length,0),mw=results.filter(x=>x.manualEditOpen&&!x.manualCompleted).length;return [blank?`ニックネーム空欄 ${blank}件（空欄のまま出力します）`:'',nw?`ニックネーム要確認 ${nw}件（現在の読み取り値を出力）`:'',sw?`サブスキル要確認 ${sw}枠（pokesleep-toolでは未設定として読み込まれます）`:'',mw?`手動補完中 ${mw}件（確定前の編集内容はCSVに反映されません）`:''].filter(Boolean);}\n";
+ const baselineCsvWarnings="function csvWarnings(){const nw=results.filter(x=>x.parsed.nicknameNeedsReview).length,sw=results.reduce((n,r)=>n+subskillReviewSlots(r).length,0),mw=results.filter(x=>x.manualEditOpen&&!x.manualCompleted).length;return [nw?`ニックネーム要確認 ${nw}件（現在の読み取り値を出力）`:'',sw?`サブスキル要確認 ${sw}枠（pokesleep-toolでは未設定として読み込まれます）`:'',mw?`手動補完中 ${mw}件（確定前の編集内容はCSVに反映されません）`:''].filter(Boolean);}\n";
+ assert.equal(restored.split(newCsvWarnings).length-1,1,
+  'approved CSV empty-nickname warning changed without audit');
+ restored=restored.replace(newCsvWarnings,baselineCsvWarnings);
  const sha=crypto.createHash('sha256').update(restored,'utf8').digest('hex');
  // PR #54 adds export-only mint choices without changing frozen nickname helpers.
  // The surrounding-code baseline changes, while frozen nickname-specific hashes remain untouched.
