@@ -1,13 +1,13 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-30-dimmed-food-conflict-v1",
-  "appBuildId": "v12-dimmed-food-conflict-20261030-v1",
+  "releaseId": "2026-10-30-nickname-spatial-advisory-v1",
+  "appBuildId": "v12-nickname-spatial-advisory-20261030-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 89,
+  "fileCount": 91,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 12386,
-      "sha256": "be18eac7578f4e90459bfd00d4fc8d58830f0861ffbe4d415aed79d74ac0b99d"
+      "bytes": 12433,
+      "sha256": "54f22d2037d880d53b00f35bcf34a0d89f536129bd728e24d11eca9f1ddc514b"
     },
     {
       "path": ".gitignore",
@@ -30,19 +30,14 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "path": "THIRD_PARTY_NOTICES.md",
-      "bytes": 4318,
-      "sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
-    },
-    {
       "path": "android_roi.js",
       "bytes": 10755,
       "sha256": "c1e5c91646be6c197f629404cfe340808dc089633d0d805bf73adbfaeaab8e37"
     },
     {
       "path": "app.js",
-      "bytes": 324653,
-      "sha256": "2435add377beb8e9013509c143bd7738d78e62c9db31fd03843b8a9493fc85db"
+      "bytes": 324824,
+      "sha256": "f29f24a70d4e8b6ff5f71b5df6f810707c77eab381b3bd6f7f16e79799e68b99"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -63,26 +58,6 @@
       "path": "csv_gate.js",
       "bytes": 8947,
       "sha256": "d78405f3cd613b1f06f588b36254d85048aac199611062b60ff9009863196cbf"
-    },
-    {
-      "path": "development/CSV18_DEVICE_ACCEPTANCE.md",
-      "bytes": 5442,
-      "sha256": "0da122bbb06b567203d845af7f1d5b5da121b94b2be89186fabe2d2d1610748d"
-    },
-    {
-      "path": "development/ROADMAP_20261013.md",
-      "bytes": 6526,
-      "sha256": "4a26cbc0fa5c43382121c3da12179f51dce458ff191f9b128469b633e87bc4b4"
-    },
-    {
-      "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 11785,
-      "sha256": "1d2a17af29f03e851f7e0b44ea2a4e67e4b8cf31ac3e9d3cfb42da09ab2ecabd"
-    },
-    {
-      "path": "development/STEP1_INDEPENDENT_MASTER.md",
-      "bytes": 2247,
-      "sha256": "d67d0a641509a88a5e7099c07418867e154f5e675f11bea0552084d7011bc445"
     },
     {
       "path": "development/browser_append_after_results.py",
@@ -123,6 +98,11 @@
       "path": "development/browser_unified_mobile_layout.py",
       "bytes": 5874,
       "sha256": "cf24f8b25e6bc7f7f3b9d94a55edd3759ee21645e5be3e10688e50b13ecae668"
+    },
+    {
+      "path": "development/CSV18_DEVICE_ACCEPTANCE.md",
+      "bytes": 5442,
+      "sha256": "0da122bbb06b567203d845af7f1d5b5da121b94b2be89186fabe2d2d1610748d"
     },
     {
       "path": "development/csv18_roundtrip_acceptance.py",
@@ -186,8 +166,8 @@
     },
     {
       "path": "development/nickname_caption_rescue.test.cjs",
-      "bytes": 15880,
-      "sha256": "17a825bd173bec2257039e6d58ac1144c324d69dbbbec6f6ea21b50e27ca42e9"
+      "bytes": 17179,
+      "sha256": "5cd95f2330eab1ac0600c97386d45290a3070b927ccb71f1f2ce59024403a2c9"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -196,13 +176,18 @@
     },
     {
       "path": "development/nickname_freeze.test.cjs",
-      "bytes": 3176,
-      "sha256": "a9d2e036edaf7834b72d3cfcb9816ee9177f0d29e0663bbee7e6cd1b363f1a50"
+      "bytes": 4589,
+      "sha256": "7bc28ab54d52bf486fa4e3ec706c66598bdc1d7a4792c71ea1b56d602269cef2"
     },
     {
       "path": "development/nickname_meka142_gate.py",
       "bytes": 8244,
       "sha256": "330f5852504ed37dee595431d892aef5fc80342fda401a04e4124047b20a62a7"
+    },
+    {
+      "path": "development/nickname_spatial_advisory.test.cjs",
+      "bytes": 4202,
+      "sha256": "149d97d5343b077fe340669875a7065d7337f3ff3b7dd852023bf81e98229c0a"
     },
     {
       "path": "development/paddle_wait_choice.test.cjs",
@@ -230,6 +215,16 @@
       "sha256": "fa5970688bc8863d9931c5bd80fbaceef8fc45b6ad7e528fae77c1c4c358a51f"
     },
     {
+      "path": "development/ROADMAP_20261013.md",
+      "bytes": 6526,
+      "sha256": "4a26cbc0fa5c43382121c3da12179f51dce458ff191f9b128469b633e87bc4b4"
+    },
+    {
+      "path": "development/ROADMAP_CURRENT.md",
+      "bytes": 13250,
+      "sha256": "c607a1dc9baafcc12217d1aec02511038dad78a329e30985c7ddd5fc4b804c61"
+    },
+    {
       "path": "development/runtime_smoke.test.cjs",
       "bytes": 2353,
       "sha256": "1d85a83ce5bda029d4c8b8ded7b4cbf78ae0b92a1b1f3c7cf8463c1d534e3ace"
@@ -238,6 +233,11 @@
       "path": "development/speed_warning.test.cjs",
       "bytes": 6784,
       "sha256": "e253621beb9653083b00da0f162fe76334277b62977bb1ba71495519ac2540c6"
+    },
+    {
+      "path": "development/STEP1_INDEPENDENT_MASTER.md",
+      "bytes": 2247,
+      "sha256": "d67d0a641509a88a5e7099c07418867e154f5e675f11bea0552084d7011bc445"
     },
     {
       "path": "development/step2_asset_revision.test.cjs",
@@ -406,13 +406,18 @@
     },
     {
       "path": "index.html",
-      "bytes": 73996,
-      "sha256": "d7fa52a09153a1e18201f16da6a59a4b089a18c0b9d130cc500152aae4a70906"
+      "bytes": 74018,
+      "sha256": "a268b0f6ead2becb03d2ea2a9ebb08723996fb39cd3071aa88cbda8ba2fc6927"
     },
     {
       "path": "manifest.webmanifest",
       "bytes": 1250,
       "sha256": "8b3751a6c224f95dd9435284e28273c6a94066f351256b1c74958506eb8b918c"
+    },
+    {
+      "path": "master_data.js",
+      "bytes": 131939,
+      "sha256": "b0f3bc100966de43dfdd4bd2d6b2036d8f7609b718b241a60674612aaf384ab4"
     },
     {
       "path": "master-update-status.js",
@@ -425,14 +430,19 @@
       "sha256": "d119273bb05366a374c551ba1c21d376bcf92f77308e2ffeb0a91a62c74b22a5"
     },
     {
-      "path": "master_data.js",
-      "bytes": 131939,
-      "sha256": "b0f3bc100966de43dfdd4bd2d6b2036d8f7609b718b241a60674612aaf384ab4"
+      "path": "nickname_spatial.js",
+      "bytes": 4102,
+      "sha256": "1186394fa1d8877c66f380e948a0cfc07e52deab18579428a0e24efabab0fb7b"
     },
     {
       "path": "release.json",
-      "bytes": 49,
-      "sha256": "8b646e47e2e1321b2d3b24e562e63de80fc6f929c07267f965655e2b6b73bda2"
+      "bytes": 54,
+      "sha256": "9ed6c0eef9048566b2306280c167c742819086363c5ea498c3c06a0d59c95268"
+    },
+    {
+      "path": "shared_master.js",
+      "bytes": 5816,
+      "sha256": "bc817438a9c541c141501cf314e62eee32f61acb9bdc87af22cf685a209b79dd"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -445,14 +455,14 @@
       "sha256": "8793b323a0e4d4c69b3ed0272d1961b7bb94606d7fa75df5a6d5950f1ced1b85"
     },
     {
-      "path": "shared_master.js",
-      "bytes": 5816,
-      "sha256": "bc817438a9c541c141501cf314e62eee32f61acb9bdc87af22cf685a209b79dd"
+      "path": "sw.js",
+      "bytes": 4093,
+      "sha256": "a86ed8240a00b7a162626e851f3e293d62a5ac250f86df9cdc66f2aec12e7725"
     },
     {
-      "path": "sw.js",
-      "bytes": 4050,
-      "sha256": "6e70f6550aa9df5ca30d91302efe8361dcad8094acaad0fd5f362a7da0120f59"
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 4318,
+      "sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
     }
   ]
 }
