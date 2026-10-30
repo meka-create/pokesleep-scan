@@ -25,7 +25,7 @@ const nick={
  exactSeparatedNickname:(s,lv,side)=>side==='front'?String(s).replace(new RegExp('^Lv[.,]?'+lv+'(?![0-9])','i'),''):'',
  editDistance:(a,b)=>{let p=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let q=[i];for(let j=1;j<=b.length;j++)q[j]=Math.min(q[j-1]+1,p[j]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=q;}return p[b.length];}
 };
-vm.createContext(nick);vm.runInContext(part('function reviewConflictingSmallKanaNickname(parsed){','function cloneRaw('),nick);
+vm.createContext(nick);vm.runInContext(part('function reviewConflictingSmallKanaNickname(parsed){','function observedFromParsed('),nick);
 function caseNick(name='きあてい',level=60,readings=[['Lv.60きぁあてい',82]]){
  return {nickname:name,level,nicknameNeedsReview:false,nicknameManualConfirmed:false,levelNeedsReview:false,
   nicknamePaddle:{ok:true,confidence:91},
