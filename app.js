@@ -1271,6 +1271,7 @@ function nicknameKnownSpeciesUiAffix(s){const t=(s||'').normalize('NFKC').replac
 function nicknameNearSpeciesTypo(s){const t=cleanNick(s);if(!t||SPECIES_NAMES.includes(t)||!(nickScript(t)==='jp'||nickScript(t)==='mixed'))return false;return SPECIES_NAMES.some(x=>editDistance(t,x)===1);}
 function nicknameHasUnbalancedClosingPunctuation(s){const t=String(s||'').normalize('NFKC'),pairs={')':'(',']':'[','}':'{'},opens=new Set(Object.values(pairs)),stack=[];for(const ch of t){if(opens.has(ch))stack.push(ch);else if(Object.prototype.hasOwnProperty.call(pairs,ch)){if(!stack.length||stack[stack.length-1]!==pairs[ch])return true;stack.pop();}}return false;}
 function applyNicknameSafety(parsed){if(nicknameLooksUiContaminated(parsed.nickname)||nicknameKnownSpeciesUiAffix(parsed.nickname)){parsed.nicknameNeedsReview=true;parsed.nicknameReviewReason=parsed.nicknameReviewReason||'周辺UI混入の可能性';}else if(nicknameNearSpeciesTypo(parsed.nickname)){parsed.nicknameNeedsReview=true;parsed.nicknameReviewReason=parsed.nicknameReviewReason||'ポケモン名に近い1文字差';}else if(nicknameHasUnbalancedClosingPunctuation(parsed.nickname)){parsed.nicknameNeedsReview=true;parsed.nicknameReviewReason=parsed.nicknameReviewReason||'末尾記号混入の可能性';}return parsed;}
+function cloneRaw(raw){return Object.fromEntries(Object.entries(raw).filter(([k])=>!k.startsWith('_')).map(([k,v])=>[k,{text:v?.text||'',confidence:v?.confidence||0}]));}
 // Approved narrow 85-89 confidence extension. Frozen >=90 consensus logic
 // remains unchanged. This operates only on an ALREADY reviewed nickname and
 // never repairs or selects a new string: only two different OCR engines,
@@ -1304,7 +1305,6 @@ function autoConfirmLevelCaptionConsensus85(parsed){
  parsed.nicknameResolvedBy='PaddleOCR+Tesseract-visible-level-consensus-85';
  return parsed;
 }
-function cloneRaw(raw){return Object.fromEntries(Object.entries(raw).filter(([k])=>!k.startsWith('_')).map(([k,v])=>[k,{text:v?.text||'',confidence:v?.confidence||0}]));}
 // Review-only veto on conflicting small-kana readings. Never rewrite the
 // nickname or auto-promote another OCR candidate. A strong explicit Lv prefix
 // is required; a strong exact Lv-prefixed reading blocks the veto.
