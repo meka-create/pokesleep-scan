@@ -1,4 +1,4 @@
-const RELEASE_ID = '2026-10-30-mystical-fire-sp-v1';
+const RELEASE_ID = '2026-10-30-dimmed-food-conflict-v1';
 // Distinct caches per release prevent stale OCR and UI assets from surviving promotion.
 const CACHE_NAME = `bukkomi-scan-${RELEASE_ID}-step3-prod-multi-picker-v1-reviewclean-v1-mythical-blank-v2-food3-selfmatch-v3-mythical-food-v4-third-dash-v5-subskill-dash-v6-kana-picker-v1-unified-mobile-layout-v1-postanalysis-append-v1-food3-pixel-witness-v4-query-refresh-sources-v1-direct-files-v1-nickname-caption-v3-consensus-red-card-20261015-v1`;
 const versioned = (path) => `${path}?release=${encodeURIComponent(RELEASE_ID)}&step2=sharedcsv-v1&step3=androidroi-v1&pick=multi-v1&ui=review-clean-v1-food3-pixel-v9-nickname-consensus-red-card-20261015-v1`;
