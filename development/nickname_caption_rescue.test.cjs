@@ -94,7 +94,7 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  }
  approvedSpan('// Independent noisy Mew skill evidence:','function longestCommonRun(',
   '876b79ceb560c8226d02ce346c9cd811589c0006a4e4b0908dd688fbf646547a',
-  "function detailedMewVersatileSkill(parsed){const explicit=String(parsed?.versatileSkill||'');if(MEW_VERSATILE_KEYS.has(explicit))return explicit;for(const t of [parsed?.mainSkillRaw||'',...rescueTextValues(parsed?.structuredRescue?.attempts||{})]){const v=mewVersatileSkillFromText(t);if(v)return v;}return '';}"+"\\n".replace('\\n','\n'));
+  "function detailedMewVersatileSkill(parsed){const explicit=String(parsed?.versatileSkill||'');if(MEW_VERSATILE_KEYS.has(explicit))return explicit;for(const t of [parsed?.mainSkillRaw||'',...rescueTextValues(parsed?.structuredRescue?.attempts||{})]){const v=mewVersatileSkillFromText(t);if(v)return v;}return '';}"+"\\n".replace('\\n','\n') + "function detailedMewMainSkill(parsed){const key=detailedMewVersatileSkill(parsed),label=mewVersatileSkillLabel(key);return label?`オールマイティー (${label})`:'';}\n");
  approvedSpan('// Review-only veto on conflicting small-kana readings.','function cloneRaw(',
   'caf8c20d309bbfe210640394845b41318a3864b6e9ddada760123e7940b4c6f9','');
  approvedSpan(' const p=r.parsed||{};\n if(!p.nicknameManualConfirmed){',
