@@ -211,12 +211,14 @@ function planFromBars(w,h,bars,cardBottom=null,profileTop=null,footer=null){
  const cardReliable=Number.isFinite(cardBottom)&&cardBottom>=anchor.main+300&&cardBottom<=anchor.main+540;
  // Optional independent frame check. Do NOT shift OCR coordinates from this:
  // the footer is fixed even when the scrolled central content moves.
- // If a verified footer conflicts with the required green detail bar or
- // profile card, reject the proposed adaptive layout instead of guessing.
+ // If a verified footer masks the detail header or the expected nature crop,
+ // reject this proposal instead of interpreting visible controls as text.
+ // Do not impose a Pixel-specific profile-to-footer distance on other devices.
  const footerVerified=!!(footer&&Number.isFinite(footer.start)
    &&footer.start>=1920&&footer.start<=2330&&footer.end>=2390);
+ const natureBottom=RECTS.nature[3]+deltaDetail;
  if(footerVerified&&(anchor.detail>=footer.start-70
-   ||(profileReliable&&footer.start-profileTop<1450)))return null;
+   ||natureBottom>footer.start-12))return null;
  // The five subskills move with the orange card's actual bottom edge.
  // Do not guess their coordinates from the green detail header: a wrapped
  // three-line description shifts them by ~55px while detail shifts only ~27px.
