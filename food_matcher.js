@@ -141,6 +141,11 @@ function secondFoodColorShapeNearMarginWitness(food,level,status){
   !Array.isArray(shape?.ranking)||shape.ranking.length!==2||
   shape.name!==food.name||shape.second!==food.second||
   food.ranking[0]?.name!==food.name||food.ranking[1]?.name!==food.second||
+  shape.ranking[0]?.name!==food.name||shape.ranking[1]?.name!==food.second||
+  Math.abs(Number(food.ranking[0]?.score)-food.score)>1e-6||
+  Math.abs(Number(food.ranking[0]?.score)-Number(food.ranking[1]?.score)-food.margin)>1e-6||
+  Math.abs(Number(shape.ranking[0]?.score)-shape.score)>1e-6||
+  Math.abs(Number(shape.ranking[0]?.score)-Number(shape.ranking[1]?.score)-shape.margin)>1e-6||
   !food.allowed.includes(food.name)||!food.allowed.includes(food.second)||
   !Number.isFinite(food.score)||food.score<.915||
   !Number.isFinite(food.margin)||food.margin<.035||food.margin>=.04||
