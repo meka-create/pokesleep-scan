@@ -155,7 +155,10 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  // Spatial review is a new post-consensus, review-only hook. Check it
  // verbatim before removing it so the historical flow fingerprint remains.
  const spatialCall='  parsed=window.POKESLEEP_NICKNAME_SPATIAL?.reviewOnly?.(parsed)||parsed;\n';
- assert.equal(restored.split(spatialCall).length-1,1,'spatial review hook must be unique');
+ // Verify uniqueness on the unmodified production source; audited legacy
+ // restorations above are allowed to have already removed the same hook.
+ assert.equal(src.split(spatialCall).length-1,1,'spatial review hook must be unique');
+ assert.ok(restored.split(spatialCall).length-1<=1,'spatial review hook duplicated');
  restored=restored.replace(spatialCall,'');
  const call='parsed=improveReviewedNicknameCaption(parsed);';
  assert.equal(restored.split(call).length-1,2,'nickname hook before and after level rescue');
