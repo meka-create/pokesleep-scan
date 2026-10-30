@@ -116,6 +116,14 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  assert.equal(restored.split(newCsvWarnings).length-1,1,
   'approved CSV empty-nickname warning changed without audit');
  restored=restored.replace(newCsvWarnings,baselineCsvWarnings);
+ // PR #65 fixes only the ordinary nickname editor's input routing. Verify
+ // exact audited handler bytes, then normalize ONLY that handler back to the
+ // pre-fix implementation before computing the unchanged frozen surrounding SHA.
+ const oldNicknameEditHandler="for(const el of tb.querySelectorAll('.nickedit'))el.addEventListener('input',e=>{const r=results[+e.target.dataset.ri],p=r.parsed;if(nicknameDataNeedsReview(r)){p.nicknameReviewDraft=e.target.value;const td=e.target.closest('td'),b=td?.querySelector('.nickconfirm'),sel=td?.querySelector('.nickcandidate');if(b)b.disabled=!e.target.value.trim();if(sel&&sel.value!==e.target.value){sel.value='';syncCustomSelectTrigger(sel);}}else{if(p.nickname!==e.target.value){p.nicknameManualConfirmed=false;e.target.closest('.nick-field')?.querySelector('.review-actions')?.remove();}p.nickname=e.target.value;scheduleCheckpointResultSave(r);}});";
+ const newNicknameEditHandler="for(const el of tb.querySelectorAll('.nickedit'))el.addEventListener('input',e=>{const r=results[+e.target.dataset.ri],p=r.parsed;\n  // Decide from the rendered editor, not the nickname's mutable data state.\n  // Clearing an ordinary nickname temporarily makes nicknameDataNeedsReview true;\n  // switching to review-draft mode mid-typing kept the CSV nickname empty.\n  if(e.target.closest('.nickname-review')){p.nicknameReviewDraft=e.target.value;const td=e.target.closest('td'),b=td?.querySelector('.nickconfirm'),sel=td?.querySelector('.nickcandidate');if(b)b.disabled=!e.target.value.trim();if(sel&&sel.value!==e.target.value){sel.value='';syncCustomSelectTrigger(sel);}}\n  else{if(p.nickname!==e.target.value){p.nicknameManualConfirmed=false;e.target.closest('.nick-field')?.querySelector('.review-actions')?.remove();}p.nickname=e.target.value;delete p.nicknameReviewDraft;scheduleCheckpointResultSave(r);}});";
+ assert.equal(restored.split(newNicknameEditHandler).length-1,1,
+  'ordinary nickname editor changed outside approved clear/retype fix');
+ restored=restored.replace(newNicknameEditHandler,oldNicknameEditHandler);
  const sha=crypto.createHash('sha256').update(restored,'utf8').digest('hex');
  // PR #54 adds export-only mint choices without changing frozen nickname helpers.
  // The surrounding-code baseline changes, while frozen nickname-specific hashes remain untouched.
