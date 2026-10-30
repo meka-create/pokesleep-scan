@@ -132,6 +132,24 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  assert.equal(restored.split(newLayoutBandSelection).length-1,1,
   'layoutInfo cropped-top banner fix changed outside audited code');
  restored=restored.replace(newLayoutBandSelection,oldLayoutBandSelection);
+ // PR #71 adds only locked-food color/shape disagreement guards. Restore
+ // EXACT audited non-nickname implementation before checking the original
+ // frozen nickname-surrounding digest; never merely update the expected SHA.
+ const approvedFoodBlock="function hasUnreviewedDimmedFoodConflict(f){\n return !!f&&!f.manualOverride&&(\n  f.dimmedShapeConflict===true||\n  (f.dimmedShapeArbitration===true&&Array.isArray(f.colorRanking)&&\n   f.colorRanking[0]?.name&&f.colorRanking[0].name!==f.name));\n}\nfunction markFoodReviews(foods){return (foods||[]).map(x=>({...x,\n needsReview:!!x.needsReview||hasUnreviewedDimmedFoodConflict(x)||\n  !!(x.method==='image'&&x.name&&Number.isFinite(x.margin)&&x.margin<FOOD_REVIEW_MARGIN),\n reviewReason:hasUnreviewedDimmedFoodConflict(x)?\n  'dimmed-color-shape-disagreement':x.reviewReason}));}\n";
+ const previousFoodMark="function markFoodReviews(foods){return (foods||[]).map(x=>({...x,needsReview:!!x.needsReview||!!(x.method==='image'&&x.name&&Number.isFinite(x.margin)&&x.margin<FOOD_REVIEW_MARGIN)}));}\n";
+ const approvedFoodDataReview="function foodDataNeedsReview(r){return !!r?.foods?.some((x,i)=>{const name=String(typeof x==='string'?x:(x?.name||'')).trim();if(x?.needsReview||hasUnreviewedDimmedFoodConflict(x)||!name)return true;if(typeof foodSlotNeedsReview==='function')return foodSlotNeedsReview(r,i);return false;});}";
+ const previousFoodDataReview="function foodDataNeedsReview(r){return !!r?.foods?.some((x,i)=>{const name=String(typeof x==='string'?x:(x?.name||'')).trim();if(x?.needsReview||!name)return true;if(typeof foodSlotNeedsReview==='function')return foodSlotNeedsReview(r,i);return false;});}";
+ const approvedCheckpointFoodReview="function applyResultReviewSafetyGuards(r){\n if(!r||r.processingError)return r;\n // Persisted analyses from older releases may still contain the known\n // incorrect shape-over-color choice. Restore their actionable review flag.\n for(const f of r.foods||[]){\n  if(hasUnreviewedDimmedFoodConflict(f)){\n   f.needsReview=true;\n   f.reviewReason='dimmed-color-shape-disagreement';\n   delete f.reviewSelection;\n  }\n }\n const p=r.parsed||{};";
+ const previousCheckpointFoodReview="function applyResultReviewSafetyGuards(r){\n if(!r||r.processingError)return r;\n const p=r.parsed||{};";
+ for(const [current,original,label] of [
+  [approvedFoodBlock,previousFoodMark,'locked-food disagreement review'],
+  [approvedFoodDataReview,previousFoodDataReview,'CSV/review safety check'],
+  [approvedCheckpointFoodReview,previousCheckpointFoodReview,'old checkpoint restore']
+ ]){
+  assert.equal(restored.split(current).length-1,1,
+   'approved food-safety scope changed: '+label);
+  restored=restored.replace(current,original);
+ }
  const sha=crypto.createHash('sha256').update(restored,'utf8').digest('hex');
  // PR #54 adds export-only mint choices without changing frozen nickname helpers.
  // The surrounding-code baseline changes, while frozen nickname-specific hashes remain untouched.
