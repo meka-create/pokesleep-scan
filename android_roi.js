@@ -31,10 +31,25 @@ function isCandidateSize(w,h){
 }
 function pickAnchors(bars){
  if(!Array.isArray(bars))return null;
- const main=bars.find(b=>b.start>=745&&b.start<=950&&b.end-b.start>=23);
- const detail=bars.find(b=>b.start>=1755&&b.start<=1995&&b.end-b.start>=23);
- if(!main||!detail||detail.start-main.start<930||detail.start-main.start>1110)return null;
- const top=bars.find(b=>b.start<=24&&b.end>=30);
+ // Screen captures may start below the "おてつだい能力" header. The two
+ // REQUIRED section bars, not the optional top bar, define the layout.
+ // Support moderate vertical capture shifts without accepting arbitrary green
+ // decorations. Every bar must be a full-height, wide section stripe.
+ const isHeader=b=>b&&Number.isFinite(b.start)&&Number.isFinite(b.end)
+   &&b.end-b.start>=23&&b.end-b.start<=105;
+ const mains=bars.filter(b=>isHeader(b)&&b.start>=600&&b.start<=1100);
+ const details=bars.filter(b=>isHeader(b)&&b.start>=1550&&b.start<=2150);
+ const pairs=[];
+ for(const main of mains)for(const detail of details){
+  const spacing=detail.start-main.start;
+  if(spacing>=890&&spacing<=1160&&detail.start>main.end+500)
+   pairs.push({main,detail});
+ }
+ // When multiple geometrically plausible pairs exist, never choose the first
+ // by accident. The normal caller keeps the existing safe fallback.
+ if(pairs.length!==1)return null;
+ const {main,detail}=pairs[0];
+ const top=bars.find(b=>isHeader(b)&&b.start<=24&&b.end>=30);
  return {main:main.start,detail:detail.start,top:top?top.start:null};
 }
 function scanBars(canvas){
@@ -73,7 +88,7 @@ function mainSkillCardBottom(canvas,mainY){
  const w=canvas.width,h=canvas.height,sx=w/RAW_W,sy=h/RAW_H;
  const x0=Math.round(70*sx),x1=Math.round(1010*sx);
  const y0=Math.max(0,Math.round((mainY+280)*sy));
- const y1=Math.min(h,Math.round((mainY+510)*sy));
+ const y1=Math.min(h,Math.round((mainY+555)*sy));
  const width=x1-x0,height=y1-y0;
  if(width<100||height<30)return null;
  const ctx=canvas.getContext('2d',{willReadFrequently:true});
@@ -97,7 +112,7 @@ function mainSkillCardBottom(canvas,mainY){
    const last=y-1;
    if(last-runStart+1>=2){
     const bottom=Math.round((last+y0)/sy);
-    if(bottom>=mainY+300&&bottom<=mainY+485)return bottom;
+    if(bottom>=mainY+300&&bottom<=mainY+540)return bottom;
    }
    runStart=-1;
   }
@@ -110,7 +125,9 @@ function mainSkillCardBottom(canvas,mainY){
 function profileCardTop(canvas){
  const w=canvas.width,h=canvas.height,sx=w/RAW_W,sy=h/RAW_H;
  const x0=Math.round(25*sx),x1=Math.round(635*sx);
- const y0=Math.round(90*sy),y1=Math.round(220*sy);
+ // The coral profile border follows the screenshot crop, not the main bar.
+ // Search more widely, but still require a strong horizontal coral witness.
+ const y0=Math.round(18*sy),y1=Math.round(430*sy);
  const width=x1-x0,height=y1-y0;
  if(width<100||height<30)return null;
  const ctx=canvas.getContext('2d',{willReadFrequently:true});
@@ -136,9 +153,9 @@ function planFromBars(w,h,bars,cardBottom=null,profileTop=null){
  const scale=w/RAW_W;
  if(Math.abs(h/scale-RAW_H)>23)return null;
  const deltaMain=anchor.main-BASE_MAIN,deltaDetail=anchor.detail-BASE_DETAIL;
- const profileReliable=Number.isFinite(profileTop)&&profileTop>=90&&profileTop<=220;
+ const profileReliable=Number.isFinite(profileTop)&&profileTop>=18&&profileTop<=430;
  const topShift=profileReliable?profileTop-144:null;
- const cardReliable=Number.isFinite(cardBottom)&&cardBottom>=anchor.main+300&&cardBottom<=anchor.main+485;
+ const cardReliable=Number.isFinite(cardBottom)&&cardBottom>=anchor.main+300&&cardBottom<=anchor.main+540;
  // The five subskills move with the orange card's actual bottom edge.
  // Do not guess their coordinates from the green detail header: a wrapped
  // three-line description shifts them by ~55px while detail shifts only ~27px.
