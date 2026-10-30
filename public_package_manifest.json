@@ -1,13 +1,13 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-30-structured-ocr-evidence-v1",
-  "appBuildId": "v12-structured-ocr-evidence-20261030-v1",
+  "releaseId": "2026-10-30-meka142-targeted-quality-v2",
+  "appBuildId": "v12-meka142-targeted-quality-20261030-v2",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 92,
+  "fileCount": 93,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 12574,
-      "sha256": "c8ee7dda49f143506545624293f23cc8269fa4314d36912fd3c8c2cddfc3387a"
+      "bytes": 12727,
+      "sha256": "6c58fbd18c2985a5037e9e2d393b8fa6c8e85373e1647a6282eacdd6485a50ef"
     },
     {
       "path": ".gitignore",
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 326716,
-      "sha256": "bde29dfddb9ff6819b98d72b0888bfd63775b4c50a1c0c6e9a7ad1686925d457"
+      "bytes": 329800,
+      "sha256": "2bebcd545f105d9e493c88c7ee02491c28c9682061543e24ed1e1ff678dfe811"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 14241,
-      "sha256": "06aa1d5ab159b9dcb879ffaed99ff0556dac8767c6b09f3a1adabacaa2d3f33b"
+      "bytes": 16069,
+      "sha256": "51fa27ad52d302f51051d134935443f81bc4859c3f6ad4066da9fcf69242a6ef"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -186,8 +186,8 @@
     },
     {
       "path": "development/nickname_caption_rescue.test.cjs",
-      "bytes": 20615,
-      "sha256": "de3bb04735a8118c93c549543adaabf2f65828eeb7bdd10ddf406d876342ef69"
+      "bytes": 23065,
+      "sha256": "d1d70f42c75666b639c64328222e9bc5c8d028724f27821f5cb43cde96ef849f"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -216,8 +216,8 @@
     },
     {
       "path": "development/performance_profile.test.cjs",
-      "bytes": 3721,
-      "sha256": "9408da03f5a87057530361cb3875fbc554039744e659424789f38257bbb87c9f"
+      "bytes": 3817,
+      "sha256": "7bc807f27f2950e64b549d273e5f133fcfda6973ce97294260ca8cf4fcec6c53"
     },
     {
       "path": "development/publish_master_status.py",
@@ -310,14 +310,19 @@
       "sha256": "727c1941c8b70b7ede21f528792785029b1f0b7f9a5e2338ad31d2605efafc9e"
     },
     {
+      "path": "development/step3_meka142_targeted_quality.test.cjs",
+      "bytes": 4152,
+      "sha256": "f3d6a357b18051e65d0f13b10be97d79621d6b7862b757c7a66a2370fdf2760f"
+    },
+    {
       "path": "development/step3_mystical_fire_sp.test.cjs",
       "bytes": 2417,
       "sha256": "c7c4472cf6aef961fc6c280c91c060ac0caaac9b1337e96910984c7a4b1fcb9b"
     },
     {
       "path": "development/step3_pixel142_safety.test.cjs",
-      "bytes": 8349,
-      "sha256": "bbc73bc37057053e27a0c627dfb5e6e0512a542a643905a2f005d79328cc99c7"
+      "bytes": 8446,
+      "sha256": "cddc4a35f2ed3b8a6697c04aa3f7c6c8cda11584317a82ea785a3509880f25dc"
     },
     {
       "path": "development/step3_real_upstream_importer.test.ts",
@@ -446,8 +451,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 52,
-      "sha256": "85a18f3f23a224608fae8549ae6a8579190db61aca514d1888193fc664bfdcf6"
+      "bytes": 53,
+      "sha256": "fc5d270fd7affcb325c7a7184490397b51ced9e2b43e525bd8e89e0eec511023"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -466,8 +471,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4091,
-      "sha256": "d4e0bc5105d230c5252d5497645ef2374ce6a040d88c228181299fc7b0fc7783"
+      "bytes": 4092,
+      "sha256": "d40525f18a4824779b02e8df7f1ca57500ea087edb521b9b0b0582ec6486b305"
     }
   ]
 }

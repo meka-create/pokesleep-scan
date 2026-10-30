@@ -39,7 +39,9 @@ test('failed images and batch timings remain observable and do not affect result
  await ctx.scanPerfMeasureBatch('checkpointWrites',async()=>{x.tick(9);});
  let snap=ctx.scanPerfSessionSummary();
  assert.equal(snap.profiledImages,1);assert.equal(snap.workerPrepare.totalMs,14);
- assert.equal(snap.checkpointWrites.totalMs,9);assert.equal(snap.tesseractCalls,0);
+ assert.equal(snap.checkpointWrites.totalMs,9);
+ assert.equal(snap.tesseractAverageMs,0);
+ assert.equal(snap.stageTotalsMs.initialTesseract,0);assert.equal(snap.tesseractCalls,0);
  ctx.scanPerfResetSession();snap=ctx.scanPerfSessionSummary();
  assert.equal(snap.workerPrepare.calls,0);assert.equal(snap.profiledImages,1);
  ctx.scanPerfStart(1);x.tick(2);assert.equal(ctx.scanPerfFinish().totalMs,2);
