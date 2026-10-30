@@ -32,8 +32,8 @@ function canvasFor(bars,cardBottom=null,profile=true,footerStart=null){
   paint(0,1080,footerStart,2400,254,119,81);
   // The return button and menu control interrupt the red area in the middle,
   // but leave a wide red stripe at its start and at the screenshot bottom.
-  paint(50,270,2220,2320,254,254,254);
-  paint(830,1040,2220,2320,254,254,254);
+  paint(50,270,footerStart+60,footerStart+160,254,254,254);
+  paint(830,1040,footerStart+60,footerStart+160,254,254,254);
  }
  return {width:w,height:h,getContext:()=>({
   getImageData:(x=0,y=0,width=w,height=h)=>{
@@ -346,12 +346,17 @@ test('Pixel 7a fixed red bottom controls are detected without moving OCR crops',
 });
 test('footer witness follows detected position rather than Pixel 7a constant',()=>{
  const a=api(),bars=patterns[0].bars;
- for(const top of [2080,2160,2260]){
+ for(const top of [2160,2180,2200]){
   const p=a.inspect(canvasFor(bars,1225,true,top));
   assert.ok(p,'Valid different-device footer rejected at '+top);
   assert.ok(Math.abs(p.footerBarTop-top)<=2,
     'Detected footer was incorrectly hardcoded to Pixel 7a position');
  }
+ // An earlier footer may be valid on another phone when central content has
+ // also shifted upward, leaving the entire nature area readable.
+ const other=a.inspect(canvasFor([[790,848],[1770,1828]],1152,true,2080));
+ assert.ok(other,'A coherent earlier footer and content must still be accepted');
+ assert.ok(Math.abs(other.footerBarTop-2080)<=2);
  const noFooter=a.inspect(canvasFor(bars,1225,true));
  assert.ok(noFooter,'Missing footer must not invalidate two green bars');
  assert.equal(noFooter.footerBarTop,null);
@@ -371,8 +376,12 @@ test('a verified footer cannot overlap a claimed detail section or profile',()=>
  assert.equal(a.planFromBars(691,1536,bars,1450,144,footer),null,
    'Inconsistent green detail/footer overlap must not activate Android ROI');
  assert.equal(a.planFromBars(691,1536,
-  [{start:863,end:921},{start:1876,end:1934}],1225,750,footer),null,
-  'Incompatible profile/footer spacing must not be trusted');
+  [{start:863,end:921},{start:1876,end:1934}],1225,144,
+  {start:2080,end:2400}),null,
+  'Nature field hidden behind footer must not be treated as visible');
+ assert.ok(a.planFromBars(691,1536,
+  [{start:863,end:921},{start:1876,end:1934}],1225,390,footer),
+  'Another phone may place the profile at a different height');
  // Missing optional footer does not affect the established valid layout.
  const normal=a.planFromBars(691,1536,
   [{start:863,end:921},{start:1876,end:1934}],1225,144);
