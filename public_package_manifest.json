@@ -1,13 +1,13 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-31-locked-food2-self-witness-v1",
-  "appBuildId": "v12-locked-food2-self-witness-20261031-v1",
+  "releaseId": "2026-10-31-final-two-field-evidence-v1",
+  "appBuildId": "v12-final-two-field-evidence-20261031-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 95,
+  "fileCount": 97,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 13028,
-      "sha256": "c169e74625c0466029924dd05812bd07cc56f98304562aa39bce8b41f5a0dac3"
+      "bytes": 13332,
+      "sha256": "8fbfbebd9d9e89c65565184ac93a44d909a0a02f7ad7d1c5812e410e3986a350"
     },
     {
       "path": ".gitignore",
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 332070,
-      "sha256": "9ec69e4462a5f551730ffa17f9060076d7d5b7379813df3e1365714f91d90b2e"
+      "bytes": 336114,
+      "sha256": "ee7bc9d9b631df45e48f1de84da0e8a24adb4bce2b8dedbf467ea0bb0e752789"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 19439,
-      "sha256": "a0cb65fbf8a4d9e8545296a193f28cb2530817de216b596b0d290031b05714af"
+      "bytes": 22638,
+      "sha256": "4ab25cddd14d7bcf236cc7c92f40b1985a8fd1982d68ac30fb33b065849bc0b8"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -140,6 +140,11 @@
       "sha256": "7349a5c59fc7d7dca0f58fcae7028b8eafdf32dd8e5dae9fefc8c3dc8c5530df"
     },
     {
+      "path": "development/final_two_field_evidence.test.cjs",
+      "bytes": 5700,
+      "sha256": "4aa4d65c378bb2022730c5a1a039334664343e2be8df9dba590da28550238384"
+    },
+    {
       "path": "development/generate_public_package_manifest.py",
       "bytes": 6487,
       "sha256": "84413c3e43434b0bb2b856998cc6ad5787db8ba900f79f563f1a37561eba3bf6"
@@ -191,8 +196,8 @@
     },
     {
       "path": "development/nickname_caption_rescue.test.cjs",
-      "bytes": 25099,
-      "sha256": "45d3b188e63d73122690c4697644c170396c92b641cdbffa4552729f7a295647"
+      "bytes": 26736,
+      "sha256": "05ba4efa14df49546034987fc1b7eb3339886158d8a73cee9fc84ac0a0d28237"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -201,13 +206,18 @@
     },
     {
       "path": "development/nickname_freeze.test.cjs",
-      "bytes": 4589,
-      "sha256": "7bc28ab54d52bf486fa4e3ec706c66598bdc1d7a4792c71ea1b56d602269cef2"
+      "bytes": 4933,
+      "sha256": "da86f038b617200335707b75e8016f7f6a176b0783db35804481886d42703540"
     },
     {
       "path": "development/nickname_level_candidate_ranking.test.cjs",
       "bytes": 3574,
       "sha256": "6d9246c2d2402155396b545241f6071713863cb0166b67d0faa95e3758c123f1"
+    },
+    {
+      "path": "development/nickname_lv_consensus85.test.cjs",
+      "bytes": 4332,
+      "sha256": "15a28492a1b064a18612df353363508c552a6adafb5dda7d3d9bc842a7442ab3"
     },
     {
       "path": "development/nickname_meka142_gate.py",
@@ -216,8 +226,8 @@
     },
     {
       "path": "development/nickname_spatial_advisory.test.cjs",
-      "bytes": 4202,
-      "sha256": "149d97d5343b077fe340669875a7065d7337f3ff3b7dd852023bf81e98229c0a"
+      "bytes": 4258,
+      "sha256": "6e975547f4ee9972f83bab5d041abe14cbbedfbc3dc8acc944d467b37cf75a83"
     },
     {
       "path": "development/paddle_wait_choice.test.cjs",
@@ -396,8 +406,8 @@
     },
     {
       "path": "food_matcher.js",
-      "bytes": 17418,
-      "sha256": "c3c0bf7137c5e5d5cb2342d199901370dfa422e0e9c6d4f1f9ab309c791e4d93"
+      "bytes": 19375,
+      "sha256": "32015a1294a35f0394e4a6c8d77f8639aec037099ee7703b5dce6514d1517234"
     },
     {
       "path": "icons/apple-touch-icon.png",
@@ -461,8 +471,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 54,
-      "sha256": "d4575ed24309750fa30e1ea6c0ac4ec83e0e60341abc7225d938d2dd3857fd08"
+      "bytes": 53,
+      "sha256": "d477988bb873bba7ba3bf65551383cb08ff24027211691e6f5ac73067dcc636a"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -481,8 +491,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4093,
-      "sha256": "6f7dc7a9a2624317056a41f4fb341bda9caca7d7fb32aa94246638aa5043daad"
+      "bytes": 4092,
+      "sha256": "81146ee6b2636f6473521b4d17229a942b48eb818249a1325a6a36f9b6a091a7"
     }
   ]
 }

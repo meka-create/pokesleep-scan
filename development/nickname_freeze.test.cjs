@@ -45,6 +45,11 @@ function frozenBaselineSegment(part){
  if(part.name==='nickname-only production invocation and immutable snapshot'){
   const before="  parsed=autoConfirmCorroboratedReviewedNickname(parsed);\n  Object.assign(nicknameReviewAtAnalysis,";
   const after="  parsed=autoConfirmCorroboratedReviewedNickname(parsed);\n  parsed=window.POKESLEEP_NICKNAME_SPATIAL?.reviewOnly?.(parsed)||parsed;\n  Object.assign(nicknameReviewAtAnalysis,";
+  // Strictly approved, additive 85–89 evidence confirmation is not part
+  // of the frozen historical >=90 policy. The baseline digest stays fixed.
+  const narrow='  parsed=autoConfirmLevelCaptionConsensus85(parsed);\n';
+  assert.equal(text.split(narrow).length-1,1,'missing narrow Lv consensus invocation');
+  text=text.replace(narrow,'');
   assert.equal(text.split(after).length-1,1,'post-consensus review-only hook missing');
   text=text.replace(after,before);
  }

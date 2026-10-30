@@ -92,12 +92,28 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
    expectedSha,'unaudited change in '+a);
   restored=restored.slice(0,startAt)+baseline+restored.slice(endAt);
  }
+ // The two final field improvements are audited as exact byte ranges.
+ // Neither changes frozen nickname interpretation or the legacy reference SHA.
+ approvedSpan('// A dedicated PSM7 card read is exact',
+  'function subskillNeedsTargetedVerification(',
+  'a06d9d347a6186332ddbb7a52402eb100107ea730eda1145f8098e02e1b267e0','');
+ approvedSpan('  // Final fallback for a narrowly sub-.040 locked food2.',
+  '  // Apply the existing weak-food3 safety review BEFORE independent pixel',
+  '42388985772b7fc78e88150f9f72f0f949f1ab080bedfc4e83ce9495f77a0657','');
+ const subskillEvidenceHook='decision=corroborateStrongSubskillAgainstWeakNoise(entries,decision);';
+ assert.equal(restored.split(subskillEvidenceHook).length-1,1,'reviewed subskill rescue hook unique');
+ restored=restored.replace(subskillEvidenceHook,'');
  // New locked-food evidence is outside the frozen nickname pipeline.
  // Verify the exact reviewed snippet before restoring the historical
  // app fingerprint; do not alter any preexisting expected digest.
  approvedSpan('  // An already-reviewed, locked Lv30 second food can be corroborated',
   '  // Apply the existing weak-food3 safety review BEFORE independent pixel',
   'a33b570cba5294e6c03e80deecd2f9bc8f39799b87b23455fc672efec9fb915a','');
+ // Additional reviewed-name release is out of the frozen original
+ // nickname algorithm; exact SHA required for the complete new helper.
+ approvedSpan('// Approved narrow 85-89 confidence extension.',
+  '// Review-only veto on conflicting small-kana readings.',
+  'f5a26888aa9e05e9263617cf379d21f0720c27b4c806ca517e83321e323cc87d','');
  // Review-picker code is outside the frozen OCR pipeline. Restore only
  // the exact audited UI helper and two option labels before the historical
  // whole-app fingerprint check; do not change its expected SHA.
@@ -130,13 +146,19 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
   '  workerPrepare:{...scanPerfSession.workerPrepare}',
   'dff327e16dd5499a3d1ac683a8a1d93c7f6513bcfd5ac4d6b4623b89cfbbfa8f',
   "  profiledImages:ps.length,totalImageMs:sum(p=>p.totalMs),\n  tesseractCalls:ps.reduce((acc,p)=>acc+(p.tesseract?.calls||0),0),\n  tesseractMs:sum(p=>p.tesseract?.totalMs),\n");
+ const lv85Call='  parsed=autoConfirmLevelCaptionConsensus85(parsed);\n';
+ assert.equal(restored.split(lv85Call).length-1,1,'Lv 85–89 hook added only once');
+ restored=restored.replace(lv85Call,'');
  const consensusCall='parsed=autoConfirmCorroboratedReviewedNickname(parsed);';
  assert.equal(restored.split(consensusCall).length-1,1,'one reviewed-name promotion hook');
  restored=restored.replace('  '+consensusCall+'\n','');
  // Spatial review is a new post-consensus, review-only hook. Check it
  // verbatim before removing it so the historical flow fingerprint remains.
  const spatialCall='  parsed=window.POKESLEEP_NICKNAME_SPATIAL?.reviewOnly?.(parsed)||parsed;\n';
- assert.equal(restored.split(spatialCall).length-1,1,'spatial review hook must be unique');
+ // Verify uniqueness on the unmodified production source; audited legacy
+ // restorations above are allowed to have already removed the same hook.
+ assert.equal(src.split(spatialCall).length-1,1,'spatial review hook must be unique');
+ assert.ok(restored.split(spatialCall).length-1<=1,'spatial review hook duplicated');
  restored=restored.replace(spatialCall,'');
  const call='parsed=improveReviewedNicknameCaption(parsed);';
  assert.equal(restored.split(call).length-1,2,'nickname hook before and after level rescue');
@@ -211,7 +233,7 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  const originalPaddleReturn="   return {text,confidence:score,source:'paddle',ok:!!text,metrics:res?.metrics||null,runtime:res?.runtime||null,errorStage:null};";
  const spatialPaddleReturn="   return {text,confidence:score,source:'paddle',ok:!!text,metrics:res?.metrics||null,runtime:res?.runtime||null,errorStage:null,spatial:window.POKESLEEP_NICKNAME_SPATIAL?.inspect?.(items,src.width,src.height)||null};";
  const originalPostConsensus="  parsed=autoConfirmCorroboratedReviewedNickname(parsed);\n  Object.assign(nicknameReviewAtAnalysis,";
- const spatialPostConsensus="  parsed=autoConfirmCorroboratedReviewedNickname(parsed);\n  parsed=window.POKESLEEP_NICKNAME_SPATIAL?.reviewOnly?.(parsed)||parsed;\n  Object.assign(nicknameReviewAtAnalysis,";
+ const spatialPostConsensus="  parsed=autoConfirmCorroboratedReviewedNickname(parsed);\n  parsed=autoConfirmLevelCaptionConsensus85(parsed);\n  parsed=window.POKESLEEP_NICKNAME_SPATIAL?.reviewOnly?.(parsed)||parsed;\n  Object.assign(nicknameReviewAtAnalysis,";
  assert.equal(src.split(spatialPostConsensus).length-1,1,
   'review-only spatial invocation changed outside approved scope');
  for(const [present,previous,label] of [

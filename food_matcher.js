@@ -126,6 +126,36 @@ function thirdFoodSelfMatch(screenCanvas,foods){
  return thirdFoodSelfMatchFromScores(foods,scores[0],scores[1]);
 }
 
+// Exception to the .040 advisory shape margin ONLY for a LOCKED second
+// ingredient with exactly two legal candidates. Both the native color metric
+// and separate grayscale-shape metric must independently select the same
+// top AND runner and each must exceed a strict .035 margin and score floor.
+// Do not change the selected ingredient; otherwise preserve human review.
+function secondFoodColorShapeNearMarginWitness(food,level,status){
+ const shape=food?.shapeReview;
+ if(status!=='UNIQUE'||!Number.isInteger(level)||level<1||level>=30||
+  !food||food.manualOverride||!food.needsReview||food.method!=='image'||
+  food.reviewReason!=='dimmed-shape-not-corroborated'||
+  !Array.isArray(food.allowed)||food.allowed.length!==2||
+  !Array.isArray(food.ranking)||food.ranking.length!==2||
+  !Array.isArray(shape?.ranking)||shape.ranking.length!==2||
+  shape.name!==food.name||shape.second!==food.second||
+  food.ranking[0]?.name!==food.name||food.ranking[1]?.name!==food.second||
+  shape.ranking[0]?.name!==food.name||shape.ranking[1]?.name!==food.second||
+  Math.abs(Number(food.ranking[0]?.score)-food.score)>1e-6||
+  Math.abs(Number(food.ranking[0]?.score)-Number(food.ranking[1]?.score)-food.margin)>1e-6||
+  Math.abs(Number(shape.ranking[0]?.score)-shape.score)>1e-6||
+  Math.abs(Number(shape.ranking[0]?.score)-Number(shape.ranking[1]?.score)-shape.margin)>1e-6||
+  !food.allowed.includes(food.name)||!food.allowed.includes(food.second)||
+  !Number.isFinite(food.score)||food.score<.915||
+  !Number.isFinite(food.margin)||food.margin<.035||food.margin>=.04||
+  !Number.isFinite(shape.score)||shape.score<.965||
+  !Number.isFinite(shape.margin)||shape.margin<.035||shape.margin>=.04||
+  shape.automatic!==false)return null;
+ return {name:food.name,method:'dimmed-food2-color-shape-near-margin',
+  colorScore:food.score,colorMargin:food.margin,
+  shapeScore:shape.score,shapeMargin:shape.margin,automatic:true};
+}
 // A reviewed locked Lv30 icon may match the SAME screenshot's unlocked
 // food1 with extremely high grayscale correlation. Do not use an inferred
 // sibling food to switch the candidate: only corroborate the existing top
@@ -231,5 +261,5 @@ function explicitThirdFoodDash(screenCanvas){
  const data=screenCanvas.getContext('2d',{willReadFrequently:true}).getImageData(x,y,w,h).data;
  return explicitThirdFoodDashStats(data,w,h);
 }
-window.POKESLEEP_FOOD_MATCHER={cropFood,matchCanvas,resolveSlots,arbitrateDimmedFoodEvidence,reviewShapeOpinion,iconSelfCorrelation,secondFoodSelfMatchFromScore,secondFoodSelfMatch,thirdFoodSelfMatchFromScores,thirdFoodSelfMatch,lockedFood3PixelWitnessFromRgba,lockedFood3PixelWitness,explicitThirdFoodDashStats,explicitThirdFoodDash};
+window.POKESLEEP_FOOD_MATCHER={cropFood,matchCanvas,resolveSlots,arbitrateDimmedFoodEvidence,reviewShapeOpinion,iconSelfCorrelation,secondFoodColorShapeNearMarginWitness,secondFoodSelfMatchFromScore,secondFoodSelfMatch,thirdFoodSelfMatchFromScores,thirdFoodSelfMatch,lockedFood3PixelWitnessFromRgba,lockedFood3PixelWitness,explicitThirdFoodDashStats,explicitThirdFoodDash};
 })();

@@ -1,5 +1,5 @@
 (() => {
-const BUILD_ID='v12-locked-food2-self-witness-20261031-v1';
+const BUILD_ID='v12-final-two-field-evidence-20261031-v1';
 'use strict';
 // The verified Android 1080x2400 OCR path is now the standard on every device.
 // Preserve the existing ROI adapter and its safe legacy fallback unchanged.
@@ -63,7 +63,7 @@ const NATURES=POKESLEEP_MASTER.natures.map(x=>x.ja);
 const SUBSKILLS=POKESLEEP_MASTER.subskills.map(x=>x.ja);
 const SPECIES_NAMES=[...new Set(POKESLEEP_MASTER.pokemon.map(x=>x.name))];
 const $=s=>document.querySelector(s);let selected=[],results=[],worker=null,paddleOcr=null,paddleInitPromise=null,paddleUnavailableError=null,paddleRuntimeGeneration=0,isRunning=false,analysisPause=null,checkpointPreparing=false,selectionSnapshotPreparing=false,selectionSnapshotGeneration=0,checkpointRestoreRunning=false,checkpointSessionActive=false,checkpointPersistenceWarningShown=false,renderPending=false,modalObjectUrl='',modalReturnFocus=null,appDialogResolver=null,appDialogReturnFocus=null,localProgressVisible=true,localProgressState='idle',localProgressMaxPct=0,floatingProgressState='idle',floatingProgressDone=0,floatingProgressTotal=0,floatingProgressReviews=0,floatingCompletionTimer=null,floatingCompletionPending=false,floatingCompletionDismissed=false,preManualCsvSnapshot=null,wakeLockSentinel=null,wakeLockRequestPromise=null,wakeLockRetryTimer=null;const checkpointFailureLog=[];const layoutCache=new WeakMap(),profileCardCache=new WeakMap(),stableSourcePromises=new WeakMap(),stableSourceFiles=new WeakSet();
-const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-31-locked-food2-self-witness-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
+const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-31-final-two-field-evidence-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
 function pullRefreshGuardActive(){return !!(isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing);}
 function analysisWakeLockShouldHold(){return !!((isRunning||checkpointPreparing)&&!analysisPause);}
 function wakeLockApiSupported(){return typeof navigator!=='undefined'&&!!navigator.wakeLock?.request;}
@@ -861,12 +861,37 @@ const SUBSKILL_EXP_PAIR=new Set(['睡眠EXPボーナス','リサーチEXPボー�
 function subskillDistinctiveSupport(raw,value){const s=norm(raw),v=String(value||'');if(!s||!SUBSKILLS.includes(v))return false;if(v==='睡眠EXPボーナス')return s.includes('睡眠');if(v==='リサーチEXPボーナス')return s.includes('リサーチ');if(v==='ゆめのかけらボーナス')return s.includes('ゆめ')||s.includes('かけら');if(v==='げんき回復ボーナス')return s.includes('げんき')||s.includes('回復');if(v==='おてつだいボーナス')return s.includes('おてつだい');if(v==='きのみの数S')return s.includes('きのみ')||s.includes('のみの数');const size=v.match(/([SML])$/)?.[1]||'';if(size)return s.includes(`アップ${size}`)||s.endsWith(size);return longestCommonRun(s,v)>=Math.min(4,norm(v).length);}
 function subskillEvidenceEntry(reading,source,psm='',cropName=''){const b=bestSubskill(reading?.text||'');return {source:String(source||''),psm:String(psm||''),crop:String(cropName||''),text:String(reading?.text||''),confidence:Number(reading?.confidence)||0,value:b.score>=.55?b.value:'',score:b.score,distinctive:b.score>=.55&&subskillDistinctiveSupport(reading?.text||'',b.value)};}
 function subskillEvidenceDecision(entries,current=''){const rows=(entries||[]).filter(x=>SUBSKILLS.includes(x?.value)),currentValid=SUBSKILLS.includes(current)?current:'';if(!rows.length)return {value:currentValid,needsReview:true,reason:'subskill-no-confirming-ocr',candidates:[]};const m=new Map();for(const x of rows){const r=m.get(x.value)||{value:x.value,votes:0,distinctiveVotes:0,bestScore:0,bestConfidence:0};r.votes++;if(x.distinctive)r.distinctiveVotes++;r.bestScore=Math.max(r.bestScore,Number(x.score)||0);r.bestConfidence=Math.max(r.bestConfidence,Number(x.confidence)||0);m.set(x.value,r);}const ranked=[...m.values()].sort((a,b)=>b.votes-a.votes||b.distinctiveVotes-a.distinctiveVotes||b.bestScore-a.bestScore||b.bestConfidence-a.bestConfidence),top=ranked[0],second=ranked[1]||null,uniqueLead=!second||top.votes>second.votes;if(uniqueLead&&top.votes>=2&&top.distinctiveVotes>=1)return {value:top.value,needsReview:false,reason:'subskill-ocr-consensus',candidates:ranked};if(ranked.length===1){const sameAsCurrent=!!currentValid&&top.value===currentValid,exactSingle=top.bestScore>=.99&&top.bestConfidence>=60,supportedSingle=top.bestScore>=.64&&top.bestConfidence>=67,clearSingle=sameAsCurrent&&top.distinctiveVotes>=1&&!SUBSKILL_EXP_PAIR.has(top.value)&&(exactSingle||supportedSingle);return {value:top.value,needsReview:!clearSingle,reason:clearSingle?'subskill-single-strong-ocr':'subskill-needs-independent-confirmation',candidates:ranked};}const strongerIndependentTop=!!second&&top.votes===1&&second.votes===1&&top.distinctiveVotes>=1&&top.bestScore>=.99&&top.bestConfidence>=80&&second.distinctiveVotes===0&&second.bestScore<.8;const keep=strongerIndependentTop?top.value:(currentValid||top.value);return {value:keep,needsReview:true,reason:'subskill-ocr-conflict',candidates:ranked};}
+// A dedicated PSM7 card read is exact and distinctive, while an earlier
+// noisy composite produces only a weak, non-distinctive size-letter guess.
+// Apply only to a REVIEWED same-stem S/M/L pair: other subskill conflicts
+// retain human review. This never guesses or overwrites a different value.
+function corroborateStrongSubskillAgainstWeakNoise(entries,decision){
+ if(!decision?.needsReview||decision.reason!=='subskill-ocr-conflict'||
+  !Array.isArray(decision.candidates)||decision.candidates.length!==2)return decision;
+ const [top,weak]=decision.candidates;
+ const a=String(top?.value||''),b=String(weak?.value||'');
+ if(!/アップ[SML]$/.test(a)||!/アップ[SML]$/.test(b)||
+  a.slice(0,-1)!==b.slice(0,-1)||a===b||
+  SUBSKILL_EXP_PAIR.has(a)||SUBSKILL_EXP_PAIR.has(b)||
+  top.votes!==1||weak.votes!==1||
+  top.distinctiveVotes!==1||weak.distinctiveVotes!==0||
+  top.bestScore<.99||top.bestConfidence<85||
+  weak.bestScore>=.70||weak.bestConfidence>=60)return decision;
+ const dedicated=(entries||[]).filter(x=>x?.value===a&&x.source==='dedicated'&&
+  x.psm==='7'&&x.crop==='verification'&&x.distinctive&&
+  Number(x.score)>=.99&&Number(x.confidence)>=85);
+ const conflicting=(entries||[]).some(x=>x?.value===b&&
+  (x.distinctive||Number(x.confidence)>=60));
+ if(dedicated.length!==1||conflicting)return decision;
+ return {value:a,needsReview:false,
+  reason:'subskill-exact-dedicated-weak-composite-noise',candidates:decision.candidates};
+}
 function subskillNeedsTargetedVerification(sub){const v=String(sub?.value||'');if(SUBSKILL_EXP_PAIR.has(v))return true;if(!SUBSKILLS.includes(v))return true;if((Number(sub?.score)||0)<.78||(Number(sub?.ocrConfidence)||0)<70)return true;return !subskillDistinctiveSupport(sub?.raw||'',v);}
 function subskillVerificationCrop(canvas,key){return sectionRelativeSubskillCrop(canvas,key)||crop(canvas,key);}
 function makeSubskillVerificationComposite(canvas){const rows=[],sep=36;for(const key of SUB_KEYS)rows.push([key,preprocess(subskillVerificationCrop(canvas,key),4,190)]);const w=Math.max(...rows.map(x=>x[1].width)),h=rows.reduce((n,x)=>n+x[1].height+sep,0),out=document.createElement('canvas');out.width=w;out.height=h;const ctx=out.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);const bands={};let y=0;for(const [key,c] of rows){ctx.drawImage(c,0,y);bands[key]=[y,y+c.height];y+=c.height+sep;}return {canvas:out,bands};}
 async function readSubskillVerificationComposite(canvas,idx,total){$('#stat').textContent=`${idx+1}/${total}枚を解析中…`;await worker.setParameters({tessedit_pageseg_mode:'6',preserve_interword_spaces:'1'});const c=makeSubskillVerificationComposite(canvas),r=await trackedWorkerRecognize(c.canvas);return wordsToRegions(r.data,c.bands);}
 function sameOcrReading(a,b){return String(a?.text||'')===String(b?.text||'')&&Math.abs((Number(a?.confidence)||0)-(Number(b?.confidence)||0))<1e-9;}
-async function verifySubskills(canvas,rawFirstPass,raw,parsed,idx,total){const verifyRaw=await readSubskillVerificationComposite(canvas,idx,total);raw._subskillVerification=verifyRaw;for(let i=0;i<SUB_KEYS.length;i++){const key=SUB_KEYS[i],sub=parsed.subs[i]||{value:'',score:0,raw:'',ocrConfidence:0},entries=[];const first=rawFirstPass?.[key],final=raw?.[key];if(first)entries.push(subskillEvidenceEntry(first,'composite','6','primary'));if(final&&!sameOcrReading(first,final))entries.push(subskillEvidenceEntry(final,'fallback','6','fallback'));entries.push(subskillEvidenceEntry(verifyRaw?.[key],'verify-composite','6','threshold190'));let decision=subskillEvidenceDecision(entries,sub.value),values=uniqVals(entries.map(x=>x.value));const expRisk=SUBSKILL_EXP_PAIR.has(sub.value)||values.some(v=>SUBSKILL_EXP_PAIR.has(v));if(expRisk||subskillNeedsTargetedVerification(sub)||decision.needsReview||values.length>1){const src=subskillVerificationCrop(canvas,key),r7=await ocrSingle(src,`${key}確認`,idx,total,{psm:'7'});entries.push(subskillEvidenceEntry(r7,'dedicated','7','verification'));decision=subskillEvidenceDecision(entries,sub.value);values=uniqVals(entries.map(x=>x.value));const conflict=values.length>1;if(decision.needsReview||conflict){const r11=await ocrSingle(src,`${key}確認2`,idx,total,{psm:'11'});entries.push(subskillEvidenceEntry(r11,'dedicated','11','verification'));decision=subskillEvidenceDecision(entries,sub.value);}}const chosen=decision.value||sub.value||'',bestEntry=entries.filter(x=>x.value===chosen).sort((a,b)=>(Number(b.score)||0)-(Number(a.score)||0)||(Number(b.confidence)||0)-(Number(a.confidence)||0))[0];parsed.subs[i]={...sub,value:chosen,score:bestEntry?.score??sub.score,raw:bestEntry?.text||sub.raw,ocrConfidence:bestEntry?.confidence??sub.ocrConfidence,needsReview:!!decision.needsReview,reviewReason:decision.reason,reviewCandidates:decision.candidates,evidence:entries};}return parsed;}
+async function verifySubskills(canvas,rawFirstPass,raw,parsed,idx,total){const verifyRaw=await readSubskillVerificationComposite(canvas,idx,total);raw._subskillVerification=verifyRaw;for(let i=0;i<SUB_KEYS.length;i++){const key=SUB_KEYS[i],sub=parsed.subs[i]||{value:'',score:0,raw:'',ocrConfidence:0},entries=[];const first=rawFirstPass?.[key],final=raw?.[key];if(first)entries.push(subskillEvidenceEntry(first,'composite','6','primary'));if(final&&!sameOcrReading(first,final))entries.push(subskillEvidenceEntry(final,'fallback','6','fallback'));entries.push(subskillEvidenceEntry(verifyRaw?.[key],'verify-composite','6','threshold190'));let decision=subskillEvidenceDecision(entries,sub.value),values=uniqVals(entries.map(x=>x.value));const expRisk=SUBSKILL_EXP_PAIR.has(sub.value)||values.some(v=>SUBSKILL_EXP_PAIR.has(v));if(expRisk||subskillNeedsTargetedVerification(sub)||decision.needsReview||values.length>1){const src=subskillVerificationCrop(canvas,key),r7=await ocrSingle(src,`${key}確認`,idx,total,{psm:'7'});entries.push(subskillEvidenceEntry(r7,'dedicated','7','verification'));decision=subskillEvidenceDecision(entries,sub.value);values=uniqVals(entries.map(x=>x.value));const conflict=values.length>1;if(decision.needsReview||conflict){const r11=await ocrSingle(src,`${key}確認2`,idx,total,{psm:'11'});entries.push(subskillEvidenceEntry(r11,'dedicated','11','verification'));decision=subskillEvidenceDecision(entries,sub.value);}}decision=corroborateStrongSubskillAgainstWeakNoise(entries,decision);const chosen=decision.value||sub.value||'',bestEntry=entries.filter(x=>x.value===chosen).sort((a,b)=>(Number(b.score)||0)-(Number(a.score)||0)||(Number(b.confidence)||0)-(Number(a.confidence)||0))[0];parsed.subs[i]={...sub,value:chosen,score:bestEntry?.score??sub.score,raw:bestEntry?.text||sub.raw,ocrConfidence:bestEntry?.confidence??sub.ocrConfidence,needsReview:!!decision.needsReview,reviewReason:decision.reason,reviewCandidates:decision.candidates,evidence:entries};}return parsed;}
 function consensusSubskillRetryValue(readings){const entries=(readings||[]).map((r,i)=>({source:`retry-${i}`,...subskillEvidenceEntry(r,`retry-${i}`,r?.psm||'',r?.crop||'')})),decision=subskillEvidenceDecision(entries,'');return decision.needsReview?'':decision.value;}
 function rejectImpossibleDuplicateSubskills(parsed){const seen=new Map(),rejected=[];for(let i=0;i<(parsed?.subs?.length||0);i++){const cur=parsed.subs[i],v=cur?.value||'';if(!v)continue;if(!seen.has(v)){seen.set(v,i);continue;}const j=seen.get(v),prev=parsed.subs[j],pq=[Number(prev?.score)||0,Number(prev?.ocrConfidence)||0],cq=[Number(cur?.score)||0,Number(cur?.ocrConfidence)||0],keepCurrent=cq[0]>pq[0]+1e-9||(Math.abs(cq[0]-pq[0])<=1e-9&&cq[1]>pq[1]);const keep=keepCurrent?i:j,drop=keepCurrent?j:i,old=parsed.subs[drop];parsed.subs[drop]={...old,value:'',score:0,duplicateRejected:v};rejected.push({subskill:v,keptIndex:keep,rejectedIndex:drop,keptLevel:LEVELS[keep],rejectedLevel:LEVELS[drop]});seen.set(v,keep);}if(rejected.length)parsed.subskillDuplicateRejects=rejected;else delete parsed.subskillDuplicateRejects;return parsed;}
 function parse(raw){const sp=parseSpText(raw.sp.text);const nl=normalizeNickLevelOcr(raw.nicklevel.text||''),level=parseLevel(nl);const lm=nl.match(/Lv[.,]?\s*[0-9Oo]{1,3}/i);let nickname=lm?nl.slice(lm.index+lm[0].length).trim().replace(/\s+/g,''):'';nickname=nickname.replace(/^[^0-9A-Za-zぁ-んァ-ヶ一-龠★]+|[^0-9A-Za-zぁ-んァ-ヶ一-龠★]+$/g,'');const helpSeconds=parseHelpSeconds(raw.time.text);const cm=(raw.carry.text||'').match(/(\d+)\s*個/),carry=cm?+cm[1]:null;const skillLevel=parseSkillLevelText(raw.mainskill.text),main=parseMainSkillText(raw.mainskill.text),versatileSkill=mewVersatileSkillFromText(raw.mainskill.text),nature=parseNatureText(raw.nature.text),subs=['sub10','sub25','sub50','sub70','sub80'].map(k=>({...bestSubskill(raw[k].text),raw:raw[k].text,ocrConfidence:raw[k].confidence}));return {nickname,level,sp,helpSeconds,carry,mainSkill:main.value,mainSkillRaw:raw.mainskill.text||'',mainScore:main.score,versatileSkill,skillLevel,nature:nature.value,natureScore:nature.score,subs};}
@@ -1272,6 +1297,39 @@ function nicknameNearSpeciesTypo(s){const t=cleanNick(s);if(!t||SPECIES_NAMES.in
 function nicknameHasUnbalancedClosingPunctuation(s){const t=String(s||'').normalize('NFKC'),pairs={')':'(',']':'[','}':'{'},opens=new Set(Object.values(pairs)),stack=[];for(const ch of t){if(opens.has(ch))stack.push(ch);else if(Object.prototype.hasOwnProperty.call(pairs,ch)){if(!stack.length||stack[stack.length-1]!==pairs[ch])return true;stack.pop();}}return false;}
 function applyNicknameSafety(parsed){if(nicknameLooksUiContaminated(parsed.nickname)||nicknameKnownSpeciesUiAffix(parsed.nickname)){parsed.nicknameNeedsReview=true;parsed.nicknameReviewReason=parsed.nicknameReviewReason||'周辺UI混入の可能性';}else if(nicknameNearSpeciesTypo(parsed.nickname)){parsed.nicknameNeedsReview=true;parsed.nicknameReviewReason=parsed.nicknameReviewReason||'ポケモン名に近い1文字差';}else if(nicknameHasUnbalancedClosingPunctuation(parsed.nickname)){parsed.nicknameNeedsReview=true;parsed.nicknameReviewReason=parsed.nicknameReviewReason||'末尾記号混入の可能性';}return parsed;}
 function cloneRaw(raw){return Object.fromEntries(Object.entries(raw).filter(([k])=>!k.startsWith('_')).map(([k,v])=>[k,{text:v?.text||'',confidence:v?.confidence||0}]));}
+// Approved narrow 85-89 confidence extension. Frozen >=90 consensus logic
+// remains unchanged. This operates only on an ALREADY reviewed nickname and
+// never repairs or selects a new string: only two different OCR engines,
+// opposite-side independently observed level captions, and no strong
+// contradictory level-caption reading may release review.
+function autoConfirmLevelCaptionConsensus85(parsed){
+ if(!parsed?.nicknameNeedsReview||parsed.nicknameManualConfirmed||
+  parsed.levelNeedsReview||!Number.isInteger(parsed.level)||
+  parsed.level<1||parsed.level>MAX_POKEMON_LEVEL||
+  !parsed.nicknamePaddle?.ok||parsed.nicknamePaddleUnavailable||
+  Number(parsed.nicknamePaddle.confidence)<98)return parsed;
+ const current=cleanNick(parsed.nickname),n=Array.from(current).length;
+ if(n<3||n>15||/[★☆]/.test(current)||
+  nicknameLooksUiContaminated(current)||
+  nicknameKnownSpeciesUiAffix(current)||
+  nicknameNearSpeciesTypo(current)||
+  nicknameHasUnbalancedClosingPunctuation(current))return parsed;
+ if(exactSeparatedNickname(parsed.nicknamePaddle.text,parsed.level,'back')!==current)return parsed;
+ const tess=(parsed.nicknameCandidates||[]).filter(x=>
+  x?.text&&!(Array.isArray(x.sources)&&x.sources.includes('paddle'))&&
+  x.text!==parsed.nicknamePaddle.text);
+ const same=tess.some(x=>Number(x.confidence)>=85&&Number(x.confidence)<90&&
+  exactSeparatedNickname(x.text,parsed.level,'front')===current);
+ if(!same)return parsed;
+ // A credible conflicting OCR must NOT be outvoted by agreement.
+ if(tess.some(x=>Number(x.confidence)>=75&&
+  !!exactSeparatedNickname(x.text,parsed.level,'front')&&
+  exactSeparatedNickname(x.text,parsed.level,'front')!==current))return parsed;
+ parsed.nicknameNeedsReview=false;
+ parsed.nicknameReviewReason='';
+ parsed.nicknameResolvedBy='PaddleOCR+Tesseract-visible-level-consensus-85';
+ return parsed;
+}
 // Review-only veto on conflicting small-kana readings. Never rewrite the
 // nickname or auto-promote another OCR candidate. A strong explicit Lv prefix
 // is required; a strong exact Lv-prefixed reading blocks the veto.
@@ -2100,6 +2158,7 @@ async function analyzeSingleImage(inputFile,idx,total,{sourceIndex=null,displayN
   // Reconcile the immutable OCR-time snapshot with the final reviewed candidate.
   parsed=improveReviewedNicknameCaption(parsed);
   parsed=autoConfirmCorroboratedReviewedNickname(parsed);
+  parsed=autoConfirmLevelCaptionConsensus85(parsed);
   parsed=window.POKESLEEP_NICKNAME_SPATIAL?.reviewOnly?.(parsed)||parsed;
   Object.assign(nicknameReviewAtAnalysis,{value:parsed.nickname,needsReview:!!parsed.nicknameNeedsReview,reason:parsed.nicknameReviewReason||'',resolvedBy:parsed.nicknameResolvedBy||''});
   inference=await retryMissingCarryFromVisibleCard(canvas,parsed,inference,idx,total);({parsed,inference}=applyMintNeutralization(canvas,parsed,inference));({parsed,inference}=applyVisibleMythicalSubskillDashes(canvas,parsed,inference));parsed.versatileSkill=detailedMewVersatileSkill(parsed);scanPerfStage('foodMatchingAndSafety');
@@ -2119,6 +2178,19 @@ async function analyzeSingleImage(inputFile,idx,total,{sourceIndex=null,displayN
      second.reviewReason='';
     }
    }catch(e){second.crossSlotError=runtimeErrorText(e);}
+  }
+  // Final fallback for a narrowly sub-.040 locked food2. Require the color
+  // and shape metrics to agree on both candidate orderings and clear
+  // independent strict score/margin floors. Never change the chosen food.
+  if(second?.needsReview&&inference?.status==='UNIQUE'){
+   const witness=POKESLEEP_FOOD_MATCHER.secondFoodColorShapeNearMarginWitness(
+    second,parsed.level,inference.status);
+   if(witness&&witness.name===second.name){
+    second.colorShapeEvidence=witness;
+    second.needsReview=false;
+    second.reviewReason='';
+    second.method='image-locked-food2-color-shape-agreement';
+   }
   }
   // Apply the existing weak-food3 safety review BEFORE independent pixel
   // corroboration, not only at the final result-rendering stage. Without
