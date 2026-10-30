@@ -146,7 +146,60 @@ function profileCardTop(canvas){
  }
  return null;
 }
-function planFromBars(w,h,bars,cardBottom=null,profileTop=null){
+
+/* Footer is a screen-space witness, not an OCR offset. The red bottom controls
+ * stay fixed on the user's Pixel 7a while the middle sections can move.
+ * Never require the footer on another device or extrapolate Pixel 7a positions.
+ * Look only for a wide salmon/red band that continues to the bottom edge.
+ */
+function footerBarInfo(canvas){
+ const w=canvas?.width,h=canvas?.height;
+ if(!isCandidateSize(w,h))return null;
+ const sy=h/RAW_H,x0=Math.round(w*.08),x1=Math.round(w*.92);
+ const y0=Math.round(1870*sy),width=x1-x0,height=h-y0;
+ if(width<160||height<90)return null;
+ const ctx=canvas.getContext('2d',{willReadFrequently:true});
+ if(!ctx)return null;
+ let pixels;
+ try{pixels=ctx.getImageData(x0,y0,width,height).data;}
+ catch(_){return null;}
+ const fractions=new Float32Array(height);
+ for(let y=0;y<height;y++){
+  let hits=0,count=0;
+  for(let x=0;x<width;x+=4){
+   const i=(y*width+x)*4,r=pixels[i],g=pixels[i+1],b=pixels[i+2];
+   if(r>=210&&g>=65&&g<=195&&b<=170&&r-g>=55&&r-b>=60)hits++;
+   count++;
+  }
+  fractions[y]=count?hits/count:0;
+ }
+ // Wide red must reach the bottom; an orange skill or an overlay halfway up
+ // is not proof of the persistent bottom navigation.
+ const tail=Math.max(4,Math.round(18*sy));
+ let tailHits=0;
+ for(let y=height-tail;y<height;y++)if(fractions[y]>=.73)tailHits++;
+ if(tailHits<Math.ceil(tail*.80))return null;
+ let runStart=-1,first=null;
+ const minRun=Math.max(8,Math.round(27*sy));
+ for(let y=0;y<=height;y++){
+  const active=y<height&&fractions[y]>=.68;
+  if(active&&runStart<0)runStart=y;
+  if(!active&&runStart>=0){
+   const rawStart=Math.round((runStart+y0)/sy);
+   const rawEnd=Math.round((y-1+y0)/sy);
+   if(y-runStart>=minRun&&rawStart>=1920&&rawStart<=2330){
+    first={start:rawStart,end:rawEnd};
+    break;
+   }
+   runStart=-1;
+  }
+ }
+ if(!first)return null;
+ return Object.freeze({start:first.start,end:RAW_H,
+   evidence:'wide-red-bottom-controls'});
+}
+
+function planFromBars(w,h,bars,cardBottom=null,profileTop=null,footer=null){
  if(!isCandidateSize(w,h))return null;
  const anchor=pickAnchors(bars);
  if(!anchor)return null;
@@ -156,6 +209,14 @@ function planFromBars(w,h,bars,cardBottom=null,profileTop=null){
  const profileReliable=Number.isFinite(profileTop)&&profileTop>=18&&profileTop<=430;
  const topShift=profileReliable?profileTop-144:null;
  const cardReliable=Number.isFinite(cardBottom)&&cardBottom>=anchor.main+300&&cardBottom<=anchor.main+540;
+ // Optional independent frame check. Do NOT shift OCR coordinates from this:
+ // the footer is fixed even when the scrolled central content moves.
+ // If a verified footer conflicts with the required green detail bar or
+ // profile card, reject the proposed adaptive layout instead of guessing.
+ const footerVerified=!!(footer&&Number.isFinite(footer.start)
+   &&footer.start>=1920&&footer.start<=2330&&footer.end>=2390);
+ if(footerVerified&&(anchor.detail>=footer.start-70
+   ||(profileReliable&&footer.start-profileTop<1450)))return null;
  // The five subskills move with the orange card's actual bottom edge.
  // Do not guess their coordinates from the green detail header: a wrapped
  // three-line description shifts them by ~55px while detail shifts only ~27px.
@@ -177,6 +238,10 @@ function planFromBars(w,h,bars,cardBottom=null,profileTop=null){
   anchors:anchor,
   mainSkillCardBottom:cardReliable?cardBottom:null,
   profileCardTop:profileReliable?profileTop:null,
+  footerBarTop:footerVerified?footer.start:null,
+  viewportEvidence:footerVerified
+    ?(profileReliable?'two-headers-profile-footer':'two-headers-footer')
+    :'two-headers-footer-unobserved',
   confidence:anchor.top===null?'strong-two-header':'strong-three-header',
   rectFor:(key)=>RECTS[key]?rect(RECTS[key],key):null,
   nickRect:(kind)=>rect(NICKS[kind]||NICKS.alt,'nick')
@@ -188,10 +253,11 @@ function inspect(canvas){
  const bars=scanBars(canvas),anchor=pickAnchors(bars);
  const bottom=anchor?mainSkillCardBottom(canvas,anchor.main):null;
  const top=anchor?profileCardTop(canvas):null;
- const plan=planFromBars(canvas.width,canvas.height,bars,bottom,top);
+ const footer=anchor?footerBarInfo(canvas):null;
+ const plan=planFromBars(canvas.width,canvas.height,bars,bottom,top,footer);
  cache.set(canvas,plan);
  return plan;
 }
-const api={inspect,scanBars,mainSkillCardBottom,profileCardTop,planFromBars,pickAnchors,isCandidateSize,reference:{width:RAW_W,height:RAW_H}};
+const api={inspect,scanBars,mainSkillCardBottom,profileCardTop,footerBarInfo,planFromBars,pickAnchors,isCandidateSize,reference:{width:RAW_W,height:RAW_H}};
 window.POKESLEEP_ANDROID_ROI=Object.freeze(api);
 })();
