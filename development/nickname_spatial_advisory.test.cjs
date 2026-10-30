@@ -63,7 +63,7 @@ test('independent check: production only captures metadata, then applies AFTER f
  assert.ok(a>=0&&b>a);
  const part=source.slice(a,b);
  assert.match(part,/spatial:window\.POKESLEEP_NICKNAME_SPATIAL\?\.inspect\?\.\(items,src\.width,src\.height\)/);
- assert.match(source,/parsed=autoConfirmCorroboratedReviewedNickname\(parsed\);\n  parsed=window\.POKESLEEP_NICKNAME_SPATIAL\?\.reviewOnly\?\.\(parsed\)\|\|parsed;/);
+ assert.match(source,/parsed=autoConfirmCorroboratedReviewedNickname\(parsed\);\n  parsed=autoConfirmLevelCaptionConsensus85\(parsed\);\n  parsed=window\.POKESLEEP_NICKNAME_SPATIAL\?\.reviewOnly\?\.\(parsed\)\|\|parsed;/);
  assert.ok(source.indexOf('parsed=autoConfirmCorroboratedReviewedNickname(parsed);')<
    source.indexOf('parsed=window.POKESLEEP_NICKNAME_SPATIAL?.reviewOnly?.(parsed)||parsed;'));
 });
