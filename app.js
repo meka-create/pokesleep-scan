@@ -1632,6 +1632,15 @@ function weakThirdFoodEvidence(foods){
 }
 function applyResultReviewSafetyGuards(r){
  if(!r||r.processingError)return r;
+ // Persisted analyses from older releases may still contain the known
+ // incorrect shape-over-color choice. Restore their actionable review flag.
+ for(const f of r.foods||[]){
+  if(hasUnreviewedDimmedFoodConflict(f)){
+   f.needsReview=true;
+   f.reviewReason='dimmed-color-shape-disagreement';
+   delete f.reviewSelection;
+  }
+ }
  const p=r.parsed||{};
  if(!p.nicknameManualConfirmed)applyNicknameSafety(p);
  if(weakThirdFoodEvidence(r.foods)){
