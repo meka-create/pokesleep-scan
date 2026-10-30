@@ -36,8 +36,8 @@
     },
     {
       "path": "android_roi.js",
-      "bytes": 10640,
-      "sha256": "229ff6380ffef21fbd3e9c8b0c3a903ebc082ee096497d58ace3bd934c6def0e"
+      "bytes": 10755,
+      "sha256": "c1e5c91646be6c197f629404cfe340808dc089633d0d805bf73adbfaeaab8e37"
     },
     {
       "path": "app.js",
@@ -281,8 +281,8 @@
     },
     {
       "path": "development/step3_android_roi.test.cjs",
-      "bytes": 19758,
-      "sha256": "90a87beb37c4c29173a182bcaaea33f54321109f883b106fc6e9590913baea2e"
+      "bytes": 20341,
+      "sha256": "748739b961c0838d99ab5f83904d652aa0e1f3deba62862a6fb0c011174fec86"
     },
     {
       "path": "development/step3_carry_food3.test.cjs",
