@@ -34,8 +34,12 @@ def parse_csv(data: bytes, label: str) -> list[tuple[str, ...]]:
     for line_number, row in enumerate(records[1:], start=2):
         if len(row) != 18:
             raise ValueError(f"{label}: wrong column count at record {line_number}")
-        if not row[0].strip() or not row[1].strip():
-            raise ValueError(f"{label}: missing required name at record {line_number}")
+        # BoxImporter accepts an empty nickname. Species is mandatory;
+        # whitespace-only nicknames would be trimmed by upstream and lose bytes.
+        if not row[1].strip():
+            raise ValueError(f"{label}: missing species at record {line_number}")
+        if row[0] and not row[0].strip():
+            raise ValueError(f"{label}: whitespace-only nickname at record {line_number}")
         if row[9] not in ("0", "1"):
             raise ValueError(f"{label}: invalid mint flag at record {line_number}")
         if row[9] == "1" and row[8] in NEUTRAL_NATURES:
