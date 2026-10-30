@@ -92,6 +92,17 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
    expectedSha,'unaudited change in '+a);
   restored=restored.slice(0,startAt)+baseline+restored.slice(endAt);
  }
+ // The two final field improvements are audited as exact byte ranges.
+ // Neither changes frozen nickname interpretation or the legacy reference SHA.
+ approvedSpan('// A dedicated PSM7 card read is exact',
+  'function subskillNeedsTargetedVerification(',
+  'a06d9d347a6186332ddbb7a52402eb100107ea730eda1145f8098e02e1b267e0','');
+ approvedSpan('  // Final fallback for a narrowly sub-.040 locked food2.',
+  '  // Apply the existing weak-food3 safety review BEFORE independent pixel',
+  '42388985772b7fc78e88150f9f72f0f949f1ab080bedfc4e83ce9495f77a0657','');
+ const subskillEvidenceHook='decision=corroborateStrongSubskillAgainstWeakNoise(entries,decision);';
+ assert.equal(restored.split(subskillEvidenceHook).length-1,1,'reviewed subskill rescue hook unique');
+ restored=restored.replace(subskillEvidenceHook,'');
  // New locked-food evidence is outside the frozen nickname pipeline.
  // Verify the exact reviewed snippet before restoring the historical
  // app fingerprint; do not alter any preexisting expected digest.
