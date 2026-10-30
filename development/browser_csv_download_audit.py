@@ -21,6 +21,8 @@ assert JS.count(HOOK)==1
 INSTRUMENTED=JS.replace(HOOK,'''window.__STEP2_AUDIT__={
   setRows:rows=>{results=rows;},
   currentRows:()=>results.map(r=>({nature:r.parsed?.nature,natureEffect:r.parsed?.natureEffect})),
+  renderRows:()=>{render();},
+  currentNicknameRows:()=>results.map(r=>({nickname:r.parsed?.nickname,nicknameReviewDraft:r.parsed?.nicknameReviewDraft??null,needsReview:!!r.parsed?.nicknameNeedsReview})),
   runExport:()=>downloadCSV(),
   runCopy:()=>copyCSV(),
   check:()=>({name:typeof diagnosticsJsonFilename(new Date()),
@@ -290,6 +292,76 @@ def main():
                       "Blank nickname was guessed or original mint/nature was altered")
                 evidence["checks"].append(
                     "real Chrome: blank nickname review warning followed by CSV18 download, mint and nature intact")
+
+                # Regression: ordinary (non-review) nickname edit often clears
+                # the input before retyping. The CSV must use the new name, not
+                # a stale empty base nickname with a hidden review draft.
+                page.evaluate("""()=>{
+                  const p=POKESLEEP_MASTER.pokemon.find(x=>x.name==='フシギダネ');
+                  const subs=POKESLEEP_MASTER.subskills.slice(0,5).map(s=>({value:s.ja,needsReview:false}));
+                  window.__STEP2_AUDIT__.setRows([{
+                    file:'synthetic-ordinary-nickname.png',
+                    speciesManualOverride:p.name,
+                    classification:{status:'UNIQUE',candidates:[p.name],hits:[]},
+                    parsed:{nickname:'修正前',nicknameNeedsReview:false,level:10,skillLevel:1,
+                      mainSkill:p.mainSkill,nature:'いじっぱり',natureEffect:'neutralized',subs},
+                    foods:Array.from({length:3},()=>({name:p.ing1.name,needsReview:false}))
+                  }]);
+                  window.__STEP2_AUDIT__.renderRows();
+                }""")
+                nick=page.locator("#tbl tbody .nickedit")
+                check(nick.count()==1 and nick.input_value()=="修正前",
+                      "Ordinary nickname editor did not render as expected")
+                check(page.locator("#tbl tbody .nickname-review").count()==0,
+                      "Synthetic ordinary nickname unexpectedly in review mode")
+                nick.fill("")
+                nick.fill("修正後")
+                current=page.evaluate("window.__STEP2_AUDIT__.currentNicknameRows()")
+                check(current==[{"nickname":"修正後","nicknameReviewDraft":None,"needsReview":False}],
+                      "Ordinary edit did not commit retyped name to CSV backing row")
+                with page.expect_download(timeout=10000) as retype_info:
+                    page.locator("#csv").click()
+                retype_rows=list(csv.reader(io.StringIO(
+                    Path(retype_info.value.path()).read_text(encoding="utf-8")),strict=True))
+                check(len(retype_rows)==2 and len(retype_rows[1])==18,
+                      "Retyped ordinary nickname did not download valid 18-column CSV")
+                check(retype_rows[1][0]=="修正後" and retype_rows[1][8:10]==["いじっぱり","1"],
+                      "CSV export kept an empty/stale nickname or changed mint/nature")
+                # Previously reviewed names must still use the confirm button;
+                # no automatic acceptance of uncertain OCR candidates.
+                page.evaluate("""()=>{
+                  const p=POKESLEEP_MASTER.pokemon.find(x=>x.name==='フシギダネ');
+                  const subs=POKESLEEP_MASTER.subskills.slice(0,5).map(s=>({value:s.ja,needsReview:false}));
+                  window.__STEP2_AUDIT__.setRows([{
+                    file:'synthetic-reviewed-nickname.png',
+                    speciesManualOverride:p.name,
+                    classification:{status:'UNIQUE',candidates:[p.name],hits:[]},
+                    parsed:{nickname:'要確認前',nicknameNeedsReview:true,level:10,skillLevel:1,
+                      mainSkill:p.mainSkill,nature:'いじっぱり',natureEffect:'neutralized',subs},
+                    foods:Array.from({length:3},()=>({name:p.ing1.name,needsReview:false}))
+                  }]);
+                  window.__STEP2_AUDIT__.renderRows();
+                }""")
+                review_nick=page.locator("#tbl tbody .nickname-review .nickedit")
+                check(review_nick.count()==1,"Reviewed nickname editor did not render")
+                review_nick.fill("")
+                review_nick.fill("確認して修正")
+                staged=page.evaluate("window.__STEP2_AUDIT__.currentNicknameRows()")[0]
+                check(staged=={"nickname":"要確認前",
+                              "nicknameReviewDraft":"確認して修正","needsReview":True},
+                      "Reviewed nickname changed without manual confirmation")
+                page.locator("#tbl tbody .nickconfirm").click()
+                confirmed=page.evaluate("window.__STEP2_AUDIT__.currentNicknameRows()")[0]
+                check(confirmed["nickname"]=="確認して修正" and not confirmed["needsReview"],
+                      "Reviewed nickname confirm did not commit name")
+                with page.expect_download(timeout=10000) as confirmed_info:
+                    page.locator("#csv").click()
+                confirmed_rows=list(csv.reader(io.StringIO(
+                    Path(confirmed_info.value.path()).read_text(encoding="utf-8")),strict=True))
+                check(confirmed_rows[1][0]=="確認して修正" and confirmed_rows[1][9]=="1",
+                      "Confirmed nickname or mint missing from CSV")
+                evidence["checks"].append(
+                    "real Chrome: ordinary clear/retype persists correct nickname to CSV; reviewed edit requires confirm")
 
                 # Invalid species/level from the app's row writer must fail at
                 # the CSV gate rather than initiate a download.
