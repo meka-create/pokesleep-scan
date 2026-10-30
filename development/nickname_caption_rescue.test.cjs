@@ -170,6 +170,22 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
   assert.equal(restored.split(present).length-1,1,'unexpected geometry scope: '+label);
   restored=restored.replace(present,previous);
  }
+ // PR #73: the only new non-nickname changes are the independently
+ // corroborated SP header rescue and review-only subskill candidate ranking.
+ // Verify EXACT approved source before normalizing to the original immutable
+ // surrounding-code digest. A broad SHA update would hide unrelated changes.
+ const approvedHeaderHelper="// Independent profile-card SP corroboration. Never trust classifier-only corrections.\nfunction corroboratedHeaderSpCandidate(parsed,readings){\n if(!Array.isArray(readings)||readings.length!==2||!Number.isInteger(parsed?.level)||\n    !Number.isInteger(parsed?.sp)||!Number.isInteger(parsed?.carry))return null;\n if(new Set(readings.map(x=>String(x?.psm||''))).size!==2||\n    !readings.some(x=>x.psm==='6')||!readings.some(x=>x.psm==='11'))return null;\n if(readings.some(x=>!Number.isInteger(x?.sp)||x.sp<100||x.sp>200000||\n    Number(x.confidence)<40||parseSpText(x.text||'')!==x.sp))return null;\n const value=readings[0].sp;\n if(value===parsed.sp||readings[1].sp!==value||\n    !readings.some(x=>Number(x.confidence)>=50))return null;\n if(readings.some(x=>Number(x.confidence)>=50&&Number.isInteger(x.level)&&x.level!==parsed.level))return null;\n if(!readings.some(x=>Number(x.level)===parsed.level&&\n    /sp\\s*[0-9][0-9,.]*/i.test(x.text||'')&&/Lv\\.?\\s*\\d+/i.test(x.text||'')))return null;\n return value;\n}\n";
+ const approvedHeaderTrial="  // Recovered SP needs two independent header OCR passes and exact\n  // classifier agreement with the observed carry before adoption.\n  const headerSp=corroboratedHeaderSpCandidate(parsed,headerA);\n  if(headerSp!==null){\n   const p={...parsed,subs:parsed.subs.map(x=>({...x}))};\n   applyStructuredValues(p,{sp:headerSp});\n   const inf=inferParsed(p);\n   if(inf.status==='UNIQUE'&&inf.candidates?.length===1&&\n      inf.carryConsistentCandidates?.length===1&&\n      inf.carryConsistentCandidates[0]===inf.candidates[0]&&\n      inf.hits?.some(x=>x.carryMatch===true)){\n    trials.push({field:'sp',value:headerSp,inference:inf,species:inf.candidates[0]});\n   }\n  }\n";
+ const approvedReviewRanking="const strongerIndependentTop=!!second&&top.votes===1&&second.votes===1&&top.distinctiveVotes>=1&&top.bestScore>=.99&&top.bestConfidence>=80&&second.distinctiveVotes===0&&second.bestScore<.8;const keep=strongerIndependentTop?top.value:(currentValid||top.value);return {value:keep,needsReview:true,reason:'subskill-ocr-conflict',candidates:ranked};}";
+ const previousReviewRanking="const keep=currentValid||top.value;return {value:keep,needsReview:true,reason:'subskill-ocr-conflict',candidates:ranked};}";
+ for(const [present,previous,label] of [
+  [approvedHeaderHelper,'','independent header SP helper'],
+  [approvedHeaderTrial,'','unique-species + observed-carry header trial'],
+  [approvedReviewRanking,previousReviewRanking,'subskill review-only candidate']
+ ]){
+  assert.equal(restored.split(present).length-1,1,'approved OCR scope changed: '+label);
+  restored=restored.replace(present,previous);
+ }
  const sha=crypto.createHash('sha256').update(restored,'utf8').digest('hex');
  // PR #54 adds export-only mint choices without changing frozen nickname helpers.
  // The surrounding-code baseline changes, while frozen nickname-specific hashes remain untouched.
