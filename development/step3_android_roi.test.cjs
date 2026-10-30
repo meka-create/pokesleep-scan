@@ -16,7 +16,7 @@ const patterns=[
  {weight:2,bars:[[804,862],[1886,1943]],cardBottom:1263},
  {weight:2,bars:[[0,48],[852,910],[1892,1950]],cardBottom:1270}
 ];
-function canvasFor(bars,cardBottom=null,profile=true){
+function canvasFor(bars,cardBottom=null,profile=true,footerStart=null){
  const w=691,h=1536,data=new Uint8ClampedArray(w*h*4),sx=w/1080,sy=h/2400;
  const paint=(x1,x2,y1,y2,r,g,b)=>{
   const ix1=Math.max(0,Math.floor(x1*sx)),ix2=Math.min(w,Math.ceil(x2*sx));
@@ -28,6 +28,13 @@ function canvasFor(bars,cardBottom=null,profile=true){
  for(const [start,end] of bars)paint(52,1020,start,end+1,10,215,86);
  if(cardBottom!==null)paint(70,1010,cardBottom-6,cardBottom+1,239,160,58);
  if(profile)paint(25,635,144,147,239,150,90);
+ if(footerStart!==null){
+  paint(0,1080,footerStart,2400,254,119,81);
+  // The return button and menu control interrupt the red area in the middle,
+  // but leave a wide red stripe at its start and at the screenshot bottom.
+  paint(50,270,2220,2320,254,254,254);
+  paint(830,1040,2220,2320,254,254,254);
+ }
  return {width:w,height:h,getContext:()=>({
   getImageData:(x=0,y=0,width=w,height=h)=>{
    if(x===0&&y===0&&width===w&&height===h)return {data};
@@ -316,4 +323,58 @@ test('ambiguous or implausibly spaced green pairs are never guessed',()=>{
  assert.equal(a.pickAnchors([{start:850,end:863},{start:1876,end:1934}]),null,
   'Tiny green lines cannot substitute for a full section header');
  assert.equal(a.pickAnchors([{start:863,end:921},{start:1876,end:1934}]).top,null);
+});
+
+test('Pixel 7a fixed red bottom controls are detected without moving OCR crops',()=>{
+ const a=api(),bars=patterns[0].bars;
+ const plain=a.inspect(canvasFor(bars,1225));
+ const withFooter=a.inspect(canvasFor(bars,1225,true,2160));
+ assert.ok(plain&&withFooter);
+ assert.equal(plain.footerBarTop,null);
+ assert.equal(plain.viewportEvidence,'two-headers-footer-unobserved');
+ assert.ok(Math.abs(withFooter.footerBarTop-2160)<=2);
+ assert.equal(withFooter.viewportEvidence,'two-headers-profile-footer');
+ for(const field of ['sp','nicklevel','time','carry','mainskill',
+  'sub10','sub25','sub50','sub70','sub80','nature']){
+  assert.deepEqual(Array.from(withFooter.rectFor(field)),Array.from(plain.rectFor(field)),
+   'Footer must not shift OCR crop '+field);
+ }
+ for(const kind of ['alt','narrow','wrap','eng','paddle','star']){
+  assert.deepEqual(Array.from(withFooter.nickRect(kind)),Array.from(plain.nickRect(kind)),
+   'Footer must not change nickname OCR '+kind);
+ }
+});
+test('footer witness follows detected position rather than Pixel 7a constant',()=>{
+ const a=api(),bars=patterns[0].bars;
+ for(const top of [2080,2160,2260]){
+  const p=a.inspect(canvasFor(bars,1225,true,top));
+  assert.ok(p,'Valid different-device footer rejected at '+top);
+  assert.ok(Math.abs(p.footerBarTop-top)<=2,
+    'Detected footer was incorrectly hardcoded to Pixel 7a position');
+ }
+ const noFooter=a.inspect(canvasFor(bars,1225,true));
+ assert.ok(noFooter,'Missing footer must not invalidate two green bars');
+ assert.equal(noFooter.footerBarTop,null);
+});
+test('standalone red skill border without bottom red UI is not footer evidence',()=>{
+ const a=api();
+ const p=a.inspect(canvasFor(patterns[0].bars,1225));
+ assert.ok(p);
+ assert.equal(a.footerBarInfo(canvasFor(patterns[0].bars,1225)),null);
+ // Any remaining cropped-frame image with no red tail still uses the verified
+ // green-header and profile plan, not a synthetic guessed navigation position.
+ assert.equal(p.viewportEvidence,'two-headers-footer-unobserved');
+});
+test('a verified footer cannot overlap a claimed detail section or profile',()=>{
+ const a=api(),bars=[{start:1045,end:1103},{start:2120,end:2178}];
+ const footer={start:2160,end:2400};
+ assert.equal(a.planFromBars(691,1536,bars,1450,144,footer),null,
+   'Inconsistent green detail/footer overlap must not activate Android ROI');
+ assert.equal(a.planFromBars(691,1536,
+  [{start:863,end:921},{start:1876,end:1934}],1225,750,footer),null,
+  'Incompatible profile/footer spacing must not be trusted');
+ // Missing optional footer does not affect the established valid layout.
+ const normal=a.planFromBars(691,1536,
+  [{start:863,end:921},{start:1876,end:1934}],1225,144);
+ assert.ok(normal);
 });
