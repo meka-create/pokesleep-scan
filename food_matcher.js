@@ -126,6 +126,30 @@ function thirdFoodSelfMatch(screenCanvas,foods){
  return thirdFoodSelfMatchFromScores(foods,scores[0],scores[1]);
 }
 
+// A reviewed locked Lv30 icon may match the SAME screenshot's unlocked
+// food1 with extremely high grayscale correlation. Do not use an inferred
+// sibling food to switch the candidate: only corroborate the existing top
+// food2 when that top is already food1, and only with a strong pixel witness.
+function secondFoodSelfMatchFromScore(foods,level,score,inferenceStatus){
+ const first=foods?.[0],second=foods?.[1];
+ if(inferenceStatus!=='UNIQUE'||!Number.isInteger(level)||level>=30||level<1||
+  !first||first.needsReview||first.manualOverride||!first.name||
+  !second||second.method!=='image'||!second.needsReview||
+  second.reviewReason!=='dimmed-shape-not-corroborated'||
+  second.manualOverride||!Array.isArray(second.allowed)||
+  !second.allowed.includes(first.name)||second.allowed.length<2||
+  second.name!==first.name||!Number.isFinite(second.score)||second.score<.86||
+  !Number.isFinite(second.margin)||second.margin<.02||
+  !Number.isFinite(score)||score<.975)return null;
+ return {name:second.name,score,method:'locked-food2-within-image-correlation',
+  originalColorScore:second.score,sourceSlot:1,targetSlot:2,automatic:true};
+}
+function secondFoodSelfMatch(canvas,foods,level,inferenceStatus){
+ if(!canvas||!foods?.[1]?.needsReview||level>=30)return null;
+ const first=cropFood(canvas,'food1'),second=cropFood(canvas,'food2');
+ return secondFoodSelfMatchFromScore(foods,level,iconSelfCorrelation(first,second),inferenceStatus);
+}
+
 // Independent direct-pixel evidence for two recognizable locked food3 icons.
 // Separate physical regions: potato fill/bottom/side; oil body/neck/label.
 // No correlation scores, source filenames, species IDs, or Golden-derived
@@ -207,5 +231,5 @@ function explicitThirdFoodDash(screenCanvas){
  const data=screenCanvas.getContext('2d',{willReadFrequently:true}).getImageData(x,y,w,h).data;
  return explicitThirdFoodDashStats(data,w,h);
 }
-window.POKESLEEP_FOOD_MATCHER={cropFood,matchCanvas,resolveSlots,arbitrateDimmedFoodEvidence,reviewShapeOpinion,iconSelfCorrelation,thirdFoodSelfMatchFromScores,thirdFoodSelfMatch,lockedFood3PixelWitnessFromRgba,lockedFood3PixelWitness,explicitThirdFoodDashStats,explicitThirdFoodDash};
+window.POKESLEEP_FOOD_MATCHER={cropFood,matchCanvas,resolveSlots,arbitrateDimmedFoodEvidence,reviewShapeOpinion,iconSelfCorrelation,secondFoodSelfMatchFromScore,secondFoodSelfMatch,thirdFoodSelfMatchFromScores,thirdFoodSelfMatch,lockedFood3PixelWitnessFromRgba,lockedFood3PixelWitness,explicitThirdFoodDashStats,explicitThirdFoodDash};
 })();
