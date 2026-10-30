@@ -15,6 +15,7 @@ function safetyApi(){
   validPokemonLevelValue:n=>Number.isInteger(n)&&n>=1&&n<=100,
   speciesNeedsReview:r=>r.classification?.status!=='UNIQUE'&&!r.speciesManualOverride,
   applyNicknameSafety:()=>{},
+  reviewConflictingSmallKanaNickname:p=>p, // Nickname guard covered by its own synthetic tests.
   FOOD_REVIEW_MARGIN:.015
  };
  vm.createContext(ctx);
