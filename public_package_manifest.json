@@ -1,13 +1,13 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-30-footer-viewport-witness-v1",
-  "appBuildId": "v12-footer-viewport-witness-20261030-v1",
+  "releaseId": "2026-10-30-mystical-fire-sp-v1",
+  "appBuildId": "v12-mystical-fire-sp-20261030-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 87,
+  "fileCount": 88,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 12294,
-      "sha256": "234e5a87656ed1b3510d6c5a55f77a9863af35e26aac3e2d3d67dde54cfc6528"
+      "bytes": 12338,
+      "sha256": "620ea07a2c4fa0a675e9da6a26fc5afe984c44353b8dbf5b69a8a16b30f83655"
     },
     {
       "path": ".gitignore",
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 323661,
-      "sha256": "818da5fbb4baed9178d16f2aaa4721bf1208b03194d6eb65cc16266afbcf59da"
+      "bytes": 323647,
+      "sha256": "9300d9d11798cce86a5c905c2ca1e83502b13ff5d9eb969df5f10a597a996d18"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -56,8 +56,8 @@
     },
     {
       "path": "classifier.js",
-      "bytes": 15129,
-      "sha256": "0de9f6db4afffbbafb53dda74ebbc0d132f5b88215044dda343a64f19535bcde"
+      "bytes": 15456,
+      "sha256": "df7646faa245e38ae15e2f6bf5939d8ae5cf4ca10bdf9968bf19acf797660786"
     },
     {
       "path": "csv_gate.js",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 8604,
-      "sha256": "daeabaa14d4661ce0170850f902467c0d4cd38b0f0f87b0ac2235158e9364e07"
+      "bytes": 10333,
+      "sha256": "5f856e378640ed2068b581b955ce9cf52d36c914239650127c63c7902b6191d4"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -295,6 +295,11 @@
       "sha256": "727c1941c8b70b7ede21f528792785029b1f0b7f9a5e2338ad31d2605efafc9e"
     },
     {
+      "path": "development/step3_mystical_fire_sp.test.cjs",
+      "bytes": 2417,
+      "sha256": "c7c4472cf6aef961fc6c280c91c060ac0caaac9b1337e96910984c7a4b1fcb9b"
+    },
+    {
       "path": "development/step3_pixel142_safety.test.cjs",
       "bytes": 8047,
       "sha256": "51f2d6154b4f5244f769db2aaa1e0c880bd06aaa534640b8950f600f13dce0b5"
@@ -341,8 +346,8 @@
     },
     {
       "path": "development/verify_oct26_classify_csv.cjs",
-      "bytes": 2462,
-      "sha256": "c8fdf897955a91655597d9a612a61899b48a954e81f69d3f57575b44c89bf858"
+      "bytes": 2880,
+      "sha256": "de3ea8412ac21fc2e2a698274bd8c4808c843651e247d8fe55e59d672a21341d"
     },
     {
       "path": "development/verify_oct26_preflight.py",
@@ -421,8 +426,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 52,
-      "sha256": "7b51c1d9c911723f9873be98cbe32568a84deae61e7f53362c58989ac7b8ad2c"
+      "bytes": 45,
+      "sha256": "6ce4cea6ee2dfeef153664ce649fcec16f80242317e5b66733c05a8af2934c6e"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -441,8 +446,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4053,
-      "sha256": "aebc1bb34a9c7acdfc940d06ff6fa8714bf653df51b1b8a93524f6d256471fd5"
+      "bytes": 4046,
+      "sha256": "a9fa97343ca9eed9b5a2b1f2b1555253c22c2a2fdd13fe13f31275ed37e10576"
     }
   ]
 }
