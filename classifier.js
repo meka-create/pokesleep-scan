@@ -18,6 +18,10 @@ const SP_SKILL={
 'Charge Strength M':[880,1251,1726,2383,3290,4546,6252],
 'Energy for Everyone S':[1120,1593,2197,3033,4187,5785],
 'Cooking Assist S (Bulk Up)':[1144,1627,2244,3098,4277,5910,7596],
+// Mystical Fire uses its own SP coefficients; treating a newly added skill
+// as DEFAULT_SP (880 at Lv.1) breaks otherwise exact species classification.
+// Verified against the published skill-SP table (2026-10-30).
+'Cooking Advance S (Mystical Fire)':[1144,1626,2244,3098,4277,5910,7596],
 'Energy for Everyone S (Berry Juice)':[1220,1735,2392,3303,4559,6299],
 'Helper Boost':[2800,3902,5273,6975,9317,12438],
 'Berry Burst (Draco Meteor)':[2380,3385,4670,6445,8898,12294],
@@ -33,7 +37,7 @@ const SP_SKILL={
 };
 const DEFAULT_SP=[880,1251,1726,2383,3290,4546,5843,7303];
 const MAX8=new Set(['Dream Shard Magnet S','Dream Shard Magnet S (Random)','Dream Shard Magnet S (Aura Sphere)','Versatile']);
-const MAX7=new Set(['Ingredient Magnet S','Ingredient Magnet S (Plus)','Ingredient Magnet S (Present)','Charge Strength M','Charge Strength M (Bad Dreams)','Charge Strength S','Charge Strength S (Random)','Charge Strength S (Stockpile)','Extra Helpful S','Cooking Power-Up S','Cooking Power-Up S (Minus)','Metronome','Skill Copy (Transform)','Skill Copy (Mimic)','Ingredient Draw S','Ingredient Draw S (Super Luck)','Ingredient Draw S (Hyper Cutter)','Cooking Assist S','Cooking Assist S (Bulk Up)']);
+const MAX7=new Set(['Ingredient Magnet S','Ingredient Magnet S (Plus)','Ingredient Magnet S (Present)','Charge Strength M','Charge Strength M (Bad Dreams)','Charge Strength S','Charge Strength S (Random)','Charge Strength S (Stockpile)','Extra Helpful S','Cooking Power-Up S','Cooking Power-Up S (Minus)','Metronome','Skill Copy (Transform)','Skill Copy (Mimic)','Ingredient Draw S','Ingredient Draw S (Super Luck)','Ingredient Draw S (Hyper Cutter)','Cooking Assist S','Cooking Assist S (Bulk Up)','Cooking Advance S (Mystical Fire)']);
 const RIB_CARRY=[0,1,3,6,8];
 const NATURE_BY_JA=new Map(M.natures.map(x=>[x.ja,x]));
 const SUB_BY_JA=new Map(M.subskills.map(x=>[x.ja,x]));
