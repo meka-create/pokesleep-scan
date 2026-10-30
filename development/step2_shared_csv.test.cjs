@@ -138,8 +138,30 @@ test('CSV 18 columns escaped fields, LF and round-trip',()=>{
  assert.ok(raw.includes('"サンプル,""ポケモン"""'));
  assert.ok(!raw.includes('\r'));
 });
-test('unknown species, invalid food, empty nickname, bad controls and levels fail',()=>{
- for(const [column,value] of [[1,'不存在種'],[4,'なし'],[0,''],[0,'AB\nCD'],[2,'150'],[3,'99']]){
+test('empty nickname is importable but flagged for user review; mint and nature survive',()=>{
+ const h=harness(),v=[...fields];v[0]='';v[8]='いじっぱり';v[9]='1';
+ const raw=h.gate.serialize([Array.from(h.gate.HEADER),v]),out=h.gate.inspect(raw,ai);
+ assert.equal(out.ok,true,JSON.stringify(out.errors));
+ assert.equal(out.rows[1].length,18);
+ assert.equal(out.rows[1][0],'');
+ assert.deepEqual(out.rows[1].slice(8,10),['いじっぱり','1']);
+ assert.ok(out.warnings.some(w=>w.includes('blank nickname')));
+});
+test('empty nicknames receive a nonblocking UI warning without altering actual OCR values',()=>{
+ const source=fs.readFileSync(path.join(root,'app.js'),'utf8');
+ const begin=source.indexOf('function csvWarnings('),end=source.indexOf('function csvFoodResolvedForPokesleepTool(',begin);
+ assert.ok(begin>=0&&end>begin);
+ const rows=[{parsed:{nickname:'',nicknameNeedsReview:false},manualEditOpen:false},
+  {parsed:{nickname:'読み取り候補',nicknameNeedsReview:true},manualEditOpen:false}];
+ const ctx={results:rows,subskillReviewSlots:()=>[]};vm.createContext(ctx);
+ vm.runInContext(source.slice(begin,end),ctx);
+ const warnings=Array.from(ctx.csvWarnings());
+ assert.ok(warnings.some(w=>w.includes('ニックネーム空欄 1件')));
+ assert.ok(warnings.some(w=>w.includes('ニックネーム要確認 1件')));
+ assert.equal(rows[0].parsed.nickname,'');
+});
+test('unknown species, invalid food, malformed nickname, bad controls and levels fail',()=>{
+ for(const [column,value] of [[1,'不存在種'],[4,'なし'],[0,'   '],[0,'AB\nCD'],[2,'150'],[3,'99']]){
   const bad=[...fields];bad[column]=value;
   const r=inspect(bad);
   assert.equal(r.ok,false,'column '+column+' value '+value+' result '+JSON.stringify(r));
