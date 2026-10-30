@@ -85,7 +85,7 @@ test('subskill: strong competitor, weak dedicated or unaudited risk retains revi
   x=>{x[2].source='composite';},
   x=>{x[2].psm='11';},
   x=>{x[2].crop='other';},
-  x=>{x.push({...x[2],source:'fallback',psm:'6'});},
+  x=>{x.push({...x[0],source:'fallback',psm:'6'});},
   x=>{x[0].value='最大所持数アップM';},
   x=>{x.push({...x[0],value:'最大所持数アップM'});}
  ];
