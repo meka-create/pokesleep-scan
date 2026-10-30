@@ -121,6 +121,8 @@ jobs:
         run: node --test development/nickname_caption_rescue.test.cjs development/nickname_spatial_advisory.test.cjs
       - name: Verified-level nickname candidate priority (review only)
         run: node --test development/nickname_level_candidate_ranking.test.cjs
+      - name: Narrow 85-89 independent Lv caption consensus safety (synthetic only)
+        run: node --test development/nickname_lv_consensus85.test.cjs
       - name: Conservative multi-OCR nickname review promotion regression
         run: node --test development/nickname_consensus_autoconfirm.test.cjs
       - name: Frozen nickname pipeline SHA-256 non-regression
