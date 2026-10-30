@@ -57,7 +57,10 @@ function inspect(text,master){
    const v=row[j];if(/[\r\n\x00-\x1f\x7f]/.test(v))errors.push(prefix+'control/newline in column '+(j+1));
   }
   const [name,species,level,skill,...ignored]=row;
-  if(!name.trim())errors.push(prefix+'missing nickname');
+  // Upstream BoxImporter accepts an empty nickname and preserves it on export.
+  // Never guess a Pokémon's nickname when OCR could not read it.
+  if(name==='')warnings.push(prefix+'blank nickname (allowed by pokesleep-tool)');
+  else if(!name.trim())errors.push(prefix+'whitespace-only nickname is not stable with importer');
   if(name.length>120)errors.push(prefix+'nickname is implausibly long');
   const poke=mons.get(species);
   if(!poke){errors.push(prefix+'unsupported species '+species);continue;}
