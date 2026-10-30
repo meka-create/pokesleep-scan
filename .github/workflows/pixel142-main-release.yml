@@ -97,6 +97,8 @@ jobs:
         run: node --test development/step3_dimmed_food_conflict.test.cjs development/step3_mystical_fire_sp.test.cjs development/layout_cropped_banner.test.cjs development/step3_android_roi.test.cjs
       - name: Pixel142 false-acceptance safety
         run: node --test development/step3_pixel142_safety.test.cjs
+      - name: Independent header SP and subskill review safety
+        run: node --test development/step3_header_sp_subskill_review.test.cjs
       - name: Two-field corroborated OCR rescue
         run: node --test development/step3_joint_rescue.test.cjs
       - name: STEP 2 mythical optional food no-template regression
