@@ -144,7 +144,7 @@ test('empty nickname is importable but flagged for user review; mint and nature 
  assert.equal(out.ok,true,JSON.stringify(out.errors));
  assert.equal(out.rows[1].length,18);
  assert.equal(out.rows[1][0],'');
- assert.deepEqual(out.rows[1].slice(8,10),['いじっぱり','1']);
+ assert.deepEqual(Array.from(out.rows[1].slice(8,10)),['いじっぱり','1']);
  assert.ok(out.warnings.some(w=>w.includes('blank nickname')));
 });
 test('empty nicknames receive a nonblocking UI warning without altering actual OCR values',()=>{
