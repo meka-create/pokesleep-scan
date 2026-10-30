@@ -54,6 +54,22 @@ class Csv18RoundTripAcceptanceTest(unittest.TestCase):
     def test_mint_coverage_is_not_assumed(self):
         a,b=fixture();a[9]="0"
         self.assertEqual(evaluate(encode([a,b]),encode([a,b]),True)["result"],"HOLD")
+    def test_blank_nickname_with_mint_is_losslessly_verified(self):
+        a,b=fixture()
+        a[0]=""
+        out=evaluate(encode([a,b]),encode([a,b]),True)
+        self.assertEqual(out["result"],"PASS")
+        self.assertEqual((out["mintUsedRows"],out["mintUnusedRows"]),(1,1))
+        self.assertEqual(out["matchingLogicalCells"],36)
+        self.assertNotIn("ピカチュウ",str(out))
+    def test_species_missing_and_whitespace_only_nickname_are_rejected(self):
+        a,_=fixture()
+        no_species=a.copy();no_species[1]=""
+        with self.assertRaisesRegex(ValueError,"species"):
+            parse_csv(encode([no_species]),"scan")
+        blank_space=a.copy();blank_space[0]="   "
+        with self.assertRaisesRegex(ValueError,"whitespace"):
+            parse_csv(encode([blank_space]),"scan")
     def test_wrong_mint_neutral_nature_favorite_and_header_are_rejected(self):
         a,_=fixture()
         for i,change in [(9,"2"),(17,"1")]:
