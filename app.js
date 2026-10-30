@@ -1,5 +1,5 @@
 (() => {
-const BUILD_ID='v12-nickname-edit-csv18-20261030-v1';
+const BUILD_ID='v12-cropped-banner-layout-20261030-v1';
 'use strict';
 // The verified Android 1080x2400 OCR path is now the standard on every device.
 // Preserve the existing ROI adapter and its safe legacy fallback unchanged.
@@ -63,7 +63,7 @@ const NATURES=POKESLEEP_MASTER.natures.map(x=>x.ja);
 const SUBSKILLS=POKESLEEP_MASTER.subskills.map(x=>x.ja);
 const SPECIES_NAMES=[...new Set(POKESLEEP_MASTER.pokemon.map(x=>x.name))];
 const $=s=>document.querySelector(s);let selected=[],results=[],worker=null,paddleOcr=null,paddleInitPromise=null,paddleUnavailableError=null,paddleRuntimeGeneration=0,isRunning=false,analysisPause=null,checkpointPreparing=false,selectionSnapshotPreparing=false,selectionSnapshotGeneration=0,checkpointRestoreRunning=false,checkpointSessionActive=false,checkpointPersistenceWarningShown=false,renderPending=false,modalObjectUrl='',modalReturnFocus=null,appDialogResolver=null,appDialogReturnFocus=null,localProgressVisible=true,localProgressState='idle',localProgressMaxPct=0,floatingProgressState='idle',floatingProgressDone=0,floatingProgressTotal=0,floatingProgressReviews=0,floatingCompletionTimer=null,floatingCompletionPending=false,floatingCompletionDismissed=false,preManualCsvSnapshot=null,wakeLockSentinel=null,wakeLockRequestPromise=null,wakeLockRetryTimer=null;const checkpointFailureLog=[];const layoutCache=new WeakMap(),profileCardCache=new WeakMap(),stableSourcePromises=new WeakMap(),stableSourceFiles=new WeakSet();
-const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-30-nickname-edit-csv18-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
+const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-30-cropped-banner-layout-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
 function pullRefreshGuardActive(){return !!(isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing);}
 function analysisWakeLockShouldHold(){return !!((isRunning||checkpointPreparing)&&!analysisPause);}
 function wakeLockApiSupported(){return typeof navigator!=='undefined'&&!!navigator.wakeLock?.request;}
@@ -520,10 +520,18 @@ function layoutInfo(canvas){
  for(let y=0;y<h;y++){let n=0;for(let x=0;x<w;x++){const i=(y*w+x)*4,r=d[i],g=d[i+1],b=d[i+2];if(g>=145&&g-r>=35&&g-b>=20)n++;}counts[y]=n;}
  const bands=[];let start=-1;for(let y=0;y<=h;y++){const on=y<h&&counts[y]>=80;if(on&&start<0)start=y;if((!on||y===h)&&start>=0){const end=y-1;let peak=start,max=counts[start];for(let yy=start+1;yy<=end;yy++)if(counts[yy]>max){max=counts[yy];peak=yy;}bands.push({start,end,peak,max,height:end-start+1});start=-1;}}
  const wideBands=bands.filter(x=>x.max>=w*.70),headerBands=wideBands.filter(x=>x.height>=20&&x.height<=70);let main=wideBands[0]||null,detail=wideBands[1]||null;
- // Some screenshots begin exactly at the green "おてつだい能力" banner. In that layout the
- // first wide green band is not the main-skill section header. Skip that top banner and use the
- // next two real section headers so relative subskill crops do not drift upward.
- if(headerBands[0]?.start<80){const later=headerBands.filter(x=>x.start>=250);if(later.length){main=later[0];detail=later.find(x=>x.start>main.end+300)||wideBands.find(x=>x.start>main.end+300)||detail;}}
+ // A clipped "おてつだい能力" banner can be just 1-19 px tall at y=0.
+ // The first *wide* band (not only the first 20px+ headerBand) is the
+ // reliable top-banner witness. Shift to the later two section headers only
+ // when BOTH occur in order and are separated by at least 300px.
+ // This prevents interpreting the cropped banner as the main-skill header,
+ // which made time/carry disappear and broke species/nature rescue.
+ const topBanner=wideBands[0]?.start<80;
+ if(topBanner){
+  const later=headerBands.filter(x=>x.start>=250);
+  const next= later.length?later.find(x=>x.start>later[0].end+300):null;
+  if(next){main=later[0];detail=next;}
+ }
  const beforeMain=main?bands.filter(x=>x.end<main.start&&x.max>=150&&x.height>=20):[],time=beforeMain.length>=2?beforeMain[beforeMain.length-2]:null,carry=beforeMain.length?beforeMain[beforeMain.length-1]:null;
  const info={adaptive:h<ADAPTIVE_LAYOUT_MAX_H&&!!(main&&detail&&time&&carry),bands,main,detail,time,carry};layoutCache.set(canvas,info);return info;
 }

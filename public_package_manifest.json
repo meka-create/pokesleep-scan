@@ -1,13 +1,13 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-30-nickname-edit-csv18-v1",
-  "appBuildId": "v12-nickname-edit-csv18-20261030-v1",
+  "releaseId": "2026-10-30-cropped-banner-layout-v1",
+  "appBuildId": "v12-cropped-banner-layout-20261030-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 86,
+  "fileCount": 87,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 12251,
-      "sha256": "ce86aab2aef44b361876091eb92596d9ac881018bb5c4e55a49adb704f6ad6ea"
+      "bytes": 12294,
+      "sha256": "234e5a87656ed1b3510d6c5a55f77a9863af35e26aac3e2d3d67dde54cfc6528"
     },
     {
       "path": ".gitignore",
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 323475,
-      "sha256": "d85c8f27fba09a6f780df836fd8e0c33fd5dd5bda44f9cafcb3ca88734e289aa"
+      "bytes": 323657,
+      "sha256": "23627af8466513932fcbceaa83bd826d6f9019b1933dc378d2d32e8de9170182"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 4835,
-      "sha256": "a9e29b71275b720b64a4078834180946cb3ae29c05625f5c9b64934640b923c8"
+      "bytes": 6362,
+      "sha256": "a81e26cf4f701f1f3ce88435bb47e4cb5fc9d3f8c757eddad7b908023749dbc3"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -160,6 +160,11 @@
       "sha256": "140d43fecdfcec2365c9f1372a89b4e7d2c54d5560b0eae44e0686d28efc4b5b"
     },
     {
+      "path": "development/layout_cropped_banner.test.cjs",
+      "bytes": 2419,
+      "sha256": "a79b67ae9e5911e858533fb703dad6c871802596b20434c4ce6f05fafa4a2429"
+    },
+    {
       "path": "development/master_auto_update.py",
       "bytes": 16719,
       "sha256": "d6274f9912157e35577255a66a76fbaf07eeaa99865e9963136b978883cb806b"
@@ -181,8 +186,8 @@
     },
     {
       "path": "development/nickname_caption_rescue.test.cjs",
-      "bytes": 11244,
-      "sha256": "352e83058e340f3419b8446522a9c4a8896e0dfd2b1064501921d263d8862928"
+      "bytes": 12903,
+      "sha256": "3ce65018b8cdc13d452cc393f1fa92f82215cb39b85dd08602397bc56bb7a0a6"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -416,8 +421,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 48,
-      "sha256": "b81406c705d686a8ed7e8b7abe2761e46805d31719c71869b854ea83eb9b8e35"
+      "bytes": 50,
+      "sha256": "d0e6532e43c507f2d720f69378e03c60f3d112771b5b461290ba0df9065c13c3"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -436,8 +441,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4049,
-      "sha256": "2efd2695af19a4324ec656c36d064ba7dcb14fd34514b4b0c19875d5aef2492c"
+      "bytes": 4051,
+      "sha256": "8f47dfd3645b7a19dfbcece417ba7c6118cd4d81993ebe6dc18a48cd402e6120"
     }
   ]
 }

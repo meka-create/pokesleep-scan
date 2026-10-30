@@ -94,7 +94,7 @@ jobs:
       - name: Shared master and CSV compatibility
         run: node --test development/step2_shared_csv.test.cjs
       - name: Android ROI and review UX
-        run: node --test development/step3_android_roi.test.cjs
+        run: node --test development/layout_cropped_banner.test.cjs development/step3_android_roi.test.cjs
       - name: Pixel142 false-acceptance safety
         run: node --test development/step3_pixel142_safety.test.cjs
       - name: Two-field corroborated OCR rescue
