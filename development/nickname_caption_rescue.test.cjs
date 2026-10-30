@@ -98,6 +98,11 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  approvedSpan('  // An already-reviewed, locked Lv30 second food can be corroborated',
   '  // Apply the existing weak-food3 safety review BEFORE independent pixel',
   'a33b570cba5294e6c03e80deecd2f9bc8f39799b87b23455fc672efec9fb915a','');
+ // Additional reviewed-name release is out of the frozen original
+ // nickname algorithm; exact SHA required for the complete new helper.
+ approvedSpan('// Approved narrow 85-89 confidence extension.',
+  '// Review-only veto on conflicting small-kana readings.',
+  'f5a26888aa9e05e9263617cf379d21f0720c27b4c806ca517e83321e323cc87d','');
  // Review-picker code is outside the frozen OCR pipeline. Restore only
  // the exact audited UI helper and two option labels before the historical
  // whole-app fingerprint check; do not change its expected SHA.
@@ -130,6 +135,9 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
   '  workerPrepare:{...scanPerfSession.workerPrepare}',
   'dff327e16dd5499a3d1ac683a8a1d93c7f6513bcfd5ac4d6b4623b89cfbbfa8f',
   "  profiledImages:ps.length,totalImageMs:sum(p=>p.totalMs),\n  tesseractCalls:ps.reduce((acc,p)=>acc+(p.tesseract?.calls||0),0),\n  tesseractMs:sum(p=>p.tesseract?.totalMs),\n");
+ const lv85Call='  parsed=autoConfirmLevelCaptionConsensus85(parsed);\n';
+ assert.equal(restored.split(lv85Call).length-1,1,'Lv 85–89 hook added only once');
+ restored=restored.replace(lv85Call,'');
  const consensusCall='parsed=autoConfirmCorroboratedReviewedNickname(parsed);';
  assert.equal(restored.split(consensusCall).length-1,1,'one reviewed-name promotion hook');
  restored=restored.replace('  '+consensusCall+'\n','');
