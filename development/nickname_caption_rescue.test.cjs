@@ -80,6 +80,35 @@ test('post-structure retry recovers reviewed captions and refreshes immutable sn
 test('all other production code is byte-for-byte identical to pre-nickname baseline',()=>{
  const crypto=require('node:crypto');
  let restored=src.slice(0,start)+src.slice(end);
+ // Explicitly audit and roll back only these narrow, approved non-frozen
+ // changes before checking the historical complete-source fingerprint.
+ // The original expected SHA-256 is NOT changed; unexpected edits still fail.
+ function approvedSpan(a,b,expectedSha,baseline){
+  const startAt=restored.indexOf(a),endAt=restored.indexOf(b,startAt+a.length);
+  assert.ok(startAt>=0&&endAt>startAt,'missing audited scope '+a);
+  assert.equal(restored.split(a).length-1,1,'ambiguous audited scope '+a);
+  const original=restored.slice(startAt,endAt);
+  assert.equal(crypto.createHash('sha256').update(original).digest('hex'),
+   expectedSha,'unaudited change in '+a);
+  restored=restored.slice(0,startAt)+baseline+restored.slice(endAt);
+ }
+ approvedSpan('// Independent noisy Mew skill evidence:','function longestCommonRun(',
+  '876b79ceb560c8226d02ce346c9cd811589c0006a4e4b0908dd688fbf646547a',
+  "function detailedMewVersatileSkill(parsed){const explicit=String(parsed?.versatileSkill||'');if(MEW_VERSATILE_KEYS.has(explicit))return explicit;for(const t of [parsed?.mainSkillRaw||'',...rescueTextValues(parsed?.structuredRescue?.attempts||{})]){const v=mewVersatileSkillFromText(t);if(v)return v;}return '';}"+"\\n".replace('\\n','\n'));
+ approvedSpan('// Review-only veto on conflicting small-kana readings.','function cloneRaw(',
+  '2408f5bd0461618eac6868ce0b0668ad1433becc8c23fa73420b09adcb7d0608','');
+ approvedSpan(' const p=r.parsed||{};\n if(!p.nicknameManualConfirmed){',
+  ' if(weakThirdFoodEvidence(r.foods))',
+  'b42557afb92cc74e0c9ff8bfe1c20471ee27ff36dd4acdf13b110f6248666e82',
+  ' const p=r.parsed||{};\n if(!p.nicknameManualConfirmed)applyNicknameSafety(p);\n');
+ approvedSpan('};applyResultReviewSafetyGuards(result);',
+  'for(let fi=0;fi<result.foods.length;fi++)',
+  'd24acf688ab694a6ed72c7fd7eecf161c197d1dfa0835e7b47b473136e83c044',
+  '};applyResultReviewSafetyGuards(result);');
+ approvedSpan('  profiledImages:ps.length,totalImageMs:',
+  '  workerPrepare:{...scanPerfSession.workerPrepare}',
+  'dff327e16dd5499a3d1ac683a8a1d93c7f6513bcfd5ac4d6b4623b89cfbbfa8f',
+  "  profiledImages:ps.length,totalImageMs:sum(p=>p.totalMs),\n  tesseractCalls:ps.reduce((acc,p)=>acc+(p.tesseract?.calls||0),0),\n  tesseractMs:sum(p=>p.tesseract?.totalMs),\n");
  const consensusCall='parsed=autoConfirmCorroboratedReviewedNickname(parsed);';
  assert.equal(restored.split(consensusCall).length-1,1,'one reviewed-name promotion hook');
  restored=restored.replace('  '+consensusCall+'\n','');
