@@ -124,6 +124,14 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  assert.equal(restored.split(newNicknameEditHandler).length-1,1,
   'ordinary nickname editor changed outside approved clear/retype fix');
  restored=restored.replace(newNicknameEditHandler,oldNicknameEditHandler);
+ // PR #67: only the verified layoutInfo clipped-top-header routing may differ.
+ // Check exact approved source, then restore the original byte sequence
+ // before evaluating the original immutable nickname-surrounding SHA.
+ const newLayoutBandSelection=" // A clipped \"おてつだい能力\" banner can be just 1-19 px tall at y=0.\n // The first *wide* band (not only the first 20px+ headerBand) is the\n // reliable top-banner witness. Shift to the later two section headers only\n // when BOTH occur in order and are separated by at least 300px.\n // This prevents interpreting the cropped banner as the main-skill header,\n // which made time/carry disappear and broke species/nature rescue.\n const topBanner=wideBands[0]?.start<80;\n if(topBanner){\n  const later=headerBands.filter(x=>x.start>=250);\n  const next= later.length?later.find(x=>x.start>later[0].end+300):null;\n  if(next){main=later[0];detail=next;}\n }";
+ const oldLayoutBandSelection=" // Some screenshots begin exactly at the green \"おてつだい能力\" banner. In that layout the\n // first wide green band is not the main-skill section header. Skip that top banner and use the\n // next two real section headers so relative subskill crops do not drift upward.\n if(headerBands[0]?.start<80){const later=headerBands.filter(x=>x.start>=250);if(later.length){main=later[0];detail=later.find(x=>x.start>main.end+300)||wideBands.find(x=>x.start>main.end+300)||detail;}}";
+ assert.equal(restored.split(newLayoutBandSelection).length-1,1,
+  'layoutInfo cropped-top banner fix changed outside audited code');
+ restored=restored.replace(newLayoutBandSelection,oldLayoutBandSelection);
  const sha=crypto.createHash('sha256').update(restored,'utf8').digest('hex');
  // PR #54 adds export-only mint choices without changing frozen nickname helpers.
  // The surrounding-code baseline changes, while frozen nickname-specific hashes remain untouched.
