@@ -1,5 +1,5 @@
 (() => {
-const BUILD_ID='v12-meka142-targeted-quality-20261030-v2';
+const BUILD_ID='v12-nickname-level-review-rank-20261031-v1';
 'use strict';
 // The verified Android 1080x2400 OCR path is now the standard on every device.
 // Preserve the existing ROI adapter and its safe legacy fallback unchanged.
@@ -63,7 +63,7 @@ const NATURES=POKESLEEP_MASTER.natures.map(x=>x.ja);
 const SUBSKILLS=POKESLEEP_MASTER.subskills.map(x=>x.ja);
 const SPECIES_NAMES=[...new Set(POKESLEEP_MASTER.pokemon.map(x=>x.name))];
 const $=s=>document.querySelector(s);let selected=[],results=[],worker=null,paddleOcr=null,paddleInitPromise=null,paddleUnavailableError=null,paddleRuntimeGeneration=0,isRunning=false,analysisPause=null,checkpointPreparing=false,selectionSnapshotPreparing=false,selectionSnapshotGeneration=0,checkpointRestoreRunning=false,checkpointSessionActive=false,checkpointPersistenceWarningShown=false,renderPending=false,modalObjectUrl='',modalReturnFocus=null,appDialogResolver=null,appDialogReturnFocus=null,localProgressVisible=true,localProgressState='idle',localProgressMaxPct=0,floatingProgressState='idle',floatingProgressDone=0,floatingProgressTotal=0,floatingProgressReviews=0,floatingCompletionTimer=null,floatingCompletionPending=false,floatingCompletionDismissed=false,preManualCsvSnapshot=null,wakeLockSentinel=null,wakeLockRequestPromise=null,wakeLockRetryTimer=null;const checkpointFailureLog=[];const layoutCache=new WeakMap(),profileCardCache=new WeakMap(),stableSourcePromises=new WeakMap(),stableSourceFiles=new WeakSet();
-const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-30-meka142-targeted-quality-v2',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
+const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-31-nickname-level-review-rank-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
 function pullRefreshGuardActive(){return !!(isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing);}
 function analysisWakeLockShouldHold(){return !!((isRunning||checkpointPreparing)&&!analysisPause);}
 function wakeLockApiSupported(){return typeof navigator!=='undefined'&&!!navigator.wakeLock?.request;}
@@ -1654,9 +1654,45 @@ function speciesReviewInfo(r){
 }
 function speciesAllowedCandidates(r){const info=speciesReviewInfo(r);return r?.speciesBrowseAll||info.allSpecies?allSpeciesNames():info.candidates;}
 function chosenSpecies(r){if(r?.speciesManualOverride)return r.speciesManualOverride;const c=r?.classification;return c?.status==='UNIQUE'&&c?.candidates?.length===1?c.candidates[0]:'';}
-function nicknameAlternativeRows(r,p,draft){const rows=[],current=String(draft??'');const species=chosenSpecies(r);if(species&&species!==current)rows.push({text:species,species:true});for(const x of (p?.nicknameCandidates||[])){const text=String(x?.text||'').trim();if(!text||text===current||Number(x?.confidence||0)<60||rows.some(y=>y.text===text))continue;rows.push({text,species:false});if(rows.length>=8)break;}return rows;}
+// Review UI only: derive a clean nickname suggestion when a VERIFIED displayed
+// level is attached to an OCR reading. Never edit the chosen nickname, raw
+// candidate pool, confidence votes, or auto-confirmation state.
+function nicknameLevelSeparatedReviewSuggestions(p){
+ if(!p?.nicknameNeedsReview||p.levelNeedsReview||!validPokemonLevelValue(p.level))return [];
+ const ranked=new Map();
+ for(const [rank,entry] of (p.nicknameCandidates||[]).entries()){
+  const score=Number(entry?.confidence)||0;
+  if(score<80)continue;
+  const raw=String(entry?.text||'').trim();
+  const front=exactSeparatedNickname(raw,p.level,'front');
+  const back=exactSeparatedNickname(raw,p.level,'back');
+  if(front&&back&&front!==back)continue;
+  const candidate=front||back;
+  if(!candidate||candidate===raw||candidate.length<2||candidate.length>18||
+    nicknameLooksUiContaminated(candidate))continue;
+  const previous=ranked.get(candidate);
+  if(previous){previous.count++;previous.confidence=Math.max(previous.confidence,score);}
+  else ranked.set(candidate,{text:candidate,confidence:score,count:1,rank,levelSeparated:true});
+ }
+ return [...ranked.values()].sort((a,b)=>b.count-a.count||b.confidence-a.confidence||a.rank-b.rank);
+}
+function nicknameAlternativeRows(r,p,draft){
+ const rows=[],seen=new Set([String(draft??'')]),species=chosenSpecies(r);
+ const add=(text,speciesCandidate=false,levelSeparated=false)=>{
+  if(!text||seen.has(text)||rows.length>=8)return;
+  seen.add(text);rows.push({text,species:speciesCandidate,levelSeparated});
+ };
+ // Corrected evidence must be visible BEFORE the noisier raw reading.
+ for(const x of nicknameLevelSeparatedReviewSuggestions(p))add(x.text,false,true);
+ if(species)add(species,true);
+ for(const x of (p?.nicknameCandidates||[])){
+  if(Number(x?.confidence||0)<60)continue;
+  add(String(x?.text||'').trim());
+ }
+ return rows;
+}
 function nicknameCandidatePlaceholder(rows){return rows.length===1?`候補：${rows[0].text}`:`候補から選ぶ（${rows.length}件）`;}
-function refreshNicknameCandidateControl(ri,td,p){const sel=td?.querySelector?.('.nickcandidate'),r=results[ri];if(!sel||!r)return;const draft=p.nicknameReviewDraft??p.nickname,rows=nicknameAlternativeRows(r,p,draft),placeholder=document.createElement('option');placeholder.value='';placeholder.disabled=true;placeholder.selected=true;placeholder.textContent=nicknameCandidatePlaceholder(rows);const frag=document.createDocumentFragment();frag.appendChild(placeholder);for(const row of rows){const opt=document.createElement('option');opt.value=row.text;opt.textContent=`${row.text}${row.species?'（種族名候補）':''}`;frag.appendChild(opt);}sel.replaceChildren(frag);syncCustomSelectTrigger(sel);}
+function refreshNicknameCandidateControl(ri,td,p){const sel=td?.querySelector?.('.nickcandidate'),r=results[ri];if(!sel||!r)return;const draft=p.nicknameReviewDraft??p.nickname,rows=nicknameAlternativeRows(r,p,draft),placeholder=document.createElement('option');placeholder.value='';placeholder.disabled=true;placeholder.selected=true;placeholder.textContent=nicknameCandidatePlaceholder(rows);const frag=document.createDocumentFragment();frag.appendChild(placeholder);for(const row of rows){const opt=document.createElement('option');opt.value=row.text;opt.textContent=`${row.text}${row.levelSeparated?'（Lv表示を分離）':row.species?'（種族名候補）':''}`;frag.appendChild(opt);}sel.replaceChildren(frag);syncCustomSelectTrigger(sel);}
 function foodDataNeedsReview(r){return !!r?.foods?.some((x,i)=>{const name=String(typeof x==='string'?x:(x?.name||'')).trim();if(x?.needsReview||hasUnreviewedDimmedFoodConflict(x)||!name)return true;if(typeof foodSlotNeedsReview==='function')return foodSlotNeedsReview(r,i);return false;});}
 function validPokemonLevelValue(value){const n=Number(value);return Number.isInteger(n)&&n>=1&&n<=MAX_POKEMON_LEVEL;}
 function validSkillLevelValue(value,species=''){const n=Number(value),max=manualSkillLevelMax(species);return Number.isInteger(n)&&n>=1&&n<=max;}
@@ -1959,7 +1995,7 @@ function render(){syncAdditionalFileUi();
   const nickDraft=p.nicknameReviewDraft??p.nickname;
   const nickPreview=reviewState.nickname&&r.nicknamePreview?`<img class="reviewpreview nickpreview preview-open" data-ri="${ri}" tabindex="0" role="button" title="元のスクリーンショットを表示" src="${r.nicknamePreview}" alt="ニックネームの切り出し">`:'';
   const nickAltNames=nicknameAlternativeRows(r,p,nickDraft);
-  const nickCandidateOptions=nickAltNames.map(x=>`<option value="${esc(x.text)}">${esc(x.text)}${x.species?'（種族名候補）':''}</option>`).join('');
+  const nickCandidateOptions=nickAltNames.map(x=>`<option value="${esc(x.text)}">${esc(x.text)}${x.levelSeparated?'（Lv表示を分離）':x.species?'（種族名候補）':''}</option>`).join('');
   const alt=nickCandidateOptions?`<div class="nickalts"><span class="candidate-label">候補</span><select class="nickcandidate" data-ri="${ri}" aria-label="ニックネーム候補"><option value="" selected disabled>${esc(nicknameCandidatePlaceholder(nickAltNames))}</option>${nickCandidateOptions}</select></div>`:'';
   let nicknameHtml='';
   if(manual){const v=String(d.nickname||'');nicknameHtml=`<div class="manual-inline-field${v.trim()?'':' is-unresolved'}"><div class="manual-inline-label"><span>ニックネーム</span>${v.trim()?'':'<span class="review-badge">要確認</span>'}</div><input class="manual-editor-input manual-nickname" data-ri="${ri}" value="${esc(v)}" aria-label="ニックネーム">${!v.trim()?manualPreviewHtml(mp.profile,'ニックネーム・レベル',ri,mpe.profile):''}</div>`;}

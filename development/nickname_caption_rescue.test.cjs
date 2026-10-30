@@ -92,6 +92,21 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
    expectedSha,'unaudited change in '+a);
   restored=restored.slice(0,startAt)+baseline+restored.slice(endAt);
  }
+ // Review-picker code is outside the frozen OCR pipeline. Restore only
+ // the exact audited UI helper and two option labels before the historical
+ // whole-app fingerprint check; do not change its expected SHA.
+ approvedSpan('// Review UI only: derive a clean nickname suggestion',
+  'function nicknameCandidatePlaceholder(',
+  '9dbb63006d39c7ab3132806a5e8d3532ea6f3b0f5273e575615644abbfbc9022',
+  "function nicknameAlternativeRows(r,p,draft){const rows=[],current=String(draft??'');const species=chosenSpecies(r);if(species&&species!==current)rows.push({text:species,species:true});for(const x of (p?.nicknameCandidates||[])){const text=String(x?.text||'').trim();if(!text||text===current||Number(x?.confidence||0)<60||rows.some(y=>y.text===text))continue;rows.push({text,species:false});if(rows.length>=8)break;}return rows;}\n");
+ const afterRefresh="opt.textContent=\x60\u0024{row.text}\u0024{row.levelSeparated?'（Lv表示を分離）':row.species?'（種族名候補）':''}\x60;";
+ const beforeRefresh="opt.textContent=\x60\u0024{row.text}\u0024{row.species?'（種族名候補）':''}\x60;";
+ const afterRender="\u0024{esc(x.text)}\u0024{x.levelSeparated?'（Lv表示を分離）':x.species?'（種族名候補）':''}</option>\x60";
+ const beforeRender="\u0024{esc(x.text)}\u0024{x.species?'（種族名候補）':''}</option>\x60";
+ for(const [present,baseline] of [[afterRefresh,beforeRefresh],[afterRender,beforeRender]]){
+  assert.equal(restored.split(present).length-1,1,'review picker label changed outside approval');
+  restored=restored.replace(present,baseline);
+ }
  approvedSpan('// Independent noisy Mew skill evidence:','function longestCommonRun(',
   '876b79ceb560c8226d02ce346c9cd811589c0006a4e4b0908dd688fbf646547a',
   "function detailedMewVersatileSkill(parsed){const explicit=String(parsed?.versatileSkill||'');if(MEW_VERSATILE_KEYS.has(explicit))return explicit;for(const t of [parsed?.mainSkillRaw||'',...rescueTextValues(parsed?.structuredRescue?.attempts||{})]){const v=mewVersatileSkillFromText(t);if(v)return v;}return '';}"+"\\n".replace('\\n','\n') + "function detailedMewMainSkill(parsed){const key=detailedMewVersatileSkill(parsed),label=mewVersatileSkillLabel(key);return label?`オールマイティー (${label})`:'';}\n");
