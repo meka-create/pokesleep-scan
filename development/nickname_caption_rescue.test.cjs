@@ -150,6 +150,20 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
    'approved food-safety scope changed: '+label);
   restored=restored.replace(current,original);
  }
+ // The spatial advisory adds only a Paddle metadata property and a
+ // post-consensus review-only hook. Restore exactly those two strings before
+ // asserting the SAME original non-nickname SHA; never change voting.
+ const originalPaddleReturn="   return {text,confidence:score,source:'paddle',ok:!!text,metrics:res?.metrics||null,runtime:res?.runtime||null,errorStage:null};";
+ const spatialPaddleReturn="   return {text,confidence:score,source:'paddle',ok:!!text,metrics:res?.metrics||null,runtime:res?.runtime||null,errorStage:null,spatial:window.POKESLEEP_NICKNAME_SPATIAL?.inspect?.(items,src.width,src.height)||null};";
+ const originalPostConsensus="  parsed=autoConfirmCorroboratedReviewedNickname(parsed);\n  Object.assign(nicknameReviewAtAnalysis,";
+ const spatialPostConsensus="  parsed=autoConfirmCorroboratedReviewedNickname(parsed);\n  parsed=window.POKESLEEP_NICKNAME_SPATIAL?.reviewOnly?.(parsed)||parsed;\n  Object.assign(nicknameReviewAtAnalysis,";
+ for(const [present,previous,label] of [
+  [spatialPaddleReturn,originalPaddleReturn,'Paddle spatial metadata'],
+  [spatialPostConsensus,originalPostConsensus,'review-only post-consensus']
+ ]){
+  assert.equal(restored.split(present).length-1,1,'unexpected geometry scope: '+label);
+  restored=restored.replace(present,previous);
+ }
  const sha=crypto.createHash('sha256').update(restored,'utf8').digest('hex');
  // PR #54 adds export-only mint choices without changing frozen nickname helpers.
  // The surrounding-code baseline changes, while frozen nickname-specific hashes remain untouched.
