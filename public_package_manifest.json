@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-29-tool-mint-csv18-v1",
-  "appBuildId": "v12-pokesleep-mint-csv18-20261029-v1",
+  "releaseId": "2026-10-30-blank-nickname-csv18-v1",
+  "appBuildId": "v12-blank-nickname-csv18-20261030-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 322994,
-      "sha256": "5df87cbc7c5a2003ecf50b0f9bfd487ba27d785e8c8a40f5c71106da0def938e"
+      "bytes": 323196,
+      "sha256": "fc7c010dcd2d4e8b837be183c6d9afad50d11977342f5e447331e45d174a8476"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -61,13 +61,13 @@
     },
     {
       "path": "csv_gate.js",
-      "bytes": 8676,
-      "sha256": "128f9bed6ba539d7b2cff5768fdee6c07babfa76970b25a1939ce649d46cd686"
+      "bytes": 8947,
+      "sha256": "d78405f3cd613b1f06f588b36254d85048aac199611062b60ff9009863196cbf"
     },
     {
       "path": "development/CSV18_DEVICE_ACCEPTANCE.md",
-      "bytes": 3887,
-      "sha256": "9435811e0f51bcbda3abc65187ef6b7043119a23f9054f82417d0f34a6f2783c"
+      "bytes": 4211,
+      "sha256": "a54b5dbf4a7f168e42548c2303560d8260f67a953754614f16a158b37cae2078"
     },
     {
       "path": "development/ROADMAP_20261013.md",
@@ -101,8 +101,8 @@
     },
     {
       "path": "development/browser_csv_download_audit.py",
-      "bytes": 22574,
-      "sha256": "dd48e5764740050274bf4dff79ea9294272771e45564aca6aee18f498bf20db7"
+      "bytes": 24891,
+      "sha256": "eb3f7eda5a00c4e55c07d960a0362460e8a9adc4701c3b0747e4a449d573169a"
     },
     {
       "path": "development/browser_failure_card_modal.py",
@@ -126,8 +126,8 @@
     },
     {
       "path": "development/csv18_roundtrip_acceptance.py",
-      "bytes": 5765,
-      "sha256": "fa37bf47021f4eedc24b92c6cf457fd795837837fea68b98e50aa909955e87da"
+      "bytes": 6022,
+      "sha256": "aa2b74ac0dacc6987bb68726e03a8828f1c4bc0c19aa31e7ebcaa0bdbfd8888c"
     },
     {
       "path": "development/failure_card_actions.test.cjs",
@@ -181,8 +181,8 @@
     },
     {
       "path": "development/nickname_caption_rescue.test.cjs",
-      "bytes": 7368,
-      "sha256": "48e623286dbf50870271a7cc7586914a43c1e5114b413f4deed6b31eff940832"
+      "bytes": 9176,
+      "sha256": "abc1fa75594224a2fc250768e214d450dd72f5b76a581c3a51fa182b058581ab"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -271,8 +271,8 @@
     },
     {
       "path": "development/step2_shared_csv.test.cjs",
-      "bytes": 22692,
-      "sha256": "744dffa5df9bc88f7a7b35bb6ca4863d4cd651ca42b553f8acb0dc38858d83bb"
+      "bytes": 24093,
+      "sha256": "6f12070beb09e16722779bedc8b0ab9f8e5b47f322de6088179c4d8efcc98047"
     },
     {
       "path": "development/step3_android_roi.test.cjs",
@@ -296,13 +296,13 @@
     },
     {
       "path": "development/step3_real_upstream_importer.test.ts",
-      "bytes": 10457,
-      "sha256": "5cd89fd4faeb4a6994bd85eefb43b7b05ff21e98e4ef69568097af1d8d2f27bb"
+      "bytes": 11392,
+      "sha256": "25408e79a9252d466dbd01caa6beba596250029439cc2fc6a09ab42fd73c8aad"
     },
     {
       "path": "development/test_csv18_roundtrip_acceptance.py",
-      "bytes": 3602,
-      "sha256": "4b72083170808cf41ec44ae6b5b15bca8a7e2ada597f81d8fa2d09f164da535b"
+      "bytes": 4415,
+      "sha256": "0bbb2df675d88b87e268264a5a1826724d4da66ef916d8c540ed5caa0cdfa90d"
     },
     {
       "path": "development/test_final_evidence_gate.py",
@@ -416,8 +416,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 44,
-      "sha256": "b77e0c494ff2e5462c451fa637ff299da08caf3d27894d363db605c1904944a2"
+      "bytes": 49,
+      "sha256": "92edace8631047b7068917238debde7647158c674d9a33e82a13f2096ef4f192"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -436,8 +436,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4045,
-      "sha256": "1224ec168400f69aee52a3cc26b7402dd11184a9c8e19b224a741d5fe3321854"
+      "bytes": 4050,
+      "sha256": "e3cd11ca8e25af841eaab72dcde51b385c9ed3077a7bedb3f6f5d62b91577970"
     }
   ]
 }

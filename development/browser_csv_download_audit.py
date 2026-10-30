@@ -259,6 +259,38 @@ def main():
                 evidence["checks"].append(
                     "mint: real 18-column download and clipboard retain original natures and independent 1/0 usage flags")
 
+                # OCR may leave the nickname blank, which real upstream accepts.
+                # The user must see a warning; saving must still succeed after
+                # an explicit choice, without inventing a species nickname.
+                page.evaluate("""()=>{
+                  const p=POKESLEEP_MASTER.pokemon.find(x=>x.name==='フシギダネ');
+                  const subs=POKESLEEP_MASTER.subskills.slice(0,5).map(s=>({value:s.ja,needsReview:false}));
+                  window.__STEP2_AUDIT__.setRows([{
+                    file:'blank-nickname-mint-synthetic.png',
+                    speciesManualOverride:p.name,
+                    classification:{status:'UNIQUE',candidates:[p.name],hits:[]},
+                    parsed:{nickname:'',nicknameNeedsReview:true,level:10,skillLevel:1,
+                      mainSkill:p.mainSkill,nature:'いじっぱり',natureEffect:'neutralized',subs},
+                    foods:Array.from({length:3},()=>({name:p.ing1.name,needsReview:false}))
+                  }]);
+                }""")
+                page.locator("#csv").click()
+                page.locator("#appDialog").wait_for(state="visible",timeout=10000)
+                check("要確認の項目があります" in page.locator("#appDialogTitle").inner_text(),
+                      "Blank nickname must prompt a review warning, not an error")
+                check("ニックネーム空欄 1件" in page.locator("#appDialogDetails").inner_text(),
+                      "Blank nickname not disclosed in pre-export warning")
+                with page.expect_download(timeout=10000) as blank_info:
+                    page.locator("#appDialogPrimary").click()
+                blank_rows=list(csv.reader(io.StringIO(
+                    Path(blank_info.value.path()).read_text(encoding="utf-8")),strict=True))
+                check(len(blank_rows)==2 and len(blank_rows[1])==18,
+                      "Blank nickname did not result in valid 18-column CSV")
+                check(blank_rows[1][0]=="" and blank_rows[1][8:10]==["いじっぱり","1"],
+                      "Blank nickname was guessed or original mint/nature was altered")
+                evidence["checks"].append(
+                    "real Chrome: blank nickname review warning followed by CSV18 download, mint and nature intact")
+
                 # Invalid species/level from the app's row writer must fail at
                 # the CSV gate rather than initiate a download.
                 page.evaluate("""()=>{
