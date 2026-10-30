@@ -23,12 +23,21 @@
 py -3 development/csv18_roundtrip_acceptance.py --scan "SCAN.csv" --returned "BOX.csv" --require-both-mint-states
 ```
 
+既存のBoxに他の個体が含まれる場合は `--allow-extra-box-rows` を付ける。**スキャン側の全行がBox内に完全一致で存在するか**を検証し、無関係な既存行は一致判定から除く。ただし既存行が以前から変わっていないかは証明できない。
+
+```powershell
+py -3 development/csv18_roundtrip_acceptance.py --scan "SCAN.csv" --returned "BOX.csv" --allow-extra-box-rows
+```
+
+`--require-both-mint-states` はスキャン側に使用と未使用の両方があるときだけ指定する。Box内の既存の未使用個体を、今回スキャンした個体として数えない。
+
 検証スクリプトはGitHubリポジトリの `development/` 内にある。データを外部送信せず、結果には個体名やCSV値を出さず、件数と項目番号のみ報告する。
 
 ## 合格条件
 
 - 18列ヘッダー、全行列数、9列目元性格、10列目ミント、18列目お気に入りが正しい。
-- `result: PASS`、`logicalRowsIdentical: true`、`bothMintStatesCovered: true`、`matchingLogicalCells = 対象個体数 × 18`。
+- 同じ対象個体だけなら `logicalRowsIdentical: true`。既存のBox個体がある場合は `--allow-extra-box-rows` で `sourceRowsPresentUnmodified: true` と `matchingLogicalCells = 対象個体数 × 18`、`result: PASS` を確認する。
+- ミント使用個体のみの実測PASSは、未使用個体の**新規スキャン**まで合格したことにはならない。
 - 再エクスポートで個体が増減しない。行順・CSV末尾改行だけの差はデータ差として扱わない。
 - 画像と照合してOCR／ミント検出を目視確認し、pokesleep-tool側で警告・欠損がないことを確認する。
 - 未実施、値差分、ミントあり・なしのどちらか欠落、警告、実機での操作不備は **HOLD**。CI成功や推定で合格にしない。

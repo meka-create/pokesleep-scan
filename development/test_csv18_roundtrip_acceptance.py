@@ -51,6 +51,38 @@ class Csv18RoundTripAcceptanceTest(unittest.TestCase):
         self.assertEqual(evaluate(encode([a,b]),encode([a,b,b]))["result"],"HOLD")
         self.assertEqual(evaluate(encode([a,a]),encode([a]))["result"],"HOLD")
         self.assertEqual(evaluate(encode([a,a]),encode([a,a]))["result"],"PASS")
+    def test_box_superset_matches_only_scanned_entries_and_reports_scope(self):
+        a,b=fixture()
+        source=encode([a])
+        box=encode([b,a,b])
+        self.assertEqual(evaluate(source,box)["result"],"HOLD")
+        result=evaluate(source,box,allow_extra_box_rows=True)
+        self.assertEqual(result["result"],"PASS")
+        self.assertTrue(result["sourceRowsPresentUnmodified"])
+        self.assertFalse(result["logicalRowsIdentical"])
+        self.assertEqual(result["matchingLogicalCells"],18)
+        self.assertEqual(result["additionalUnverifiedBoxRows"],2)
+        self.assertEqual(result["mintUsedRows"],1)
+        self.assertEqual(result["mintUnusedRows"],0)
+        self.assertFalse(result["bothMintStatesCovered"])
+        self.assertEqual(evaluate(source,box,True,True)["result"],"HOLD")
+    def test_box_superset_refuses_modified_mint_or_missing_duplicate(self):
+        a,b=fixture()
+        self.assertEqual(evaluate(encode([a,a]),encode([a,b]),
+                                  allow_extra_box_rows=True)["result"],"HOLD")
+        changed=a.copy();changed[9]="0"
+        x=evaluate(encode([a]),encode([b,changed]),allow_extra_box_rows=True)
+        self.assertEqual(x["result"],"HOLD")
+        self.assertIn(10,x["changedColumnNumbersForUniqueNicknameSpecies"])
+        changed=a.copy();changed[8]="やんちゃ"
+        x=evaluate(encode([a]),encode([b,changed]),allow_extra_box_rows=True)
+        self.assertEqual(x["result"],"HOLD")
+        self.assertIn(9,x["changedColumnNumbersForUniqueNicknameSpecies"])
+    def test_box_superset_still_validates_all_imported_rows(self):
+        a,b=fixture()
+        bad=b.copy();bad[9]="2"
+        with self.assertRaisesRegex(ValueError,"mint flag"):
+            evaluate(encode([a]),encode([a,bad]),allow_extra_box_rows=True)
     def test_mint_coverage_is_not_assumed(self):
         a,b=fixture();a[9]="0"
         self.assertEqual(evaluate(encode([a,b]),encode([a,b]),True)["result"],"HOLD")

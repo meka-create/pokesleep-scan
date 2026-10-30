@@ -66,8 +66,8 @@
     },
     {
       "path": "development/CSV18_DEVICE_ACCEPTANCE.md",
-      "bytes": 4539,
-      "sha256": "f3eafe15016be9b0ac6b54147b285567d83b90b02d255307b1597115da584aea"
+      "bytes": 5442,
+      "sha256": "0da122bbb06b567203d845af7f1d5b5da121b94b2be89186fabe2d2d1610748d"
     },
     {
       "path": "development/ROADMAP_20261013.md",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 4010,
-      "sha256": "85e4d15bb2c7183e46e83a54e156d71485cfcc9f7b6a691fb7019963e2d05b81"
+      "bytes": 4835,
+      "sha256": "a9e29b71275b720b64a4078834180946cb3ae29c05625f5c9b64934640b923c8"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -126,8 +126,8 @@
     },
     {
       "path": "development/csv18_roundtrip_acceptance.py",
-      "bytes": 6022,
-      "sha256": "aa2b74ac0dacc6987bb68726e03a8828f1c4bc0c19aa31e7ebcaa0bdbfd8888c"
+      "bytes": 6740,
+      "sha256": "c93873c8b4573511ff4169fca23723fead1241bdf36e094a1579363b76b54dbe"
     },
     {
       "path": "development/failure_card_actions.test.cjs",
@@ -301,8 +301,8 @@
     },
     {
       "path": "development/test_csv18_roundtrip_acceptance.py",
-      "bytes": 4415,
-      "sha256": "0bbb2df675d88b87e268264a5a1826724d4da66ef916d8c540ed5caa0cdfa90d"
+      "bytes": 6216,
+      "sha256": "a341dfa18065c86f09471b6cb4530b75b696ac2d1852bb6c0ac6c2eaef6cfea2"
     },
     {
       "path": "development/test_final_evidence_gate.py",
