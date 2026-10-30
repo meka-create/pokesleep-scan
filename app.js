@@ -1,5 +1,5 @@
 (() => {
-const BUILD_ID='v12-nickname-spatial-advisory-20261030-v1';
+const BUILD_ID='v12-structured-ocr-evidence-20261030-v1';
 'use strict';
 // The verified Android 1080x2400 OCR path is now the standard on every device.
 // Preserve the existing ROI adapter and its safe legacy fallback unchanged.
@@ -63,7 +63,7 @@ const NATURES=POKESLEEP_MASTER.natures.map(x=>x.ja);
 const SUBSKILLS=POKESLEEP_MASTER.subskills.map(x=>x.ja);
 const SPECIES_NAMES=[...new Set(POKESLEEP_MASTER.pokemon.map(x=>x.name))];
 const $=s=>document.querySelector(s);let selected=[],results=[],worker=null,paddleOcr=null,paddleInitPromise=null,paddleUnavailableError=null,paddleRuntimeGeneration=0,isRunning=false,analysisPause=null,checkpointPreparing=false,selectionSnapshotPreparing=false,selectionSnapshotGeneration=0,checkpointRestoreRunning=false,checkpointSessionActive=false,checkpointPersistenceWarningShown=false,renderPending=false,modalObjectUrl='',modalReturnFocus=null,appDialogResolver=null,appDialogReturnFocus=null,localProgressVisible=true,localProgressState='idle',localProgressMaxPct=0,floatingProgressState='idle',floatingProgressDone=0,floatingProgressTotal=0,floatingProgressReviews=0,floatingCompletionTimer=null,floatingCompletionPending=false,floatingCompletionDismissed=false,preManualCsvSnapshot=null,wakeLockSentinel=null,wakeLockRequestPromise=null,wakeLockRetryTimer=null;const checkpointFailureLog=[];const layoutCache=new WeakMap(),profileCardCache=new WeakMap(),stableSourcePromises=new WeakMap(),stableSourceFiles=new WeakSet();
-const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-30-nickname-spatial-advisory-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
+const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-30-structured-ocr-evidence-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
 function pullRefreshGuardActive(){return !!(isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing);}
 function analysisWakeLockShouldHold(){return !!((isRunning||checkpointPreparing)&&!analysisPause);}
 function wakeLockApiSupported(){return typeof navigator!=='undefined'&&!!navigator.wakeLock?.request;}
@@ -840,7 +840,7 @@ function bestSubskill(raw){let s=(raw||'').normalize('NFKC').replace(/([sml])\s*
 const SUBSKILL_EXP_PAIR=new Set(['睡眠EXPボーナス','リサーチEXPボーナス']);
 function subskillDistinctiveSupport(raw,value){const s=norm(raw),v=String(value||'');if(!s||!SUBSKILLS.includes(v))return false;if(v==='睡眠EXPボーナス')return s.includes('睡眠');if(v==='リサーチEXPボーナス')return s.includes('リサーチ');if(v==='ゆめのかけらボーナス')return s.includes('ゆめ')||s.includes('かけら');if(v==='げんき回復ボーナス')return s.includes('げんき')||s.includes('回復');if(v==='おてつだいボーナス')return s.includes('おてつだい');if(v==='きのみの数S')return s.includes('きのみ')||s.includes('のみの数');const size=v.match(/([SML])$/)?.[1]||'';if(size)return s.includes(`アップ${size}`)||s.endsWith(size);return longestCommonRun(s,v)>=Math.min(4,norm(v).length);}
 function subskillEvidenceEntry(reading,source,psm='',cropName=''){const b=bestSubskill(reading?.text||'');return {source:String(source||''),psm:String(psm||''),crop:String(cropName||''),text:String(reading?.text||''),confidence:Number(reading?.confidence)||0,value:b.score>=.55?b.value:'',score:b.score,distinctive:b.score>=.55&&subskillDistinctiveSupport(reading?.text||'',b.value)};}
-function subskillEvidenceDecision(entries,current=''){const rows=(entries||[]).filter(x=>SUBSKILLS.includes(x?.value)),currentValid=SUBSKILLS.includes(current)?current:'';if(!rows.length)return {value:currentValid,needsReview:true,reason:'subskill-no-confirming-ocr',candidates:[]};const m=new Map();for(const x of rows){const r=m.get(x.value)||{value:x.value,votes:0,distinctiveVotes:0,bestScore:0,bestConfidence:0};r.votes++;if(x.distinctive)r.distinctiveVotes++;r.bestScore=Math.max(r.bestScore,Number(x.score)||0);r.bestConfidence=Math.max(r.bestConfidence,Number(x.confidence)||0);m.set(x.value,r);}const ranked=[...m.values()].sort((a,b)=>b.votes-a.votes||b.distinctiveVotes-a.distinctiveVotes||b.bestScore-a.bestScore||b.bestConfidence-a.bestConfidence),top=ranked[0],second=ranked[1]||null,uniqueLead=!second||top.votes>second.votes;if(uniqueLead&&top.votes>=2&&top.distinctiveVotes>=1)return {value:top.value,needsReview:false,reason:'subskill-ocr-consensus',candidates:ranked};if(ranked.length===1){const sameAsCurrent=!!currentValid&&top.value===currentValid,exactSingle=top.bestScore>=.99&&top.bestConfidence>=60,supportedSingle=top.bestScore>=.64&&top.bestConfidence>=67,clearSingle=sameAsCurrent&&top.distinctiveVotes>=1&&!SUBSKILL_EXP_PAIR.has(top.value)&&(exactSingle||supportedSingle);return {value:top.value,needsReview:!clearSingle,reason:clearSingle?'subskill-single-strong-ocr':'subskill-needs-independent-confirmation',candidates:ranked};}const keep=currentValid||top.value;return {value:keep,needsReview:true,reason:'subskill-ocr-conflict',candidates:ranked};}
+function subskillEvidenceDecision(entries,current=''){const rows=(entries||[]).filter(x=>SUBSKILLS.includes(x?.value)),currentValid=SUBSKILLS.includes(current)?current:'';if(!rows.length)return {value:currentValid,needsReview:true,reason:'subskill-no-confirming-ocr',candidates:[]};const m=new Map();for(const x of rows){const r=m.get(x.value)||{value:x.value,votes:0,distinctiveVotes:0,bestScore:0,bestConfidence:0};r.votes++;if(x.distinctive)r.distinctiveVotes++;r.bestScore=Math.max(r.bestScore,Number(x.score)||0);r.bestConfidence=Math.max(r.bestConfidence,Number(x.confidence)||0);m.set(x.value,r);}const ranked=[...m.values()].sort((a,b)=>b.votes-a.votes||b.distinctiveVotes-a.distinctiveVotes||b.bestScore-a.bestScore||b.bestConfidence-a.bestConfidence),top=ranked[0],second=ranked[1]||null,uniqueLead=!second||top.votes>second.votes;if(uniqueLead&&top.votes>=2&&top.distinctiveVotes>=1)return {value:top.value,needsReview:false,reason:'subskill-ocr-consensus',candidates:ranked};if(ranked.length===1){const sameAsCurrent=!!currentValid&&top.value===currentValid,exactSingle=top.bestScore>=.99&&top.bestConfidence>=60,supportedSingle=top.bestScore>=.64&&top.bestConfidence>=67,clearSingle=sameAsCurrent&&top.distinctiveVotes>=1&&!SUBSKILL_EXP_PAIR.has(top.value)&&(exactSingle||supportedSingle);return {value:top.value,needsReview:!clearSingle,reason:clearSingle?'subskill-single-strong-ocr':'subskill-needs-independent-confirmation',candidates:ranked};}const strongerIndependentTop=!!second&&top.votes===1&&second.votes===1&&top.distinctiveVotes>=1&&top.bestScore>=.99&&top.bestConfidence>=80&&second.distinctiveVotes===0&&second.bestScore<.8;const keep=strongerIndependentTop?top.value:(currentValid||top.value);return {value:keep,needsReview:true,reason:'subskill-ocr-conflict',candidates:ranked};}
 function subskillNeedsTargetedVerification(sub){const v=String(sub?.value||'');if(SUBSKILL_EXP_PAIR.has(v))return true;if(!SUBSKILLS.includes(v))return true;if((Number(sub?.score)||0)<.78||(Number(sub?.ocrConfidence)||0)<70)return true;return !subskillDistinctiveSupport(sub?.raw||'',v);}
 function subskillVerificationCrop(canvas,key){return sectionRelativeSubskillCrop(canvas,key)||crop(canvas,key);}
 function makeSubskillVerificationComposite(canvas){const rows=[],sep=36;for(const key of SUB_KEYS)rows.push([key,preprocess(subskillVerificationCrop(canvas,key),4,190)]);const w=Math.max(...rows.map(x=>x[1].width)),h=rows.reduce((n,x)=>n+x[1].height+sep,0),out=document.createElement('canvas');out.width=w;out.height=h;const ctx=out.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);const bands={};let y=0;for(const [key,c] of rows){ctx.drawImage(c,0,y);bands[key]=[y,y+c.height];y+=c.height+sep;}return {canvas:out,bands};}
@@ -1427,6 +1427,22 @@ function subskillRetryCrops(canvas,key){
  return out;
 }
 async function readSubskillRetry(canvas,key,idx,total){const rs=[];for(const [name,src] of subskillRetryCrops(canvas,key))for(const opt of [{psm:'7'},{psm:'11'}]){const r=await ocrSingle(src,`${key}整合性(${name})`,idx,total,opt),b=bestSubskill(r.text),v=b.score>=.55?b.value:null;rs.push({...r,value:v,score:b.score,psm:opt.psm,crop:name});}return rs;}
+// Independent profile-card SP corroboration. Never trust classifier-only corrections.
+function corroboratedHeaderSpCandidate(parsed,readings){
+ if(!Array.isArray(readings)||readings.length!==2||!Number.isInteger(parsed?.level)||
+    !Number.isInteger(parsed?.sp)||!Number.isInteger(parsed?.carry))return null;
+ if(new Set(readings.map(x=>String(x?.psm||''))).size!==2||
+    !readings.some(x=>x.psm==='6')||!readings.some(x=>x.psm==='11'))return null;
+ if(readings.some(x=>!Number.isInteger(x?.sp)||x.sp<100||x.sp>200000||
+    Number(x.confidence)<40||parseSpText(x.text||'')!==x.sp))return null;
+ const value=readings[0].sp;
+ if(value===parsed.sp||readings[1].sp!==value||
+    !readings.some(x=>Number(x.confidence)>=50))return null;
+ if(readings.some(x=>Number(x.confidence)>=50&&Number.isInteger(x.level)&&x.level!==parsed.level))return null;
+ if(!readings.some(x=>Number(x.level)===parsed.level&&
+    /sp\s*[0-9][0-9,.]*/i.test(x.text||'')&&/Lv\.?\s*\d+/i.test(x.text||'')))return null;
+ return value;
+}
 // Candidate124: conservative rescue using the existing skill-level retry OCR only.
 // Never guess a missing level, skill level, or main skill from the classifier alone.
 // Both distinct PSM passes must agree on each recovered skill-line value; when level
@@ -1549,6 +1565,20 @@ async function rescueStructured(canvas,raw,parsed,inference,idx,total){
   for(const v of uniqVals(headerA.map(x=>x.level)))addTrial('level',v);
   const unlocked=LEVELS.map((lv,i)=>({lv,i,key:['sub10','sub25','sub50','sub70','sub80'][i]})).filter(x=>parsed.level!=null&&parsed.level>=x.lv);
   for(const x of unlocked){const a=await readSubskillRetry(canvas,x.key,idx,total);diag.attempts[`${x.key}Consistency`]=a;const v=consensusSubskillRetryValue(a);if(v&&v!==parsed.subs[x.i]?.value)addTrial('subskill',`${x.i}:${v}`,(p)=>{p.subs[x.i]={...p.subs[x.i],value:v,score:1,needsReview:false,reviewReason:'subskill-retry-consensus'};});}
+  // Recovered SP needs two independent header OCR passes and exact
+  // classifier agreement with the observed carry before adoption.
+  const headerSp=corroboratedHeaderSpCandidate(parsed,headerA);
+  if(headerSp!==null){
+   const p={...parsed,subs:parsed.subs.map(x=>({...x}))};
+   applyStructuredValues(p,{sp:headerSp});
+   const inf=inferParsed(p);
+   if(inf.status==='UNIQUE'&&inf.candidates?.length===1&&
+      inf.carryConsistentCandidates?.length===1&&
+      inf.carryConsistentCandidates[0]===inf.candidates[0]&&
+      inf.hits?.some(x=>x.carryMatch===true)){
+    trials.push({field:'sp',value:headerSp,inference:inf,species:inf.candidates[0]});
+   }
+  }
   const signatures=[...new Set(trials.map(x=>`${x.field}\u0000${x.value}\u0000${x.species}`))];
   if(signatures.length===1){const t=trials[0];if(t.field==='subskill'){const [ix,v]=String(t.value).split(':');parsed.subs[+ix]={...parsed.subs[+ix],value:v,score:1};}else applyStructuredValues(parsed,{[t.field]:t.value});if(t.field==='nature')parsed.natureNeedsReview=false;inference=inferParsed(parsed);diag.applied={reason:'single-field-consistency-rescue',field:t.field,value:t.value,species:t.species};diag.afterStatus=inference.status;}
   else if(!trials.length&&inference.status==='NO_EXACT_MATCH'&&!layoutInfo(canvas).adaptive){blockClassifierOnlyNatureSuggestion(parsed,diag);}

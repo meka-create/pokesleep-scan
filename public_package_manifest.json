@@ -1,13 +1,13 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-30-nickname-spatial-advisory-v1",
-  "appBuildId": "v12-nickname-spatial-advisory-20261030-v1",
+  "releaseId": "2026-10-30-structured-ocr-evidence-v1",
+  "appBuildId": "v12-structured-ocr-evidence-20261030-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 91,
+  "fileCount": 92,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 12433,
-      "sha256": "54f22d2037d880d53b00f35bcf34a0d89f536129bd728e24d11eca9f1ddc514b"
+      "bytes": 12574,
+      "sha256": "c8ee7dda49f143506545624293f23cc8269fa4314d36912fd3c8c2cddfc3387a"
     },
     {
       "path": ".gitignore",
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 324824,
-      "sha256": "f29f24a70d4e8b6ff5f71b5df6f810707c77eab381b3bd6f7f16e79799e68b99"
+      "bytes": 326716,
+      "sha256": "bde29dfddb9ff6819b98d72b0888bfd63775b4c50a1c0c6e9a7ad1686925d457"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 13250,
-      "sha256": "c607a1dc9baafcc12217d1aec02511038dad78a329e30985c7ddd5fc4b804c61"
+      "bytes": 14241,
+      "sha256": "06aa1d5ab159b9dcb879ffaed99ff0556dac8767c6b09f3a1adabacaa2d3f33b"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -186,8 +186,8 @@
     },
     {
       "path": "development/nickname_caption_rescue.test.cjs",
-      "bytes": 17609,
-      "sha256": "c96b9a89f25046e650824eb446791f5fbb036283f7be0d3a51a22652857a0f12"
+      "bytes": 20615,
+      "sha256": "de3bb04735a8118c93c549543adaabf2f65828eeb7bdd10ddf406d876342ef69"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -298,6 +298,11 @@
       "path": "development/step3_dimmed_food_conflict.test.cjs",
       "bytes": 4572,
       "sha256": "25b8fee5f2ac2a2df44ea7a938d500d994b56124efbaf0274bc491a4f01fd434"
+    },
+    {
+      "path": "development/step3_header_sp_subskill_review.test.cjs",
+      "bytes": 3152,
+      "sha256": "0d0db98e6af46be6522a08dca6d20b45a3f9575d3816a7a97c0b300a1457a993"
     },
     {
       "path": "development/step3_joint_rescue.test.cjs",
@@ -441,8 +446,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 54,
-      "sha256": "9ed6c0eef9048566b2306280c167c742819086363c5ea498c3c06a0d59c95268"
+      "bytes": 52,
+      "sha256": "85a18f3f23a224608fae8549ae6a8579190db61aca514d1888193fc664bfdcf6"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -461,8 +466,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4093,
-      "sha256": "a86ed8240a00b7a162626e851f3e293d62a5ac250f86df9cdc66f2aec12e7725"
+      "bytes": 4091,
+      "sha256": "d4e0bc5105d230c5252d5497645ef2374ce6a040d88c228181299fc7b0fc7783"
     }
   ]
 }
