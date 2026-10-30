@@ -1,5 +1,5 @@
 (() => {
-const BUILD_ID='v12-structured-ocr-evidence-20261030-v1';
+const BUILD_ID='v12-meka142-targeted-quality-20261030-v2';
 'use strict';
 // The verified Android 1080x2400 OCR path is now the standard on every device.
 // Preserve the existing ROI adapter and its safe legacy fallback unchanged.
@@ -63,7 +63,7 @@ const NATURES=POKESLEEP_MASTER.natures.map(x=>x.ja);
 const SUBSKILLS=POKESLEEP_MASTER.subskills.map(x=>x.ja);
 const SPECIES_NAMES=[...new Set(POKESLEEP_MASTER.pokemon.map(x=>x.name))];
 const $=s=>document.querySelector(s);let selected=[],results=[],worker=null,paddleOcr=null,paddleInitPromise=null,paddleUnavailableError=null,paddleRuntimeGeneration=0,isRunning=false,analysisPause=null,checkpointPreparing=false,selectionSnapshotPreparing=false,selectionSnapshotGeneration=0,checkpointRestoreRunning=false,checkpointSessionActive=false,checkpointPersistenceWarningShown=false,renderPending=false,modalObjectUrl='',modalReturnFocus=null,appDialogResolver=null,appDialogReturnFocus=null,localProgressVisible=true,localProgressState='idle',localProgressMaxPct=0,floatingProgressState='idle',floatingProgressDone=0,floatingProgressTotal=0,floatingProgressReviews=0,floatingCompletionTimer=null,floatingCompletionPending=false,floatingCompletionDismissed=false,preManualCsvSnapshot=null,wakeLockSentinel=null,wakeLockRequestPromise=null,wakeLockRetryTimer=null;const checkpointFailureLog=[];const layoutCache=new WeakMap(),profileCardCache=new WeakMap(),stableSourcePromises=new WeakMap(),stableSourceFiles=new WeakSet();
-const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-30-structured-ocr-evidence-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
+const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-30-meka142-targeted-quality-v2',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
 function pullRefreshGuardActive(){return !!(isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing);}
 function analysisWakeLockShouldHold(){return !!((isRunning||checkpointPreparing)&&!analysisPause);}
 function wakeLockApiSupported(){return typeof navigator!=='undefined'&&!!navigator.wakeLock?.request;}
@@ -638,6 +638,13 @@ function scanPerfSessionSummary(){
   profiledImages:ps.length,totalImageMs:sum(p=>p.totalMs),
   tesseractCalls:ps.reduce((acc,p)=>acc+(p.tesseract?.calls||0),0),
   tesseractMs:sum(p=>p.tesseract?.totalMs),
+  // Passive diagnostics: distinguish slower calls from increased call count.
+  tesseractAverageMs:scanPerfRounded(sum(p=>p.tesseract?.totalMs)/
+   Math.max(1,ps.reduce((acc,p)=>acc+(p.tesseract?.calls||0),0))),
+  stageTotalsMs:Object.fromEntries(['sourcePreparation','imageDecode',
+   'initialTesseract','targetedOcr','subskillVerification',
+   'nicknameAndStructuredRescue','foodMatchingAndSafety',
+   'resultAssemblyAndPreviews'].map(stage=>[stage,sum(p=>p.stages?.[stage])])),
   workerPrepare:{...scanPerfSession.workerPrepare},checkpointWrites:{...scanPerfSession.checkpointWrites},
   batches:scanPerfSession.batches.map(x=>({...x})),speedWatch:scanSpeedSummary()};
 }
@@ -826,7 +833,20 @@ function mewVersatileSkillFromText(raw){const ns=norm(raw);if(!ns.includes(norm(
 function mewVersatileSkillLabel(key){return MEW_VERSATILE_LABEL_BY_KEY.get(String(key||''))||'';}
 function mewVersatileCsvLabel(key){return MEW_VERSATILE_CSV_LABEL_BY_KEY.get(String(key||''))||'';}
 function rescueTextValues(obj,out=[]){if(obj==null)return out;if(typeof obj==='string'){out.push(obj);return out;}if(Array.isArray(obj)){for(const x of obj)rescueTextValues(x,out);return out;}if(typeof obj==='object'){if(typeof obj.text==='string')out.push(obj.text);for(const [k,v] of Object.entries(obj)){if(k!=='text')rescueTextValues(v,out);} }return out;}
-function detailedMewVersatileSkill(parsed){const explicit=String(parsed?.versatileSkill||'');if(MEW_VERSATILE_KEYS.has(explicit))return explicit;for(const t of [parsed?.mainSkillRaw||'',...rescueTextValues(parsed?.structuredRescue?.attempts||{})]){const v=mewVersatileSkillFromText(t);if(v)return v;}return '';}
+// Independent noisy Mew skill evidence: an observed lower-skill stem in the
+// initial pass plus a strong PSM11 re-read containing a single extra kana.
+// This does not invent a Versatile result when either source is absent.
+function corroboratedMewDreamShardFallback(parsed){
+ if(parsed?.mainSkill!=='オールマイティー')return '';
+ const first=norm(parsed.mainSkillRaw||'');
+ if(!first.includes('かけらゲット'))return '';
+ const retry=parsed?.structuredRescue?.attempts?.skillLevel||[];
+ const corroborated=retry.some(x=>String(x?.psm)==='11'&&Number(x?.confidence)>=80&&
+  norm(x?.text||'').includes('オールマイティー')&&
+  /ゆめの[ぁ-んァ-ヶ]?かけらゲットS/.test(norm(x?.text||'')));
+ return corroborated?'Dream Shard Magnet S (Random)':'';
+}
+function detailedMewVersatileSkill(parsed){const explicit=String(parsed?.versatileSkill||'');if(MEW_VERSATILE_KEYS.has(explicit))return explicit;for(const t of [parsed?.mainSkillRaw||'',...rescueTextValues(parsed?.structuredRescue?.attempts||{})]){const v=mewVersatileSkillFromText(t);if(v)return v;}return corroboratedMewDreamShardFallback(parsed);}
 function detailedMewMainSkill(parsed){const key=detailedMewVersatileSkill(parsed),label=mewVersatileSkillLabel(key);return label?`オールマイティー (${label})`:'';}
 function longestCommonRun(a,b){a=norm(a);b=norm(b);let bestRun=0,row=new Array(b.length+1).fill(0);for(let i=1;i<=a.length;i++){let prev=0;for(let j=1;j<=b.length;j++){const hold=row[j];row[j]=a[i-1]===b[j-1]?prev+1:0;if(row[j]>bestRun)bestRun=row[j];prev=hold;}}return bestRun;}
 function parseNatureText(raw){if(!norm(raw))return {value:'',score:0};return best(raw,NATURES);}
@@ -1251,6 +1271,28 @@ function nicknameKnownSpeciesUiAffix(s){const t=(s||'').normalize('NFKC').replac
 function nicknameNearSpeciesTypo(s){const t=cleanNick(s);if(!t||SPECIES_NAMES.includes(t)||!(nickScript(t)==='jp'||nickScript(t)==='mixed'))return false;return SPECIES_NAMES.some(x=>editDistance(t,x)===1);}
 function nicknameHasUnbalancedClosingPunctuation(s){const t=String(s||'').normalize('NFKC'),pairs={')':'(',']':'[','}':'{'},opens=new Set(Object.values(pairs)),stack=[];for(const ch of t){if(opens.has(ch))stack.push(ch);else if(Object.prototype.hasOwnProperty.call(pairs,ch)){if(!stack.length||stack[stack.length-1]!==pairs[ch])return true;stack.pop();}}return false;}
 function applyNicknameSafety(parsed){if(nicknameLooksUiContaminated(parsed.nickname)||nicknameKnownSpeciesUiAffix(parsed.nickname)){parsed.nicknameNeedsReview=true;parsed.nicknameReviewReason=parsed.nicknameReviewReason||'周辺UI混入の可能性';}else if(nicknameNearSpeciesTypo(parsed.nickname)){parsed.nicknameNeedsReview=true;parsed.nicknameReviewReason=parsed.nicknameReviewReason||'ポケモン名に近い1文字差';}else if(nicknameHasUnbalancedClosingPunctuation(parsed.nickname)){parsed.nicknameNeedsReview=true;parsed.nicknameReviewReason=parsed.nicknameReviewReason||'末尾記号混入の可能性';}return parsed;}
+// Review-only veto on conflicting small-kana readings. Never rewrite the
+// nickname or auto-promote another OCR candidate. A strong explicit Lv prefix
+// is required; a strong exact Lv-prefixed reading blocks the veto.
+function reviewConflictingSmallKanaNickname(parsed){
+ if(!parsed||parsed.nicknameNeedsReview||parsed.nicknameManualConfirmed||
+  parsed.levelNeedsReview||!parsed.nicknamePaddle?.ok)return parsed;
+ const current=cleanNick(parsed.nickname);
+ if(!/^[ぁ-んァ-ヶー]{3,18}$/.test(current))return parsed;
+ const tess=(parsed.nicknameCandidates||[]).filter(x=>
+  Number(x?.confidence)>=80&&
+  !(Array.isArray(x.sources)&&x.sources.includes('paddle')))
+  .map(x=>exactSeparatedNickname(x.text,parsed.level,'front')).filter(Boolean);
+ if(tess.includes(current))return parsed;
+ const small=/[ぁぃぅぇぉゃゅょっァィゥェォャュョッ]/;
+ const conflicting=tess.some(t=>t!==current&&small.test(t)&&
+  editDistance(t,current)<=2);
+ if(!conflicting)return parsed;
+ parsed.nicknameNeedsReview=true;
+ parsed.nicknameReviewReason='小書き仮名のOCR候補が競合（要確認）';
+ parsed.nicknameResolvedBy='PaddleOCR-conflicting-small-kana-review';
+ return parsed;
+}
 function cloneRaw(raw){return Object.fromEntries(Object.entries(raw).filter(([k])=>!k.startsWith('_')).map(([k,v])=>[k,{text:v?.text||'',confidence:v?.confidence||0}]));}
 function observedFromParsed(parsed){return {level:parsed.level,sp:parsed.sp,helpSeconds:parsed.helpSeconds,carry:parsed.carry,skillLevel:parsed.skillLevel,nature:parsed.nature,mainSkill:parsed.mainSkill,subskills:parsed.subs.map(x=>x.value)};}
 function inferParsed(parsed){return POKESLEEP_CLASSIFIER.inferWithoutFoods(observedFromParsed(parsed));}
@@ -1672,7 +1714,15 @@ function applyResultReviewSafetyGuards(r){
   }
  }
  const p=r.parsed||{};
- if(!p.nicknameManualConfirmed)applyNicknameSafety(p);
+ if(!p.nicknameManualConfirmed){
+  applyNicknameSafety(p);
+  const before=!!p.nicknameNeedsReview;
+  reviewConflictingSmallKanaNickname(p);
+  if(!before&&p.nicknameNeedsReview&&r.nicknameReviewAtAnalysis){
+   Object.assign(r.nicknameReviewAtAnalysis,{value:p.nickname,needsReview:true,
+    reason:p.nicknameReviewReason||'',resolvedBy:p.nicknameResolvedBy||''});
+  }
+ }
  if(weakThirdFoodEvidence(r.foods)){
   const third=r.foods[2];
   third.needsReview=true;
@@ -2074,7 +2124,7 @@ async function analyzeSingleImage(inputFile,idx,total,{sourceIndex=null,displayN
   setProgressState('running',{done:idx,total,message:`解析中 ${Math.min(idx+1,total)} / ${total}`});
   const foodPreviews=foods.map(()=>'');
   const classificationPreview=classification.status!=='UNIQUE'?makeClassificationPreview(canvas):'';
-  const li=layoutInfo(canvas),result={file:name,sourceFile,sourceIndex:Number.isInteger(sourceIndex)?sourceIndex:null,raw,rawFirstPass,parsed,nicknameReviewAtAnalysis,inference,foods,classification,foodConflictSlots:safeFood.conflictSlots,nicknamePreview,foodPreviews,classificationPreview,subskillPreviews:['','','','',''],subskillPreviewErrors:['','','','',''],layout:{adaptive:li.adaptive,canvasHeight:canvas.height,time:li.time?{start:li.time.start,end:li.time.end,peak:li.time.peak}:null,carry:li.carry?{start:li.carry.start,end:li.carry.end,peak:li.carry.peak}:null,main:li.main?{start:li.main.start,end:li.main.end,peak:li.main.peak}:null,detail:li.detail?{start:li.detail.start,end:li.detail.end,peak:li.detail.peak}:null},elapsedMs:Math.round(performance.now()-fileT0)};applyResultReviewSafetyGuards(result);for(let fi=0;fi<result.foods.length;fi++){if(result.foods[fi]?.needsReview)result.foodPreviews[fi]=POKESLEEP_FOOD_MATCHER.cropFood(canvas,`food${fi+1}`).toDataURL('image/png');}result.preManualCsvRow=toDiagnosticRawCsvRow(result);generateSubskillReviewPreviewsFromCanvas(result,canvas);result.performanceProfile=scanPerfFinish(false);return result;
+  const li=layoutInfo(canvas),result={file:name,sourceFile,sourceIndex:Number.isInteger(sourceIndex)?sourceIndex:null,raw,rawFirstPass,parsed,nicknameReviewAtAnalysis,inference,foods,classification,foodConflictSlots:safeFood.conflictSlots,nicknamePreview,foodPreviews,classificationPreview,subskillPreviews:['','','','',''],subskillPreviewErrors:['','','','',''],layout:{adaptive:li.adaptive,canvasHeight:canvas.height,time:li.time?{start:li.time.start,end:li.time.end,peak:li.time.peak}:null,carry:li.carry?{start:li.carry.start,end:li.carry.end,peak:li.carry.peak}:null,main:li.main?{start:li.main.start,end:li.main.end,peak:li.main.peak}:null,detail:li.detail?{start:li.detail.start,end:li.detail.end,peak:li.detail.peak}:null},elapsedMs:Math.round(performance.now()-fileT0)};applyResultReviewSafetyGuards(result);if(parsed.nicknameNeedsReview&&!result.nicknamePreview)result.nicknamePreview=nicknameReviewPreviewCrop(canvas).toDataURL('image/png');for(let fi=0;fi<result.foods.length;fi++){if(result.foods[fi]?.needsReview)result.foodPreviews[fi]=POKESLEEP_FOOD_MATCHER.cropFood(canvas,`food${fi+1}`).toDataURL('image/png');}result.preManualCsvRow=toDiagnosticRawCsvRow(result);generateSubskillReviewPreviewsFromCanvas(result,canvas);result.performanceProfile=scanPerfFinish(false);return result;
  }catch(e){const err=new Error(runtimeErrorText(e));err.processingStage=stage;err.processingElapsedMs=performance.now()-fileT0;err.processingSourceFile=sourceFile||inputFile;err.performanceProfile=scanPerfFinish(true);throw err;}
 }
 function refreshCompletedProgress(){const total=results.length,reviews=results.filter(resultNeedsReview).length,failures=results.filter(r=>!!r.processingError).length,successes=total-failures;if(!total){preManualCsvSnapshot=null;setProgressState(selected.length?'ready':'idle',{total:selected.length});setFloatingProgress(selected.length?'ready':'idle',{total:selected.length});return;}capturePreManualCsvSnapshot({force:true});setProgressState('complete',{done:total,total,reviews,message:failures?`解析が完了しました　${successes}件成功 / ${total}件　·　解析失敗 ${failures}件　·　要確認 ${reviews}件`:''});setFloatingProgress('complete',{done:total,total,reviews});scanSpeedRender();}
