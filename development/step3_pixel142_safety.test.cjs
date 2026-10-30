@@ -14,9 +14,13 @@ function safetyApi(){
  const ctx={
   validPokemonLevelValue:n=>Number.isInteger(n)&&n>=1&&n<=100,
   speciesNeedsReview:r=>r.classification?.status!=='UNIQUE'&&!r.speciesManualOverride,
-  applyNicknameSafety:()=>{}
+  applyNicknameSafety:()=>{},
+  FOOD_REVIEW_MARGIN:.015
  };
  vm.createContext(ctx);
+ // Review-guard extraction must include dependencies also used by the
+ // full application. Test the real functions rather than mocking away safety.
+ vm.runInContext(segment('function hasUnreviewedDimmedFoodConflict(f){','function guardLockedFood3DimmedArbitration('),ctx);
  vm.runInContext(segment('function weakThirdFoodEvidence(foods){','function foodConflictReviewSlots('),ctx);
  return ctx;
 }
