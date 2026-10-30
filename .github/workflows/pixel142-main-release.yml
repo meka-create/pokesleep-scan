@@ -112,7 +112,7 @@ jobs:
       - name: STEP 2 locked third-food independent pixel witness (strict negative controls)
         run: node --test development/step2_food3_independent_pixel_witness.test.cjs
       - name: Nickname level-caption review-only candidate regression
-        run: node --test development/nickname_caption_rescue.test.cjs
+        run: node --test development/nickname_caption_rescue.test.cjs development/nickname_spatial_advisory.test.cjs
       - name: Conservative multi-OCR nickname review promotion regression
         run: node --test development/nickname_consensus_autoconfirm.test.cjs
       - name: Frozen nickname pipeline SHA-256 non-regression
