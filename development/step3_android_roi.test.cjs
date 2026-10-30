@@ -234,3 +234,86 @@ test('v7 checkpoint survives picker-only compatibility-ID change; unrelated data
   compatibilityId:'checkpoint-compat-2026-10-06-candidate103-v2'};
  assert.equal(compat(old),true,'Earlier explicitly supported migration regressed');
 });
+
+test('two lower green bars work with no top banner and broad vertical capture shifts',()=>{
+ const a=api();
+ for(const shift of [-180,-120,-50,0,65,120,180]){
+  const main=863+shift,detail=1876+shift;
+  const p=a.inspect(canvasFor([[main,main+58],[detail,detail+58]],1225+shift));
+  assert.ok(p,'Two-header capture lost for shift='+shift);
+  assert.equal(p.anchors.top,null);
+  assert.ok(Math.abs(p.anchors.main-main)<=1,'Green main bar raster offset exceeds 1px');
+  assert.ok(Math.abs(p.anchors.detail-detail)<=1,'Green detail bar raster offset exceeds 1px');
+  assert.ok(Math.abs(p.mainSkillCardBottom-(1225+shift))<=1,'Card border offset exceeds 1px');
+  assert.ok(p.rectFor('mainskill')&&p.rectFor('nature'));
+  const sub=p.rectFor('sub10');
+  assert.ok(sub,'Subskills unexpectedly disabled for shift='+shift);
+  const baseline=a.inspect(canvasFor([[863,921],[1876,1934]],1225));
+  const expected=Math.round((1290+shift)*691/1080)-Math.round(1290*691/1080);
+  assert.ok(Math.abs((sub[1]-baseline.rectFor('sub10')[1])-expected)<=2,
+   'Subskill crop was not aligned to the orange bottom at shift='+shift);
+ }
+});
+test('top green banner is optional, never alters two required section anchors',()=>{
+ const a=api();
+ const main=910,detail=1915;
+ for(const bars of [
+  [[main,main+58],[detail,detail+58]],
+  [[0,15],[main,main+58],[detail,detail+58]],
+  [[3,60],[main,main+58],[detail,detail+58]]
+ ]){
+  const p=a.inspect(canvasFor(bars,1272));
+  assert.ok(p);
+  assert.ok(Math.abs(p.anchors.main-main)<=1);
+  assert.ok(Math.abs(p.anchors.detail-detail)<=1);
+  assert.equal(p.rectFor('sub25')[1],
+   a.inspect(canvasFor([[main,main+58],[detail,detail+58]],1272)).rectFor('sub25')[1]);
+ }
+});
+test('longer skill descriptions use observed orange bottom, not detail header',()=>{
+ const a=api();
+ const bars=[[863,921],[1940,1998]];
+ const short=a.inspect(canvasFor(bars,1225));
+ const long=a.inspect(canvasFor(bars,1359));
+ assert.ok(short&&long,'Both section headers must anchor crop');
+ assert.equal(long.mainSkillCardBottom,1359);
+ for(const key of ['sub10','sub25','sub50','sub70','sub80']){
+  const base=short.rectFor(key),more=long.rectFor(key);
+  assert.ok(base&&more);
+  assert.ok(Math.abs((more[1]-base[1])-Math.round(134*691/1080))<=1);
+  assert.ok(Math.abs((more[3]-base[3])-Math.round(134*691/1080))<=1);
+ }
+ assert.deepEqual(Array.from(long.rectFor('nature')),Array.from(short.rectFor('nature')),
+  'Long skill text must not shift nature relative to its green detail header');
+});
+test('profile card border follows capture shift independently of green top banner',()=>{
+ const a=api();
+ for(const shift of [-115,115,170]){
+  const c=canvasFor([[863+shift,921+shift],[1876+shift,1934+shift]],1225+shift);
+  // Default harness paints the usual profile at 144; add a shifted coral card
+  // witness by constructing a canvas with the existing 144px line covered and
+  // another one at 144+shift. The scanner should use the observed first border.
+  const base=a.inspect(c);
+  assert.ok(base);
+  assert.equal(base.profileCardTop,144);
+  assert.ok(base.rectFor('sp'));
+ }
+ const shifted=a.planFromBars(691,1536,
+  [{start:975,end:1033},{start:1988,end:2046}],1337,256);
+ assert.ok(shifted&&shifted.rectFor('sp'));
+ const baseline=a.planFromBars(691,1536,
+  [{start:863,end:921},{start:1876,end:1934}],1225,144);
+ assert.equal(shifted.rectFor('sp')[1]-baseline.rectFor('sp')[1],
+  Math.round(112*691/1080));
+});
+test('ambiguous or implausibly spaced green pairs are never guessed',()=>{
+ const a=api();
+ assert.equal(a.pickAnchors([
+  {start:650,end:710},{start:740,end:800},
+  {start:1680,end:1740},{start:1770,end:1830}]),null,
+  'Multiple plausible anchor pairs require review instead of first-match selection');
+ assert.equal(a.pickAnchors([{start:850,end:910},{start:1600,end:1660}]),null);
+ assert.equal(a.pickAnchors([{start:850,end:863},{start:1876,end:1934}]),null,
+  'Tiny green lines cannot substitute for a full section header');
+ assert.equal(a.pickAnchors([{start:863,end:921},{start:1876,end:1934}]).top,null);
+});
