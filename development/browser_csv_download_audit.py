@@ -303,6 +303,8 @@ def main():
                     file:'synthetic-ordinary-nickname.png',
                     speciesManualOverride:p.name,
                     classification:{status:'UNIQUE',candidates:[p.name],hits:[]},
+                    inference:{status:'UNIQUE',stages:{mainSkill:[p.name]},candidates:[p.name],profiles:[]},
+                    raw:{},
                     parsed:{nickname:'修正前',nicknameNeedsReview:false,level:10,skillLevel:1,
                       mainSkill:p.mainSkill,nature:'いじっぱり',natureEffect:'neutralized',subs},
                     foods:Array.from({length:3},()=>({name:p.ing1.name,needsReview:false}))
@@ -336,6 +338,8 @@ def main():
                     file:'synthetic-reviewed-nickname.png',
                     speciesManualOverride:p.name,
                     classification:{status:'UNIQUE',candidates:[p.name],hits:[]},
+                    inference:{status:'UNIQUE',stages:{mainSkill:[p.name]},candidates:[p.name],profiles:[]},
+                    raw:{},
                     parsed:{nickname:'要確認前',nicknameNeedsReview:true,level:10,skillLevel:1,
                       mainSkill:p.mainSkill,nature:'いじっぱり',natureEffect:'neutralized',subs},
                     foods:Array.from({length:3},()=>({name:p.ing1.name,needsReview:false}))
