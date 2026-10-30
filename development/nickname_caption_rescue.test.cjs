@@ -154,9 +154,6 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  restored=restored.replace('  '+consensusCall+'\n','');
  // Spatial review is a new post-consensus, review-only hook. Check it
  // verbatim before removing it so the historical flow fingerprint remains.
- const narrowCall='  parsed=autoConfirmLevelCaptionConsensus85(parsed);\n';
- assert.equal(restored.split(narrowCall).length-1,1,'strictly scoped Lv85 hook unique');
- restored=restored.replace(narrowCall,'');
  const spatialCall='  parsed=window.POKESLEEP_NICKNAME_SPATIAL?.reviewOnly?.(parsed)||parsed;\n';
  assert.equal(restored.split(spatialCall).length-1,1,'spatial review hook must be unique');
  restored=restored.replace(spatialCall,'');
