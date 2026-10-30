@@ -11,6 +11,12 @@ ctx.window.POKESLEEP_MASTER=master;
 vm.runInContext(fs.readFileSync('classifier.js','utf8'),ctx);
 vm.runInContext(fs.readFileSync('csv_gate.js','utf8'),ctx);
 const calc=ctx.window.POKESLEEP_CLASSIFIER,gate=ctx.window.POKESLEEP_CSV_GATE;
+// A synthetic classification roundtrip alone is circular: the same incorrect
+// fallback can generate and classify its own SP. Pin the independently
+// published skill-SP table, including the seventh skill level.
+assert.deepEqual(Array.from(calc.skillSpValues('Cooking Advance S (Mystical Fire)')),
+ [1144,1626,2244,3098,4277,5910,7596],
+ 'Mystical Fire must never silently use the generic DEFAULT_SP coefficients');
 const nature=master.natures.find(n=>n.ja==='すなお'),species=['ムウマ','ムウマージ'];
 assert.ok(nature);
 for(const name of species){
