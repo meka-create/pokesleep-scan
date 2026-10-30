@@ -99,6 +99,8 @@ jobs:
         run: node --test development/step3_pixel142_safety.test.cjs
       - name: Independent header SP and subskill review safety
         run: node --test development/step3_header_sp_subskill_review.test.cjs
+      - name: Mew skill, nickname small-kana and passive performance safety
+        run: node --test development/step3_meka142_targeted_quality.test.cjs
       - name: Two-field corroborated OCR rescue
         run: node --test development/step3_joint_rescue.test.cjs
       - name: STEP 2 mythical optional food no-template regression
