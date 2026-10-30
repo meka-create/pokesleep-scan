@@ -301,8 +301,8 @@
     },
     {
       "path": "development/step3_header_sp_subskill_review.test.cjs",
-      "bytes": 3170,
-      "sha256": "b86427c6a8c7085df31690ac46af46991ddd7c8c1082466a7902277ebdd3ef89"
+      "bytes": 3152,
+      "sha256": "0d0db98e6af46be6522a08dca6d20b45a3f9575d3816a7a97c0b300a1457a993"
     },
     {
       "path": "development/step3_joint_rescue.test.cjs",
