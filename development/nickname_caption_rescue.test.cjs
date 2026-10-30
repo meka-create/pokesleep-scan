@@ -233,7 +233,7 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  const originalPaddleReturn="   return {text,confidence:score,source:'paddle',ok:!!text,metrics:res?.metrics||null,runtime:res?.runtime||null,errorStage:null};";
  const spatialPaddleReturn="   return {text,confidence:score,source:'paddle',ok:!!text,metrics:res?.metrics||null,runtime:res?.runtime||null,errorStage:null,spatial:window.POKESLEEP_NICKNAME_SPATIAL?.inspect?.(items,src.width,src.height)||null};";
  const originalPostConsensus="  parsed=autoConfirmCorroboratedReviewedNickname(parsed);\n  Object.assign(nicknameReviewAtAnalysis,";
- const spatialPostConsensus="  parsed=autoConfirmCorroboratedReviewedNickname(parsed);\n  parsed=window.POKESLEEP_NICKNAME_SPATIAL?.reviewOnly?.(parsed)||parsed;\n  Object.assign(nicknameReviewAtAnalysis,";
+ const spatialPostConsensus="  parsed=autoConfirmCorroboratedReviewedNickname(parsed);\n  parsed=autoConfirmLevelCaptionConsensus85(parsed);\n  parsed=window.POKESLEEP_NICKNAME_SPATIAL?.reviewOnly?.(parsed)||parsed;\n  Object.assign(nicknameReviewAtAnalysis,";
  assert.equal(src.split(spatialPostConsensus).length-1,1,
   'review-only spatial invocation changed outside approved scope');
  for(const [present,previous,label] of [
