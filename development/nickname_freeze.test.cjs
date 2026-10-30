@@ -31,9 +31,28 @@ function segment(source,part){
  assert.equal(source.split(part.start).length-1,1,part.name+': repeated start anchor');
  return source.slice(a,b);
 }
+// New candidate-only geometry capture and review-only display run outside the
+// frozen Paddle/Tesseract decision. Normalize ONLY the two exact approved hooks;
+// retain every original frozen digest and veto any unreviewed pipeline changes.
+function frozenBaselineSegment(part){
+ let text=segment(app,part);
+ if(part.name==='Paddle ensemble and review decisions'){
+  const before="   return {text,confidence:score,source:'paddle',ok:!!text,metrics:res?.metrics||null,runtime:res?.runtime||null,errorStage:null};";
+  const after="   return {text,confidence:score,source:'paddle',ok:!!text,metrics:res?.metrics||null,runtime:res?.runtime||null,errorStage:null,spatial:window.POKESLEEP_NICKNAME_SPATIAL?.inspect?.(items,src.width,src.height)||null};";
+  assert.equal(text.split(after).length-1,1,'Paddle metadata-only hook missing');
+  text=text.replace(after,before);
+ }
+ if(part.name==='nickname-only production invocation and immutable snapshot'){
+  const before="  parsed=autoConfirmCorroboratedReviewedNickname(parsed);\n  Object.assign(nicknameReviewAtAnalysis,";
+  const after="  parsed=autoConfirmCorroboratedReviewedNickname(parsed);\n  parsed=window.POKESLEEP_NICKNAME_SPATIAL?.reviewOnly?.(parsed)||parsed;\n  Object.assign(nicknameReviewAtAnalysis,";
+  assert.equal(text.split(after).length-1,1,'post-consensus review-only hook missing');
+  text=text.replace(after,before);
+ }
+ return text;
+}
 test('frozen nickname code stays byte-for-byte identical across unrelated updates',()=>{
  for(const part of FROZEN){
-  const observed=crypto.createHash('sha256').update(segment(app,part),'utf8').digest('hex');
+  const observed=crypto.createHash('sha256').update(frozenBaselineSegment(part),'utf8').digest('hex');
   assert.equal(observed,part.sha256,part.name+': frozen OCR changed unexpectedly');
  }
 });

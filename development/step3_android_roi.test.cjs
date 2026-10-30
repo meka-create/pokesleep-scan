@@ -136,7 +136,7 @@ test('ROI code never removes legacy crop path or classifier',()=>{
  assert.match(app,/return r\?cropCanvasRect\(canvas,r,scale\):cropByRegion\(canvas,REGIONS\[key\],scale\)/);
  assert.match(app,/function cropNick\(canvas,kind,scale=1\)/);
  const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
- assert.match(html,/'food_matcher\.js','android_roi\.js','csv_gate\.js','app\.js'/);
+ assert.match(html,/'food_matcher\.js','android_roi\.js','csv_gate\.js','nickname_spatial\.js','app\.js'/);
  assert.doesNotMatch(html,/id="androidRoiEnabled"/);
  assert.doesNotMatch(html,/android-roi-option/);
  assert.match(html,/class="file-picker-shell"/);

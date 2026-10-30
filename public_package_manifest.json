@@ -1,13 +1,13 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-30-dimmed-food-conflict-v1",
-  "appBuildId": "v12-dimmed-food-conflict-20261030-v1",
+  "releaseId": "2026-10-30-nickname-spatial-advisory-v1",
+  "appBuildId": "v12-nickname-spatial-advisory-20261030-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 89,
+  "fileCount": 91,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 12386,
-      "sha256": "be18eac7578f4e90459bfd00d4fc8d58830f0861ffbe4d415aed79d74ac0b99d"
+      "bytes": 12433,
+      "sha256": "54f22d2037d880d53b00f35bcf34a0d89f536129bd728e24d11eca9f1ddc514b"
     },
     {
       "path": ".gitignore",
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 324653,
-      "sha256": "2435add377beb8e9013509c143bd7738d78e62c9db31fd03843b8a9493fc85db"
+      "bytes": 324824,
+      "sha256": "f29f24a70d4e8b6ff5f71b5df6f810707c77eab381b3bd6f7f16e79799e68b99"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 11785,
-      "sha256": "1d2a17af29f03e851f7e0b44ea2a4e67e4b8cf31ac3e9d3cfb42da09ab2ecabd"
+      "bytes": 13250,
+      "sha256": "c607a1dc9baafcc12217d1aec02511038dad78a329e30985c7ddd5fc4b804c61"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -186,8 +186,8 @@
     },
     {
       "path": "development/nickname_caption_rescue.test.cjs",
-      "bytes": 15880,
-      "sha256": "17a825bd173bec2257039e6d58ac1144c324d69dbbbec6f6ea21b50e27ca42e9"
+      "bytes": 17609,
+      "sha256": "c96b9a89f25046e650824eb446791f5fbb036283f7be0d3a51a22652857a0f12"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -196,13 +196,18 @@
     },
     {
       "path": "development/nickname_freeze.test.cjs",
-      "bytes": 3176,
-      "sha256": "a9d2e036edaf7834b72d3cfcb9816ee9177f0d29e0663bbee7e6cd1b363f1a50"
+      "bytes": 4589,
+      "sha256": "7bc28ab54d52bf486fa4e3ec706c66598bdc1d7a4792c71ea1b56d602269cef2"
     },
     {
       "path": "development/nickname_meka142_gate.py",
       "bytes": 8244,
       "sha256": "330f5852504ed37dee595431d892aef5fc80342fda401a04e4124047b20a62a7"
+    },
+    {
+      "path": "development/nickname_spatial_advisory.test.cjs",
+      "bytes": 4202,
+      "sha256": "149d97d5343b077fe340669875a7065d7337f3ff3b7dd852023bf81e98229c0a"
     },
     {
       "path": "development/paddle_wait_choice.test.cjs",
@@ -281,8 +286,8 @@
     },
     {
       "path": "development/step3_android_roi.test.cjs",
-      "bytes": 20341,
-      "sha256": "748739b961c0838d99ab5f83904d652aa0e1f3deba62862a6fb0c011174fec86"
+      "bytes": 20364,
+      "sha256": "c5c98efaab467e4db504317d055764325f9d0fc73231bb80495d16140986ad9c"
     },
     {
       "path": "development/step3_carry_food3.test.cjs",
@@ -406,8 +411,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 73996,
-      "sha256": "d7fa52a09153a1e18201f16da6a59a4b089a18c0b9d130cc500152aae4a70906"
+      "bytes": 74018,
+      "sha256": "a268b0f6ead2becb03d2ea2a9ebb08723996fb39cd3071aa88cbda8ba2fc6927"
     },
     {
       "path": "manifest.webmanifest",
@@ -430,9 +435,14 @@
       "sha256": "b0f3bc100966de43dfdd4bd2d6b2036d8f7609b718b241a60674612aaf384ab4"
     },
     {
+      "path": "nickname_spatial.js",
+      "bytes": 4102,
+      "sha256": "1186394fa1d8877c66f380e948a0cfc07e52deab18579428a0e24efabab0fb7b"
+    },
+    {
       "path": "release.json",
-      "bytes": 49,
-      "sha256": "8b646e47e2e1321b2d3b24e562e63de80fc6f929c07267f965655e2b6b73bda2"
+      "bytes": 54,
+      "sha256": "9ed6c0eef9048566b2306280c167c742819086363c5ea498c3c06a0d59c95268"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -451,8 +461,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4050,
-      "sha256": "6e70f6550aa9df5ca30d91302efe8361dcad8094acaad0fd5f362a7da0120f59"
+      "bytes": 4093,
+      "sha256": "a86ed8240a00b7a162626e851f3e293d62a5ac250f86df9cdc66f2aec12e7725"
     }
   ]
 }
