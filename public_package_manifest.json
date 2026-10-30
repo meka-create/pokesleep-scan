@@ -42,7 +42,7 @@
     {
       "path": "app.js",
       "bytes": 329800,
-      "sha256": "489f264699eb55b68d62037010fa31bc49ff5a162d64595890b5e52023e3beec"
+      "sha256": "106e5eac570c40320d7169a729f296177672f51a84ab22c38c411632770a6092"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -187,7 +187,7 @@
     {
       "path": "development/nickname_caption_rescue.test.cjs",
       "bytes": 22877,
-      "sha256": "ebe8339f941656addfd9d3f7da2602c72fc54e72c19cc22d70cefeda0ecc226b"
+      "sha256": "0578f6b2705da61882176b83955d1fe9cea623ec9e3ab1df1d9109150c567655"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -312,7 +312,7 @@
     {
       "path": "development/step3_meka142_targeted_quality.test.cjs",
       "bytes": 4142,
-      "sha256": "3573bc20d48cd7b702203d78c0b87cc7e96d8046f8904ba589c85b86da82048b"
+      "sha256": "6b93854c58adc08ed7fe63e9a0a1b7580595d1435373b1d4fd9a25ac919cb50f"
     },
     {
       "path": "development/step3_mystical_fire_sp.test.cjs",
@@ -322,7 +322,7 @@
     {
       "path": "development/step3_pixel142_safety.test.cjs",
       "bytes": 8446,
-      "sha256": "53cd6ca856a51596fa4e7067604c7b5fda7244a0ba150a15cc4f6cf68d9fad23"
+      "sha256": "cddc4a35f2ed3b8a6697c04aa3f7c6c8cda11584317a82ea785a3509880f25dc"
     },
     {
       "path": "development/step3_real_upstream_importer.test.ts",
