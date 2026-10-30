@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-30-blank-nickname-csv18-v1",
-  "appBuildId": "v12-blank-nickname-csv18-20261030-v1",
+  "releaseId": "2026-10-30-nickname-edit-csv18-v1",
+  "appBuildId": "v12-nickname-edit-csv18-20261030-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 323196,
-      "sha256": "fc7c010dcd2d4e8b837be183c6d9afad50d11977342f5e447331e45d174a8476"
+      "bytes": 323475,
+      "sha256": "d85c8f27fba09a6f780df836fd8e0c33fd5dd5bda44f9cafcb3ca88734e289aa"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -66,8 +66,8 @@
     },
     {
       "path": "development/CSV18_DEVICE_ACCEPTANCE.md",
-      "bytes": 4211,
-      "sha256": "a54b5dbf4a7f168e42548c2303560d8260f67a953754614f16a158b37cae2078"
+      "bytes": 4539,
+      "sha256": "f3eafe15016be9b0ac6b54147b285567d83b90b02d255307b1597115da584aea"
     },
     {
       "path": "development/ROADMAP_20261013.md",
@@ -101,8 +101,8 @@
     },
     {
       "path": "development/browser_csv_download_audit.py",
-      "bytes": 24891,
-      "sha256": "eb3f7eda5a00c4e55c07d960a0362460e8a9adc4701c3b0747e4a449d573169a"
+      "bytes": 30088,
+      "sha256": "b41b912e90e8a9c644866c58bab37e9cd54a466bddb6980b0a0e16812da36fb9"
     },
     {
       "path": "development/browser_failure_card_modal.py",
@@ -181,8 +181,8 @@
     },
     {
       "path": "development/nickname_caption_rescue.test.cjs",
-      "bytes": 9176,
-      "sha256": "abc1fa75594224a2fc250768e214d450dd72f5b76a581c3a51fa182b058581ab"
+      "bytes": 11244,
+      "sha256": "352e83058e340f3419b8446522a9c4a8896e0dfd2b1064501921d263d8862928"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -416,8 +416,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 49,
-      "sha256": "92edace8631047b7068917238debde7647158c674d9a33e82a13f2096ef4f192"
+      "bytes": 48,
+      "sha256": "b81406c705d686a8ed7e8b7abe2761e46805d31719c71869b854ea83eb9b8e35"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -436,8 +436,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4050,
-      "sha256": "e3cd11ca8e25af841eaab72dcde51b385c9ed3077a7bedb3f6f5d62b91577970"
+      "bytes": 4049,
+      "sha256": "2efd2695af19a4324ec656c36d064ba7dcb14fd34514b4b0c19875d5aef2492c"
     }
   ]
 }
