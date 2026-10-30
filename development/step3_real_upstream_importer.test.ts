@@ -145,6 +145,22 @@ describe("2026-10-29 Neutralizing Mint 18-column import and round trip",()=>{
    expect(again.items[i].iv.nature.isEqual(imported.items[i].iv.nature)).toBe(true);
   }
  });
+ test("blank nickname with a mint is accepted and remains blank after real importer/exporter round trip",()=>{
+  const p=master.pokemon.find(x=>x.name==="ピカチュウ")!;
+  const sample=row(p,922);sample[0]="";sample[8]="いじっぱり";sample[9]="1";
+  const imported=importFromCsvTsv(serialize([header,sample]),"csv",t);
+  expect(imported.warnings).toEqual([]);
+  expect(imported.items).toHaveLength(1);
+  expect(imported.items[0].nickname).toBe("");
+  expect(imported.items[0].iv.nature.mint).toBe(true);
+  const exported=exportToCsvTsv(imported.items,t,"csv");
+  const importedAgain=importFromCsvTsv(exported,"csv",t);
+  expect(importedAgain.warnings).toEqual([]);
+  expect(importedAgain.items).toHaveLength(1);
+  expect(importedAgain.items[0].nickname).toBe("");
+  expect((jaData as any).natures[importedAgain.items[0].iv.nature.name]).toBe("いじっぱり");
+  expect(importedAgain.items[0].iv.nature.mint).toBe(true);
+ });
  test("legacy 16-column CSV still imports but cannot preserve mint flags",()=>{
   const p=master.pokemon.find(p=>p.name==="ピカチュウ")!;
   const oldHeader=header.filter(v=>v!=="まっしろミント"&&v!=="お気に入り");
