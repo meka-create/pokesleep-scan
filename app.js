@@ -1446,16 +1446,34 @@ async function retryShiftedCarryFromScreen(canvas,parsed,inference,idx,total){
 // time/carry/main bands instead of a species-specific numerical exception.
 // Only a demonstrable crop/caption displacement is eligible.
 function verifiedShiftedCarryBandCrops(canvas){
+ const L=layoutInfo(canvas),t=L?.time,c=L?.carry,m=L?.main;
+ if(!t||!c||!m||L.adaptive||c.start-t.end<25||
+    c.start-t.end>85||m.start-c.end<55||m.start-c.end>140)return null;
+ const scale=canvas.height/REF_H;
+ if(!Number.isFinite(scale)||scale<.65||scale>1.6)return null;
+ // Unlike the optional profile-anchored Android ROI, all three green bands
+ // are independently measured from this screenshot. A shortened upper card
+ // moves time and carry *together*, and the main header also moves upwards.
+ // Require all three coordinated shifts, not a lone misplaced heading.
+ const mainShift=ANCHORS.main*scale-m.start;
+ const carryShift=REGIONS.carry[1]*scale-c.start;
+ const timeShift=REGIONS.time[1]*scale-t.start;
+ const bandShifted=mainShift>=30*scale&&mainShift<=75*scale&&
+  carryShift>=12*scale&&carryShift<=65*scale&&
+  timeShift>=12*scale&&timeShift<=65*scale&&
+  Math.abs(carryShift-timeShift)<=12*scale&&
+  Math.abs(mainShift-carryShift)<=26*scale;
  const android=window.POKESLEEP_ANDROID_ROI?.inspect(canvas);
  const projected=android?.rectFor('carry');
- const L=layoutInfo(canvas),t=L?.time,c=L?.carry,m=L?.main;
- if(!projected||!t||!c||!m||L.adaptive)return null;
- const displacement=projected[1]-c.start;
- if(displacement<18||displacement>58||c.start-t.end<25||
-    c.start-t.end>85||m.start-c.end<55||m.start-c.end>140)return null;
+ const displacement=Array.isArray(projected)&&Number.isFinite(projected[1])
+  ?projected[1]-c.start:null;
+ const roiShifted=displacement!==null&&
+   displacement>=18*scale&&displacement<=58*scale;
+ if(!roiShifted&&!bandShifted)return null;
  const tight=verifiedCarryRetryCrop(canvas,'tight'),
        wide=verifiedCarryRetryCrop(canvas,'wide');
- return tight&&wide?{tight,wide,displacement}:null;
+ return tight&&wide?{tight,wide,displacement,mainShift,carryShift,timeShift,
+  evidence:bandShifted?'coordinated-green-bands':'roi-carry-offset'}:null;
 }
 async function tryVerifiedShiftedCarryPrimary(canvas,parsed,inference,idx,total){
  if(Number.isInteger(parsed?.carry)||parsed?.carryNeedsReview||
@@ -1477,7 +1495,8 @@ async function tryVerifiedShiftedCarryPrimary(canvas,parsed,inference,idx,total)
     !carryCompatibleWithClassifier(inference,a))return false;
  parsed.carry=a;
  parsed.carryRetry={status:'verified-shifted-band-primary',
-   displacement:bands.displacement,
+   displacement:bands.displacement,mainShift:bands.mainShift,
+   carryShift:bands.carryShift,timeShift:bands.timeShift,evidence:bands.evidence,
    readings:[{...first,value:a,crop:'band-tight',psm:'7'},
              {...second,value:b,crop:'band-wide',psm:'11'}]};
  return true;
