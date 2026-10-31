@@ -115,9 +115,9 @@ test('no visible carry band, no OCR and never invent a number',async()=>{
  assert.equal(got,inference);assert.equal(p.carry,null);
  assert.equal(p.carryRetry.status,'not-visible-or-no-verified-carry-band');
 });
-test('visible card corroboration updates parsed carry and inference',async()=>{
+test('normal visible card corroboration stays in the review-only legacy path',async()=>{
  const p={carry:null},c={width:691,height:1536,layout:{
-   time:{start:309,end:344},carry:{start:395,end:430},main:{start:512,end:550}
+   time:{start:342,end:377},carry:{start:428,end:463},main:{start:545,end:583}
  }};
  const got=await ctx.retryMissingCarryFromVisibleCard(c,p,inference,0,1);
  assert.equal(p.carry,44);assert.equal(p.carryRetry.status,'corroborated-needs-user-verification');
