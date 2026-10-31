@@ -66,8 +66,8 @@
     },
     {
       "path": "development/CSV18_DEVICE_ACCEPTANCE.md",
-      "bytes": 5442,
-      "sha256": "0da122bbb06b567203d845af7f1d5b5da121b94b2be89186fabe2d2d1610748d"
+      "bytes": 5880,
+      "sha256": "73b9390ce5b02b23759b2f7d0888162795c42b88c1d6ccc091cd86c67b607297"
     },
     {
       "path": "development/ROADMAP_20261013.md",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 31840,
-      "sha256": "280a3bdb35ce026c1aa4de01c296189608c065f7fb6f01997fe6c5bd09ced3c9"
+      "bytes": 33543,
+      "sha256": "5c90963a6709d3975ca5ce0ec1c7613c7ef09b9e4622dff31421bbce84d84b59"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -136,8 +136,8 @@
     },
     {
       "path": "development/final_evidence_gate.py",
-      "bytes": 6208,
-      "sha256": "7349a5c59fc7d7dca0f58fcae7028b8eafdf32dd8e5dae9fefc8c3dc8c5530df"
+      "bytes": 9036,
+      "sha256": "c5b3c92b2118694ff3329eb643863cdf6c3bf25ba8be107340fdc8e5dee0f0da"
     },
     {
       "path": "development/final_two_field_evidence.test.cjs",
@@ -361,8 +361,8 @@
     },
     {
       "path": "development/test_final_evidence_gate.py",
-      "bytes": 4196,
-      "sha256": "11c9ec9ff1778172416323531ecb7713ca16ac6d9f6dbcc468903b5575d61d79"
+      "bytes": 10384,
+      "sha256": "ad1c347728df903cf383e8a9235690ed725ecb913d40f68d4896913ad114b192"
     },
     {
       "path": "development/test_master_auto_update.py",
