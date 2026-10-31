@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-31-final-two-field-evidence-v1",
-  "appBuildId": "v12-final-two-field-evidence-20261031-v1",
+  "releaseId": "2026-10-31-nickname-picker-unique-v1",
+  "appBuildId": "v12-nickname-picker-unique-20261031-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 13332,
-      "sha256": "8fbfbebd9d9e89c65565184ac93a44d909a0a02f7ad7d1c5812e410e3986a350"
+      "bytes": 13334,
+      "sha256": "be9df4ab823aaffcc8f22a2e35ab0778db2305fb11c5eeefcdaa988ad6a53a1d"
     },
     {
       "path": ".gitignore",
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 336114,
-      "sha256": "ee7bc9d9b631df45e48f1de84da0e8a24adb4bce2b8dedbf467ea0bb0e752789"
+      "bytes": 335915,
+      "sha256": "e482845bb11b3780d7a972c7b354bf26db6d9786adf04b8ae73176fee5bc0de8"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 22638,
-      "sha256": "4ab25cddd14d7bcf236cc7c92f40b1985a8fd1982d68ac30fb33b065849bc0b8"
+      "bytes": 24015,
+      "sha256": "7f3b02716467114f31e90338b08c33ef95bb240c4f62ac5dce15ed4bd12e21b9"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -196,8 +196,8 @@
     },
     {
       "path": "development/nickname_caption_rescue.test.cjs",
-      "bytes": 26736,
-      "sha256": "05ba4efa14df49546034987fc1b7eb3339886158d8a73cee9fc84ac0a0d28237"
+      "bytes": 26838,
+      "sha256": "b7b86994a3816eb43feea557a9f0a13e5778dfb204a17a3b6e7743948456749b"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -211,8 +211,8 @@
     },
     {
       "path": "development/nickname_level_candidate_ranking.test.cjs",
-      "bytes": 3574,
-      "sha256": "6d9246c2d2402155396b545241f6071713863cb0166b67d0faa95e3758c123f1"
+      "bytes": 4629,
+      "sha256": "53f574a085d57b886cb1998b4fa146b8c333a21e18fd0fa7be1fdf5c106e7bad"
     },
     {
       "path": "development/nickname_lv_consensus85.test.cjs",
@@ -471,8 +471,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 53,
-      "sha256": "d477988bb873bba7ba3bf65551383cb08ff24027211691e6f5ac73067dcc636a"
+      "bytes": 51,
+      "sha256": "61ae43c91e5cea5deaddb2b1ffd8dc076f22faf96530e471517e6c98e0985330"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -491,8 +491,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4092,
-      "sha256": "81146ee6b2636f6473521b4d17229a942b48eb818249a1325a6a36f9b6a091a7"
+      "bytes": 4090,
+      "sha256": "57af8a2e0cf8f526432cbc11e45ddd3a675e02b59e0973a762538173d7cc3c6c"
     }
   ]
 }
