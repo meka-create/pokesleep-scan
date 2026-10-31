@@ -1734,7 +1734,7 @@ function nicknameLevelSeparatedReviewSuggestions(p){
   const hasLevel=/(?:Lv[.,]?\d{1,3})/i.test(raw);
   const candidate=front||back||(hasLevel?'':raw);
   // OCR sometimes replaces the numeric Lv suffix with non-digits
-  // (e.g. "LV.∈" or "Lv.に"). A residual "Lv" token is NEVER a
+  // (e.g. synthetic "LV.?" or "Lv.あ"). A residual "Lv" token is NEVER a
   // level-free option. Do not guess a replacement; leave raw OCR intact.
   if(!candidate||candidate.length<2||candidate.length>18||
     /Lv/i.test(candidate)||nicknameLooksUiContaminated(candidate))continue;
