@@ -117,14 +117,15 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  // Review-picker code is outside the frozen OCR pipeline. Restore only
  // the exact audited UI helper and two option labels before the historical
  // whole-app fingerprint check; do not change its expected SHA.
- approvedSpan('// Review UI only: derive a clean nickname suggestion',
+ approvedSpan('// Review UI only: display one clean, level-free option per OCR name.',
   'function nicknameCandidatePlaceholder(',
-  '9dbb63006d39c7ab3132806a5e8d3532ea6f3b0f5273e575615644abbfbc9022',
+  'aa3f80f34719f83084d60da81289e87a650b2a9c36298880eeb0c4472e4580e4',
   "function nicknameAlternativeRows(r,p,draft){const rows=[],current=String(draft??'');const species=chosenSpecies(r);if(species&&species!==current)rows.push({text:species,species:true});for(const x of (p?.nicknameCandidates||[])){const text=String(x?.text||'').trim();if(!text||text===current||Number(x?.confidence||0)<60||rows.some(y=>y.text===text))continue;rows.push({text,species:false});if(rows.length>=8)break;}return rows;}\n");
- const afterRefresh="opt.textContent=\x60\u0024{row.text}\u0024{row.levelSeparated?'（Lv表示を分離）':row.species?'（種族名候補）':''}\x60;";
+ const afterRefresh="opt.textContent=row.text;";
  const beforeRefresh="opt.textContent=\x60\u0024{row.text}\u0024{row.species?'（種族名候補）':''}\x60;";
- const afterRender="\u0024{esc(x.text)}\u0024{x.levelSeparated?'（Lv表示を分離）':x.species?'（種族名候補）':''}</option>\x60";
- const beforeRender="\u0024{esc(x.text)}\u0024{x.species?'（種族名候補）':''}</option>\x60";
+ // Audit the exact full option renderer to avoid a broad match on `</option>`.
+ const afterRender="const nickCandidateOptions=nickAltNames.map(x=>\x60<option value=\"\u0024{esc(x.text)}\">\u0024{esc(x.text)}</option>\x60).join('');";
+ const beforeRender="const nickCandidateOptions=nickAltNames.map(x=>\x60<option value=\"\u0024{esc(x.text)}\">\u0024{esc(x.text)}\u0024{x.species?'（種族名候補）':''}</option>\x60).join('');";
  for(const [present,baseline] of [[afterRefresh,beforeRefresh],[afterRender,beforeRender]]){
   assert.equal(restored.split(present).length-1,1,'review picker label changed outside approval');
   restored=restored.replace(present,baseline);
