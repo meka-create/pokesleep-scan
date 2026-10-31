@@ -11,7 +11,7 @@ const ctx={
  layoutInfo:canvas=>canvas.layout,
  verifiedCarryRetryCrop:(canvas,kind)=>canvas.goodCrops?{kind}:null,
  parseExplicitCarryEvidence:reading=>{
-  const m=String(reading?.text||'').normalize('NFKC').match(/([0-9]{1,3})\\s*個/u);
+  const m=String(reading?.text||'').normalize('NFKC').match(/([0-9]{1,3})\s*個/u);
   return m?Number(m[1]):null;
  },
  carryCompatibleWithClassifier:(inference,value)=>
@@ -84,7 +84,7 @@ test('standard layout, missing bands and preexisting carry never trigger reclass
  assert.equal(p.carry,23);
 });
 test('fallback overlap remains explicitly reviewed in diagnostics and UI',()=>{
- assert.match(src,/parsed\\.carryNeedsReview=true; \\/\\/ Do not auto-accept overlapping crops/);
- assert.match(src,/carry:!!r\\?\\.parsed\\?\\.carryNeedsReview\\|\\|!Number\\.isInteger\\(r\\?\\.parsed\\?\\.carry\\)/);
- assert.match(src,/if\\(await tryVerifiedShiftedCarryPrimary\\(canvas,parsed,inference,idx,total\\)\\)/);
+ assert.match(src,/parsed\.carryNeedsReview=true; \/\/ Do not auto-accept overlapping crops/);
+ assert.match(src,/carry:!!r\?\.parsed\?\.carryNeedsReview\|\|!Number\.isInteger\(r\?\.parsed\?\.carry\)/);
+ assert.match(src,/if\(await tryVerifiedShiftedCarryPrimary\(canvas,parsed,inference,idx,total\)\)/);
 });
