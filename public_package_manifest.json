@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-31-nickname-picker-unique-v1",
-  "appBuildId": "v12-nickname-picker-unique-20261031-v1",
+  "releaseId": "2026-10-31-nickname-picker-lv-artifact-guard-v1",
+  "appBuildId": "v12-nickname-picker-lv-artifact-guard-20261031-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 335915,
-      "sha256": "e482845bb11b3780d7a972c7b354bf26db6d9786adf04b8ae73176fee5bc0de8"
+      "bytes": 336175,
+      "sha256": "95f0c5c79d8992801ab1cca2237a24733346c47cfa477888e6704a8c88aeef39"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 24015,
-      "sha256": "7f3b02716467114f31e90338b08c33ef95bb240c4f62ac5dce15ed4bd12e21b9"
+      "bytes": 24906,
+      "sha256": "a4cd02d188048fc69b2870d6c196aaef1d2a90d6b4d312ccfe303f3a05379324"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -197,7 +197,7 @@
     {
       "path": "development/nickname_caption_rescue.test.cjs",
       "bytes": 26838,
-      "sha256": "b7b86994a3816eb43feea557a9f0a13e5778dfb204a17a3b6e7743948456749b"
+      "sha256": "2a7638f64a9d0b2d431381de9810a092f3dbc05000bfe1b96e524bc6b0fcdd8f"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -211,8 +211,8 @@
     },
     {
       "path": "development/nickname_level_candidate_ranking.test.cjs",
-      "bytes": 4629,
-      "sha256": "53f574a085d57b886cb1998b4fa146b8c333a21e18fd0fa7be1fdf5c106e7bad"
+      "bytes": 5081,
+      "sha256": "457b7e86eee82ce6f353b36b96d8fdd2128d07c7314ae3ddf0d87797cec5a15e"
     },
     {
       "path": "development/nickname_lv_consensus85.test.cjs",
@@ -471,8 +471,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 51,
-      "sha256": "61ae43c91e5cea5deaddb2b1ffd8dc076f22faf96530e471517e6c98e0985330"
+      "bytes": 62,
+      "sha256": "15fbab138ed704cf20a5967e6a33b5db1cdea214267ebc2ca9a957abe2701e16"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -491,8 +491,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4090,
-      "sha256": "57af8a2e0cf8f526432cbc11e45ddd3a675e02b59e0973a762538173d7cc3c6c"
+      "bytes": 4101,
+      "sha256": "332dcd1e6fb4b902cf2508b26abeeba5e83b3816a176cc1bf6964e164453da06"
     }
   ]
 }
