@@ -27,6 +27,7 @@ vm.createContext(ctx);vm.runInContext(src.slice(begin,end),ctx);
 const inference=value=>({status:'UNIQUE',candidates:['架空モデル'],hits:[{pokemon:'架空モデル',calculatedCarry:value}]});
 function canvas(carryStart=402,projectedStart=433){
  return {
+  width:691,height:1536,
   goodCrops:true,android:{rectFor:key=>key==='carry'?[287,projectedStart,490,501]:null},
   layout:{adaptive:false,time:{start:314,end:351},
    carry:{start:carryStart,end:carryStart+34},main:{start:520,end:554}}
