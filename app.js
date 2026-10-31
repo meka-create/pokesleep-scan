@@ -1798,13 +1798,13 @@ function nicknameUiCaptionPrefixCandidate(p){
     Number(p.nicknamePaddle.confidence)<98)return '';
  const primary=cleanNick(p.nicknameBeforePaddle||'');
  const paddle=cleanNick(p.nicknamePaddle.cleanedText||p.nicknamePaddle.text||'');
- if(primary.length<3||primary.length>18||!/^[^\\s]+$/u.test(primary)||
+ if(primary.length<3||primary.length>18||!/^[^\s]+$/u.test(primary)||
     /Lv/i.test(primary)||nicknameLooksUiContaminated(primary)||
     !paddle.startsWith(primary))return '';
  const caption=paddle.slice(primary.length);
  // A second broken Lv label is never proof of a different nickname.
  // The observed prefix is only a suggestion, never an auto-confirmation.
- if(!/^Lv[.,]?\\d{1,3}Lv[.,]?[A-Za-z?∈]{1,3}$/iu.test(caption))return '';
+ if(!/^Lv[.,]?\d{1,3}Lv[.,]?[A-Za-z?∈]{1,3}$/iu.test(caption))return '';
  return primary;
 }
 function nicknameAlternativeRows(r,p,draft){
