@@ -1468,12 +1468,12 @@ async function tryVerifiedShiftedCarryPrimary(canvas,parsed,inference,idx,total)
  const first=await ocrSingle(bands.tight,'所持数・緑帯位置補正',idx,total,{psm:'7'});
  const a=parseExplicitCarryEvidence(first);
  if(a==null||Number(first.confidence)<85||
-    !/^\\s*[0-9]{1,3}\\s*個\\s*$/u.test(String(first.text||'').normalize('NFKC')))
+    !/^\s*[0-9]{1,3}\s*個\s*$/u.test(String(first.text||'').normalize('NFKC')))
   return false;
  const second=await ocrSingle(bands.wide,'所持数・緑帯位置補正再読取',idx,total,{psm:'11',threshold:178});
  const b=parseExplicitCarryEvidence(second);
  if(b!==a||Number(second.confidence)<85||
-    !/^\\s*[0-9]{1,3}\\s*個\\s*$/u.test(String(second.text||'').normalize('NFKC'))||
+    !/^\s*[0-9]{1,3}\s*個\s*$/u.test(String(second.text||'').normalize('NFKC'))||
     !carryCompatibleWithClassifier(inference,a))return false;
  parsed.carry=a;
  parsed.carryRetry={status:'verified-shifted-band-primary',
