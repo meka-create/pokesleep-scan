@@ -84,6 +84,38 @@ test('species stays visible within eight choices even with a full OCR candidate 
  assert.equal(options[options.length-1],'架空種');
  assert.equal(new Set(options).size,8);
 });
+test('malformed double Lv caption retains the separately read Tesseract name as review-only choice',()=>{
+ const p=row([['ひだまりLv.44LV.f',99]],'ひだまりLv.44LV.f',27);
+ p.nicknameBeforePaddle='ひだまり';
+ p.nicknamePaddle={ok:true,confidence:99,cleanedText:'ひだまりLv.44LV.f'};
+ const frozen=JSON.stringify(p);
+ assert.deepEqual(choices(p),['ひだまり']);
+ assert.equal(JSON.stringify(p),frozen);
+ assert.equal(p.nicknameNeedsReview,true);
+ assert.deepEqual(choices(p,'ひだまり'),[]);
+});
+test('garbled Lv helper never infers or confirms a name without exact cross-engine prefix',()=>{
+ const p=row([['まぶしいLv.44LV.f',99]],'要確認',27);
+ p.nicknameBeforePaddle='まぶし';
+ p.nicknamePaddle={ok:true,confidence:99,cleanedText:'まぶしいLv.44LV.f'};
+ assert.deepEqual(choices(p),[]);
+ p.nicknameBeforePaddle='まぶしい';p.nicknamePaddle.confidence=97;
+ assert.deepEqual(choices(p),[]);
+ p.nicknamePaddle.confidence=99;p.nicknamePaddle.cleanedText='まぶしいLv.44';
+ assert.deepEqual(choices(p),[]);
+ p.nicknamePaddle.cleanedText='まぶしいLv.44LV.f';
+ p.nicknameNeedsReview=false;
+ assert.deepEqual(choices(p),[]);
+});
+test('manual prefix and species choices deduplicate and stay under eight',()=>{
+ const p=row(Array.from({length:8},(_,i)=>['候補'+(i+10),90-i]),'未確認');
+ p.nicknameBeforePaddle='まぶしい';p.nicknamePaddle={ok:true,confidence:99,cleanedText:'まぶしいLv.44LV.f'};
+ const choicesAll=Array.from(ctx.nicknameAlternativeRows({species:'架空種'},p,'未確認'),x=>x.text);
+ assert.equal(choicesAll.length,8);
+ assert.equal(choicesAll[0],'まぶしい');
+ assert.equal(choicesAll[7],'架空種');
+ assert.equal(new Set(choicesAll).size,8);
+});
 test('draft selection removes its normalized duplicate and leaves other choices',()=>{
  const p=row([['Lv.60あかさたな',92],['あかさたな',88],
    ['Lv.60かきくけこ',82]],'ニック');

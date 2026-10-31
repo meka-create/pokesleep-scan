@@ -132,7 +132,7 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  // whole-app fingerprint check; do not change its expected SHA.
  approvedSpan('// Review UI only: display one clean, level-free option per OCR name.',
   'function nicknameCandidatePlaceholder(',
-  'cf53eb0c214d01eaeb10d4d0ef01d9605f7849db6b4c80c438b5ad98b508b21e',
+  '3e47e99bab721b4c59dcde0685ff3c580bf09e913b40731fc47ff0cdb93d25b3',
   "function nicknameAlternativeRows(r,p,draft){const rows=[],current=String(draft??'');const species=chosenSpecies(r);if(species&&species!==current)rows.push({text:species,species:true});for(const x of (p?.nicknameCandidates||[])){const text=String(x?.text||'').trim();if(!text||text===current||Number(x?.confidence||0)<60||rows.some(y=>y.text===text))continue;rows.push({text,species:false});if(rows.length>=8)break;}return rows;}\n");
  const afterRefresh="opt.textContent=row.text;";
  const beforeRefresh="opt.textContent=\x60\u0024{row.text}\u0024{row.species?'（種族名候補）':''}\x60;";

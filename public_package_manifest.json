@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-31-species-picker-shifted-carry-v1",
-  "appBuildId": "v12-species-picker-shifted-carry-20261031-v1",
+  "releaseId": "2026-10-31-review-prefix-candidate-v1",
+  "appBuildId": "v12-review-prefix-candidate-20261031-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 338989,
-      "sha256": "adbfe9a32fdda6f6246a3c8c149d4b473f54cf364a0d1956e305560f5e2c398b"
+      "bytes": 340211,
+      "sha256": "992178231770198c18d0b288a11070419118082aeb90a7f62d76bd6c5280ca2e"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 27193,
-      "sha256": "11bce4d24cc2d9638b164909101d56562c66cbe4b3e5164bb2d49f4c0ea866b1"
+      "bytes": 29447,
+      "sha256": "ff300781ac02b7bb5e3c93f4cf980f203c1bd813b3eaead15c08556a1546cfba"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -197,7 +197,7 @@
     {
       "path": "development/nickname_caption_rescue.test.cjs",
       "bytes": 27715,
-      "sha256": "fe35f7dbab13105c3644fed7529e98f7b20483c0cc899e3a8ba7450f6a444afb"
+      "sha256": "1d21aac0e9eb08975576b390cfa763152bf607e52069e560060fb55e4169516b"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -211,8 +211,8 @@
     },
     {
       "path": "development/nickname_level_candidate_ranking.test.cjs",
-      "bytes": 6092,
-      "sha256": "f159a9924fa60af01f7a2d68177519224721abbb5b951cebfa839a369947fd8b"
+      "bytes": 7813,
+      "sha256": "fc852ec6dfff205fd31061f198637de8826643b6019cf09d88ca0e5d1cd3690d"
     },
     {
       "path": "development/nickname_lv_consensus85.test.cjs",
@@ -476,8 +476,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 57,
-      "sha256": "008b5824675e2952cafb515033cfd7162ef1f47fd44157be26a4527b357ce9f9"
+      "bytes": 52,
+      "sha256": "5500d5ab73dc3e46c4f19bb7cef249aac686c7f2f901ce0ee7599bff5e8d46a9"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -496,8 +496,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4096,
-      "sha256": "50c1d0d0d053bff3434ba5902ab5310c5a46b1ebc95d01a9e18f7906f0ae2711"
+      "bytes": 4091,
+      "sha256": "3691349e8f1a40c3a4ddef17c3ad552d235191f3f2b197365473ecf7743d8dd0"
     }
   ]
 }
