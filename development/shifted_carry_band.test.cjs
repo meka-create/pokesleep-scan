@@ -83,8 +83,9 @@ test('standard layout, missing bands and preexisting carry never trigger reclass
  assert.equal(await ctx.tryVerifiedShiftedCarryPrimary(canvas(),p,inference(23),0,1),false);
  assert.equal(p.carry,23);
 });
-test('fallback overlap remains explicitly reviewed in diagnostics and UI',()=>{
+test('overlapping-crop fallback preserves diagnostics without a trapped UI review flag',()=>{
  assert.match(src,/parsed\.carryNeedsReview=true; \/\/ Do not auto-accept overlapping crops/);
- assert.match(src,/carry:!!r\?\.parsed\?\.carryNeedsReview\|\|!Number\.isInteger\(r\?\.parsed\?\.carry\)/);
+ assert.match(src,/carryOcrUnresolved:!Number\.isInteger\(r\.parsed\.carry\)\|\|!!r\.parsed\.carryNeedsReview/);
+ assert.match(src,/function resultReviewState\(r\)\{return .*carry:false,skillLevel:/);
  assert.match(src,/if\(await tryVerifiedShiftedCarryPrimary\(canvas,parsed,inference,idx,total\)\)/);
 });
