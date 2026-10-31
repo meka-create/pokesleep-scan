@@ -10,7 +10,8 @@ const A=grab('function parseExplicitCarryEvidence(reading){','function detectWhi
 const B=grab('function numericDataNeedsReview(r,key){','function statusView(r){');
 const ctx={
  window:{POKESLEEP_ANDROID_ROI:{inspect:()=>null}}, // synthetic legacy canvases have no verified Android ROI
- REF_W:691,layoutInfo:c=>c.layout,cropCanvasRect:(_c,r)=>({rect:r}),
+ REF_W:691,REF_H:1536,ANCHORS:{main:559},REGIONS:{time:[0,340],carry:[0,425]},
+ layoutInfo:c=>c.layout,cropCanvasRect:(_c,r)=>({rect:r}),
  inferParsed:p=>({status:'UNIQUE',hits:[{pokemon:'ミュウ',calculatedCarry:p.carry}]}),
  chosenSpecies:r=>r.species||'',
  numericSpEvidenceConflict:()=>false,
