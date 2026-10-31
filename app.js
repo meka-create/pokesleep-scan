@@ -1,5 +1,5 @@
 (() => {
-const BUILD_ID='v12-nickname-picker-lv-artifact-guard-20261031-v1';
+const BUILD_ID='v12-species-picker-shifted-carry-20261031-v1';
 'use strict';
 // The verified Android 1080x2400 OCR path is now the standard on every device.
 // Preserve the existing ROI adapter and its safe legacy fallback unchanged.
@@ -63,7 +63,7 @@ const NATURES=POKESLEEP_MASTER.natures.map(x=>x.ja);
 const SUBSKILLS=POKESLEEP_MASTER.subskills.map(x=>x.ja);
 const SPECIES_NAMES=[...new Set(POKESLEEP_MASTER.pokemon.map(x=>x.name))];
 const $=s=>document.querySelector(s);let selected=[],results=[],worker=null,paddleOcr=null,paddleInitPromise=null,paddleUnavailableError=null,paddleRuntimeGeneration=0,isRunning=false,analysisPause=null,checkpointPreparing=false,selectionSnapshotPreparing=false,selectionSnapshotGeneration=0,checkpointRestoreRunning=false,checkpointSessionActive=false,checkpointPersistenceWarningShown=false,renderPending=false,modalObjectUrl='',modalReturnFocus=null,appDialogResolver=null,appDialogReturnFocus=null,localProgressVisible=true,localProgressState='idle',localProgressMaxPct=0,floatingProgressState='idle',floatingProgressDone=0,floatingProgressTotal=0,floatingProgressReviews=0,floatingCompletionTimer=null,floatingCompletionPending=false,floatingCompletionDismissed=false,preManualCsvSnapshot=null,wakeLockSentinel=null,wakeLockRequestPromise=null,wakeLockRetryTimer=null;const checkpointFailureLog=[];const layoutCache=new WeakMap(),profileCardCache=new WeakMap(),stableSourcePromises=new WeakMap(),stableSourceFiles=new WeakSet();
-const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-31-nickname-picker-lv-artifact-guard-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
+const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-31-species-picker-shifted-carry-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
 function pullRefreshGuardActive(){return !!(isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing);}
 function analysisWakeLockShouldHold(){return !!((isRunning||checkpointPreparing)&&!analysisPause);}
 function wakeLockApiSupported(){return typeof navigator!=='undefined'&&!!navigator.wakeLock?.request;}
@@ -1441,8 +1441,51 @@ async function retryShiftedCarryFromScreen(canvas,parsed,inference,idx,total){
  return {inference:inferParsed(parsed),readings,status:'shifted-ocr-needs-user-verification',
    advisoryValue:first.value};
 }
+// A short upper card can place the carry caption ~25-40px above the
+// profile-anchored Android crop. Use the already detected, ordered green
+// time/carry/main bands instead of a species-specific numerical exception.
+// Only a demonstrable crop/caption displacement is eligible.
+function verifiedShiftedCarryBandCrops(canvas){
+ const android=window.POKESLEEP_ANDROID_ROI?.inspect(canvas);
+ const projected=android?.rectFor('carry');
+ const L=layoutInfo(canvas),t=L?.time,c=L?.carry,m=L?.main;
+ if(!projected||!t||!c||!m||L.adaptive)return null;
+ const displacement=projected[1]-c.start;
+ if(displacement<18||displacement>58||c.start-t.end<25||
+    c.start-t.end>85||m.start-c.end<55||m.start-c.end>140)return null;
+ const tight=verifiedCarryRetryCrop(canvas,'tight'),
+       wide=verifiedCarryRetryCrop(canvas,'wide');
+ return tight&&wide?{tight,wide,displacement}:null;
+}
+async function tryVerifiedShiftedCarryPrimary(canvas,parsed,inference,idx,total){
+ if(Number.isInteger(parsed?.carry)||parsed?.carryNeedsReview||
+    inference?.status!=='UNIQUE')return false;
+ const bands=verifiedShiftedCarryBandCrops(canvas);
+ if(!bands)return false;
+ // Re-read with two distinct OCR segmentations; both must be clean literal
+ // number+個 observations with strong confidence. This is a geometry-corrected
+ // primary read, NOT "independent" observations from different screenshots.
+ const first=await ocrSingle(bands.tight,'所持数・緑帯位置補正',idx,total,{psm:'7'});
+ const a=parseExplicitCarryEvidence(first);
+ if(a==null||Number(first.confidence)<85||
+    !/^\\s*[0-9]{1,3}\\s*個\\s*$/u.test(String(first.text||'').normalize('NFKC')))
+  return false;
+ const second=await ocrSingle(bands.wide,'所持数・緑帯位置補正再読取',idx,total,{psm:'11',threshold:178});
+ const b=parseExplicitCarryEvidence(second);
+ if(b!==a||Number(second.confidence)<85||
+    !/^\\s*[0-9]{1,3}\\s*個\\s*$/u.test(String(second.text||'').normalize('NFKC'))||
+    !carryCompatibleWithClassifier(inference,a))return false;
+ parsed.carry=a;
+ parsed.carryRetry={status:'verified-shifted-band-primary',
+   displacement:bands.displacement,
+   readings:[{...first,value:a,crop:'band-tight',psm:'7'},
+             {...second,value:b,crop:'band-wide',psm:'11'}]};
+ return true;
+}
 async function retryMissingCarryFromVisibleCard(canvas,parsed,inference,idx,total){
  if(Number.isInteger(parsed?.carry)&&parsed.carry>0)return inference;
+ if(await tryVerifiedShiftedCarryPrimary(canvas,parsed,inference,idx,total))
+  return inferParsed(parsed);
  const tight=verifiedCarryRetryCrop(canvas,'tight'),
        wide=verifiedCarryRetryCrop(canvas,'wide');
  if(!tight||!wide){
@@ -1746,12 +1789,22 @@ function nicknameLevelSeparatedReviewSuggestions(p){
  }
  return [...ranked.values()].sort((a,b)=>b.count-a.count||b.confidence-a.confidence||a.rank-b.rank);
 }
-function nicknameAlternativeRows(_r,p,draft){
+function nicknameAlternativeRows(r,p,draft){
+ if(!p?.nicknameNeedsReview)return [];
  const current=cleanNick(String(draft??''));
- return nicknameLevelSeparatedReviewSuggestions(p)
+ const rows=nicknameLevelSeparatedReviewSuggestions(p)
   .filter(x=>x.text!==current)
   .slice(0,8)
   .map(x=>({text:x.text}));
+ // Restore the deliberately named species fallback as a manual choice.
+ // It is not an OCR vote and must never change automatic confirmation.
+ const species=cleanNick(chosenSpecies(r)||'');
+ if(species&&species!==current&&!/Lv/i.test(species)&&
+    !rows.some(x=>x.text===species)){
+  if(rows.length>=8)rows.pop(); // Keep species available even with 8 OCR choices.
+  rows.push({text:species});
+ }
+ return rows;
 }
 function nicknameCandidatePlaceholder(rows){return rows.length===1?`候補：${rows[0].text}`:`候補から選ぶ（${rows.length}件）`;}
 function refreshNicknameCandidateControl(ri,td,p){const sel=td?.querySelector?.('.nickcandidate'),r=results[ri];if(!sel||!r)return;const draft=p.nicknameReviewDraft??p.nickname,rows=nicknameAlternativeRows(r,p,draft),placeholder=document.createElement('option');placeholder.value='';placeholder.disabled=true;placeholder.selected=true;placeholder.textContent=nicknameCandidatePlaceholder(rows);const frag=document.createDocumentFragment();frag.appendChild(placeholder);for(const row of rows){const opt=document.createElement('option');opt.value=row.text;opt.textContent=row.text;frag.appendChild(opt);}sel.replaceChildren(frag);syncCustomSelectTrigger(sel);}
@@ -1786,7 +1839,7 @@ function numericDataNeedsReview(r,key){
 // Carry is an OCR/classifier corroboration input, not a CSV column.
 // Missing or uncertain carry is recorded in parsed.carryRetry / diagnostics;
 // it must not turn a fully exportable row into an actionable review item.
-function resultReviewState(r){return {processingError:!!r?.processingError,species:speciesNeedsReview(r),nickname:nicknameDataNeedsReview(r),level:levelDataNeedsReview(r),sp:(typeof numericDataNeedsReview==='function'&&numericDataNeedsReview(r,'sp')),helpSeconds:(typeof numericDataNeedsReview==='function'&&numericDataNeedsReview(r,'helpSeconds')),carry:false,skillLevel:skillLevelDataNeedsReview(r),mainSkill:mainSkillDataNeedsReview(r),nature:natureDataNeedsReview(r),foods:foodDataNeedsReview(r),subskills:subskillNeedsReview(r)};}
+function resultReviewState(r){return {processingError:!!r?.processingError,species:speciesNeedsReview(r),nickname:nicknameDataNeedsReview(r),level:levelDataNeedsReview(r),sp:(typeof numericDataNeedsReview==='function'&&numericDataNeedsReview(r,'sp')),helpSeconds:(typeof numericDataNeedsReview==='function'&&numericDataNeedsReview(r,'helpSeconds')),carry:!!r?.parsed?.carryNeedsReview||!Number.isInteger(r?.parsed?.carry),skillLevel:skillLevelDataNeedsReview(r),mainSkill:mainSkillDataNeedsReview(r),nature:natureDataNeedsReview(r),foods:foodDataNeedsReview(r),subskills:subskillNeedsReview(r)};}
 function statusView(r){const c=r.classification,state=resultReviewState(r),classWarn=state.species,anyWarn=Object.values(state).some(Boolean);if(r?.processingError)return ['解析失敗','bad'];if(r?.manualEditOpen)return ['手動入力中','warn'];if(r?.manualCompleted){if(anyWarn)return ['要確認','warn'];return ['手動補完済','ok'];}if(!classWarn){if(anyWarn)return ['要確認','warn'];return ['完了','ok'];}if(c.status==='AMBIGUOUS')return ['要確認','warn'];if(c.status==='NO_EXACT_MATCH')return ['要確認','bad'];return ['読取失敗','bad'];}
 function resultNeedsReview(r){return !!(r?.manualEditOpen||Object.values(resultReviewState(r)).some(Boolean));}
 // Third-food image matching is weaker when the first two foods were inferred
