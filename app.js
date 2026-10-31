@@ -1,5 +1,5 @@
 (() => {
-const BUILD_ID='v12-review-prefix-candidate-20261031-v1';
+const BUILD_ID='v12-verified-green-band-carry-20261031-v1';
 'use strict';
 // The verified Android 1080x2400 OCR path is now the standard on every device.
 // Preserve the existing ROI adapter and its safe legacy fallback unchanged.
@@ -63,7 +63,7 @@ const NATURES=POKESLEEP_MASTER.natures.map(x=>x.ja);
 const SUBSKILLS=POKESLEEP_MASTER.subskills.map(x=>x.ja);
 const SPECIES_NAMES=[...new Set(POKESLEEP_MASTER.pokemon.map(x=>x.name))];
 const $=s=>document.querySelector(s);let selected=[],results=[],worker=null,paddleOcr=null,paddleInitPromise=null,paddleUnavailableError=null,paddleRuntimeGeneration=0,isRunning=false,analysisPause=null,checkpointPreparing=false,selectionSnapshotPreparing=false,selectionSnapshotGeneration=0,checkpointRestoreRunning=false,checkpointSessionActive=false,checkpointPersistenceWarningShown=false,renderPending=false,modalObjectUrl='',modalReturnFocus=null,appDialogResolver=null,appDialogReturnFocus=null,localProgressVisible=true,localProgressState='idle',localProgressMaxPct=0,floatingProgressState='idle',floatingProgressDone=0,floatingProgressTotal=0,floatingProgressReviews=0,floatingCompletionTimer=null,floatingCompletionPending=false,floatingCompletionDismissed=false,preManualCsvSnapshot=null,wakeLockSentinel=null,wakeLockRequestPromise=null,wakeLockRetryTimer=null;const checkpointFailureLog=[];const layoutCache=new WeakMap(),profileCardCache=new WeakMap(),stableSourcePromises=new WeakMap(),stableSourceFiles=new WeakSet();
-const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-31-review-prefix-candidate-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
+const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-31-verified-green-band-carry-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
 function pullRefreshGuardActive(){return !!(isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing);}
 function analysisWakeLockShouldHold(){return !!((isRunning||checkpointPreparing)&&!analysisPause);}
 function wakeLockApiSupported(){return typeof navigator!=='undefined'&&!!navigator.wakeLock?.request;}
@@ -1446,16 +1446,34 @@ async function retryShiftedCarryFromScreen(canvas,parsed,inference,idx,total){
 // time/carry/main bands instead of a species-specific numerical exception.
 // Only a demonstrable crop/caption displacement is eligible.
 function verifiedShiftedCarryBandCrops(canvas){
+ const L=layoutInfo(canvas),t=L?.time,c=L?.carry,m=L?.main;
+ if(!t||!c||!m||L.adaptive||c.start-t.end<25||
+    c.start-t.end>85||m.start-c.end<55||m.start-c.end>140)return null;
+ const scale=canvas.height/REF_H;
+ if(!Number.isFinite(scale)||scale<.65||scale>1.6)return null;
+ // Unlike the optional profile-anchored Android ROI, all three green bands
+ // are independently measured from this screenshot. A shortened upper card
+ // moves time and carry *together*, and the main header also moves upwards.
+ // Require all three coordinated shifts, not a lone misplaced heading.
+ const mainShift=ANCHORS.main*scale-m.start;
+ const carryShift=REGIONS.carry[1]*scale-c.start;
+ const timeShift=REGIONS.time[1]*scale-t.start;
+ const bandShifted=mainShift>=30*scale&&mainShift<=75*scale&&
+  carryShift>=12*scale&&carryShift<=65*scale&&
+  timeShift>=12*scale&&timeShift<=65*scale&&
+  Math.abs(carryShift-timeShift)<=12*scale&&
+  Math.abs(mainShift-carryShift)<=26*scale;
  const android=window.POKESLEEP_ANDROID_ROI?.inspect(canvas);
  const projected=android?.rectFor('carry');
- const L=layoutInfo(canvas),t=L?.time,c=L?.carry,m=L?.main;
- if(!projected||!t||!c||!m||L.adaptive)return null;
- const displacement=projected[1]-c.start;
- if(displacement<18||displacement>58||c.start-t.end<25||
-    c.start-t.end>85||m.start-c.end<55||m.start-c.end>140)return null;
+ const displacement=Array.isArray(projected)&&Number.isFinite(projected[1])
+  ?projected[1]-c.start:null;
+ const roiShifted=displacement!==null&&
+   displacement>=18*scale&&displacement<=58*scale;
+ if(!roiShifted&&!bandShifted)return null;
  const tight=verifiedCarryRetryCrop(canvas,'tight'),
        wide=verifiedCarryRetryCrop(canvas,'wide');
- return tight&&wide?{tight,wide,displacement}:null;
+ return tight&&wide?{tight,wide,displacement,mainShift,carryShift,timeShift,
+  evidence:bandShifted?'coordinated-green-bands':'roi-carry-offset'}:null;
 }
 async function tryVerifiedShiftedCarryPrimary(canvas,parsed,inference,idx,total){
  if(Number.isInteger(parsed?.carry)||parsed?.carryNeedsReview||
@@ -1477,7 +1495,8 @@ async function tryVerifiedShiftedCarryPrimary(canvas,parsed,inference,idx,total)
     !carryCompatibleWithClassifier(inference,a))return false;
  parsed.carry=a;
  parsed.carryRetry={status:'verified-shifted-band-primary',
-   displacement:bands.displacement,
+   displacement:bands.displacement,mainShift:bands.mainShift,
+   carryShift:bands.carryShift,timeShift:bands.timeShift,evidence:bands.evidence,
    readings:[{...first,value:a,crop:'band-tight',psm:'7'},
              {...second,value:b,crop:'band-wide',psm:'11'}]};
  return true;

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-31-review-prefix-candidate-v1",
-  "appBuildId": "v12-review-prefix-candidate-20261031-v1",
+  "releaseId": "2026-10-31-verified-green-band-carry-v1",
+  "appBuildId": "v12-verified-green-band-carry-20261031-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 340211,
-      "sha256": "992178231770198c18d0b288a11070419118082aeb90a7f62d76bd6c5280ca2e"
+      "bytes": 341343,
+      "sha256": "2a07cb511147a7b732dafdc8c346cc408a4f6632c83edbdac870426b6b4131f8"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 29771,
-      "sha256": "871e7312f38d33dc1bcefe9970e6b4858dc2322b7633d725a11fca3adb967fd2"
+      "bytes": 31989,
+      "sha256": "53067535408ab3d9f1eadf010cde08d2c79e41b27287d3e19c5953ccbcc563e7"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -197,7 +197,7 @@
     {
       "path": "development/nickname_caption_rescue.test.cjs",
       "bytes": 27715,
-      "sha256": "1d21aac0e9eb08975576b390cfa763152bf607e52069e560060fb55e4169516b"
+      "sha256": "4eceab757051a31f6c0a1e6f500a0a703bda0f695b83911be21de0f1435e559f"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -261,8 +261,8 @@
     },
     {
       "path": "development/shifted_carry_band.test.cjs",
-      "bytes": 4235,
-      "sha256": "0fdda50a36b26fa6c71315ec33446ffe9aa8e22b959e19afafada4a0c4f38293"
+      "bytes": 5852,
+      "sha256": "05fbef20fcf15c0b21c2c8f6b57c5f8d99d64ce4fbc0b5d9c272deb96c87cd4d"
     },
     {
       "path": "development/speed_warning.test.cjs",
@@ -316,8 +316,8 @@
     },
     {
       "path": "development/step3_carry_food3.test.cjs",
-      "bytes": 8829,
-      "sha256": "8f8a70f87526b7f9a48b1ec54e53e091ea741fdd8ccf03dd9eecc9ca746f5df2"
+      "bytes": 8907,
+      "sha256": "f3e3543c2632e9ed52a18e15db7771464930d35fd17a3470f1e926fe17274da7"
     },
     {
       "path": "development/step3_dimmed_food_conflict.test.cjs",
@@ -476,8 +476,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 52,
-      "sha256": "5500d5ab73dc3e46c4f19bb7cef249aac686c7f2f901ce0ee7599bff5e8d46a9"
+      "bytes": 54,
+      "sha256": "e8d2a98024854e868ca4a1f3b5826d4d986b69c69d7e01e5d99d1ba97480d531"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -496,8 +496,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4091,
-      "sha256": "3691349e8f1a40c3a4ddef17c3ad552d235191f3f2b197365473ecf7743d8dd0"
+      "bytes": 4093,
+      "sha256": "6d7a9a8d9d48827c17164202cf3e7838b8deba816675df0a7d202c73ee6044c6"
     }
   ]
 }
