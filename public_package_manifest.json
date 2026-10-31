@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 339050,
-      "sha256": "a145c71d03f7a2864b376ebf00778bee1dd45626f042f999646d1585e8b80adb"
+      "bytes": 338989,
+      "sha256": "adbfe9a32fdda6f6246a3c8c149d4b473f54cf364a0d1956e305560f5e2c398b"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 27065,
-      "sha256": "c17a85120e71fdcdfac389ba92fc366e5dbdff8d5ae8c015ffac6200e0d5320f"
+      "bytes": 27193,
+      "sha256": "11bce4d24cc2d9638b164909101d56562c66cbe4b3e5164bb2d49f4c0ea866b1"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -261,8 +261,8 @@
     },
     {
       "path": "development/shifted_carry_band.test.cjs",
-      "bytes": 4128,
-      "sha256": "327694bc729e9f4062bc5be2454cced3f2046dc60f6be2082dc8002a3f76c3ba"
+      "bytes": 4235,
+      "sha256": "0fdda50a36b26fa6c71315ec33446ffe9aa8e22b959e19afafada4a0c4f38293"
     },
     {
       "path": "development/speed_warning.test.cjs",
