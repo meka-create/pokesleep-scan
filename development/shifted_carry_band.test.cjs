@@ -44,8 +44,8 @@ test('independent green-band geometry isolates compact upper-card displacement',
  assert.equal(result.wide.kind,'wide');
 });
 test('three coordinated shifted bands work when optional Android profile ROI is missing or aligned',async()=>{
- for(const [carryStart,mainStart,timeStart,value] of [
-  [401,518,315,19],[397,514,311,20],[395,512,309,21]
+ for(const [carryStart,mainStart,timeStart,value,firstConfidence,secondConfidence] of [
+  [401,518,315,19,92,91],[397,514,311,20,86,87],[395,512,309,21,94,93]
  ]){
   for(const android of [null,{rectFor:key=>key==='carry'?[287,carryStart,490,501]:null}]){
    const c=canvas(carryStart,carryStart);
@@ -53,7 +53,7 @@ test('three coordinated shifted bands work when optional Android profile ROI is 
    c.layout.time={start:timeStart,end:timeStart+35};
    c.layout.carry={start:carryStart,end:carryStart+35};
    c.android=android;
-   readings(value);
+   readings(value,firstConfidence,secondConfidence);
    const p={carry:null};
    assert.equal(await ctx.tryVerifiedShiftedCarryPrimary(c,p,inference(value),0,1),true);
    assert.equal(p.carry,value);
