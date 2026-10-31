@@ -44,8 +44,16 @@ test('a wrong or unverified level never produces an unsafe visible option',()=>{
   row([['Lv.60',99]]),
   row([['Lv.60あ',99]]),
   row([['Lv.60あかさたなLv.60',95]]),
+  row([['Lv.ああ',99]]), // numeric portion mis-OCRed as Japanese
+  row([['テストLV.◇',96]]), // malformed appended Lv must not be offered
   row([['Lv.60あかさたな',59]])
  ])assert.deepEqual(choices(p),[]);
+});
+test('malformed Lv OCR cannot leak into dropdown alongside a clean reading',()=>{
+ const p=row([['テストLV.△',95],['Lv.にあい',91],['Lv.60きれい',84],['きれい',78]],'手入力',60);
+ const opts=choices(p);
+ assert.deepEqual(opts,['きれい']);
+ assert.ok(opts.every(x=>!/lv/i.test(x)));
 });
 test('a clean candidate remains visible even when level is unverified',()=>{
  const p={...row([['れたす',75],['Lv.60れたす',94]]),levelNeedsReview:true};
