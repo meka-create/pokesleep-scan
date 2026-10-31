@@ -119,7 +119,7 @@ jobs:
         run: node --test development/step2_food3_independent_pixel_witness.test.cjs
       - name: Nickname level-caption review-only candidate regression
         run: node --test development/nickname_caption_rescue.test.cjs development/nickname_spatial_advisory.test.cjs
-      - name: Verified-level nickname candidate priority (review only)
+      - name: Unique level-free nickname review candidates (review only)
         run: node --test development/nickname_level_candidate_ranking.test.cjs
       - name: Final locked food2 and subskill evidence safety (synthetic only)
         run: node --test development/final_two_field_evidence.test.cjs
