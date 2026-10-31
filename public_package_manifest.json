@@ -261,8 +261,8 @@
     },
     {
       "path": "development/shifted_carry_band.test.cjs",
-      "bytes": 5827,
-      "sha256": "761b1fa6df3ee543e5a994d956e610aab28b3e455cfad9475e5487598b1ff165"
+      "bytes": 5852,
+      "sha256": "05fbef20fcf15c0b21c2c8f6b57c5f8d99d64ce4fbc0b5d9c272deb96c87cd4d"
     },
     {
       "path": "development/speed_warning.test.cjs",
