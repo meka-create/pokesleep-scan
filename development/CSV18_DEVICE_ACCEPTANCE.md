@@ -45,6 +45,6 @@ py -3 development/csv18_roundtrip_acceptance.py --scan "SCAN.csv" --returned "BO
 ## 開発との切り分け
 
 - 過去の16列CSVと診断用19列は**歴史的データ**。現在の正規インポートCSVは18列、診断用生OCR CSVは21列。
-- 旧16/19形式の歴史的検証は `development/final_evidence_gate.py` が判別可能。新旧混在は拒否する。
+- 旧16/19形式の歴史的検証は `development/final_evidence_gate.py` が判別可能。新旧混在は拒否する。**正式142枚での最終証跡判定**は、画像SHA・CSV往復だけでなく、Goldenの16評価項目すべて・ニックネームの誤自動確定・OCR要確認残存を検査する。誤確定なら `DATA_CORRECTION_REQUIRED`、非ニックネーム要確認が残る場合は `OCR_REVIEW_PENDING` とし、最終品質PASSにしない。1枚等の合成CSV動作試験の `PASS` を142枚OCR品質PASSと取り違えない。
 - 142枚の正解照合は `development/step2_meka142_benchmark.py` の非ニックネーム16評価項目で実施。**CSV列数18とは別**。
 - ユーザーのスクリーンショット・Golden・実CSV・診断データを公開GitHub／GitHub Actionsに置かない。
