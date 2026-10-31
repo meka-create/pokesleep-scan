@@ -7,6 +7,7 @@ const begin=src.indexOf('function verifiedShiftedCarryBandCrops(');
 const end=src.indexOf('async function retryMissingCarryFromVisibleCard(',begin);
 assert.ok(begin>=0&&end>begin,'production shifted-carry helper missing');
 const ctx={
+ REF_H:1536,ANCHORS:{main:559},REGIONS:{time:[0,340],carry:[0,425]},
  window:{POKESLEEP_ANDROID_ROI:{inspect:canvas=>canvas.android}},
  layoutInfo:canvas=>canvas.layout,
  verifiedCarryRetryCrop:(canvas,kind)=>canvas.goodCrops?{kind}:null,
@@ -42,6 +43,35 @@ test('independent green-band geometry isolates compact upper-card displacement',
  assert.equal(result.tight.kind,'tight');
  assert.equal(result.wide.kind,'wide');
 });
+test('three coordinated shifted bands work when optional Android profile ROI is missing or aligned',async()=>{
+ for(const [carryStart,mainStart,timeStart,value] of [
+  [401,518,315,19],[397,514,311,20],[395,512,309,21]
+ ]){
+  for(const android of [null,{rectFor:key=>key==='carry'?[287,carryStart,490,501]:null}]){
+   const c=canvas(carryStart,carryStart);
+   c.layout.main={start:mainStart,end:mainStart+38};
+   c.layout.time={start:timeStart,end:timeStart+35};
+   c.layout.carry={start:carryStart,end:carryStart+35};
+   c.android=android;
+   readings(value);
+   const p={carry:null};
+   assert.equal(await ctx.tryVerifiedShiftedCarryPrimary(c,p,inference(value),0,1),true);
+   assert.equal(p.carry,value);
+   assert.equal(p.carryRetry.evidence,'coordinated-green-bands');
+   assert.equal(p.carryNeedsReview,undefined);
+  }
+ }
+});
+test('isolated upper bands, incoherent geometry, and normal offsets must NOT enter the fallback',()=>{
+ for(const c of [
+  {...canvas(428,428),android:null,layout:{adaptive:false,
+   time:{start:342,end:377},carry:{start:428,end:462},main:{start:545,end:583}}},
+  {...canvas(401,401),android:null,layout:{adaptive:false,
+   time:{start:340,end:375},carry:{start:401,end:436},main:{start:518,end:556}}},
+  {...canvas(401,401),android:null,layout:{adaptive:false,
+   time:{start:315,end:350},carry:{start:401,end:436},main:{start:557,end:595}}}
+ ])assert.equal(ctx.verifiedShiftedCarryBandCrops(c),null);
+});
 test('strong exact OCR in both segmentations and classifier permits geometry-corrected primary',async()=>{
  for(const value of [23,31]){
   readings(value,93,90);
@@ -72,7 +102,7 @@ test('a single weak, noisy, conflicting or classifier-inconsistent reading never
 });
 test('standard layout, missing bands and preexisting carry never trigger reclassification',async()=>{
  readings(23);
- for(const c of [canvas(428,432),canvas(402,490),
+ for(const c of [canvas(428,432),canvas(428,490),
    {...canvas(),goodCrops:false},
    {...canvas(),layout:{adaptive:true}}]){
   const p={carry:null};
