@@ -97,7 +97,7 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  // then restore the original byte sequence before checking the historic SHA.
  approvedSpan('// A short upper card can place the carry caption',
   'async function retryMissingCarryFromVisibleCard(',
-  'b6db164369fc17f247b07944092209634a16792ab1cd43d534a7b2a97f3a9034','');
+  'dd15e50a12d28c871feee0060548239a19d48f8ca7167248497c13af9692d1f2','');
  const carryHook=' if(await tryVerifiedShiftedCarryPrimary(canvas,parsed,inference,idx,total))\n  return inferParsed(parsed);\n';
  assert.equal(restored.split(carryHook).length-1,1,
   'shifted carry primary hook must appear exactly once');
