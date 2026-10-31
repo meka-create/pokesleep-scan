@@ -6,7 +6,8 @@ function between(a,b){const i=src.indexOf(a),j=src.indexOf(b,i+a.length);assert.
 const ctx={
  MAX_POKEMON_LEVEL:70,
  cleanNick:s=>String(s||'').normalize('NFKC').replace(/\s+/g,'').replace(/^[|。!.,・\-_=]+|[|。!.,・\-_=]+$/g,''),
- validPokemonLevelValue:n=>Number.isInteger(n)&&n>=1&&n<=70
+ validPokemonLevelValue:n=>Number.isInteger(n)&&n>=1&&n<=70,
+ chosenSpecies:r=>r?.species||''
 };
 vm.createContext(ctx);
 vm.runInContext(between('function exactSeparatedNickname(', 'function autoConfirmCorroboratedReviewedNickname('),ctx);
@@ -16,7 +17,7 @@ const row=(texts,nick='ふあてい',level=60,review=true)=>({
  nickname:nick,level,nicknameNeedsReview:review,levelNeedsReview:false,
  nicknameCandidates:texts.map(([text,confidence])=>({text,confidence,source:'synthetic'}))
 });
-const choices=(p,draft=p.nickname)=>Array.from(ctx.nicknameAlternativeRows({species:'架空種'},p,draft)).map(x=>x.text);
+const choices=(p,draft=p.nickname)=>Array.from(ctx.nicknameAlternativeRows({species:'架空種'},p,draft)).map(x=>x.text).filter(x=>x!=='架空種');
 test('front, back and bare versions collapse into ONE clean nickname; never show raw Lv',()=>{
  const p=row([['Lv.60ふぁあてい',82],['ふぁあていLv.60',81],
  ['ふぁあてい',95],['Lv.59ふぁあてい',99],['ふあてい',96]]);
@@ -59,14 +60,29 @@ test('a clean candidate remains visible even when level is unverified',()=>{
  const p={...row([['れたす',75],['Lv.60れたす',94]]),levelNeedsReview:true};
  assert.deepEqual(choices(p),['れたす']);
 });
-test('no species suggestion, no original Lv text, and display only exact candidate name',()=>{
+test('restored species suggestion displays a plain name beside level-free OCR candidates',()=>{
  const p=row([['Lv.60あかさたな',95],['あかさたなLv.60',90],
   ['Lv.59あかさたな',99],['あかさたな',80]],'ニック');
  const rows=Array.from(ctx.nicknameAlternativeRows({species:'架空種'},p,p.nickname));
- assert.deepEqual(rows.map(x=>x.text),['あかさたな']);
+ assert.deepEqual(Array.from(rows,x=>x.text),['あかさたな','架空種']);
  assert.equal(rows.some(x=>x.species||x.levelSeparated),false);
- assert.ok(!rows.some(x=>x.text.includes('Lv')||x.text==='架空種'));
+ assert.ok(!rows.some(x=>x.text.includes('Lv')));
  assert.equal(ctx.nicknameCandidatePlaceholder?.(rows),undefined,'helper is not in this isolated context');
+});
+test('species option is unique, omitted when being edited, and never overrides OCR',()=>{
+ const p=row([['Lv.60架空種',96],['架空種',88],['Lv.60候補',92]],'手入力');
+ const before=JSON.stringify(p);
+ assert.deepEqual(Array.from(ctx.nicknameAlternativeRows({species:'架空種'},p,'手入力'),x=>x.text),['架空種','候補']);
+ assert.deepEqual(Array.from(ctx.nicknameAlternativeRows({species:'架空種'},p,'架空種'),x=>x.text),['候補']);
+ assert.equal(JSON.stringify(p),before);
+ assert.equal(p.nicknameNeedsReview,true);
+});
+test('species stays visible within eight choices even with a full OCR candidate list',()=>{
+ const p=row(Array.from({length:9},(_,i)=>['候補'+(i+10),90-i]),'手入力');
+ const options=Array.from(ctx.nicknameAlternativeRows({species:'架空種'},p,'手入力'),x=>x.text);
+ assert.equal(options.length,8);
+ assert.equal(options[options.length-1],'架空種');
+ assert.equal(new Set(options).size,8);
 });
 test('draft selection removes its normalized duplicate and leaves other choices',()=>{
  const p=row([['Lv.60あかさたな',92],['あかさたな',88],

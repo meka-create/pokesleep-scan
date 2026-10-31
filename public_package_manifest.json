@@ -1,13 +1,13 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-10-31-nickname-picker-lv-artifact-guard-v1",
-  "appBuildId": "v12-nickname-picker-lv-artifact-guard-20261031-v1",
+  "releaseId": "2026-10-31-species-picker-shifted-carry-v1",
+  "appBuildId": "v12-species-picker-shifted-carry-20261031-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
   "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-  "fileCount": 97,
+  "fileCount": 98,
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
@@ -16,8 +16,8 @@
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
-      "bytes": 13334,
-      "sha256": "be9df4ab823aaffcc8f22a2e35ab0778db2305fb11c5eeefcdaa988ad6a53a1d"
+      "bytes": 13473,
+      "sha256": "a55c33339bf525dc21b1669d175293449add33965e0625e9c2c10826481ca678"
     },
     {
       "path": ".gitignore",
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 336175,
-      "sha256": "95f0c5c79d8992801ab1cca2237a24733346c47cfa477888e6704a8c88aeef39"
+      "bytes": 338989,
+      "sha256": "adbfe9a32fdda6f6246a3c8c149d4b473f54cf364a0d1956e305560f5e2c398b"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 24906,
-      "sha256": "a4cd02d188048fc69b2870d6c196aaef1d2a90d6b4d312ccfe303f3a05379324"
+      "bytes": 27193,
+      "sha256": "11bce4d24cc2d9638b164909101d56562c66cbe4b3e5164bb2d49f4c0ea866b1"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -196,8 +196,8 @@
     },
     {
       "path": "development/nickname_caption_rescue.test.cjs",
-      "bytes": 26838,
-      "sha256": "2a7638f64a9d0b2d431381de9810a092f3dbc05000bfe1b96e524bc6b0fcdd8f"
+      "bytes": 27715,
+      "sha256": "fe35f7dbab13105c3644fed7529e98f7b20483c0cc899e3a8ba7450f6a444afb"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -211,8 +211,8 @@
     },
     {
       "path": "development/nickname_level_candidate_ranking.test.cjs",
-      "bytes": 5081,
-      "sha256": "457b7e86eee82ce6f353b36b96d8fdd2128d07c7314ae3ddf0d87797cec5a15e"
+      "bytes": 6092,
+      "sha256": "f159a9924fa60af01f7a2d68177519224721abbb5b951cebfa839a369947fd8b"
     },
     {
       "path": "development/nickname_lv_consensus85.test.cjs",
@@ -258,6 +258,11 @@
       "path": "development/runtime_smoke.test.cjs",
       "bytes": 2353,
       "sha256": "1d85a83ce5bda029d4c8b8ded7b4cbf78ae0b92a1b1f3c7cf8463c1d534e3ace"
+    },
+    {
+      "path": "development/shifted_carry_band.test.cjs",
+      "bytes": 4235,
+      "sha256": "0fdda50a36b26fa6c71315ec33446ffe9aa8e22b959e19afafada4a0c4f38293"
     },
     {
       "path": "development/speed_warning.test.cjs",
@@ -311,8 +316,8 @@
     },
     {
       "path": "development/step3_carry_food3.test.cjs",
-      "bytes": 8719,
-      "sha256": "73b7ffe2cf120f8dd7944d21f9f2abaffdf5fca5690fc9151d5d62a7f1b66e62"
+      "bytes": 8829,
+      "sha256": "8f8a70f87526b7f9a48b1ec54e53e091ea741fdd8ccf03dd9eecc9ca746f5df2"
     },
     {
       "path": "development/step3_dimmed_food_conflict.test.cjs",
@@ -471,8 +476,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 62,
-      "sha256": "15fbab138ed704cf20a5967e6a33b5db1cdea214267ebc2ca9a957abe2701e16"
+      "bytes": 57,
+      "sha256": "008b5824675e2952cafb515033cfd7162ef1f47fd44157be26a4527b357ce9f9"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -491,8 +496,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4101,
-      "sha256": "332dcd1e6fb4b902cf2508b26abeeba5e83b3816a176cc1bf6964e164453da06"
+      "bytes": 4096,
+      "sha256": "50c1d0d0d053bff3434ba5902ab5310c5a46b1ebc95d01a9e18f7906f0ae2711"
     }
   ]
 }

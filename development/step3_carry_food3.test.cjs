@@ -9,6 +9,7 @@ const grab=(a,b)=>{const i=source.indexOf(a),j=source.indexOf(b,i);assert.ok(i>=
 const A=grab('function parseExplicitCarryEvidence(reading){','function detectWhiteMint(canvas){');
 const B=grab('function numericDataNeedsReview(r,key){','function statusView(r){');
 const ctx={
+ window:{POKESLEEP_ANDROID_ROI:{inspect:()=>null}}, // synthetic legacy canvases have no verified Android ROI
  REF_W:691,layoutInfo:c=>c.layout,cropCanvasRect:(_c,r)=>({rect:r}),
  inferParsed:p=>({status:'UNIQUE',hits:[{pokemon:'ミュウ',calculatedCarry:p.carry}]}),
  chosenSpecies:r=>r.species||'',
