@@ -316,8 +316,8 @@
     },
     {
       "path": "development/step3_carry_food3.test.cjs",
-      "bytes": 8719,
-      "sha256": "73b7ffe2cf120f8dd7944d21f9f2abaffdf5fca5690fc9151d5d62a7f1b66e62"
+      "bytes": 8829,
+      "sha256": "8f8a70f87526b7f9a48b1ec54e53e091ea741fdd8ccf03dd9eecc9ca746f5df2"
     },
     {
       "path": "development/step3_dimmed_food_conflict.test.cjs",
