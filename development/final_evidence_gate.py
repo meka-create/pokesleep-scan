@@ -64,7 +64,53 @@ def evaluate(golden_csv,image_zip,diagnostics_json,raw_csv,corrected_csv,returne
             if hashlib.sha256(data).hexdigest()!=by_name[file]['画像SHA256']:raise ValueError('Image SHA-256 mismatch')
             if x['size']!=len(data):raise ValueError('Diagnostic image length mismatch')
     bad=[i+1 for i,row in enumerate(orig) if row[0]!=by_name[ordered[i]]['ニックネーム']]
-    return {'result':'PASS' if not bad else 'DATA_CORRECTION_REQUIRED','rowsChecked':len(orig),
+    # This is a 142-image *final* gate, not merely an importer roundtrip.
+    # Its historic importer-only PASS could conceal a false-accepted OCR field:
+    # corrected CSV and upstream export might agree on the same wrong value.
+    # Run the independent 16-field Golden evaluator for the complete corpus.
+    # The one-row synthetic importer fixture remains explicitly scoped below.
+    nonnick=None
+    wrong_nickname_auto=[]
+    if len(names)==142:
+        from step2_meka142_benchmark import FIELD_NAMES, evaluate as score_142
+        needed={'corpus','assetId',*FIELD_NAMES}
+        if any(needed-set(g) for g in golden):
+            raise ValueError('142-image final Golden lacks mandatory non-nickname fields')
+        if any(g['corpus']!='meka142' or g['assetId']!=f'MEKA142-{i+1:03d}'
+               for i,g in enumerate(golden)):
+            raise ValueError('142-image Golden identity/order mismatch')
+        # Exact byte SHA and selected names/sizes have already been verified.
+        # Unique sizes prevent ambiguous byte-identity mapping in the scorer.
+        by_size={}
+        for x in selected:
+            size=x['size']
+            if size in by_size:
+                raise ValueError('Ambiguous source image size in final quality gate')
+            by_size[size]=by_name[x['name']]
+        report=score_142(golden,diag,by_size)
+        if report['verifiedImageCount']!=142 or report['totalFields']!=2272:
+            raise ValueError('Incomplete non-nickname quality evaluation')
+        nonnick=report['totals']
+        for i,r in enumerate(observed):
+            p=r.get('parsed') or {}
+            at=p.get('nicknameReviewAtAnalysis')
+            if not isinstance(at,dict) or not isinstance(at.get('value'),str) or not isinstance(at.get('needsReview'),bool):
+                raise ValueError('Missing immutable nickname OCR-time snapshot')
+            if p.get('nicknameManualConfirmed') or r.get('manualCompletion'):
+                raise ValueError('Manually modified diagnostic cannot prove automatic OCR safety')
+            if (p.get('nickname')!=at['value'] or
+                p.get('nicknameNeedsReview') is not at['needsReview']):
+                raise ValueError('Nickname OCR snapshot was modified after analysis')
+            if not at['needsReview'] and at['value']!=by_name[ordered[i]]['ニックネーム']:
+                wrong_nickname_auto.append(i+1)
+    failed=bool(bad or wrong_nickname_auto or (nonnick and nonnick['auto_wrong']))
+    pending=bool(nonnick and nonnick['review_or_manual'])
+    verdict='DATA_CORRECTION_REQUIRED' if failed else 'OCR_REVIEW_PENDING' if pending else 'PASS'
+    return {'result':verdict,'rowsChecked':len(orig),
+            'nonNicknameOcrChecked':nonnick is not None,
+            'nonNicknameTotals':nonnick,
+            'nonNicknameFullyAutomatic':nonnick is not None and not pending,
+            'nicknameWrongAutoRows':wrong_nickname_auto,
             'sha256ImagesChecked':len(names),'csvColumns':len(schema),'diagnosticColumns':len(raw_schema),
             'legacyHistoricalSchema':schema==LEGACY_COLS,'csvCellsRoundTripped':len(orig)*len(schema),
             'csvDataCellChanges':0,'byteIdentical':corrected_csv==returned_csv,
