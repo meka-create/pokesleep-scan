@@ -329,11 +329,58 @@ class FutureSpeciesReadinessTest(unittest.TestCase):
         self.assertEqual(report['addedSpecies'],['SyntheticArrivalAlpha'])
         self.assertEqual([x['name'] for x in report['deferredSpecies']],['SyntheticArrivalBeta'])
         self.assertEqual(len(master['pokemon']),len(self.prior['pokemon'])+1)
-        # A translation collision must remain a hard HOLD, even if future-dated.
+        # A source-only name alias does not corrupt the installed form. The
+        # ambiguous newcomer remains deferred, not silently published.
         labels['pokemons']['SyntheticArrivalBeta']=self.prior['pokemon'][0]['name']
         save(names,labels)
+        projected,report=self.project_at('2026-10-26')
+        self.assertEqual(report['addedSpecies'],['SyntheticArrivalAlpha'])
+        self.assertEqual(report['deferredSpecies'][0]['reason'],'ambiguous-translation')
+        self.assertEqual(report['overdueNewSpecies'],['SyntheticArrivalBeta'])
+        self.assertIn(self.prior['pokemon'][0]['name_en'],
+                      {p['name_en'] for p in projected['pokemon']})
+    def test_new_alias_collision_deferred_while_old_updates_and_new_unique_species_publish(self):
+        names=self.root/'src/i18n/ja/pokemons.json'
+        labels=json.loads(names.read_text(encoding='utf-8'))
+        labels['pokemons']['SyntheticArrivalBeta']=self.prior['pokemon'][0]['name']
+        save(names,labels)
+        self.edit(lambda data:data[0].update(frequency=data[0]['frequency']+2))
+        updated,report=self.project_at('2026-10-26')
+        self.assertIn(self.prior['pokemon'][0]['name_en'],report['changedSpecies'])
+        self.assertEqual(report['addedSpecies'],['SyntheticArrivalAlpha'])
+        self.assertEqual([x['name'] for x in report['deferredSpecies']],['SyntheticArrivalBeta'])
+        self.assertEqual(report['deferredSpecies'][0]['reason'],'ambiguous-translation')
+        self.assertEqual(report['overdueNewSpecies'],['SyntheticArrivalBeta'])
+        self.assertEqual(len(updated['pokemon']),len(self.prior['pokemon'])+1)
+        self.assertEqual(next(x for x in updated['pokemon'] if x['name_en']==self.prior['pokemon'][0]['name_en'])['name'],
+                         self.prior['pokemon'][0]['name'])
+        labels['pokemons']['SyntheticArrivalBeta']='監査用ミライB'
+        save(names,labels)
+        completed,final=self.project_at('2026-10-27',prior=updated)
+        self.assertEqual(final['addedSpecies'],['SyntheticArrivalBeta'])
+        self.assertEqual(len(completed['pokemon']),len(self.prior['pokemon'])+2)
+
+    def test_two_new_source_names_with_one_japanese_label_both_defer(self):
+        names=self.root/'src/i18n/ja/pokemons.json'
+        labels=json.loads(names.read_text(encoding='utf-8'))
+        labels['pokemons']['SyntheticArrivalBeta']='監査用ミライA'
+        save(names,labels)
+        projected,report=self.project_at('2026-10-26')
+        self.assertEqual(len(projected['pokemon']),len(self.prior['pokemon']))
+        self.assertEqual(set(x['name'] for x in report['deferredSpecies']),
+                         {'SyntheticArrivalAlpha','SyntheticArrivalBeta'})
+        self.assertEqual({x['reason'] for x in report['deferredSpecies']},
+                         {'ambiguous-translation'})
+
+    def test_collision_between_two_installed_japanese_names_still_holds(self):
+        names=self.root/'src/i18n/ja/pokemons.json'
+        labels=json.loads(names.read_text(encoding='utf-8'))
+        first,second=self.prior['pokemon'][:2]
+        labels['pokemons'][second['name_en']]=first['name']
+        save(names,labels)
         with self.assertRaisesRegex(Hold,'collision'):
-            self.project_at('2026-10-25')
+            self.project_at('2026-10-26')
+
     def test_historical_placeholder_does_not_raise_future_release_warning(self):
         # Upstream may retroactively append incomplete forms with years-old
         # arrival. They remain deferred but must not show update-failed UI.
