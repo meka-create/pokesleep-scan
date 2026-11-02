@@ -3,7 +3,7 @@
 from __future__ import annotations
 import argparse,csv,hashlib,io,json
 from pathlib import Path, PurePosixPath
-from zipfile import ZipFile
+from zipfile import ZipFile, BadZipFile
 LEGACY_COLS=('ニックネーム','ポケモン','レベル','スキルレベル','食材1','食材2','食材3','メインスキル','せいかく','Lv10','Lv25','Lv50','Lv70','Lv80','一緒に眠った時間','色違い')
 COLS=(*LEGACY_COLS[:9],'まっしろミント',*LEGACY_COLS[9:],'お気に入り')
 LEGACY_RAW=('元画像番号','元画像ファイル名','診断状態',*LEGACY_COLS)
@@ -136,7 +136,7 @@ def main():
     a=p.parse_args()
     try:
         result=evaluate(*(getattr(a,s).read_bytes() for s in ('golden','images_zip','diagnostics','raw','corrected','returned')))
-    except (ValueError,KeyError,TypeError,OSError,json.JSONDecodeError) as e:
+    except (BadZipFile,ValueError,KeyError,TypeError,OSError,json.JSONDecodeError) as e:
         print(json.dumps({'result':'HOLD','errorType':type(e).__name__}))
         return 2
     print(json.dumps(result,ensure_ascii=False,indent=2))
