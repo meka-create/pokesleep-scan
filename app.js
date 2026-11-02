@@ -1,5 +1,5 @@
 (() => {
-const BUILD_ID='v12-mixed-capture-food3-safe-20261102-v3';
+const BUILD_ID='v12-mixed-capture-food3-safe-20261103-v4';
 'use strict';
 // The verified Android 1080x2400 OCR path is now the standard on every device.
 // Preserve the existing ROI adapter and its safe legacy fallback unchanged.
@@ -65,7 +65,7 @@ const NATURES=POKESLEEP_MASTER.natures.map(x=>x.ja);
 const SUBSKILLS=POKESLEEP_MASTER.subskills.map(x=>x.ja);
 const SPECIES_NAMES=[...new Set(POKESLEEP_MASTER.pokemon.map(x=>x.name))];
 const $=s=>document.querySelector(s);let selected=[],results=[],worker=null,paddleOcr=null,paddleInitPromise=null,paddleUnavailableError=null,paddleRuntimeGeneration=0,isRunning=false,analysisPause=null,checkpointPreparing=false,selectionSnapshotPreparing=false,selectionSnapshotGeneration=0,checkpointRestoreRunning=false,checkpointSessionActive=false,checkpointPersistenceWarningShown=false,renderPending=false,modalObjectUrl='',modalReturnFocus=null,appDialogResolver=null,appDialogReturnFocus=null,localProgressVisible=true,localProgressState='idle',localProgressMaxPct=0,floatingProgressState='idle',floatingProgressDone=0,floatingProgressTotal=0,floatingProgressReviews=0,floatingCompletionTimer=null,floatingCompletionPending=false,floatingCompletionDismissed=false,preManualCsvSnapshot=null,wakeLockSentinel=null,wakeLockRequestPromise=null,wakeLockRetryTimer=null;const checkpointFailureLog=[];const layoutCache=new WeakMap(),profileCardCache=new WeakMap(),stableSourcePromises=new WeakMap(),stableSourceFiles=new WeakSet();
-const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-11-02-mixed-capture-food3-safe-v3',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
+const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-11-03-food3-strong-self-witness-v4',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
 function pullRefreshGuardActive(){return !!(isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing);}
 function analysisWakeLockShouldHold(){return !!((isRunning||checkpointPreparing)&&!analysisPause);}
 function wakeLockApiSupported(){return typeof navigator!=='undefined'&&!!navigator.wakeLock?.request;}
@@ -1644,6 +1644,44 @@ function guardLockedFood3TomatoMushroomConfusion(foods,level){
  }
  return foods;
 }
+// Locked third food can look like mushroom in the dimmed template even when
+// a second, geometric comparison to an unequivocal tomato icon is decisive.
+// This is NOT permission to trust a single same-image match: both other foods
+// must be uniquely inferred, distinct icons, with a large winning gap and
+// exact provenance from the reviewed conflict. Never change the food value.
+function strongLockedTomatoCrossSlotWitness(foods,level,status){
+ const first=foods?.[0],second=foods?.[1],third=foods?.[2],w=third?.crossSlotEvidence;
+ const list=third?.ranking;
+ if(status!=='UNIQUE'||!Number.isInteger(level)||level<50||level>=60||
+  first?.method!=='db-inferred'||first.needsReview||first.manualOverride||
+  first.name!=='あんみんトマト'||first.allowed?.length!==1||first.allowed[0]!==first.name||
+  second?.method!=='db-inferred'||second.needsReview||second.manualOverride||
+  second.name!=='ずっしりカボチャ'||second.allowed?.length!==1||second.allowed[0]!==second.name||
+  third?.method!=='image-cross-slot'||!third.needsReview||third.manualOverride||
+  third.reviewReason!=='locked-food3-tomato-mushroom-low-confidence'||
+  third.name!==first.name||third.second!==first.name||
+  !Array.isArray(third.allowed)||third.allowed.length!==3||
+  !third.allowed.includes('あじわいキノコ')||!third.allowed.includes(first.name)||
+  !third.allowed.includes(second.name)||
+  !Array.isArray(list)||list.length!==3||
+  list[0]?.name!=='あじわいキノコ'||list[1]?.name!==first.name||
+  list[2]?.name!==second.name||
+  !Number.isFinite(third.score)||third.score<.75||third.score>=.90||
+  !Number.isFinite(third.margin)||third.margin<.08||
+  !Number.isFinite(list[0]?.score)||!Number.isFinite(list[1]?.score)||
+  Math.abs(list[0].score-third.score)>1e-6||
+  Math.abs(list[0].score-list[1].score-third.margin)>1e-6||
+  !w||w.method!=='within-image-grayscale-correlation'||
+  w.name!==first.name||w.secondName!==second.name||
+  w.originalName!==list[0].name||
+  !Number.isFinite(w.originalScore)||Math.abs(w.originalScore-third.score)>1e-6||
+  !Number.isFinite(w.score)||w.score<.93||w.score>1||
+  !Number.isFinite(w.secondScore)||w.secondScore< -1||w.secondScore>.70||
+  w.score-w.secondScore<.30)return null;
+ return {method:'locked-tomato-two-reference-self-witness',
+  sourceSlot:1,targetSlot:3,score:w.score,otherScore:w.secondScore,
+  originalTemplateChoice:list[0].name};
+}
 function guardLockedFood3KnownLowConfidenceConfusions(foods,level){
  const out=foods||[],f=out[2];
  if(!Number.isFinite(level)||level<1||level>=60||f?.method!=='image'||f.needsReview||!Number.isFinite(f.score)||!Array.isArray(f.allowed)||!f.allowed.includes('モーモーミルク'))return out;
@@ -2442,13 +2480,20 @@ async function analyzeSingleImage(inputFile,idx,total,{sourceIndex=null,displayN
     }
    }catch(e){thirdBeforeWitness.pixelWitnessError=runtimeErrorText(e);}
   }
-  // No same-image correlation or later template witness may erase the
-  // prior weak tomato/mushroom contradiction. A reviewer can accept the
-  // proposed candidate; no OCR stage may silently auto-confirm this case.
+  // A locked tomato/mushroom conflict normally stays under review.
+  // Release it ONLY if two uniquely inferred reference foods and a strong
+  // within-image grayscale identity agree; never guess another value.
   if(holdTomatoMushroomReview&&foods?.[2]){
-   foods[2].needsReview=true;
-   foods[2].reviewReason='locked-food3-tomato-mushroom-low-confidence';
-   delete foods[2].reviewSelection;
+   const witness=strongLockedTomatoCrossSlotWitness(foods,parsed.level,inference?.status);
+   if(witness){
+    foods[2].needsReview=false;
+    foods[2].reviewReason='';
+    foods[2].strongSelfMatchEvidence=witness;
+   }else{
+    foods[2].needsReview=true;
+    foods[2].reviewReason='locked-food3-tomato-mushroom-low-confidence';
+    delete foods[2].reviewSelection;
+   }
   }
   // Recheck ONLY third food slots already marked for human review.
   // No suggestion is auto-applied: this leaves the zero-false-accept gate intact.
