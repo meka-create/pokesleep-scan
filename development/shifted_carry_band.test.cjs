@@ -208,6 +208,7 @@ test('noisy prefix is not merged into 3-digit minutes',()=>{
  for(const [raw,seconds] of [
   ['36分11秒ごと',2171],['1 36分11秒ごと',2171],
   [')__ 36分11秒ごと i',2171],['1 44分14秒ごと',2654],
+  ['36分11移ごと',2171],[') 36分11移ごと !',2171],
   ['1時間12分34秒ごと',4354]
  ])assert.equal(ctx.parseIsolatedHelpTimeRetry(raw),seconds,raw);
  for(const raw of ['136分11秒ごと','136分11秒','1 136分11秒ごと',
