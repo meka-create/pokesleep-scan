@@ -1,5 +1,7 @@
 """Synthetic-only negative controls for the offline final evidence gate."""
-import csv,hashlib,io,json,sys,unittest
+import csv,hashlib,io,json,sys,unittest,tempfile
+from contextlib import redirect_stdout
+from unittest.mock import patch
 from pathlib import Path
 from zipfile import ZipFile
 sys.path.insert(0,str(Path(__file__).resolve().parent))
@@ -87,6 +89,24 @@ class FinalEvidenceTests(unittest.TestCase):
             a[1]=archive.getvalue()
             with self.assertRaisesRegex(ValueError,'Unsafe image ZIP path'):
                 evaluate(*a)
+
+    def test_corrupt_zip_cli_returns_honest_hold_not_traceback(self):
+        from final_evidence_gate import main
+        a=fixtures()
+        a[1]=b'not-a-zip'
+        keys=('golden','images-zip','diagnostics','raw','corrected','returned')
+        with tempfile.TemporaryDirectory() as directory:
+            argv=['final_evidence_gate.py']
+            for key,data in zip(keys,a):
+                path=Path(directory)/(key+'.bin')
+                path.write_bytes(data)
+                argv.extend(['--'+key,str(path)])
+            output=io.StringIO()
+            with patch.object(sys,'argv',argv),redirect_stdout(output):
+                code=main()
+            self.assertEqual(code,2)
+            result=json.loads(output.getvalue())
+            self.assertEqual(result,{'result':'HOLD','errorType':'BadZipFile'})
 
     def test_bad_source_index_fails(self):
         a=fixtures();x=json.loads(a[2]);x['results'][0]['sourceIndex']=1;a[2]=json.dumps(x).encode()
