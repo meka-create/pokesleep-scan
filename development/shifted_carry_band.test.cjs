@@ -195,3 +195,64 @@ test('noisy time can never override contradictory OCR, weak/contradictory carry,
  assert.equal(p.helpSeconds,null);
  assert.equal(p.carry,null);
 });
+
+
+// Different Android capture methods can inject an isolated foreground digit
+// before an otherwise legible help time. The older parser merged "1 36" as
+// 136 minutes, then rejected the correct candidate as ambiguous.
+const isolatedStart=src.indexOf('function parseIsolatedHelpTimeRetry(');
+const isolatedEnd=src.indexOf('function parseSkillLevelText(',isolatedStart);
+assert.ok(isolatedStart>=0&&isolatedEnd>isolatedStart,'conservative time retry missing');
+vm.runInContext(src.slice(isolatedStart,isolatedEnd),ctx);
+test('noisy prefix is not merged into 3-digit minutes',()=>{
+ for(const [raw,seconds] of [
+  ['36分11秒ごと',2171],['1 36分11秒ごと',2171],
+  [')__ 36分11秒ごと i',2171],['1 44分14秒ごと',2654],
+  ['1時間12分34秒ごと',4354]
+ ])assert.equal(ctx.parseIsolatedHelpTimeRetry(raw),seconds,raw);
+ for(const raw of ['136分11秒ごと','136分11秒','1 136分11秒ごと',
+    '36分71秒ごと','36当11移ごと','36分11秒ごと 40分12秒ごと'])
+  assert.equal(ctx.parseIsolatedHelpTimeRetry(raw),null,raw);
+});
+const foodGuardStart=src.indexOf('function guardLockedFood3TomatoMushroomConfusion(');
+const foodGuardEnd=src.indexOf('function guardLockedFood3KnownLowConfidenceConfusions(',foodGuardStart);
+assert.ok(foodGuardStart>=0&&foodGuardEnd>foodGuardStart,'tomato-mushroom food3 guard missing');
+vm.runInContext(src.slice(foodGuardStart,foodGuardEnd),ctx);
+function foodRows(level=50){
+ return [{name:'あんみんトマト',needsReview:false},
+  {name:'ずっしりカボチャ',needsReview:false},
+  {name:'あじわいキノコ',second:'あんみんトマト',
+   method:'image',score:.8368845897,allowed:['あんみんトマト','ずっしりカボチャ','あじわいキノコ'],
+   needsReview:false,reviewSelection:'あじわいキノコ'}];
+}
+test('previous dimmed tomato wrongly favored mushroom: force review, never silently substitute',()=>{
+ const f=foodRows(),v=ctx.guardLockedFood3TomatoMushroomConfusion(f,50);
+ assert.equal(v[2].name,'あじわいキノコ');
+ assert.equal(v[2].needsReview,true);
+ assert.equal(v[2].reviewReason,'locked-food3-tomato-mushroom-low-confidence');
+ assert.equal(v[2].reviewSelection,undefined);
+});
+test('do not degrade historical 142-image Lv27 legitimate mushroom, strong image or different competitors',()=>{
+ for(const [level,mutate] of [
+  [27,f=>{f[2].score=.7222;}],
+  [50,f=>{f[2].score=.97;}],
+  [50,f=>{f[2].second='ずっしりカボチャ';}],
+  [50,f=>{f[2].name='あんみんトマト';}],
+  [50,f=>{f[0].needsReview=true;}]
+ ]){
+  const f=foodRows();mutate(f);ctx.guardLockedFood3TomatoMushroomConfusion(f,level);
+  assert.equal(f[2].needsReview,false);
+ }
+});
+test('weak mushroom/tomato review remains sticky after later same-image witnesses',()=>{
+ assert.match(src,/const holdTomatoMushroomReview=foods\?\.\[2\]\?\.reviewReason==='locked-food3-tomato-mushroom-low-confidence'/);
+ assert.match(src,/if\(holdTomatoMushroomReview&&foods\?\.\[2\]\)\{/);
+ assert.match(src,/foods\[2\]\.needsReview=true;/);
+ assert.match(src,/foods\[2\]\.reviewReason='locked-food3-tomato-mushroom-low-confidence'/);
+});
+test('nature-value-only fallback must be scoped to missing value, high-quality lexicon and nonadaptive layout',()=>{
+ assert.match(src,/const NATURE_TEXT_ONLY_FALLBACK=\[125,1275,345,1350,'detail'\]/);
+ assert.match(src,/if\(!parsed\.nature&&!sets\.nature\?\.length&&!layoutInfo\(canvas\)\.adaptive\)/);
+ assert.match(src,/v\.score>=\.90&&NATURES\.includes\(v\.value\)/);
+ assert.match(src,/r\.confidence>=70&&r\.value/);
+});

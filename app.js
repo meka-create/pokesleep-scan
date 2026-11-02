@@ -1,5 +1,5 @@
 (() => {
-const BUILD_ID='v12-blurred-time-carry-crosscheck-20261102-v1';
+const BUILD_ID='v12-mixed-capture-food3-safe-20261102-v1';
 'use strict';
 // The verified Android 1080x2400 OCR path is now the standard on every device.
 // Preserve the existing ROI adapter and its safe legacy fallback unchanged.
@@ -21,6 +21,8 @@ const SP_FALLBACK=[155,90,330,150,'top'];
 const SKILL_LEVEL_FALLBACK=[150,625,665,725,'main'];
 const MAIN_SKILL_FALLBACK=[150,625,665,725,'main'];
 const NATURE_FALLBACK=[55,1275,350,1390,'detail'];
+// Exclude the small green nature caption; isolate the actual value line.
+const NATURE_TEXT_ONLY_FALLBACK=[125,1275,345,1350,'detail'];
 // v12-beta: small green White Mint mark at the right end of the nature panel.
 // v12-beta2: keep v12-beta recognition logic; beta2 only hardens unresolved food-review CSV output.
 const MINT_MARK_REGION=[295,1293,330,1333,'detail'],MINT_GREEN_RATIO_MIN=.19,FOOD_REVIEW_MARGIN=.015,MAX_POKEMON_LEVEL=70,ADAPTIVE_LAYOUT_MAX_H=1470;
@@ -63,7 +65,7 @@ const NATURES=POKESLEEP_MASTER.natures.map(x=>x.ja);
 const SUBSKILLS=POKESLEEP_MASTER.subskills.map(x=>x.ja);
 const SPECIES_NAMES=[...new Set(POKESLEEP_MASTER.pokemon.map(x=>x.name))];
 const $=s=>document.querySelector(s);let selected=[],results=[],worker=null,paddleOcr=null,paddleInitPromise=null,paddleUnavailableError=null,paddleRuntimeGeneration=0,isRunning=false,analysisPause=null,checkpointPreparing=false,selectionSnapshotPreparing=false,selectionSnapshotGeneration=0,checkpointRestoreRunning=false,checkpointSessionActive=false,checkpointPersistenceWarningShown=false,renderPending=false,modalObjectUrl='',modalReturnFocus=null,appDialogResolver=null,appDialogReturnFocus=null,localProgressVisible=true,localProgressState='idle',localProgressMaxPct=0,floatingProgressState='idle',floatingProgressDone=0,floatingProgressTotal=0,floatingProgressReviews=0,floatingCompletionTimer=null,floatingCompletionPending=false,floatingCompletionDismissed=false,preManualCsvSnapshot=null,wakeLockSentinel=null,wakeLockRequestPromise=null,wakeLockRetryTimer=null;const checkpointFailureLog=[];const layoutCache=new WeakMap(),profileCardCache=new WeakMap(),stableSourcePromises=new WeakMap(),stableSourceFiles=new WeakSet();
-const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-11-02-blurred-time-carry-crosscheck-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
+const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-11-02-mixed-capture-food3-safe-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
 function pullRefreshGuardActive(){return !!(isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing);}
 function analysisWakeLockShouldHold(){return !!((isRunning||checkpointPreparing)&&!analysisPause);}
 function wakeLockApiSupported(){return typeof navigator!=='undefined'&&!!navigator.wakeLock?.request;}
@@ -836,6 +838,16 @@ function parseBlurredHelpTimeCandidate(raw){
  const s=String(raw||'').normalize('NFKC').replace(/\s+/g,'');
  const m=s.match(/(?:^|[^0-9])([1-9][0-9]?)\s*[分当バ]\s*([0-5][0-9])\s*[秒秘牧物移生柳]\s*ごと(?![0-9])/u);
  return m?Number(m[1])*60+Number(m[2]):null;
+}
+// Retry only: keep isolated OCR prefix digits from turning "1 36分11秒"
+ // into the false 136-minute candidate. Do not loosen the primary parser.
+// Distinct values or non-cadence text remain unresolved.
+function parseIsolatedHelpTimeRetry(raw){
+ const text=String(raw||'').normalize('NFKC');
+ const re=/(?:^|[^0-9])(?:(\d{1,2})時間)?([1-9]\d?)分([0-5]\d?)秒ごと(?![0-9])/gu;
+ const matched=[...text.matchAll(re)].map(m=>Number(m[1]||0)*3600+Number(m[2])*60+Number(m[3]));
+ const unique=[...new Set(matched)];
+ return unique.length===1?unique[0]:null;
 }
 function parseSkillLevelText(raw){let s=(raw||'').normalize('NFKC').replace(/[Oo]/g,'0');const m=s.match(/Lv\.?\s*(\d{1,2})/i);if(m)return +m[1];const only=s.replace(/\D/g,'');if(only.length===1&&+only>=1&&+only<=8)return +only;return null;}
 function parseMainSkillText(raw){let s=(raw||'').normalize('NFKC');s=s.replace(/(Lv\.?\s*)([0-9Oo]{1,2})/i,(_,a,b)=>a+b.replace(/[Oo]/g,'0'));s=s.replace(/Lv\.?\s*\d+.*$/i,'');const ns=norm(s),contained=MAIN_SKILLS.filter(x=>norm(x)&&ns.includes(norm(x))).sort((a,b)=>norm(b).length-norm(a).length);if(contained.length)return {value:contained[0],score:1};return best(s,MAIN_SKILLS);}
@@ -1616,6 +1628,22 @@ function guardLockedFood3DimmedArbitration(foods,level){const out=foods||[],f=ou
 function guardLockedFood3SoyMushroomConfusion(foods,level){const out=foods||[],f=out[2];if(Number(level)<60&&f?.method==='image'&&!f.needsReview&&f?.name==='あじわいキノコ'&&f?.second==='ワカクサ大豆'&&Number.isFinite(f.score)&&f.score<.90){f.needsReview=true;f.reviewReason='locked-food3-soy-mushroom-low-confidence';delete f.reviewSelection;}return out;}
 // Independent image replay: locked food3 milk/honey icons can score as mushroom/coffee.
 // Review only for these narrow low-confidence candidate sets; never relabel the food.
+// A dimmed tomato can resemble mushroom after re-encoding. On a
+// 50+ specimen, if mushroom beats tomato only weakly, NEVER auto-confirm:
+ // preserve the candidate and require human review. Do not swap the value.
+function guardLockedFood3TomatoMushroomConfusion(foods,level){
+ const f=foods?.[2],first=foods?.[0];
+ if(Number(level)>=50&&f?.method==='image'&&!f.needsReview&&
+    f.name==='あじわいキノコ'&&f.second==='あんみんトマト'&&
+    first?.name==='あんみんトマト'&&!first?.needsReview&&
+    Array.isArray(f.allowed)&&f.allowed.includes('あんみんトマト')&&
+    Number.isFinite(f.score)&&f.score<.9){
+    f.needsReview=true;
+    f.reviewReason='locked-food3-tomato-mushroom-low-confidence';
+    delete f.reviewSelection;
+ }
+ return foods;
+}
 function guardLockedFood3KnownLowConfidenceConfusions(foods,level){
  const out=foods||[],f=out[2];
  if(!Number.isFinite(level)||level<1||level>=60||f?.method!=='image'||f.needsReview||!Number.isFinite(f.score)||!Array.isArray(f.allowed)||!f.allowed.includes('モーモーミルク'))return out;
@@ -1748,7 +1776,7 @@ async function rescueStructured(canvas,raw,parsed,inference,idx,total){
  if(inference.status==='UNIQUE'){parsed.structuredRescue=diag;return {parsed,inference};}
  let profileA=null;const getProfile=async()=>profileA||(profileA=await readProfileHeaderRetry(canvas,idx,total));
  const missingFields=[];const sets={};
- if(parsed.helpSeconds==null){const a=await readRetry(canvas,TIME_FALLBACK,'おてつだい時間',idx,total,parseHelpSeconds,'time');diag.attempts.helpSeconds=a;sets.helpSeconds=uniqVals(a.map(x=>x.value));if(sets.helpSeconds.length)missingFields.push('helpSeconds');
+ if(parsed.helpSeconds==null){const a=await readRetry(canvas,TIME_FALLBACK,'おてつだい時間',idx,total,parseIsolatedHelpTimeRetry,'time');diag.attempts.helpSeconds=a;sets.helpSeconds=uniqVals(a.map(x=>x.value));if(sets.helpSeconds.length)missingFields.push('helpSeconds');
   else{
    const blurred=await tryBlurredHelpTimeCarryRescue(canvas,parsed,a,idx,total);
    if(blurred){
@@ -1768,6 +1796,22 @@ async function rescueStructured(canvas,raw,parsed,inference,idx,total){
  const evidenceNatures=natureEvidenceValues(parsed);
  if(!parsed.nature){let a;if(layoutInfo(canvas).adaptive){a=[];for(const opt of [{psm:'7'},{psm:'11'}]){const r=await ocrSingle(crop(canvas,'nature'),'せいかく',idx,total,opt),b=parseNatureText(r.text),v=b.score>=.55?b.value:null;a.push({...r,value:v,threshold:.55,psm:opt.psm});}const deep=adaptiveNatureRescueCrop(canvas);if(deep){for(const opt of [{psm:'6'},{psm:'11'}]){const r=await ocrSingle(deep,'せいかく深掘り',idx,total,opt),b=parseNatureText(r.text),gate=deepNatureRescue(r.text,b),v=gate.value;a.push({...r,value:v,score:b.score,threshold:.45,relaxedThreshold:.42,contiguousMatch:gate.run,relaxedAccepted:gate.relaxed,psm:opt.psm,crop:'deep'});}}}else a=await readRetry(canvas,NATURE_FALLBACK,'せいかく',idx,total,t=>{const b=parseNatureText(t);return b.score>=.55?b.value:null;},'nature');diag.attempts.natureMissing=a;sets.nature=uniqVals([...evidenceNatures,...a.map(x=>x.value)]);if(sets.nature.length)missingFields.push('nature');}
  else if(evidenceNatures.length>1){sets.nature=evidenceNatures;missingFields.push('nature');diag.attempts.natureEvidence=evidenceNatures;}
+ // One additional *value-only* nature OCR crop, strictly limited to
+ // missing nature and verified full-height layout. It deliberately excludes
+ // the green せいかく label which otherwise wins PSM11 over the value.
+ if(!parsed.nature&&!sets.nature?.length&&!layoutInfo(canvas).adaptive){
+  const only=await readRetry(canvas,NATURE_TEXT_ONLY_FALLBACK,
+   'せいかく・本文のみ',idx,total,t=>{
+    const v=parseNatureText(t);
+    return v.score>=.90&&NATURES.includes(v.value)?v.value:null;
+   },'nature');
+  diag.attempts.natureTextOnly=only;
+  const exact=only.filter(r=>r.confidence>=70&&r.value);
+  const values=uniqVals(exact.map(r=>r.value));
+  // A single high-confidence exact string is visible source evidence.
+  // If both recognized variants conflict, classifier may not choose by guess.
+  if(values.length){sets.nature=values;if(!missingFields.includes('nature'))missingFields.push('nature');}
+ }
  if(missingFields.length){const chosen=chooseUniqueRescue(testStructuredCandidates(parsed,missingFields,sets),missingFields);if(chosen){applyStructuredValues(parsed,chosen.vals);if(Object.prototype.hasOwnProperty.call(chosen.vals,'nature'))parsed.natureNeedsReview=false;inference=inferParsed(parsed);diag.applied={reason:'missing-field-rescue',...chosen.vals,species:chosen.species};diag.afterStatus=inference.status;if(inference.status==='UNIQUE'){parsed.structuredRescue=diag;return {parsed,inference};}}}
   // Candidate124 only probes cases whose skill level is still missing. It reuses
  // retry evidence already collected, so no extra OCR calls are introduced.
@@ -2328,7 +2372,7 @@ async function analyzeSingleImage(inputFile,idx,total,{sourceIndex=null,displayN
   parsed=window.POKESLEEP_NICKNAME_SPATIAL?.reviewOnly?.(parsed)||parsed;
   Object.assign(nicknameReviewAtAnalysis,{value:parsed.nickname,needsReview:!!parsed.nicknameNeedsReview,reason:parsed.nicknameReviewReason||'',resolvedBy:parsed.nicknameResolvedBy||''});
   inference=await retryMissingCarryFromVisibleCard(canvas,parsed,inference,idx,total);({parsed,inference}=applyMintNeutralization(canvas,parsed,inference));({parsed,inference}=applyVisibleMythicalSubskillDashes(canvas,parsed,inference));parsed.versatileSkill=detailedMewVersatileSkill(parsed);scanPerfStage('foodMatchingAndSafety');
-  let foods=guardLockedFood3KnownLowConfidenceConfusions(guardLockedFood3SoyMushroomConfusion(guardLockedFood3DimmedArbitration(markFoodReviews(POKESLEEP_FOOD_MATCHER.resolveSlots(canvas,inference,parsed.level)),parsed.level),parsed.level),parsed.level);const firstFoodRescue=typeof tryCarryCorroboratedFirstFoodRescue==='function'?tryCarryCorroboratedFirstFoodRescue(inference,foods):null;if(firstFoodRescue)foods=firstFoodRescue.foods;foods=await applySafeNoFoodTemplate(canvas,inference,foods);
+  let foods=guardLockedFood3TomatoMushroomConfusion(guardLockedFood3KnownLowConfidenceConfusions(guardLockedFood3SoyMushroomConfusion(guardLockedFood3DimmedArbitration(markFoodReviews(POKESLEEP_FOOD_MATCHER.resolveSlots(canvas,inference,parsed.level)),parsed.level),parsed.level),parsed.level),parsed.level);const holdTomatoMushroomReview=foods?.[2]?.reviewReason==='locked-food3-tomato-mushroom-low-confidence';const firstFoodRescue=typeof tryCarryCorroboratedFirstFoodRescue==='function'?tryCarryCorroboratedFirstFoodRescue(inference,foods):null;if(firstFoodRescue)foods=firstFoodRescue.foods;foods=await applySafeNoFoodTemplate(canvas,inference,foods);
   // An already-reviewed, locked Lv30 second food can be corroborated by
   // the confidently identified first food in this SAME image. Only release
   // review for the existing top choice: never switch oil to coffee or vice
@@ -2397,6 +2441,14 @@ async function analyzeSingleImage(inputFile,idx,total,{sourceIndex=null,displayN
      thirdBeforeWitness.reviewReason='';
     }
    }catch(e){thirdBeforeWitness.pixelWitnessError=runtimeErrorText(e);}
+  }
+  // No same-image correlation or later template witness may erase the
+  // prior weak tomato/mushroom contradiction. A reviewer can accept the
+  // proposed candidate; no OCR stage may silently auto-confirm this case.
+  if(holdTomatoMushroomReview&&foods?.[2]){
+   foods[2].needsReview=true;
+   foods[2].reviewReason='locked-food3-tomato-mushroom-low-confidence';
+   delete foods[2].reviewSelection;
   }
   // Recheck ONLY third food slots already marked for human review.
   // No suggestion is auto-applied: this leaves the zero-false-accept gate intact.
