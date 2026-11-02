@@ -66,7 +66,7 @@ class FinalEvidenceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'SHA'):evaluate(*a)
     def test_duplicate_image_basename_rejected_even_when_hashes_match(self):
         a=fixtures()
-        original=b'\\x89PNG\\r\\n\\x1a\\nSYNTHETIC-ONLY'
+        original=bytes.fromhex('89504e470d0a1a0a')+b'SYNTHETIC-ONLY'
         for path in ('other/synthetic-fixture.png','synthetic/synthetic-fixture.png'):
             archive=io.BytesIO(a[1])
             with ZipFile(archive,'a') as z:
@@ -80,7 +80,7 @@ class FinalEvidenceTests(unittest.TestCase):
         for path in ('../synthetic-fixture.png','synthetic/../synthetic-fixture.png',
                      r'folder\\synthetic-fixture.png','/synthetic-fixture.png'):
             a=fixtures()
-            image=b'\\x89PNG\\r\\n\\x1a\\nSYNTHETIC-ONLY'
+            image=bytes.fromhex('89504e470d0a1a0a')+b'SYNTHETIC-ONLY'
             archive=io.BytesIO()
             with ZipFile(archive,'w') as z:
                 z.writestr(path,image)
