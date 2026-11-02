@@ -111,7 +111,7 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  assert.equal(crypto.createHash('sha256').update(newFood).digest('hex'),
   '7ed1ac1a76367b62b47f68100c63fe629353a684d1f291e3dfcecdab0e4960b7');
  const oldFood=newFood.replace('guardLockedFood3TomatoMushroomConfusion(','')
-  .replace(",parsed.level);const holdTomatoMushroomReview=foods?.[2]?.reviewReason==='locked-food3-tomato-mushroom-low-confidence';",');');
+  .replace(",parsed.level);const holdTomatoMushroomReview=foods?.[2]?.reviewReason==='locked-food3-tomato-mushroom-low-confidence';",';');
  restored=restored.slice(0,foodAt)+oldFood+restored.slice(foodTo);
  // The new guarded nature crop inserts no historical code after normalization.
  // Its leading indentation must also be restored byte-for-byte.
