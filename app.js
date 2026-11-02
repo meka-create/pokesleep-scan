@@ -844,7 +844,7 @@ function parseBlurredHelpTimeCandidate(raw){
 // Distinct values or non-cadence text remain unresolved.
 function parseIsolatedHelpTimeRetry(raw){
  const text=String(raw||'').normalize('NFKC');
- const re=/(?:^|[^0-9])(?:(\d{1,2})時間)?([1-9]\d?)分([0-5]\d?)秒ごと(?![0-9])/gu;
+ const re=/(?:^|[^0-9])(?:(\d{1,2})時間)?([1-9]\d?)分([0-5]\d?)[秒秘牧物移生]ごと(?![0-9])/gu;
  const matched=[...text.matchAll(re)].map(m=>Number(m[1]||0)*3600+Number(m[2])*60+Number(m[3]));
  const unique=[...new Set(matched)];
  return unique.length===1?unique[0]:null;
