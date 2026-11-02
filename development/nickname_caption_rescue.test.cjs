@@ -92,6 +92,19 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
    expectedSha,'unaudited change in '+a);
   restored=restored.slice(0,startAt)+baseline+restored.slice(endAt);
  }
+ // Preserve the HISTORICAL frozen nickname baseline. The new, separately
+ // tested blurred-time rescue is reviewed as three exact immutable spans;
+ // removal here is only for the historic whole-app fingerprint comparison.
+ approvedSpan('// Only a rescue candidate, never a normal time parser.',
+  'function parseSkillLevelText(',
+  '2495432f53b4f295c0402dc713da3bdf8e603274709f9ba25dd065035ffa16fe','');
+ approvedSpan('// Deliberately narrow rescue of rescaled screenshots',
+  'async function retryMissingCarryFromVisibleCard(',
+  'b33c7ee0f67bee2c0f58aee031ba40652e7c1c1c7b605cedcd85f9a18a97470c','');
+ approvedSpan("if(parsed.helpSeconds==null){const a=await readRetry(",
+  ' if(parsed.level==null){',
+  'bf3ab7c2fbd5c32bfb73a16248da40d65370238614068733311cd369ac815b1e',
+  "if(parsed.helpSeconds==null){const a=await readRetry(canvas,TIME_FALLBACK,'おてつだい時間',idx,total,parseHelpSeconds,'time');diag.attempts.helpSeconds=a;sets.helpSeconds=uniqVals(a.map(x=>x.value));if(sets.helpSeconds.length)missingFields.push('helpSeconds');}\\n".replace('\\n','\n'));
  // New carry-caption primary uses detected green bands. Audit its
  // complete added source and the one call inside the original carry retry,
  // then restore the original byte sequence before checking the historic SHA.
