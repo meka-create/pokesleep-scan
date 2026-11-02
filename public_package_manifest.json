@@ -42,7 +42,7 @@
     {
       "path": "app.js",
       "bytes": 350860,
-      "sha256": "7616483453b1bef7fa7784b881fa021186b3800b3880af47ca71c945c90d8398"
+      "sha256": "d0bc239245c2e00099d6c0fc4b95a67fb5265eb928fc70612ae1d01f7a08ace7"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -77,7 +77,7 @@
     {
       "path": "development/ROADMAP_CURRENT.md",
       "bytes": 44358,
-      "sha256": "087c7770818abd108d76487d8283fbe4830538325e019ebc9f6d945a0009a87d"
+      "sha256": "e63f91c8eeec33389e01fbe459ced7fb231f9c4d8de40818c6602f0eb96d2eef"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -197,7 +197,7 @@
     {
       "path": "development/nickname_caption_rescue.test.cjs",
       "bytes": 30885,
-      "sha256": "a668723db9c2c0e9de6d39f84f5b96e65996baa1f59e868f944aae9994fa4997"
+      "sha256": "b79bfce3c7cb12ab8e711b6695c1944de71f1a089433d2fd35376d5d5c7c38fd"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -262,7 +262,7 @@
     {
       "path": "development/shifted_carry_band.test.cjs",
       "bytes": 18865,
-      "sha256": "d2d4ca431df1a1aa29292f23981bc2e93a5f1b60591cf962ccb615407f4b9be7"
+      "sha256": "491ec531420456feabd8fa5d613b4322d9e78cb77024d38fe742521a8cebd83f"
     },
     {
       "path": "development/speed_warning.test.cjs",
@@ -477,7 +477,7 @@
     {
       "path": "release.json",
       "bytes": 54,
-      "sha256": "0e61e615ee57701f212a62cde9b1b4391a907c1fc1c36624fbe5545013aa54e6"
+      "sha256": "8e86f5a66104a4a5963d641c01494077509760af9e4b0eeab149aaba2606d61c"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -497,7 +497,7 @@
     {
       "path": "sw.js",
       "bytes": 4093,
-      "sha256": "d4e6881eeb4e28c1d713fe36ca27536e1c62d0d7c7411f5251471f7dc374bda3"
+      "sha256": "d7e64cd3a5116ae2d9e2ba593b6b25683fae0dfa56f71fd397c1c04ab799cedd"
     }
   ]
 }
