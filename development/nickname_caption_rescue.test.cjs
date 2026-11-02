@@ -120,9 +120,9 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  approvedSpan('  // A locked tomato/mushroom conflict normally stays under review.',
   '  // Recheck ONLY third food slots',
   '52ea01ce8eea02af73e818acf5a7c23a860c37a26e19507fb3c1b67222dbb51d','');
- assert.equal(restored.split('    // Recheck ONLY third food slots').length-1,1);
- restored=restored.replace('    // Recheck ONLY third food slots',
-  '  // Recheck ONLY third food slots');
+ // The audited hook begins at its indentation, unlike the older hook.
+ // Its removal must expose the original exactly two-space indentation.
+ assert.equal(restored.split('  // Recheck ONLY third food slots').length-1,1);
  // Preserve the HISTORICAL frozen nickname baseline. The new, separately
  // tested blurred-time rescue is reviewed as three exact immutable spans;
  // removal here is only for the historic whole-app fingerprint comparison.
