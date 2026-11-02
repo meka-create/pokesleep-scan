@@ -244,6 +244,12 @@ test('do not degrade historical 142-image Lv27 legitimate mushroom, strong image
   assert.equal(f[2].needsReview,false);
  }
 });
+test('weak mushroom/tomato review remains sticky after later same-image witnesses',()=>{
+ assert.match(src,/const holdTomatoMushroomReview=foods\?\.\[2\]\?\.reviewReason==='locked-food3-tomato-mushroom-low-confidence'/);
+ assert.match(src,/if\(holdTomatoMushroomReview&&foods\?\.\[2\]\)\{/);
+ assert.match(src,/foods\[2\]\.needsReview=true;/);
+ assert.match(src,/foods\[2\]\.reviewReason='locked-food3-tomato-mushroom-low-confidence'/);
+});
 test('nature-value-only fallback must be scoped to missing value, high-quality lexicon and nonadaptive layout',()=>{
  assert.match(src,/const NATURE_TEXT_ONLY_FALLBACK=\[125,1275,345,1350,'detail'\]/);
  assert.match(src,/if\(!parsed\.nature&&!sets\.nature\?\.length&&!layoutInfo\(canvas\)\.adaptive\)/);
