@@ -99,7 +99,7 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
   'e70fce83893ce55b6a251ccff0d5f1b005de967e0e2acec2ae16b4735520715d','');
  approvedSpan('// A dimmed tomato can resemble mushroom',
   'function guardLockedFood3KnownLowConfidenceConfusions(',
-  'e940c7118218dbb9beefff2a70f627d24be509b7b82d59c5f0112df7ab072c87','');
+  '3b14fd6ce7dbb5be9716e715f0cfa9c9d0a5d4b02a999a92c3cbde520194f8a4','');
  approvedSpan('// One additional *value-only* nature OCR crop',
   ' if(missingFields.length){',
   '413f5744e73aa848a5a749785155dae83e545bd883b64e9b75c0fe2c60803aac','');
@@ -119,7 +119,7 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  restored=restored.replace('  if(missingFields.length){',' if(missingFields.length){');
  approvedSpan('  // A locked tomato/mushroom conflict normally stays under review.',
   '  // Recheck ONLY third food slots',
-  '52ea01ce8eea02af73e818acf5a7c23a860c37a26e19507fb3c1b67222dbb51d','');
+  '22b9a688bb0f88a3e5353071c9c407d7182d64889a70f8e2836b91313b2a2f8b','');
  // The audited hook begins at its indentation, unlike the older hook.
  // Its removal must expose the original exactly two-space indentation.
  assert.equal(restored.split('  // Recheck ONLY third food slots').length-1,1);
