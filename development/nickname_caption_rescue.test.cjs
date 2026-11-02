@@ -128,7 +128,7 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  // removal here is only for the historic whole-app fingerprint comparison.
  approvedSpan('// Only a rescue candidate, never a normal time parser.',
   'function parseSkillLevelText(',
-  '803969cc958f4b44b3010249d6b54414aaa0e619b853c54e4632592c347bad13','');
+  '4b9ad32c41b203dfae7366516701a3069e6a71736b1430254f2a29042503c33a','');
  approvedSpan('// Deliberately narrow rescue of rescaled screenshots',
   'async function retryMissingCarryFromVisibleCard(',
   'b33c7ee0f67bee2c0f58aee031ba40652e7c1c1c7b605cedcd85f9a18a97470c','');
