@@ -260,7 +260,7 @@ function syntheticStrongTomatoRows(){
    {name:'あんみんトマト',score:.70},
    {name:'ずっしりカボチャ',score:.60}],
   allowed:['あんみんトマト','ずっしりカボチャ','あじわいキノコ'],
-  needsReview:true,reviewReason:'locked-food3-tomato-mushroom-low-confidence',
+  needsReview:false,reviewReason:'', // earlier self-match cleared the initial review
   crossSlotEvidence:{name:'あんみんトマト',secondName:'ずっしりカボチャ',
    score:.95,secondScore:.59,originalName:'あじわいキノコ',
    originalScore:.84,method:'within-image-grayscale-correlation'}};
@@ -268,11 +268,27 @@ function syntheticStrongTomatoRows(){
 }
 test('native-resolution-agnostic strong cross-slot evidence can resolve already-correct tomato',()=>{
  const f=syntheticStrongTomatoRows();
- const proof=ctx.strongLockedTomatoCrossSlotWitness(f,50,'UNIQUE');
+ const proof=ctx.strongLockedTomatoCrossSlotWitness(f,50,'UNIQUE',true);
  assert.equal(proof.method,'locked-tomato-two-reference-self-witness');
  assert.equal(proof.score,.95);
  assert.equal(f[2].name,'あんみんトマト');
- assert.equal(ctx.strongLockedTomatoCrossSlotWitness(f,59,'UNIQUE')?.score,.95);
+ assert.equal(ctx.strongLockedTomatoCrossSlotWitness(f,59,'UNIQUE',true)?.score,.95);
+});
+test('original locked-food hold is retained across the actual self-match review flag clearance',()=>{
+ // Reproduce production sequencing: guard marks reviewed mushroom, then
+ // correlated tomato receives a new method and its review flag is cleared.
+ const f=syntheticStrongTomatoRows();
+ f[2].name='あじわいキノコ';f[2].method='image';
+ f[2].crossSlotEvidence=null;
+ const guarded=ctx.guardLockedFood3TomatoMushroomConfusion(f,50);
+ assert.equal(guarded[2].needsReview,true);
+ const wasHeld=guarded[2].reviewReason==='locked-food3-tomato-mushroom-low-confidence';
+ assert.equal(wasHeld,true);
+ Object.assign(guarded[2],syntheticStrongTomatoRows()[2]);
+ assert.equal(guarded[2].needsReview,false);
+ assert.equal(guarded[2].reviewReason,'');
+ assert.ok(ctx.strongLockedTomatoCrossSlotWitness(guarded,50,'UNIQUE',wasHeld));
+ assert.equal(ctx.strongLockedTomatoCrossSlotWitness(guarded,50,'UNIQUE',false),null);
 });
 test('strong self witness fails closed for weak, competing, inferred or unrelated readings',()=>{
  const mutations=[
@@ -281,7 +297,7 @@ test('strong self witness fails closed for weak, competing, inferred or unrelate
   f=>{f[0].name='あじわいキノコ';},f=>{f[1].method='image';},
   f=>{f[1].needsReview=true;},f=>{f[1].manualOverride=true;},
   f=>{f[1].name='あんみんトマト';},f=>{f[1].allowed.push('あんみんトマト');},
-  f=>{f[2].method='image';},f=>{f[2].needsReview=false;},
+  f=>{f[2].method='image';},f=>{f[2].needsReview=true;},
   f=>{f[2].manualOverride=true;},f=>{f[2].reviewReason='generic-weakness';},
   f=>{f[2].name='あじわいキノコ';},f=>{f[2].second='ずっしりカボチャ';},
   f=>{f[2].allowed.pop();},f=>{f[2].ranking[0].name='あんみんトマト';},
@@ -299,18 +315,18 @@ test('strong self witness fails closed for weak, competing, inferred or unrelate
  ];
  for(const [i,mutate] of mutations.entries()){
   const f=syntheticStrongTomatoRows();mutate(f);
-  assert.equal(ctx.strongLockedTomatoCrossSlotWitness(f,50,'UNIQUE'),null,
+  assert.equal(ctx.strongLockedTomatoCrossSlotWitness(f,50,'UNIQUE',true),null,
    'unsafe variant #'+i+' must abstain');
  }
  for(const level of [14,27,49,60,61,70,NaN]){
-  assert.equal(ctx.strongLockedTomatoCrossSlotWitness(syntheticStrongTomatoRows(),level,'UNIQUE'),null);
+  assert.equal(ctx.strongLockedTomatoCrossSlotWitness(syntheticStrongTomatoRows(),level,'UNIQUE',true),null);
  }
  for(const status of ['AMBIGUOUS','NO_EXACT_MATCH','MISSING_INPUT']){
-  assert.equal(ctx.strongLockedTomatoCrossSlotWitness(syntheticStrongTomatoRows(),50,status),null);
+  assert.equal(ctx.strongLockedTomatoCrossSlotWitness(syntheticStrongTomatoRows(),50,status,true),null);
  }
 });
 test('production final safety rechecks strong witness but retains weak conflict review',()=>{
- assert.match(src,/const witness=strongLockedTomatoCrossSlotWitness\(foods,parsed\.level,inference\?\.status\)/);
+ assert.match(src,/const witness=strongLockedTomatoCrossSlotWitness\(foods,parsed\.level,inference\?\.status,holdTomatoMushroomReview\)/);
  assert.match(src,/foods\[2\]\.strongSelfMatchEvidence=witness/);
  assert.match(src,/foods\[2\]\.reviewReason='locked-food3-tomato-mushroom-low-confidence'/);
 });
