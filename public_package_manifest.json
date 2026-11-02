@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 347679,
-      "sha256": "6a5d79094fc6327b21369880b620b3ae4819e4303211c7d9839a8b18dfd41a81"
+      "bytes": 348188,
+      "sha256": "76c3c5b16771c4454f8e179e44792862c860f11e2ceb2ba59819e95de3beb065"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -196,8 +196,8 @@
     },
     {
       "path": "development/nickname_caption_rescue.test.cjs",
-      "bytes": 30090,
-      "sha256": "894e7429a952f97ffaf4ec1ad3f485c2bb95c20a20a36b67ace37189401fc855"
+      "bytes": 30873,
+      "sha256": "5e07c09e29f5905981e0ce50b0efcca80fc9f98ce85a0fe05c250c382c9c8d93"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -261,8 +261,8 @@
     },
     {
       "path": "development/shifted_carry_band.test.cjs",
-      "bytes": 12911,
-      "sha256": "722f6cf1f3369dc08e2d90d3dd3bb312da83870b8a47958fe684715ebe73b009"
+      "bytes": 13352,
+      "sha256": "b69d3efb479833e0947dc3e24aee7bb70aa85b36bd87dd0097817a664f80e2fc"
     },
     {
       "path": "development/speed_warning.test.cjs",
