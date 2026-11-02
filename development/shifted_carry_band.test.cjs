@@ -174,6 +174,29 @@ test('two reduced-resolution time OCR samples become unique only after literal s
   assert.equal(result.carryRetry.status,'blurred-time-visible-carry-crosscheck');
  }
 });
+test('high-resolution 1080x2400 geometry also supports conditional time/carry rescue (synthetic, not device evidence)',async()=>{
+ // This validates dimension-independent geometry, NOT a new real 142-image
+ // OCR acceptance result. Keep small-capture-specific work out of the plan.
+ const base=canvas(397,397);
+ base.android=null;
+ base.layout.time={start:311,end:346};
+ base.layout.carry={start:397,end:432};
+ base.layout.main={start:514,end:552};
+ const factor=2400/1536;
+ const scaled=r=>({start:r.start*factor,end:r.end*factor});
+ const high={...base,width:1080,height:2400,layout:{
+  adaptive:false,time:scaled(base.layout.time),
+  carry:scaled(base.layout.carry),main:scaled(base.layout.main)}};
+ assert.ok(ctx.verifiedShiftedCarryBandCrops(high),'full-resolution band geometry must be usable');
+ ctx.expectedTime=2171;ctx.expectedCarry=20;
+ readings(20,93,92);
+ const got=await ctx.tryBlurredHelpTimeCarryRescue(high,{helpSeconds:null,carry:null},
+  [{text:'36当11移ごと',confidence:61,psm:'11'}],0,1);
+ assert.ok(got,'qualified high-resolution fuzzy OCR can be cross-checked');
+ assert.equal(got.helpSeconds,2171);
+ assert.equal(got.carry,20);
+ assert.equal(got.carryRetry.evidence,'coordinated-green-bands');
+});
 test('noisy time can never override contradictory OCR, weak/contradictory carry, or unproven geometry',async()=>{
  ctx.expectedTime=2171;ctx.expectedCarry=20;
  const tr=[{text:'/ 36当11移ごと !',confidence:46,psm:'11'}];
