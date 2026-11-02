@@ -179,6 +179,8 @@ jobs:
           python-version: '3.13'
       - name: Failure-card deletion and modal synthetic tests
         run: node --test development/failure_card_actions.test.cjs development/image_button_compact.test.cjs
+      - name: Blurred time and shifted carry OCR safety (independent of live upstream)
+        run: node --test development/shifted_carry_band.test.cjs
       - name: Set up Chromium for focused UI checks
         run: |
           python -m pip install playwright==1.56.0
