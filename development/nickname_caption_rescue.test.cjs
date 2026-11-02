@@ -109,10 +109,20 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
  assert.ok(foodAt>=0&&foodTo>foodAt,'new food3 wrapper must exist');
  const newFood=restored.slice(foodAt,foodTo);
  assert.equal(crypto.createHash('sha256').update(newFood).digest('hex'),
-  '8443903169a4de1491505db3900a938d0db07f36a810bd6abadf5ca8d7c6c6ec');
+  '7ed1ac1a76367b62b47f68100c63fe629353a684d1f291e3dfcecdab0e4960b7');
  const oldFood=newFood.replace('guardLockedFood3TomatoMushroomConfusion(','')
-  .replace(/,parsed\.level\);$/,');');
+  .replace(",parsed.level);const holdTomatoMushroomReview=foods?.[2]?.reviewReason==='locked-food3-tomato-mushroom-low-confidence';",');');
  restored=restored.slice(0,foodAt)+oldFood+restored.slice(foodTo);
+ // The new guarded nature crop inserts no historical code after normalization.
+ // Its leading indentation must also be restored byte-for-byte.
+ assert.equal(restored.split('  if(missingFields.length){').length-1,1);
+ restored=restored.replace('  if(missingFields.length){',' if(missingFields.length){');
+ approvedSpan('// No same-image correlation or later template witness',
+  '  // Recheck ONLY third food slots',
+  '51c714a4561228a200a0f54d8499e01add7e99a09bbb42657fbeb6ea1389d989','');
+ assert.equal(restored.split('    // Recheck ONLY third food slots').length-1,1);
+ restored=restored.replace('    // Recheck ONLY third food slots',
+  '  // Recheck ONLY third food slots');
  // Preserve the HISTORICAL frozen nickname baseline. The new, separately
  // tested blurred-time rescue is reviewed as three exact immutable spans;
  // removal here is only for the historic whole-app fingerprint comparison.
