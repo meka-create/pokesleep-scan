@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-11-02-mixed-capture-food3-safe-v2",
-  "appBuildId": "v12-mixed-capture-food3-safe-20261102-v2",
+  "releaseId": "2026-11-02-mixed-capture-food3-safe-v3",
+  "appBuildId": "v12-mixed-capture-food3-safe-20261102-v3",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 348205,
-      "sha256": "e4c5bdd74ef84050f51f2236abb9b5c2bcd8556e74a2201596d781c4ff0f5d68"
+      "bytes": 348232,
+      "sha256": "0131513deac1c38cd02d05abd13a990bde2056501ddbd12670bb14c788fa6229"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 41495,
-      "sha256": "446e9ce8969d596bc6235ba0a898f9584255cf61ae107d89b958dd477258c733"
+      "bytes": 42663,
+      "sha256": "d2880f6332e149ad5b01d94ef78a3077966a2d36a05abf2aa5abf70aea65fa3f"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -136,8 +136,8 @@
     },
     {
       "path": "development/final_evidence_gate.py",
-      "bytes": 9036,
-      "sha256": "c5b3c92b2118694ff3329eb643863cdf6c3bf25ba8be107340fdc8e5dee0f0da"
+      "bytes": 9488,
+      "sha256": "e1ddca149eea058dbfbf0c2083dc3dc45413d17e50d248aefdb8457b1cb17a79"
     },
     {
       "path": "development/final_two_field_evidence.test.cjs",
@@ -197,7 +197,7 @@
     {
       "path": "development/nickname_caption_rescue.test.cjs",
       "bytes": 30872,
-      "sha256": "fc6a7295a185dd5d3e20886ee611be5dce95270c905c70317a5dd483412113eb"
+      "sha256": "38582ced9cb1860990bd846fc4dd5ca68cbf0da086f07c27a89236d167de22d7"
     },
     {
       "path": "development/nickname_consensus_autoconfirm.test.cjs",
@@ -261,8 +261,8 @@
     },
     {
       "path": "development/shifted_carry_band.test.cjs",
-      "bytes": 14638,
-      "sha256": "8bd1c9063854d505d2a3c178b3b387ea948afcaf8c4bd5dfe5258f16594b9293"
+      "bytes": 15061,
+      "sha256": "ac80892148fc48fa0a61278dc556521e1983111f97797dcef8a14488e19f5bab"
     },
     {
       "path": "development/speed_warning.test.cjs",
@@ -361,8 +361,8 @@
     },
     {
       "path": "development/test_final_evidence_gate.py",
-      "bytes": 10384,
-      "sha256": "ad1c347728df903cf383e8a9235690ed725ecb913d40f68d4896913ad114b192"
+      "bytes": 11518,
+      "sha256": "615a43f3efc693965785b578067d2df07650336dd8bbcc9fd9d01b96227f4ace"
     },
     {
       "path": "development/test_master_auto_update.py",
@@ -477,7 +477,7 @@
     {
       "path": "release.json",
       "bytes": 53,
-      "sha256": "f0769b076d34d67099563c9a39615495003a9372edf4272511ee0290d8a30a6e"
+      "sha256": "7521cf403027d1c376ea98bcdff61253abacdfb557c596e0d2c33394b0f0fa97"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -497,7 +497,7 @@
     {
       "path": "sw.js",
       "bytes": 4092,
-      "sha256": "4055471a723654de6747c3ac46509c5a494f2edf340311edc3ee41ef2295a770"
+      "sha256": "01833bd70c8bd09d3b6af33cfeacf701175cd29630dcb9622634aba61f481225"
     }
   ]
 }
