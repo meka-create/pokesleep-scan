@@ -92,18 +92,39 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
    expectedSha,'unaudited change in '+a);
   restored=restored.slice(0,startAt)+baseline+restored.slice(endAt);
  }
+ // Exact reviewed fixes for Android screenshot capture-mode variations.
+ // Remove only these proved byte ranges to retain the frozen nickname SHA.
+ approvedSpan('// Exclude the small green nature caption',
+  '// v12-beta:',
+  'e70fce83893ce55b6a251ccff0d5f1b005de967e0e2acec2ae16b4735520715d','');
+ approvedSpan('// A dimmed tomato can resemble mushroom',
+  'function guardLockedFood3KnownLowConfidenceConfusions(',
+  '11ff74fe98c66b10477c873f53d15007d24fab587b2535ed6926613e63746a46','');
+ approvedSpan('// One additional *value-only* nature OCR crop',
+  ' if(missingFields.length){',
+  '413f5744e73aa848a5a749785155dae83e545bd883b64e9b75c0fe2c60803aac','');
+ const foodStart='let foods=guardLockedFood3TomatoMushroomConfusion(';
+ const foodEnd='const firstFoodRescue=';
+ const foodAt=restored.indexOf(foodStart),foodTo=restored.indexOf(foodEnd,foodAt);
+ assert.ok(foodAt>=0&&foodTo>foodAt,'new food3 wrapper must exist');
+ const newFood=restored.slice(foodAt,foodTo);
+ assert.equal(crypto.createHash('sha256').update(newFood).digest('hex'),
+  '8443903169a4de1491505db3900a938d0db07f36a810bd6abadf5ca8d7c6c6ec');
+ const oldFood=newFood.replace('guardLockedFood3TomatoMushroomConfusion(','')
+  .replace(/,parsed\.level\);$/,');');
+ restored=restored.slice(0,foodAt)+oldFood+restored.slice(foodTo);
  // Preserve the HISTORICAL frozen nickname baseline. The new, separately
  // tested blurred-time rescue is reviewed as three exact immutable spans;
  // removal here is only for the historic whole-app fingerprint comparison.
  approvedSpan('// Only a rescue candidate, never a normal time parser.',
   'function parseSkillLevelText(',
-  '2495432f53b4f295c0402dc713da3bdf8e603274709f9ba25dd065035ffa16fe','');
+  '803969cc958f4b44b3010249d6b54414aaa0e619b853c54e4632592c347bad13','');
  approvedSpan('// Deliberately narrow rescue of rescaled screenshots',
   'async function retryMissingCarryFromVisibleCard(',
   'b33c7ee0f67bee2c0f58aee031ba40652e7c1c1c7b605cedcd85f9a18a97470c','');
  approvedSpan("if(parsed.helpSeconds==null){const a=await readRetry(",
   ' if(parsed.level==null){',
-  'bf3ab7c2fbd5c32bfb73a16248da40d65370238614068733311cd369ac815b1e',
+  'a39ed50135eaeb9266e5e3729cda7c9d424f5248719c6fe1233e7068bc66f034',
   "if(parsed.helpSeconds==null){const a=await readRetry(canvas,TIME_FALLBACK,'おてつだい時間',idx,total,parseHelpSeconds,'time');diag.attempts.helpSeconds=a;sets.helpSeconds=uniqVals(a.map(x=>x.value));if(sets.helpSeconds.length)missingFields.push('helpSeconds');}\\n".replace('\\n','\n'));
  // New carry-caption primary uses detected green bands. Audit its
  // complete added source and the one call inside the original carry retry,
