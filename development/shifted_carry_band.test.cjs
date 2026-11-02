@@ -259,6 +259,9 @@ test('previous dimmed tomato wrongly favored mushroom: force review, never silen
 test('do not degrade historical 142-image Lv27 legitimate mushroom, strong image or different competitors',()=>{
  for(const [level,mutate] of [
   [27,f=>{f[2].score=.7222;}],
+  [49,f=>{}],
+  [60,f=>{}],
+  [70,f=>{}],
   [50,f=>{f[2].score=.97;}],
   [50,f=>{f[2].second='ずっしりカボチャ';}],
   [50,f=>{f[2].name='あんみんトマト';}],
@@ -266,6 +269,14 @@ test('do not degrade historical 142-image Lv27 legitimate mushroom, strong image
  ]){
   const f=foodRows();mutate(f);ctx.guardLockedFood3TomatoMushroomConfusion(f,level);
   assert.equal(f[2].needsReview,false);
+ }
+});
+test('Lv59 still blocks unconfirmed locked food3; Lv60/70 no longer reviewed',()=>{
+ const locked=foodRows();ctx.guardLockedFood3TomatoMushroomConfusion(locked,59);
+ assert.equal(locked[2].needsReview,true);
+ for(const level of [60,70]){
+  const unlocked=foodRows();ctx.guardLockedFood3TomatoMushroomConfusion(unlocked,level);
+  assert.equal(unlocked[2].needsReview,false);
  }
 });
 test('weak mushroom/tomato review remains sticky after later same-image witnesses',()=>{

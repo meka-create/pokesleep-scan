@@ -99,7 +99,7 @@ test('all other production code is byte-for-byte identical to pre-nickname basel
   'e70fce83893ce55b6a251ccff0d5f1b005de967e0e2acec2ae16b4735520715d','');
  approvedSpan('// A dimmed tomato can resemble mushroom',
   'function guardLockedFood3KnownLowConfidenceConfusions(',
-  '11ff74fe98c66b10477c873f53d15007d24fab587b2535ed6926613e63746a46','');
+  'c50e8dbd62f34c14c476e002205ee32f1f10f5399593179db2dae60c770816f0','');
  approvedSpan('// One additional *value-only* nature OCR crop',
   ' if(missingFields.length){',
   '413f5744e73aa848a5a749785155dae83e545bd883b64e9b75c0fe2c60803aac','');

@@ -2,8 +2,8 @@
 """Offline final evidence gate. Private Golden, images and diagnostics NEVER enter CI."""
 from __future__ import annotations
 import argparse,csv,hashlib,io,json
-from pathlib import Path
-from zipfile import ZipFile
+from pathlib import Path, PurePosixPath
+from zipfile import ZipFile, BadZipFile
 LEGACY_COLS=('ニックネーム','ポケモン','レベル','スキルレベル','食材1','食材2','食材3','メインスキル','せいかく','Lv10','Lv25','Lv50','Lv70','Lv80','一緒に眠った時間','色違い')
 COLS=(*LEGACY_COLS[:9],'まっしろミント',*LEGACY_COLS[9:],'お気に入り')
 LEGACY_RAW=('元画像番号','元画像ファイル名','診断状態',*LEGACY_COLS)
@@ -57,7 +57,18 @@ def evaluate(golden_csv,image_zip,diagnostics_json,raw_csv,corrected_csv,returne
     ordered=[x['name'] for x in selected]
     if set(ordered)!=set(names) or len(set(ordered))!=len(names):raise ValueError('Diagnostic filenames differ from Golden')
     with ZipFile(io.BytesIO(image_zip)) as z:
-        images={Path(x.filename).name:x for x in z.infolist() if not x.is_dir() and x.filename.lower().endswith(('.png','.jpg','.jpeg'))}
+        images={}
+        for item in z.infolist():
+            if item.is_dir() or not item.filename.lower().endswith(('.png','.jpg','.jpeg')):
+                continue
+            posix=PurePosixPath(item.filename)
+            if (posix.is_absolute() or '\\' in item.filename or
+                any(part in ('.','..') for part in item.filename.split('/'))):
+                raise ValueError('Unsafe image ZIP path')
+            base=posix.name
+            if base in images:
+                raise ValueError('Duplicate image basename in ZIP')
+            images[base]=item
         if set(images)!=set(names) or len(images)!=len(names):raise ValueError('Image ZIP corpus mismatch')
         for x in selected:
             file=x['name'];data=z.read(images[file])
@@ -125,7 +136,7 @@ def main():
     a=p.parse_args()
     try:
         result=evaluate(*(getattr(a,s).read_bytes() for s in ('golden','images_zip','diagnostics','raw','corrected','returned')))
-    except (ValueError,KeyError,TypeError,OSError,json.JSONDecodeError) as e:
+    except (BadZipFile,ValueError,KeyError,TypeError,OSError,json.JSONDecodeError) as e:
         print(json.dumps({'result':'HOLD','errorType':type(e).__name__}))
         return 2
     print(json.dumps(result,ensure_ascii=False,indent=2))

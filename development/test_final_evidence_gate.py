@@ -1,5 +1,7 @@
 """Synthetic-only negative controls for the offline final evidence gate."""
-import csv,hashlib,io,json,sys,unittest
+import csv,hashlib,io,json,sys,unittest,tempfile
+from contextlib import redirect_stdout
+from unittest.mock import patch
 from pathlib import Path
 from zipfile import ZipFile
 sys.path.insert(0,str(Path(__file__).resolve().parent))
@@ -64,6 +66,48 @@ class FinalEvidenceTests(unittest.TestCase):
         a=fixtures();x=hashlib.sha256(b'\x89PNG\r\n\x1a\nSYNTHETIC-ONLY').hexdigest().encode()
         a[0]=a[0].replace(x,b'0'*64)
         with self.assertRaisesRegex(ValueError,'SHA'):evaluate(*a)
+    def test_duplicate_image_basename_rejected_even_when_hashes_match(self):
+        a=fixtures()
+        original=bytes.fromhex('89504e470d0a1a0a')+b'SYNTHETIC-ONLY'
+        for path in ('other/synthetic-fixture.png','synthetic/synthetic-fixture.png'):
+            archive=io.BytesIO(a[1])
+            with ZipFile(archive,'a') as z:
+                z.writestr(path,original)
+            a[1]=archive.getvalue()
+            with self.assertRaisesRegex(ValueError,'Duplicate image basename'):
+                evaluate(*a)
+            a=fixtures()
+
+    def test_archive_path_traversal_or_backslash_rejected(self):
+        for path in ('../synthetic-fixture.png','synthetic/../synthetic-fixture.png',
+                     r'folder\\synthetic-fixture.png','/synthetic-fixture.png'):
+            a=fixtures()
+            image=bytes.fromhex('89504e470d0a1a0a')+b'SYNTHETIC-ONLY'
+            archive=io.BytesIO()
+            with ZipFile(archive,'w') as z:
+                z.writestr(path,image)
+            a[1]=archive.getvalue()
+            with self.assertRaisesRegex(ValueError,'Unsafe image ZIP path'):
+                evaluate(*a)
+
+    def test_corrupt_zip_cli_returns_honest_hold_not_traceback(self):
+        from final_evidence_gate import main
+        a=fixtures()
+        a[1]=b'not-a-zip'
+        keys=('golden','images-zip','diagnostics','raw','corrected','returned')
+        with tempfile.TemporaryDirectory() as directory:
+            argv=['final_evidence_gate.py']
+            for key,data in zip(keys,a):
+                path=Path(directory)/(key+'.bin')
+                path.write_bytes(data)
+                argv.extend(['--'+key,str(path)])
+            output=io.StringIO()
+            with patch.object(sys,'argv',argv),redirect_stdout(output):
+                code=main()
+            self.assertEqual(code,2)
+            result=json.loads(output.getvalue())
+            self.assertEqual(result,{'result':'HOLD','errorType':'BadZipFile'})
+
     def test_bad_source_index_fails(self):
         a=fixtures();x=json.loads(a[2]);x['results'][0]['sourceIndex']=1;a[2]=json.dumps(x).encode()
         with self.assertRaisesRegex(ValueError,'mapping'):evaluate(*a)
