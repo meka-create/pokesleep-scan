@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 38361,
-      "sha256": "fd46510cecf93fc099eb455eea3da6e595c42c105c67b769050f47ac8acfc955"
+      "bytes": 41495,
+      "sha256": "446e9ce8969d596bc6235ba0a898f9584255cf61ae107d89b958dd477258c733"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -176,8 +176,8 @@
     },
     {
       "path": "development/master_auto_update.py",
-      "bytes": 16719,
-      "sha256": "d6274f9912157e35577255a66a76fbaf07eeaa99865e9963136b978883cb806b"
+      "bytes": 17240,
+      "sha256": "f06fb3bc92c63bc0339f1e0086ad831ed8183d076aa8bc6c414baa3baa603a2a"
     },
     {
       "path": "development/master_auto_update.test.cjs",
@@ -261,8 +261,8 @@
     },
     {
       "path": "development/shifted_carry_band.test.cjs",
-      "bytes": 13411,
-      "sha256": "acc2cda2f35abb0bdb4f4ac905b4a5392bed843a0a15ea9703e0566b6dd73ead"
+      "bytes": 14638,
+      "sha256": "8bd1c9063854d505d2a3c178b3b387ea948afcaf8c4bd5dfe5258f16594b9293"
     },
     {
       "path": "development/speed_warning.test.cjs",
@@ -366,8 +366,8 @@
     },
     {
       "path": "development/test_master_auto_update.py",
-      "bytes": 22413,
-      "sha256": "18bc5b56b127ee6bc76f08c2264d0412470fd49ffeca4ed4023583fe65ba1c97"
+      "bytes": 25397,
+      "sha256": "a8fe38a3ebfe1e71107881f72262fd5f176ebafdbb271635805e8d4d8461473f"
     },
     {
       "path": "development/test_master_status.py",

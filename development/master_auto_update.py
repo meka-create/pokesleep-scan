@@ -6,6 +6,7 @@ Unknown structures or removal of previous selectable options cause HOLD.
 """
 from __future__ import annotations
 import argparse, datetime, hashlib, json, math, pathlib, re, subprocess
+from collections import Counter
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 INPUTS = {'pokemon':'src/data/pokemon.json','names':'src/i18n/ja/pokemons.json',
           'data':'src/i18n/ja/data.json','skills':'src/i18n/ja/skills.json',
@@ -128,6 +129,12 @@ def project(src,prior,commit=None,today_jst=None):
     check(all(isinstance(k,str) and k and isinstance(v,str) and v.strip() for k,v in ingredients.items()) and len(set(ingredients.values()))==len(ingredients),'ingredient translation missing or non-unique')
     used_en=set();used_ja=set();used_ids=set();parsed=[];deferred=[]
     installed_names={x['name_en'] for x in prior['pokemon']}
+    # Screen and CSV labels must uniquely identify a published option. Current
+    # upstream may contain new form aliases with the SAME Japanese label as
+    # an installed form; retain the installed form and defer the new alias.
+    # Count all source labels upfront so ordering cannot favor a new alias.
+    name_counts=Counter(v for p in pokemon for v in [names.get(p.get('name'))]
+                        if isinstance(v,str) and v.strip())
     for p in pokemon:
         en=p['name'];ja=names.get(en);skill=p.get('skill');ident=(p.get('id'),p.get('form') or '')
         # Check structural uniqueness even for deferred records; a bad new ID
@@ -135,10 +142,7 @@ def project(src,prior,commit=None,today_jst=None):
         check(isinstance(en,str) and bool(en) and en not in used_en and
               ident not in used_ids and isinstance(ident[0],int) and ident[0]>0,
               'pokemon identifier/translation collision')
-        check(not (isinstance(ja,str) and ja.strip() and ja in used_ja),
-              'pokemon identifier/translation collision')
         used_en.add(en);used_ids.add(ident)
-        if isinstance(ja,str) and ja.strip():used_ja.add(ja)
         # Never skip an installed species; upstream corruption must HOLD.
         if en not in installed_names:
             when=arrival_date(p.get('arrival'))
@@ -147,13 +151,16 @@ def project(src,prior,commit=None,today_jst=None):
                          skill not in skills or
                          not isinstance(skills[skill].get('name'),str) or
                          not skills[skill]['name'].strip())
-            if when>today_jst or provisional:
-                deferred.append({'name':en,'arrival':when.isoformat(),
-                                 'reason':'before-arrival' if when>today_jst else 'provisional-data'})
+            ambiguous=isinstance(ja,str) and bool(ja.strip()) and name_counts[ja]>1
+            if when>today_jst or provisional or ambiguous:
+                reason=('before-arrival' if when>today_jst else
+                        'ambiguous-translation' if ambiguous else 'provisional-data')
+                deferred.append({'name':en,'arrival':when.isoformat(),'reason':reason})
                 continue
-        check(isinstance(ja,str) and bool(ja.strip()) and
+        check(isinstance(ja,str) and bool(ja.strip()) and ja not in used_ja and
               skill in skills and isinstance(skills[skill].get('name'),str) and
               bool(skills[skill]['name'].strip()),'pokemon identifier/translation collision')
+        used_ja.add(ja)
         row={'name':ja,'name_en':en,'skill':skill,'mainSkill':skills[skill]['name']}
         for k in FIELDS:
             check(p.get(k) is not None,f'missing {en}.{k}')
@@ -224,7 +231,7 @@ def project(src,prior,commit=None,today_jst=None):
             # Equality is intentional: one of two same-day new species may
             # already be in the previously published master.
             'overdueNewSpecies':sorted(x['name'] for x in deferred
-                if x['reason']=='provisional-data' and
+                if x['reason'] in ('provisional-data','ambiguous-translation') and
                 arrival_date(x['arrival'])>=arrival_date(prior['cutoff'])),
             'changed':signature(master)!=signature(prior)}
     return master,result
