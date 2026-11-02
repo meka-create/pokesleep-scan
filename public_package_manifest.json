@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-11-02-blurred-time-carry-crosscheck-v1",
-  "appBuildId": "v12-blurred-time-carry-crosscheck-20261102-v1",
+  "releaseId": "2026-11-02-mixed-capture-food3-safe-v1",
+  "appBuildId": "v12-mixed-capture-food3-safe-20261102-v1",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 345227,
-      "sha256": "8263092fcd6aaf5c9c0b5b784d2ad371e627ddfa2c62e90b63459d429b0ef915"
+      "bytes": 347682,
+      "sha256": "20d4e3bf64466fc027e415dfb0a57ca2289fd09e3125a3712338de94639a77d0"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 35401,
-      "sha256": "810c2662a2cabfc260abb39e2b6e60c9ffeb5087ad8148d18ad50ae3d2b21069"
+      "bytes": 37264,
+      "sha256": "47a4d25e0d5f2e1a23c5bd4cbb09b670bdff5492158264ad08100a8cb707ecc0"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -261,8 +261,8 @@
     },
     {
       "path": "development/shifted_carry_band.test.cjs",
-      "bytes": 9814,
-      "sha256": "9ff9ddff6d9a107cd33eeceac7f2d157ba39f1daab127326dc5b3288ca26f088"
+      "bytes": 12911,
+      "sha256": "722f6cf1f3369dc08e2d90d3dd3bb312da83870b8a47958fe684715ebe73b009"
     },
     {
       "path": "development/speed_warning.test.cjs",
@@ -476,8 +476,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 58,
-      "sha256": "c6ddf32ca9970a42f94bc24a01ba9895ae568802f389ea62fc1598211da83329"
+      "bytes": 53,
+      "sha256": "fca6bd75ed4b3946b27a06c663fdd992a01996ad25f0ccc140ad96191ff8387a"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -496,8 +496,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4097,
-      "sha256": "a731a20ddc13d5f12c69e79459db9e996306458ebb8669ec126b318b83e04116"
+      "bytes": 4092,
+      "sha256": "60e1e1df16a5a8e0f1542cd7705fa3e90d7c3b8a59798cc47f362ea5c7f1124d"
     }
   ]
 }
