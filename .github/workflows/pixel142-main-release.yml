@@ -65,7 +65,16 @@ jobs:
         run: |
           set -euo pipefail
           git clone --depth 1 --single-branch https://github.com/nitoyon/pokesleep-tool.git "$RUNNER_TEMP/upstream"
-          python development/master_auto_update.py --upstream "$RUNNER_TEMP/upstream"
+          # The independent daily updater MUST continue to HOLD on upstream
+          # translation collisions. For the OCR release gate, that expected
+          # external-data HOLD (exit 2) must not suppress local OCR/CSV tests.
+          status=0
+          python development/master_auto_update.py --upstream "$RUNNER_TEMP/upstream" || status=$?
+          if [ "$status" -eq 2 ]; then
+            echo "::warning::UPSTREAM_MASTER_HOLD: external Japanese name collision. Existing master retained; not counted as a successful master projection."
+          elif [ "$status" -ne 0 ]; then
+            exit "$status"
+          fi
       - name: STEP 3 real pokesleep-tool Japanese CSV importer compatibility
         shell: bash
         run: |
