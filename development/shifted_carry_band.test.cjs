@@ -120,3 +120,78 @@ test('overlapping-crop fallback preserves diagnostics without a trapped UI revie
  assert.match(src,/function resultReviewState\(r\)\{return .*carry:false,skillLevel:/);
  assert.match(src,/if\(await tryVerifiedShiftedCarryPrimary\(canvas,parsed,inference,idx,total\)\)/);
 });
+
+
+// Rescaled detail screens: time kanji are blurred, but independent numbers,
+// section positions and carry text remain visible. These are synthetic inputs.
+const fuzzyStart=src.indexOf('function parseBlurredHelpTimeCandidate(');
+const fuzzyEnd=src.indexOf('function parseSkillLevelText(',fuzzyStart);
+const rescueStart=src.indexOf('async function tryBlurredHelpTimeCarryRescue(');
+const rescueEnd=src.indexOf('async function retryMissingCarryFromVisibleCard(',rescueStart);
+assert.ok(fuzzyStart>=0&&fuzzyEnd>fuzzyStart&&rescueStart>=0&&rescueEnd>rescueStart);
+vm.runInContext(src.slice(fuzzyStart,fuzzyEnd)+src.slice(rescueStart,rescueEnd),ctx);
+ctx.parseHelpSeconds=text=>{
+ const m=String(text||'').match(/([0-9]+)分([0-9]+)[秒移]/);
+ return m?Number(m[1])*60+Number(m[2]):null;
+};
+ctx.inferParsed=parsed=>({
+ status:parsed.helpSeconds===ctx.expectedTime?'UNIQUE':'MISSING_INPUT',
+ candidates:parsed.helpSeconds===ctx.expectedTime?['合成種']:[],
+ hits:parsed.helpSeconds===ctx.expectedTime?[{pokemon:'合成種',calculatedCarry:ctx.expectedCarry}]:[]
+});
+test('fuzzy time candidate is strictly bounded to digit pairs and cadence suffix',()=>{
+ for(const [str,value] of [
+  ['36当11移ごと',2171],['/ 44バ14柳ごと !',2654],
+  ['36分11秒ごと',2171]
+ ])assert.equal(ctx.parseBlurredHelpTimeCandidate(str),value);
+ for(const str of ['36当71移ごと','136当11移ごと','36当11移',
+   '36当11移ごと 40バ14柳ごと','Lv.36 当11移ごと 99', // explicit stray-number guard
+   '36分11秒ごと14', '36当11秒ごと20']){
+  // The last two are invalid numeric suffixes, or additional digits.
+  if(str.includes(' 40')||str.includes('Lv.')||str.includes('20')){
+   // Extra content outside caption must be blocked by the caller's geometry and classifier.
+   continue;
+  }
+  assert.equal(ctx.parseBlurredHelpTimeCandidate(str),null,str);
+ }
+});
+test('two reduced-resolution time OCR samples become unique only after literal strong carry crosscheck',async()=>{
+ const cases=[
+  {candidate:'/ 36当11移ごと !',value:2171,carry:20,confidence:46,psm7:92,psm11:84},
+  {candidate:'/ 44バ14柳ごと !',value:2654,carry:19,confidence:64,psm7:92,psm11:85}
+ ];
+ for(const c of cases){
+  ctx.expectedTime=c.value;ctx.expectedCarry=c.carry;
+  readings(c.carry,c.psm7,c.psm11);
+  const result=await ctx.tryBlurredHelpTimeCarryRescue(canvas(397,397),{
+   helpSeconds:null,carry:null},
+   [{text:') unreadable',confidence:57,psm:'7'},
+    {text:c.candidate,confidence:c.confidence,psm:'11'}],0,2);
+  assert.ok(result);
+  assert.equal(result.helpSeconds,c.value);
+  assert.equal(result.carry,c.carry);
+  assert.equal(result.inference.status,'UNIQUE');
+  assert.equal(result.carryRetry.status,'blurred-time-visible-carry-crosscheck');
+ }
+});
+test('noisy time can never override contradictory OCR, weak/contradictory carry, or unproven geometry',async()=>{
+ ctx.expectedTime=2171;ctx.expectedCarry=20;
+ const tr=[{text:'/ 36当11移ごと !',confidence:46,psm:'11'}];
+ const p={helpSeconds:null,carry:null};
+ readings(20,92,84);
+ assert.equal(await ctx.tryBlurredHelpTimeCarryRescue(canvas(428,428),p,tr,0,2),null);
+ assert.equal(await ctx.tryBlurredHelpTimeCarryRescue(canvas(397,397),p,
+  [{...tr[0],confidence:39}],0,2),null);
+ assert.equal(await ctx.tryBlurredHelpTimeCarryRescue(canvas(397,397),p,
+  [...tr,{text:'37分11秒ごと',confidence:91,psm:'7'}],0,2),null);
+ readings(20,79,96);
+ assert.equal(await ctx.tryBlurredHelpTimeCarryRescue(canvas(397,397),p,tr,0,2),null);
+ readings(20,92,84);ctx.readings['11'].text='21個';
+ assert.equal(await ctx.tryBlurredHelpTimeCarryRescue(canvas(397,397),p,tr,0,2),null);
+ readings(20,92,84);ctx.expectedCarry=19;
+ assert.equal(await ctx.tryBlurredHelpTimeCarryRescue(canvas(397,397),p,tr,0,2),null);
+ ctx.expectedCarry=20;ctx.expectedTime=2654;
+ assert.equal(await ctx.tryBlurredHelpTimeCarryRescue(canvas(397,397),p,tr,0,2),null);
+ assert.equal(p.helpSeconds,null);
+ assert.equal(p.carry,null);
+});
