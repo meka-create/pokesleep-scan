@@ -1,5 +1,5 @@
 (() => {
-const BUILD_ID='v12-verified-green-band-carry-20261031-v1';
+const BUILD_ID='v12-blurred-time-carry-crosscheck-20261102-v1';
 'use strict';
 // The verified Android 1080x2400 OCR path is now the standard on every device.
 // Preserve the existing ROI adapter and its safe legacy fallback unchanged.
@@ -63,7 +63,7 @@ const NATURES=POKESLEEP_MASTER.natures.map(x=>x.ja);
 const SUBSKILLS=POKESLEEP_MASTER.subskills.map(x=>x.ja);
 const SPECIES_NAMES=[...new Set(POKESLEEP_MASTER.pokemon.map(x=>x.name))];
 const $=s=>document.querySelector(s);let selected=[],results=[],worker=null,paddleOcr=null,paddleInitPromise=null,paddleUnavailableError=null,paddleRuntimeGeneration=0,isRunning=false,analysisPause=null,checkpointPreparing=false,selectionSnapshotPreparing=false,selectionSnapshotGeneration=0,checkpointRestoreRunning=false,checkpointSessionActive=false,checkpointPersistenceWarningShown=false,renderPending=false,modalObjectUrl='',modalReturnFocus=null,appDialogResolver=null,appDialogReturnFocus=null,localProgressVisible=true,localProgressState='idle',localProgressMaxPct=0,floatingProgressState='idle',floatingProgressDone=0,floatingProgressTotal=0,floatingProgressReviews=0,floatingCompletionTimer=null,floatingCompletionPending=false,floatingCompletionDismissed=false,preManualCsvSnapshot=null,wakeLockSentinel=null,wakeLockRequestPromise=null,wakeLockRetryTimer=null;const checkpointFailureLog=[];const layoutCache=new WeakMap(),profileCardCache=new WeakMap(),stableSourcePromises=new WeakMap(),stableSourceFiles=new WeakSet();
-const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-10-31-verified-green-band-carry-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
+const CHECKPOINT_DB_NAME='bukkomi-scan-checkpoint-v1',CHECKPOINT_DB_VERSION=2,CHECKPOINT_SCHEMA_VERSION=1,CHECKPOINT_RELEASE_ID='2026-11-02-blurred-time-carry-crosscheck-v1',CHECKPOINT_COMPATIBILITY_ID='checkpoint-compat-2026-10-12-ai-picker-selection-modal-v8',CHECKPOINT_LEGACY_COMPAT_RELEASE_IDS=new Set(['2026-10-12-android-roi-standard-inline-add-v7']),CHECKPOINT_META_KEY='active',CHECKPOINT_FILE_WRITE_BATCH=3,CHECKPOINT_TTL_MS=7*24*60*60*1000,IMAGE_SOURCE_READ_TIMEOUT_MS=15000,IMAGE_DECODE_TIMEOUT_MS=15000,RUNTIME_RESET_TIMEOUT_MS=4000,IOS_OCR_WORKER_RECYCLE_RECOGNIZE_LIMIT=16;let checkpointDbPromise=null,checkpointDb=null,checkpointDbOpening=null,checkpointSaveChain=Promise.resolve(),checkpointManualSaveStates=new Map(),ocrRecognizeCallsSinceWorkerReset=0,ocrRecognizeCallsTotal=0,ocrWorkerRecycleAttempts=0,ocrWorkerRecycleCount=0,ocrWorkerRecycleFailures=0,ocrWorkerRecycleLastError='',ocrMemoryGuardRestoredSnapshot=null;
 function pullRefreshGuardActive(){return !!(isRunning||analysisPause||checkpointPreparing||selectionSnapshotPreparing);}
 function analysisWakeLockShouldHold(){return !!((isRunning||checkpointPreparing)&&!analysisPause);}
 function wakeLockApiSupported(){return typeof navigator!=='undefined'&&!!navigator.wakeLock?.request;}
@@ -827,6 +827,16 @@ function normalizeNickLevelOcr(raw){let s=(raw||'').normalize('NFKC');const m=s.
 function parseLevel(raw){let s=normalizeNickLevelOcr(raw);s=s.replace(/(Lv[.,]?\s*)([0-9Oo]{1,3})/i,(_,a,b)=>a.replace(',','.')+b.replace(/[Oo]/g,'0'));const m=s.match(/Lv[.,]?\s*(\d+)/i);if(!m)return null;return normalizeLevelToken(m[1]).value;}
 function parseSpText(raw){const s=(raw||'').normalize('NFKC').replace(/[Oo]/g,'0').replace(/(\d{1,2},\d{2})\]/g,'$11');const ms=[...s.matchAll(/\d[\d,.]*/g)].map((m,i)=>{const d=m[0].replace(/\D/g,'');return {d,v:d?+d:null,i:m.index??i}}).filter(x=>x.d.length>=3&&x.d.length<=6&&Number.isFinite(x.v));if(!ms.length)return null;ms.sort((a,b)=>b.d.length-a.d.length||b.i-a.i);return ms[0].v;}
 function parseHelpSeconds(raw){const s=norm(raw).replace(/時問/g,'時間');const m=s.match(/(?:(\d+)時間)?(\d+)分(\d+)[秒秘牧物移生]/);return m?((+(m[1]||0))*3600+(+m[2])*60+(+m[3])):null;}
+// Only a rescue candidate, never a normal time parser. Some recompressed
+// Android screenshots change the minute/second glyphs to 当/バ and 移/柳.
+// Demand BOTH numeric groups, a visible cadence suffix, and plausible seconds.
+// The candidate is never committed without green-band + literal carry +
+ // unique classifier cross-check in tryBlurredHelpTimeCarryRescue.
+function parseBlurredHelpTimeCandidate(raw){
+ const s=String(raw||'').normalize('NFKC').replace(/\s+/g,'');
+ const m=s.match(/(?:^|[^0-9])([1-9][0-9]?)\s*[分当バ]\s*([0-5][0-9])\s*[秒秘牧物移生柳]\s*ごと(?![0-9])/u);
+ return m?Number(m[1])*60+Number(m[2]):null;
+}
 function parseSkillLevelText(raw){let s=(raw||'').normalize('NFKC').replace(/[Oo]/g,'0');const m=s.match(/Lv\.?\s*(\d{1,2})/i);if(m)return +m[1];const only=s.replace(/\D/g,'');if(only.length===1&&+only>=1&&+only<=8)return +only;return null;}
 function parseMainSkillText(raw){let s=(raw||'').normalize('NFKC');s=s.replace(/(Lv\.?\s*)([0-9Oo]{1,2})/i,(_,a,b)=>a+b.replace(/[Oo]/g,'0'));s=s.replace(/Lv\.?\s*\d+.*$/i,'');const ns=norm(s),contained=MAIN_SKILLS.filter(x=>norm(x)&&ns.includes(norm(x))).sort((a,b)=>norm(b).length-norm(a).length);if(contained.length)return {value:contained[0],score:1};return best(s,MAIN_SKILLS);}
 function mewVersatileSkillFromText(raw){const ns=norm(raw);if(!ns.includes(norm('オールマイティー')))return '';const exact=MEW_VERSATILE_SKILLS.filter(x=>norm(x.label)&&ns.includes(norm(x.label))).sort((a,b)=>norm(b.label).length-norm(a.label).length);if(exact.length)return exact[0].key;const stemHits=MEW_VERSATILE_SKILLS.map(x=>({key:x.key,label:x.label,stem:norm(x.label).replace(/[SML]$/i,'')})).filter(x=>x.stem.length>=5&&ns.includes(x.stem)).sort((a,b)=>b.stem.length-a.stem.length);const unique=[...new Map(stemHits.map(x=>[x.key,x])).values()];return unique.length===1?unique[0].key:'';}
@@ -1501,6 +1511,50 @@ async function tryVerifiedShiftedCarryPrimary(canvas,parsed,inference,idx,total)
              {...second,value:b,crop:'band-wide',psm:'11'}]};
  return true;
 }
+// Deliberately narrow rescue of rescaled screenshots in which the original
+// strict help-time OCR fails on kana/kanji but the two time numbers are legible.
+// Never guess time from SP/species; require a visible shifted three-band layout,
+// one literal noisy time OCR from the time row, then two independent segmentation
+// reads of the *visible* carry field that match a UNIQUE classifier candidate.
+// No user/device-specific nicknames, species exceptions or hard-coded values.
+async function tryBlurredHelpTimeCarryRescue(canvas,parsed,timeReadings,idx,total){
+ const candidateRows=(timeReadings||[]).filter(r=>
+  r.psm==='11'&&Number(r.confidence)>=40&&
+  Number.isInteger(parseBlurredHelpTimeCandidate(r.text)));
+ if(!candidateRows.length)return null;
+ const values=[...new Set(candidateRows.map(r=>parseBlurredHelpTimeCandidate(r.text)))];
+ if(values.length!==1)return null;
+ const seconds=values[0];
+ // A contradictory legible strict time explicitly vetoes fuzzy rescue.
+ if((timeReadings||[]).some(r=>{
+  const strict=parseHelpSeconds(r.text);
+  return strict!=null&&strict!==seconds&&Number(r.confidence)>=45;
+ }))return null;
+ const bands=verifiedShiftedCarryBandCrops(canvas);
+ if(!bands)return null;
+ const probe={...parsed,helpSeconds:seconds};
+ const preliminary=inferParsed(probe);
+ if(preliminary.status!=='UNIQUE')return null;
+ const first=await ocrSingle(bands.tight,'縮小画像・所持数確認',idx,total,{psm:'7'});
+ const second=await ocrSingle(bands.wide,'縮小画像・所持数再確認',idx,total,{psm:'11',threshold:178});
+ const a=parseExplicitCarryEvidence(first),b=parseExplicitCarryEvidence(second);
+ if(a===null||a!==b||Number(first.confidence)<80||
+  Number(second.confidence)<80||
+  Math.max(Number(first.confidence),Number(second.confidence))<90||
+  !/^\s*[0-9]{1,3}\s*個\s*$/u.test(String(first.text||'').normalize('NFKC'))||
+  !/^\s*[0-9]{1,3}\s*個\s*$/u.test(String(second.text||'').normalize('NFKC'))||
+  !carryCompatibleWithClassifier(preliminary,a))return null;
+ const validated=inferParsed({...probe,carry:a});
+ if(validated.status!=='UNIQUE'||validated.candidates?.[0]!==preliminary.candidates?.[0])
+  return null;
+ return {helpSeconds:seconds,carry:a,inference:validated,
+  carryRetry:{status:'blurred-time-visible-carry-crosscheck',
+   evidence:bands.evidence,mainShift:bands.mainShift,
+   carryShift:bands.carryShift,timeShift:bands.timeShift,
+   readings:[{...first,value:a,crop:'band-tight',psm:'7'},
+             {...second,value:b,crop:'band-wide',psm:'11'}]},
+  timeReadings:candidateRows.map(r=>({text:r.text,confidence:r.confidence,psm:r.psm}))};
+}
 async function retryMissingCarryFromVisibleCard(canvas,parsed,inference,idx,total){
  if(Number.isInteger(parsed?.carry)&&parsed.carry>0)return inference;
  if(await tryVerifiedShiftedCarryPrimary(canvas,parsed,inference,idx,total))
@@ -1694,7 +1748,20 @@ async function rescueStructured(canvas,raw,parsed,inference,idx,total){
  if(inference.status==='UNIQUE'){parsed.structuredRescue=diag;return {parsed,inference};}
  let profileA=null;const getProfile=async()=>profileA||(profileA=await readProfileHeaderRetry(canvas,idx,total));
  const missingFields=[];const sets={};
- if(parsed.helpSeconds==null){const a=await readRetry(canvas,TIME_FALLBACK,'おてつだい時間',idx,total,parseHelpSeconds,'time');diag.attempts.helpSeconds=a;sets.helpSeconds=uniqVals(a.map(x=>x.value));if(sets.helpSeconds.length)missingFields.push('helpSeconds');}
+ if(parsed.helpSeconds==null){const a=await readRetry(canvas,TIME_FALLBACK,'おてつだい時間',idx,total,parseHelpSeconds,'time');diag.attempts.helpSeconds=a;sets.helpSeconds=uniqVals(a.map(x=>x.value));if(sets.helpSeconds.length)missingFields.push('helpSeconds');
+  else{
+   const blurred=await tryBlurredHelpTimeCarryRescue(canvas,parsed,a,idx,total);
+   if(blurred){
+    parsed.helpSeconds=blurred.helpSeconds;parsed.carry=blurred.carry;
+    parsed.carryRetry=blurred.carryRetry;inference=blurred.inference;
+    diag.attempts.blurredTimeCarry={timeReadings:blurred.timeReadings,carryRetry:blurred.carryRetry};
+    diag.applied={reason:'blurred-time-visible-carry-crosscheck',
+     helpSeconds:blurred.helpSeconds,carry:blurred.carry,species:inference.candidates[0]};
+    diag.afterStatus=inference.status;parsed.structuredRescue=diag;
+    return {parsed,inference};
+   }
+  }
+ }
  if(parsed.level==null){const a=await getProfile();diag.attempts.profileHeader=a;const lv=uniqVals(a.map(x=>x.level));sets.level=lv.length?lv:Array.from({length:MAX_POKEMON_LEVEL},(_,i)=>i+1);missingFields.push('level');diag.attempts.levelSearch={mode:lv.length?'profile-card-ocr':'classifier-consistency',range:lv.length?lv:[1,MAX_POKEMON_LEVEL]};}
  if(parsed.sp==null){const a=await getProfile();diag.attempts.profileHeader=a;const b=await readRetry(canvas,SP_FALLBACK,'SP再確認',idx,total,parseSpText,'sp');diag.attempts.spMissing=b;sets.sp=uniqVals([...a.map(x=>x.sp),...b.map(x=>x.value)]);if(sets.sp.length)missingFields.push('sp');}
  if(parsed.skillLevel==null){let a;if(layoutInfo(canvas).adaptive)a=await readAdaptiveSkillLevelRetry(canvas,idx,total);else a=await readRetry(canvas,SKILL_LEVEL_FALLBACK,'スキルLv',idx,total,parseSkillLevelText,'mainskill');diag.attempts.skillLevel=a;sets.skillLevel=uniqVals(a.map(x=>x.value).filter(v=>v>=1&&v<=8));if(sets.skillLevel.length)missingFields.push('skillLevel');}
