@@ -2372,7 +2372,7 @@ async function analyzeSingleImage(inputFile,idx,total,{sourceIndex=null,displayN
   parsed=window.POKESLEEP_NICKNAME_SPATIAL?.reviewOnly?.(parsed)||parsed;
   Object.assign(nicknameReviewAtAnalysis,{value:parsed.nickname,needsReview:!!parsed.nicknameNeedsReview,reason:parsed.nicknameReviewReason||'',resolvedBy:parsed.nicknameResolvedBy||''});
   inference=await retryMissingCarryFromVisibleCard(canvas,parsed,inference,idx,total);({parsed,inference}=applyMintNeutralization(canvas,parsed,inference));({parsed,inference}=applyVisibleMythicalSubskillDashes(canvas,parsed,inference));parsed.versatileSkill=detailedMewVersatileSkill(parsed);scanPerfStage('foodMatchingAndSafety');
-  let foods=guardLockedFood3TomatoMushroomConfusion(guardLockedFood3KnownLowConfidenceConfusions(guardLockedFood3SoyMushroomConfusion(guardLockedFood3DimmedArbitration(markFoodReviews(POKESLEEP_FOOD_MATCHER.resolveSlots(canvas,inference,parsed.level)),parsed.level),parsed.level),parsed.level),parsed.level);const firstFoodRescue=typeof tryCarryCorroboratedFirstFoodRescue==='function'?tryCarryCorroboratedFirstFoodRescue(inference,foods):null;if(firstFoodRescue)foods=firstFoodRescue.foods;foods=await applySafeNoFoodTemplate(canvas,inference,foods);
+  let foods=guardLockedFood3TomatoMushroomConfusion(guardLockedFood3KnownLowConfidenceConfusions(guardLockedFood3SoyMushroomConfusion(guardLockedFood3DimmedArbitration(markFoodReviews(POKESLEEP_FOOD_MATCHER.resolveSlots(canvas,inference,parsed.level)),parsed.level),parsed.level),parsed.level),parsed.level);const holdTomatoMushroomReview=foods?.[2]?.reviewReason==='locked-food3-tomato-mushroom-low-confidence';const firstFoodRescue=typeof tryCarryCorroboratedFirstFoodRescue==='function'?tryCarryCorroboratedFirstFoodRescue(inference,foods):null;if(firstFoodRescue)foods=firstFoodRescue.foods;foods=await applySafeNoFoodTemplate(canvas,inference,foods);
   // An already-reviewed, locked Lv30 second food can be corroborated by
   // the confidently identified first food in this SAME image. Only release
   // review for the existing top choice: never switch oil to coffee or vice
@@ -2441,6 +2441,14 @@ async function analyzeSingleImage(inputFile,idx,total,{sourceIndex=null,displayN
      thirdBeforeWitness.reviewReason='';
     }
    }catch(e){thirdBeforeWitness.pixelWitnessError=runtimeErrorText(e);}
+  }
+  // No same-image correlation or later template witness may erase the
+  // prior weak tomato/mushroom contradiction. A reviewer can accept the
+  // proposed candidate; no OCR stage may silently auto-confirm this case.
+  if(holdTomatoMushroomReview&&foods?.[2]){
+   foods[2].needsReview=true;
+   foods[2].reviewReason='locked-food3-tomato-mushroom-low-confidence';
+   delete foods[2].reviewSelection;
   }
   // Recheck ONLY third food slots already marked for human review.
   // No suggestion is auto-applied: this leaves the zero-false-accept gate intact.
