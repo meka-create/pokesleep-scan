@@ -7,6 +7,7 @@ import unittest
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"development"))
 from publish_master_status import receipt, SCHEMA
+from write_master_update_status import create as legacy_receipt
 
 class MasterStatusTest(unittest.TestCase):
     def test_all_expected_states(self):
@@ -43,6 +44,15 @@ class MasterStatusTest(unittest.TestCase):
         for category in ("collision","data","mixed"):
             self.assertEqual(receipt("success",now,True,category)["state"],"attention")
         with self.assertRaises(ValueError):receipt("success",now,True,"unknown")
+    def test_legacy_bootstrap_uses_same_status_schema_as_live_publisher(self):
+        now=dt.datetime(2026,11,3,5,0,tzinfo=dt.timezone.utc)
+        for value in ("success","failure"):
+            actual=legacy_receipt(value,123456,now)
+            expected=receipt(value,now)
+            self.assertEqual({k:v for k,v in actual.items() if k!='runId'},expected)
+            self.assertEqual(actual['runId'],"123456")
+        with self.assertRaises(ValueError):legacy_receipt("skipped",123456,now)
+        with self.assertRaises(ValueError):legacy_receipt("success","bad-run-id",now)
     def test_workflow_propagates_the_overdue_flag_without_failing_sync(self):
         w=(ROOT/".github/workflows/independent-master-sync.yml").read_text(encoding="utf-8")
         self.assertIn("overdue_new_species:",w)
