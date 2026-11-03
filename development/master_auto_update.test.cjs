@@ -99,7 +99,7 @@ test('pending new species shows accurate copy; sync failure and local master fau
  vm.runInContext(src.slice(a,b),ctx);
  vm.runInContext("render({state:'attention',reason:'NEW_SPECIES_PENDING'})",ctx);
  assert.equal(ctx.badge.hidden,false);
- assert.match(ctx.title.textContent,/新しいポケモンのデータ/);
+ assert.match(ctx.title.textContent,/新しいポケモンの登録/);
  assert.match(ctx.message.textContent,/既存のマスターデータは正常/);
  vm.runInContext("render({state:'attention',reason:'NEW_FORM_NAME_CONFLICT'})",ctx);
  assert.equal(ctx.badge.hidden,false);
