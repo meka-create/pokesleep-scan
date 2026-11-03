@@ -181,8 +181,8 @@
     },
     {
       "path": "development/master_auto_update.test.cjs",
-      "bytes": 7679,
-      "sha256": "7c4b98c000854106894ad9a69144d6384c32f5a67df5d4f0b208c2841215de0b"
+      "bytes": 7676,
+      "sha256": "f40dd83144932acf289e1d0cc37f9314b194645239cd6823c9ddc93b4e95fd98"
     },
     {
       "path": "development/master_deploy_workflow.test.cjs",
