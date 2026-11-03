@@ -28,6 +28,21 @@ class MasterStatusTest(unittest.TestCase):
         self.assertEqual(pending["reasonCode"],"NEW_SPECIES_PENDING")
         self.assertEqual(failed["reasonCode"],"SYNC_FAILED")
         self.assertEqual(pending["checkedAt"],healthy["checkedAt"])
+    def test_distinct_pending_reasons_are_honest_and_do_not_hide_failures(self):
+        now=dt.datetime(2026,11,3,1,0,tzinfo=dt.timezone.utc)
+        self.assertEqual(receipt("success",now,True,"collision")["reasonCode"],
+                         "NEW_FORM_NAME_CONFLICT")
+        self.assertEqual(receipt("success",now,True,"data")["reasonCode"],
+                         "NEW_SPECIES_DATA_INCOMPLETE")
+        self.assertEqual(receipt("success",now,True,"mixed")["reasonCode"],
+                         "NEW_SPECIES_PENDING")
+        self.assertEqual(receipt("success",now,False,"collision")["reasonCode"],
+                         "SYNC_OK")
+        self.assertEqual(receipt("failure",now,True,"collision")["reasonCode"],
+                         "SYNC_FAILED")
+        for category in ("collision","data","mixed"):
+            self.assertEqual(receipt("success",now,True,category)["state"],"attention")
+        with self.assertRaises(ValueError):receipt("success",now,True,"unknown")
     def test_workflow_propagates_the_overdue_flag_without_failing_sync(self):
         w=(ROOT/".github/workflows/independent-master-sync.yml").read_text(encoding="utf-8")
         self.assertIn("overdue_new_species:",w)
@@ -35,6 +50,10 @@ class MasterStatusTest(unittest.TestCase):
         self.assertIn("needs.sync.outputs.overdue_new_species",w)
         self.assertIn('status.get("overdueNewSpecies",[])',w)
         self.assertIn("--pending",w)
+        self.assertIn("needs.sync.outputs.overdue_category",w)
+        self.assertIn("overdue_category=",w)
+        self.assertIn("--pending-category",w)
+        self.assertIn('status.get("equivalentAliases",[])',w)
     def test_invalid_result_or_naive_time_refused(self):
         with self.assertRaises(ValueError):receipt("unverified")
         with self.assertRaises(ValueError):receipt("success",dt.datetime(2026,10,12))

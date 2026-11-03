@@ -19,6 +19,7 @@ jobs:
     timeout-minutes: 20
     outputs:
       overdue_new_species: ${{ steps.stage.outputs.overdue_new_species }}
+      overdue_category: ${{ steps.stage.outputs.overdue_category }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -59,9 +60,17 @@ jobs:
           report=(pathlib.Path(os.environ["RUNNER_TEMP"])/"master-sync-report.txt").read_text(encoding="utf-8")
           status=json.loads(report.splitlines()[0])
           pending=bool(status.get("overdueNewSpecies",[]))
+          reasons=set(status.get("overdueReasons",[]))
+          if pending and (not reasons or not reasons.issubset({"ambiguous-translation","provisional-data"})):
+              raise ValueError("Overdue new forms missing supported reason details")
+          category=("mixed" if len(reasons)!=1 else
+                    "collision" if "ambiguous-translation" in reasons else "data")
           with open(os.environ["GITHUB_OUTPUT"],"a",encoding="utf-8") as out:
               out.write(f"overdue_new_species={str(pending).lower()}\n")
-          print("Post-arrival provisional species:",pending)
+              out.write(f"overdue_category={category}\n")
+          print("Due unresolved forms:",status.get("overdueNewSpecies",[]))
+          print("Indistinguishable verified source aliases:",status.get("equivalentAliases",[]))
+          print("Due form category:",category,"pending:",pending)
           PY
       - name: Commit only validated master + release assets
         shell: bash
@@ -93,9 +102,10 @@ jobs:
         env:
           SYNC_RESULT: ${{ needs.sync.result }}
           OVERDUE_NEW_SPECIES: ${{ needs.sync.outputs.overdue_new_species }}
+          OVERDUE_CATEGORY: ${{ needs.sync.outputs.overdue_category }}
         run: |
           set -euo pipefail
-          python development/publish_master_status.py --result "$SYNC_RESULT" --pending "${OVERDUE_NEW_SPECIES:-false}"
+          python development/publish_master_status.py --result "$SYNC_RESULT" --pending "${OVERDUE_NEW_SPECIES:-false}" --pending-category "${OVERDUE_CATEGORY:-mixed}"
           python development/generate_public_package_manifest.py --write
           python development/generate_public_package_manifest.py --check
           git config user.name 'github-actions[bot]'

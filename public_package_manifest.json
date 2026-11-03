@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-11-03-food3-strong-self-witness-v5",
-  "appBuildId": "v12-mixed-capture-food3-safe-20261103-v5",
+  "releaseId": "2026-11-03-master-alias-safe-v6",
+  "appBuildId": "v12-mixed-capture-food3-safe-20261103-v6-master-alias",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -11,8 +11,8 @@
   "files": [
     {
       "path": ".github/workflows/independent-master-sync.yml",
-      "bytes": 5049,
-      "sha256": "9e767d34c1aaaedf0f6cce39449b5c948899cdb722aa35c526f79eb4945eacfc"
+      "bytes": 5857,
+      "sha256": "85a97bcbf4e68b0f0f558368bce7889b3220e37ffeb2dd4d643fa674442518ef"
     },
     {
       "path": ".github/workflows/pixel142-main-release.yml",
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 351072,
-      "sha256": "48a9e9044534f041fece0380511fb4c8c68efe0b6810d957831cc41feacfdcf0"
+      "bytes": 351077,
+      "sha256": "7fc749e891c5ea9dd7c2737d602e08e7435048db24abed4fa19afe8e3a56ccc2"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 45875,
-      "sha256": "e980a0cd9a76f4774cce89e37656160158ad4d4215b3916c062104f69c9a49ec"
+      "bytes": 48692,
+      "sha256": "16584d08e6c9361325898f1c7dd404b99e775c626ebbad69bfd02c4fb4c9c87b"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -176,13 +176,13 @@
     },
     {
       "path": "development/master_auto_update.py",
-      "bytes": 17240,
-      "sha256": "f06fb3bc92c63bc0339f1e0086ad831ed8183d076aa8bc6c414baa3baa603a2a"
+      "bytes": 19673,
+      "sha256": "9163251f21133ff9bf2c29122152cf5c37b459c24b434a230910f9acb9095956"
     },
     {
       "path": "development/master_auto_update.test.cjs",
-      "bytes": 7182,
-      "sha256": "d1cdcd21be1a1559b21cc9ba31ad8254a0935fea06337f746bcdccb57c519bf9"
+      "bytes": 7676,
+      "sha256": "f40dd83144932acf289e1d0cc37f9314b194645239cd6823c9ddc93b4e95fd98"
     },
     {
       "path": "development/master_deploy_workflow.test.cjs",
@@ -241,8 +241,8 @@
     },
     {
       "path": "development/publish_master_status.py",
-      "bytes": 1869,
-      "sha256": "5a7d1fb7bc8c4b9cd3919d836c04bd79957c4abeed5959fc85d7b2ecea67bb8f"
+      "bytes": 2467,
+      "sha256": "6c7a7712d14e64cb7750556f7da80194961ef0de085fa70b64b5943d07134fe5"
     },
     {
       "path": "development/register_food_icons.py",
@@ -366,13 +366,13 @@
     },
     {
       "path": "development/test_master_auto_update.py",
-      "bytes": 25397,
-      "sha256": "a8fe38a3ebfe1e71107881f72262fd5f176ebafdbb271635805e8d4d8461473f"
+      "bytes": 29822,
+      "sha256": "934aeb11a0165f60550e0115ef64c5aaf89973c7e975ee577db885b5743fa341"
     },
     {
       "path": "development/test_master_status.py",
-      "bytes": 2725,
-      "sha256": "18f99a10e28d78d9523ca35896b10bf09ce46d8ed102ad2e9a48ed98d8b812e6"
+      "bytes": 3930,
+      "sha256": "b2230ec3279fb57143f0915b6d965439173d2ff4385a0d3d0ef67ba0fdf93a98"
     },
     {
       "path": "development/test_nickname_meka142_gate.py",
@@ -456,8 +456,8 @@
     },
     {
       "path": "master-update-status.js",
-      "bytes": 3587,
-      "sha256": "fa65b53ef53090cce5cb50681af4630a26ae740499239334cab60eda3cd9d2a7"
+      "bytes": 4554,
+      "sha256": "605a14057fd3ad3d0a2c3b6b6a74055ecc94e4d33e5a08f14d7104b64ab71402"
     },
     {
       "path": "master-update-status.json",
@@ -476,8 +476,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 54,
-      "sha256": "c9f0b9c91e24257d5b0bfd46819ef27a53591a73dd865f9d567b33a6f01ce9aa"
+      "bytes": 46,
+      "sha256": "6abf240d416a2e55f1d718efc2b8b12f33c9268e4761d9d460d52937be1c6425"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -496,8 +496,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4093,
-      "sha256": "7f17ab2d7d0de7b1a28263dddb452a565d4aed5549bb0c07d7d9fd679da6e39b"
+      "bytes": 4085,
+      "sha256": "4aae77e0df7539b1df5d748b5356b2159ad171892eb6446ab0aeb033f03baf04"
     }
   ]
 }

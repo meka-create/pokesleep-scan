@@ -28,9 +28,15 @@ function render(remote){
  // Pending new data is not a failure of the verified existing master.
  // Keep generic failure copy for actual sync errors or local master faults.
  if(title&&message){
-  if(remote.reason==='NEW_SPECIES_PENDING'&&!brokenMaster){
-   title.textContent='新しいポケモンのデータを確認中です';
-   message.textContent='実装予定日を過ぎた新しいポケモンのデータがまだ揃っていません。既存のマスターデータは正常に使用でき、毎日の自動更新で再確認します。';
+  if(remote.reason==='NEW_FORM_NAME_CONFLICT'&&!brokenMaster){
+   title.textContent='新フォームの名前が重複しています';
+   message.textContent='追加予定の別フォームが既存のポケモンと同じ日本語名で、能力や識別情報が異なるため安全に区別できません。そのフォームだけ登録を保留し、他のマスター自動更新は継続します。既存のマスターデータは正常に使用できます。';
+  }else if(remote.reason==='NEW_SPECIES_DATA_INCOMPLETE'&&!brokenMaster){
+   title.textContent='新しいポケモンのデータが未完成です';
+   message.textContent='実装予定日を迎えた新しいポケモンの必要な能力値・食材などが未登録です。未完成のポケモンだけを保留し、他のマスター自動更新は継続します。既存のマスターデータは正常に使用できます。';
+  }else if(remote.reason==='NEW_SPECIES_PENDING'&&!brokenMaster){
+   title.textContent='新しいポケモンの登録を確認中です';
+   message.textContent='一部の新フォームで日本語名の重複や未完成のデータがあります。該当フォームだけ登録を保留し、毎日の自動更新で再確認します。既存のマスターデータは正常に使用できます。';
   }else{
    title.textContent='マスター更新を確認できませんでした';
    message.textContent='現在は保存済みのマスターデータを使用しています。新しく追加されたポケモンや食材には対応していない可能性があります。';

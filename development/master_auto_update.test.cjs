@@ -99,9 +99,16 @@ test('pending new species shows accurate copy; sync failure and local master fau
  vm.runInContext(src.slice(a,b),ctx);
  vm.runInContext("render({state:'attention',reason:'NEW_SPECIES_PENDING'})",ctx);
  assert.equal(ctx.badge.hidden,false);
- assert.match(ctx.title.textContent,/新しいポケモンのデータ/);
+ assert.match(ctx.title.textContent,/新しいポケモンの登録/);
  assert.match(ctx.message.textContent,/既存のマスターデータは正常/);
- vm.runInContext("render({state:'attention',reason:'SYNC_FAILED'})",ctx);
+ vm.runInContext("render({state:'attention',reason:'NEW_FORM_NAME_CONFLICT'})",ctx);
+ assert.equal(ctx.badge.hidden,false);
+ assert.match(ctx.title.textContent,/名前が重複/);
+ assert.match(ctx.message.textContent,/そのフォームだけ登録を保留/);
+ vm.runInContext("render({state:'attention',reason:'NEW_SPECIES_DATA_INCOMPLETE'})",ctx);
+ assert.match(ctx.title.textContent,/データが未完成/);
+ assert.match(ctx.message.textContent,/他のマスター自動更新は継続/);
+  vm.runInContext("render({state:'attention',reason:'SYNC_FAILED'})",ctx);
  assert.match(ctx.title.textContent,/マスター更新を確認できませんでした/);
  ctx.window.POKESLEEP_SHARED_MASTER.getStatus=()=>({source:'fallback'});
  vm.runInContext("render({state:'attention',reason:'NEW_SPECIES_PENDING'})",ctx);

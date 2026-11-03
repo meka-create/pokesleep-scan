@@ -98,6 +98,35 @@ def provisional_new_species(p):
         if type(count) is not int or count<=0:return True
     return False
 
+# A repeated Japanese display name does not necessarily mean a second
+# distinguishable selectable option. Seasonal reprints may have the SAME
+# game-visible name and the SAME complete species data but a different
+# upstream internal form and arrival date. Treat those as *report-only* aliases
+# of a form already installed, never as a second CSV/display selection.
+# This is strictly raw-data equality (including numeric stats, id, skill,
+# foods, sleep type and all future upstream fields), not a heuristic match.
+_ALIAS_METADATA_ONLY=frozenset(('name','arrival','form','ja'))
+def equivalent_installed_alias(p,ja,source_by_name,installed_by_name,names):
+    if (not isinstance(ja,str) or not ja.strip() or
+        type(p.get('id')) is not int or
+        not isinstance(p.get('form'),str) or not p['form'] or
+        provisional_new_species(p)):
+        return None
+    payload={k:v for k,v in p.items() if k not in _ALIAS_METADATA_ONLY}
+    matched=[]
+    for old_en,installed in installed_by_name.items():
+        old=source_by_name.get(old_en)
+        if (not isinstance(old,dict) or installed.get('name')!=ja or
+            names.get(old_en)!=ja or type(old.get('id')) is not int or
+            old['id']!=p['id'] or
+            not isinstance(old.get('form'),str) or not old['form'] or
+            old['form']==p['form'] or provisional_new_species(old)):
+            continue
+        old_payload={k:v for k,v in old.items() if k not in _ALIAS_METADATA_ONLY}
+        if payload==old_payload:matched.append(old_en)
+    # More than one canonical target means we cannot prove a unique alias.
+    return matched[0] if len(matched)==1 else None
+
 def arrival_date(raw):
     check(isinstance(raw,str) and bool(re.fullmatch(r'\d{4}-\d{2}-\d{2}',raw)),
           'invalid pokemon arrival date')
@@ -127,11 +156,14 @@ def project(src,prior,commit=None,today_jst=None):
     check(set(old_n)==set(natures) and set(old_s)==set(ss),'unknown subskill/nature coefficients')
     check(set(prior['ingredients']).issubset(ingredients),'ingredient removed')
     check(all(isinstance(k,str) and k and isinstance(v,str) and v.strip() for k,v in ingredients.items()) and len(set(ingredients.values()))==len(ingredients),'ingredient translation missing or non-unique')
-    used_en=set();used_ja=set();used_ids=set();parsed=[];deferred=[]
-    installed_names={x['name_en'] for x in prior['pokemon']}
-    # Screen and CSV labels must uniquely identify a published option. Current
-    # upstream may contain new form aliases with the SAME Japanese label as
-    # an installed form; retain the installed form and defer the new alias.
+    used_en=set();used_ja=set();used_ids=set();parsed=[];deferred=[];equivalent_aliases=[]
+    installed_by_name={x['name_en']:x for x in prior['pokemon']}
+    installed_names=set(installed_by_name)
+    source_by_name={p.get('name'):p for p in pokemon if isinstance(p,dict)}
+    # Screen and CSV must have unique display names. When upstream carries
+    # an indistinguishable, fully equivalent reprint of an installed form,
+    # record an alias in the sync REPORT only (not in master or CSV).
+    # Non-equivalent, provisional or new-new name collisions still defer.
     # Count all source labels upfront so ordering cannot favor a new alias.
     name_counts=Counter(v for p in pokemon for v in [names.get(p.get('name'))]
                         if isinstance(v,str) and v.strip())
@@ -152,6 +184,13 @@ def project(src,prior,commit=None,today_jst=None):
                          not isinstance(skills[skill].get('name'),str) or
                          not skills[skill]['name'].strip())
             ambiguous=isinstance(ja,str) and bool(ja.strip()) and name_counts[ja]>1
+            if when<=today_jst and ambiguous and not provisional:
+                canonical=equivalent_installed_alias(
+                    p,ja,source_by_name,installed_by_name,names)
+                if canonical:
+                    equivalent_aliases.append({'name':en,'canonical':canonical,
+                                               'arrival':when.isoformat()})
+                    continue
             if when>today_jst or provisional or ambiguous:
                 reason=('before-arrival' if when>today_jst else
                         'ambiguous-translation' if ambiguous else 'provisional-data')
@@ -219,20 +258,23 @@ def project(src,prior,commit=None,today_jst=None):
     # 249-species / 19-ingredient source projection byte-equivalent.
     if extra:master['ingredientStrength']=extra
     signature=lambda m:{k:m.get(k) for k in ('cutoff','ingredients','natures','pokemon','subskills','ingredientStrength')}
+    overdue=[x for x in deferred
+             if x['reason'] in ('provisional-data','ambiguous-translation') and
+             arrival_date(x['arrival'])>=arrival_date(prior['cutoff'])]
     result={'sourceCommit':commit,
             'addedSpecies':sorted(set(updated_by)-set(old_by)),
             'changedSpecies':sorted(k for k in old_by if old_by[k]!=updated_by[k]),
             'newIngredients':sorted(set(ingredients)-set(prior['ingredients'])),
             'deferredSpecies':deferred,
+            'equivalentAliases':sorted(equivalent_aliases,key=lambda x:x['name']),
+            'overdueReasons':sorted({x['reason'] for x in overdue}),
             # Backfilled older alternate forms can have years-old arrival dates
             # and placeholder values. Keep them deferred, but do not alarm the
             # user about newly introduced historical source data. A due-date
             # alert is only meaningful for arrivals in the current master era.
             # Equality is intentional: one of two same-day new species may
             # already be in the previously published master.
-            'overdueNewSpecies':sorted(x['name'] for x in deferred
-                if x['reason'] in ('provisional-data','ambiguous-translation') and
-                arrival_date(x['arrival'])>=arrival_date(prior['cutoff'])),
+            'overdueNewSpecies':sorted(x['name'] for x in overdue),
             'changed':signature(master)!=signature(prior)}
     return master,result
 def known_food_images(root):
