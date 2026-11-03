@@ -339,6 +339,84 @@ class FutureSpeciesReadinessTest(unittest.TestCase):
         self.assertEqual(report['overdueNewSpecies'],['SyntheticArrivalBeta'])
         self.assertIn(self.prior['pokemon'][0]['name_en'],
                       {p['name_en'] for p in projected['pokemon']})
+    def make_equivalent_existing_form_alias(self):
+        # Production-like same-ID, distinct form and arrival. No private
+        # screenshot, nickname or Golden data involved.
+        names=self.root/'src/i18n/ja/pokemons.json'
+        labels=json.loads(names.read_text(encoding='utf-8'))
+        source=self.source()
+        rows=json.loads(source.read_text(encoding='utf-8'))
+        old=next(x for x in rows if x['name']=='Pikachu (Halloween)')
+        old['form']='Halloween'
+        new=rows[-1]
+        new.clear()
+        new.update(copy.deepcopy(old))
+        new.update(name='SyntheticArrivalBeta',
+                   form='Halloween2',arrival='2026-10-26')
+        self.assertEqual(new['id'],old['id'])
+        self.assertNotEqual(new['form'],old['form'])
+        save(source,rows)
+        labels['pokemons']['SyntheticArrivalBeta']=labels['pokemons']['Pikachu (Halloween)']
+        save(names,labels)
+
+    def test_same_label_same_numeric_and_ingredient_data_is_verified_alias_not_overdue(self):
+        self.make_equivalent_existing_form_alias()
+        projected,report=self.project_at('2026-10-26')
+        self.assertEqual(report['addedSpecies'],['SyntheticArrivalAlpha'])
+        self.assertEqual(report['deferredSpecies'],[])
+        self.assertEqual(report['overdueNewSpecies'],[])
+        self.assertEqual(report['overdueReasons'],[])
+        self.assertEqual(report['equivalentAliases'],[{
+            'name':'SyntheticArrivalBeta','canonical':'Pikachu (Halloween)',
+            'arrival':'2026-10-26'}])
+        # No ambiguous name enters the CSV and the existing imported row
+        # retains its spelling and all numeric values, even on the next day.
+        old=next(x for x in self.prior['pokemon'] if x['name_en']=='Pikachu (Halloween)')
+        unchanged=next(x for x in projected['pokemon'] if x['name_en']==old['name_en'])
+        self.assertEqual(old,unchanged)
+        self.assertEqual(len({x['name'] for x in projected['pokemon']}),len(projected['pokemon']))
+        self.assertNotIn('SyntheticArrivalBeta',{x['name_en'] for x in projected['pokemon']})
+        again,later=self.project_at('2026-10-27',prior=projected)
+        self.assertFalse(later['changed'])
+        self.assertEqual(later['equivalentAliases'],report['equivalentAliases'])
+
+    def test_unsafe_same_label_variations_still_defer_with_overdue_reason(self):
+        self.make_equivalent_existing_form_alias()
+        original=json.loads(self.source().read_text(encoding='utf-8'))
+        # Same label is NOT sufficient: different stats, food, ID, identity,
+        # missing gameplay fields, or unknown new metadata all mean
+        # equivalence has not been demonstrated.
+        def mutate_frequency(rows):rows[-1]['frequency']+=1
+        def mutate_food(rows):rows[-1]['ing2']['c2']+=1
+        def mutate_id(rows):rows[-1]['id']=max(x['id'] for x in rows)+500
+        def mutate_form(rows):rows[-1]['form']=''
+        def mutate_original_form(rows):
+            next(x for x in rows if x['name']=='Pikachu (Halloween)')['form']=''
+        def mutate_gameplay_field(rows):rows[-1]['unreviewedNewStat']=1
+        def mutate_placeholder(rows):rows[-1]['carryLimit']=0
+        for mutate in (mutate_frequency,mutate_food,mutate_id,
+                       mutate_form,mutate_original_form,
+                       mutate_gameplay_field,mutate_placeholder):
+            rows=copy.deepcopy(original)
+            mutate(rows)
+            save(self.source(),rows)
+            projected,report=self.project_at('2026-10-26')
+            self.assertEqual(report['equivalentAliases'],[],mutate.__name__)
+            self.assertEqual(report['overdueNewSpecies'],['SyntheticArrivalBeta'],mutate.__name__)
+            self.assertEqual(len(projected['pokemon']),len(self.prior['pokemon'])+1,
+                             mutate.__name__)
+            self.assertIn(report['deferredSpecies'][0]['reason'],
+                          ('ambiguous-translation','provisional-data'),mutate.__name__)
+        save(self.source(),original)
+
+    def test_alias_never_masks_missing_installed_species_or_bad_identifier(self):
+        self.make_equivalent_existing_form_alias()
+        rows=json.loads(self.source().read_text(encoding='utf-8'))
+        rows=[x for x in rows if x['name']!='Pikachu (Halloween)']
+        save(self.source(),rows)
+        with self.assertRaisesRegex(Hold,'species deletion'):
+            self.project_at('2026-10-26')
+
     def test_new_alias_collision_deferred_while_old_updates_and_new_unique_species_publish(self):
         names=self.root/'src/i18n/ja/pokemons.json'
         labels=json.loads(names.read_text(encoding='utf-8'))
