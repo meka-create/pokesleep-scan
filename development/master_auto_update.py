@@ -104,8 +104,10 @@ def provisional_new_species(p):
 # upstream internal form and arrival date. Treat those as *report-only* aliases
 # of a form already installed, never as a second CSV/display selection.
 # This is strictly raw-data equality (including numeric stats, id, skill,
-# foods, sleep type and all future upstream fields), not a heuristic match.
-_ALIAS_METADATA_ONLY=frozenset(('name','arrival','form','ja'))
+# foods, sleep type, optional Japanese source label and all future upstream
+# fields), not a heuristic match. Only the internal English name, form and
+# arrival date may differ. A new or changed 'ja' label is NOT metadata.
+_ALIAS_METADATA_ONLY=frozenset(('name','arrival','form'))
 def equivalent_installed_alias(p,ja,source_by_name,installed_by_name,names):
     if (not isinstance(ja,str) or not ja.strip() or
         type(p.get('id')) is not int or
