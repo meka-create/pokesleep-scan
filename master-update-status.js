@@ -7,9 +7,22 @@ const title=document.getElementById('masterUpdateTitle');
 const message=document.getElementById('masterUpdateMessage');
 if(!badge||!dialog||!close)return;
 const SCHEMA='pokesleep-ocr-master-status-v1',MAX_AGE_MS=50*3600*1000;
-let current={state:'pending',reason:'initializing'},serial=0;
+// Keep the verified remote receipt separate from temporary local-master
+// fallback state. Re-rendering on master recovery must not retain a stale
+// attention flag that was only caused by a device-side loading problem.
+let current={state:'pending',reason:'initializing'};
+let lastRemote={state:'pending',reason:'initializing'},serial=0;
+const REMOTE_REASONS={
+ healthy:new Set(['SYNC_OK']),
+ attention:new Set(['SYNC_FAILED','NEW_SPECIES_PENDING',
+                    'NEW_FORM_NAME_CONFLICT','NEW_SPECIES_DATA_INCOMPLETE']),
+ pending:new Set(['SYNC_PENDING'])
+};
 function readStatus(data,now=Date.now()){
- if(!data||data.schemaVersion!==SCHEMA||!['healthy','attention','pending'].includes(data.state)||typeof data.reasonCode!=='string'||data.reasonCode.length>120)
+ if(!data||data.schemaVersion!==SCHEMA||
+    !Object.hasOwn(REMOTE_REASONS,data.state)||
+    typeof data.reasonCode!=='string'||data.reasonCode.length>120||
+    !REMOTE_REASONS[data.state].has(data.reasonCode))
   return {state:'attention',reason:'invalid-status'};
  const t=Date.parse(data.state==='pending'?data.createdAt:data.checkedAt);
  if(!Number.isFinite(t)||t>now+600000||now-t>MAX_AGE_MS)
@@ -21,6 +34,7 @@ function localFailure(){
  return !!s&&s.reason!=='not-loaded'&&s.source!=='verified-local-master';
 }
 function render(remote){
+ lastRemote={...remote};
  const brokenMaster=localFailure();
  const problem=remote.state==='attention'||brokenMaster;
  current={...remote,state:problem?'attention':remote.state};
@@ -66,7 +80,7 @@ badge.addEventListener('click',()=>{
 });
 close.addEventListener('click',()=>dialog.close?.());
 dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close?.();});
-window.addEventListener('bukkomi-master-ready',()=>render(current));
+window.addEventListener('bukkomi-master-ready',()=>render(lastRemote));
 window.addEventListener('focus',refresh);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 window.POKESLEEP_MASTER_UPDATE_WATCH={readStatus,getState:()=>({...current}),refresh};
