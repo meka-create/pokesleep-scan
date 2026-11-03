@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "kind": "current-tracked-repository-inventory",
-  "releaseId": "2026-11-03-master-alias-safe-v6",
-  "appBuildId": "v12-mixed-capture-food3-safe-20261103-v6-master-alias",
+  "releaseId": "2026-11-03-master-alias-audit-v6-1",
+  "appBuildId": "v12-mixed-capture-food3-safe-20261103-v6-1-master-audit",
   "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
   "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
   "developmentIncludedInPublicRepository": true,
@@ -41,8 +41,8 @@
     },
     {
       "path": "app.js",
-      "bytes": 351077,
-      "sha256": "7fc749e891c5ea9dd7c2737d602e08e7435048db24abed4fa19afe8e3a56ccc2"
+      "bytes": 351082,
+      "sha256": "c3905bc0e7cd0a3f29e7ad1f46e57aa35a5f0cf9f84bda2ccb6ce9f73acf009a"
     },
     {
       "path": "assets/example-screenshot.png",
@@ -76,8 +76,8 @@
     },
     {
       "path": "development/ROADMAP_CURRENT.md",
-      "bytes": 48692,
-      "sha256": "16584d08e6c9361325898f1c7dd404b99e775c626ebbad69bfd02c4fb4c9c87b"
+      "bytes": 51606,
+      "sha256": "fae13cdd341ca1aa5526a79ae6f5669546cbaf11bdbbf30a08f1723fe401166a"
     },
     {
       "path": "development/STEP1_INDEPENDENT_MASTER.md",
@@ -176,8 +176,8 @@
     },
     {
       "path": "development/master_auto_update.py",
-      "bytes": 19673,
-      "sha256": "9163251f21133ff9bf2c29122152cf5c37b459c24b434a230910f9acb9095956"
+      "bytes": 19815,
+      "sha256": "f58aad5ac953f656b4a981d1a6eace8b0a6e8260b68acb45ecb42d73d0b76e72"
     },
     {
       "path": "development/master_auto_update.test.cjs",
@@ -191,8 +191,8 @@
     },
     {
       "path": "development/master_update_status.test.cjs",
-      "bytes": 4477,
-      "sha256": "2ab3836b8d467a5d01adeab1f687279c4a0be3e792d26de89d2e3c8e84224575"
+      "bytes": 6576,
+      "sha256": "48aec2d18abe90b19bb9cf3bcfa0f556a268892d1a52de42420ab96576ff7091"
     },
     {
       "path": "development/nickname_caption_rescue.test.cjs",
@@ -366,13 +366,13 @@
     },
     {
       "path": "development/test_master_auto_update.py",
-      "bytes": 29822,
-      "sha256": "934aeb11a0165f60550e0115ef64c5aaf89973c7e975ee577db885b5743fa341"
+      "bytes": 30118,
+      "sha256": "7b6ee01c9faa88a617b0105bb957ec61e5fe3d83dfc84d92d4f31c686e7b71d2"
     },
     {
       "path": "development/test_master_status.py",
-      "bytes": 3930,
-      "sha256": "b2230ec3279fb57143f0915b6d965439173d2ff4385a0d3d0ef67ba0fdf93a98"
+      "bytes": 4577,
+      "sha256": "75ba54a27c16ded4e7e9390f12661b3ccbc3f83fc4e7abc32bd34eb2d013c824"
     },
     {
       "path": "development/test_nickname_meka142_gate.py",
@@ -401,8 +401,8 @@
     },
     {
       "path": "development/write_master_update_status.py",
-      "bytes": 1324,
-      "sha256": "dc0b793a12875a6166ccc08dea8204891047018a25b79fc532e1e432905c3073"
+      "bytes": 1196,
+      "sha256": "660e3cf33b7653c84147e0c3935f5addb19a9ad668dbf111baeb38556ae571b6"
     },
     {
       "path": "food_color_features.js",
@@ -456,8 +456,8 @@
     },
     {
       "path": "master-update-status.js",
-      "bytes": 4554,
-      "sha256": "605a14057fd3ad3d0a2c3b6b6a74055ecc94e4d33e5a08f14d7104b64ab71402"
+      "bytes": 5137,
+      "sha256": "ecd1ed4a9d9e951496eb6e34095659b2a66f5215b034997581f187946ceecddc"
     },
     {
       "path": "master-update-status.json",
@@ -476,8 +476,8 @@
     },
     {
       "path": "release.json",
-      "bytes": 46,
-      "sha256": "6abf240d416a2e55f1d718efc2b8b12f33c9268e4761d9d460d52937be1c6425"
+      "bytes": 49,
+      "sha256": "dfa95105d1c07b37d99ede611ba842a18942958e5569fdfb337ad741ab73db30"
     },
     {
       "path": "shared/MASTER_DATA.json",
@@ -496,8 +496,8 @@
     },
     {
       "path": "sw.js",
-      "bytes": 4085,
-      "sha256": "4aae77e0df7539b1df5d748b5356b2159ad171892eb6446ab0aeb033f03baf04"
+      "bytes": 4088,
+      "sha256": "2a428410f742ec628282a68c4f5b5213964de2ea1f6aed9d9f10a84348f79e51"
     }
   ]
 }

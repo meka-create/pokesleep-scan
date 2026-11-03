@@ -5,7 +5,7 @@ const root=path.resolve(__dirname,'..');
 const js=fs.readFileSync(path.join(root,'master-update-status.js'),'utf8');
 const healthy=(state,ts=new Date().toISOString())=>({
  schemaVersion:'pokesleep-ocr-master-status-v1',state,checkedAt:ts,createdAt:ts,
- reasonCode:state==='healthy'?'VERIFIED':'DAILY_UPDATE_FAILED'
+ reasonCode:state==='healthy'?'SYNC_OK':state==='pending'?'SYNC_PENDING':'SYNC_FAILED'
 });
 function harness(feed,{localSource='verified-local-master'}={}){
  const events={},nodes={};
@@ -46,6 +46,45 @@ test('browser local master fallback displays warning even when daily job healthy
  h.master.source='legacy-fallback';h.master.reason='Pinned SHA-256 mismatch';
  h.events['bukkomi-master-ready']();
  assert.equal(h.nodes.masterUpdateWarning.hidden,false);
+});
+test('transient local master failure clears when verified master becomes available',async()=>{
+ const h=harness(healthy('healthy'));await h.flush();
+ h.master.source='legacy-fallback';h.master.reason='temporary load error';
+ h.events['bukkomi-master-ready']();
+ assert.equal(h.nodes.masterUpdateWarning.hidden,false);
+ h.master.source='verified-local-master';h.master.reason='verified';
+ h.events['bukkomi-master-ready']();
+ assert.equal(h.nodes.masterUpdateWarning.hidden,true);
+ assert.equal(h.ctx.window.POKESLEEP_MASTER_UPDATE_WATCH.getState().state,'healthy');
+});
+test('a real remote sync failure never disappears on local master recovery',async()=>{
+ const h=harness(healthy('attention'));await h.flush();
+ h.master.source='legacy-fallback';h.events['bukkomi-master-ready']();
+ h.master.source='verified-local-master';h.events['bukkomi-master-ready']();
+ assert.equal(h.nodes.masterUpdateWarning.hidden,false);
+ assert.equal(h.ctx.window.POKESLEEP_MASTER_UPDATE_WATCH.getState().reason,'SYNC_FAILED');
+});
+test('contradictory or unknown status receipt cannot be rendered healthy',async()=>{
+ const h=harness(healthy('healthy'));await h.flush();
+ const read=h.ctx.window.POKESLEEP_MASTER_UPDATE_WATCH.readStatus;
+ for(const change of [
+  {state:'healthy',reasonCode:'SYNC_FAILED'},
+  {state:'healthy',reasonCode:'NEW_FORM_NAME_CONFLICT'},
+  {state:'healthy',reasonCode:'VERIFIED'},
+  {state:'attention',reasonCode:'SYNC_OK'},
+  {state:'attention',reasonCode:'UNRECOGNIZED_ERROR'},
+  {state:'pending',reasonCode:'SYNC_FAILED'}
+ ]){
+  const bad={...healthy('healthy'),...change};
+  assert.equal(read(bad).state,'attention',JSON.stringify(change));
+  assert.equal(read(bad).reason,'invalid-status',JSON.stringify(change));
+ }
+ for(const reasonCode of ['SYNC_FAILED','NEW_FORM_NAME_CONFLICT',
+                          'NEW_SPECIES_DATA_INCOMPLETE','NEW_SPECIES_PENDING']){
+  assert.equal(read({...healthy('attention'),reasonCode}).state,'attention');
+ }
+ assert.equal(read(healthy('healthy')).state,'healthy');
+ assert.equal(read(healthy('pending')).state,'pending');
 });
 test('pending is quiet until 50-hour deadline',async()=>{
  const h=harness(healthy('pending'));await h.flush();

@@ -393,10 +393,14 @@ class FutureSpeciesReadinessTest(unittest.TestCase):
         def mutate_original_form(rows):
             next(x for x in rows if x['name']=='Pikachu (Halloween)')['form']=''
         def mutate_gameplay_field(rows):rows[-1]['unreviewedNewStat']=1
+        def mutate_japanese_label(rows):rows[-1]['ja']='新しい識別可能な衣装名'
+        def mutate_old_japanese_label(rows):
+            next(x for x in rows if x['name']=='Pikachu (Halloween)')['ja']='旧衣装'
         def mutate_placeholder(rows):rows[-1]['carryLimit']=0
         for mutate in (mutate_frequency,mutate_food,mutate_id,
                        mutate_form,mutate_original_form,
-                       mutate_gameplay_field,mutate_placeholder):
+                       mutate_gameplay_field,mutate_japanese_label,
+                       mutate_old_japanese_label,mutate_placeholder):
             rows=copy.deepcopy(original)
             mutate(rows)
             save(self.source(),rows)
