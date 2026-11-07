@@ -66,7 +66,10 @@ def source_food_keys(p):
         items+=p['mythIng']
     return {v.get('name') for v in items if isinstance(v,dict)}
 
-def read_strength(source):
+def read_strength(source, ignored_ingredients=frozenset()):
+    # Ignore only the unapproved NEW ingredient's coefficient expression.
+    # Existing/approved ingredients remain strictly parsed and independently
+    # verified; draft values must not block unrelated master synchronization.
     block=re.search(r"export\s+const\s+ingredientStrength\s*:\s*\{[^}]+\}\s*=\s*\{(.*?)\}\s*;",
                     source,re.S)
     check(bool(block),"upstream ingredient coefficient layout changed")
@@ -74,6 +77,9 @@ def read_strength(source):
     for line in block.group(1).splitlines():
         part=line.strip()
         if not part:continue
+        key_match=re.match(r"([a-zA-Z]\w*)\s*:",part)
+        if key_match and key_match.group(1) in ignored_ingredients:
+            continue
         parsed=re.fullmatch(r"([a-zA-Z]\w*)\s*:\s*(\d+)\s*,?",part)
         check(bool(parsed),"unrecognized ingredient coefficient line")
         key,num=parsed.group(1),int(parsed.group(2))
@@ -155,13 +161,16 @@ def project(src,prior,commit=None,today_jst=None):
     inp={k:(p.read_text(encoding='utf-8') if k in ('subskill','ingredientStrength') else read(p)) for k,p in paths.items()}
     pokemon=inp['pokemon'];names=inp['names']['pokemons'];jp=inp['data'];skills=inp['skills']['skills']
     ingredients=jp['ingredients'];natures=jp['natures'];ss=selectable(inp['subskill'])
-    strengths=read_strength(inp['ingredientStrength'])
+    check(isinstance(ingredients,dict) and
+          all(isinstance(k,str) and bool(k) for k in ingredients),
+          'upstream ingredient identifiers invalid')
     # An unapproved ingredient is staged in the sync report only. Even if the
     # upstream later gives it a positive coefficient, it is NOT automatically
     # selectable in OCR/CSV until the owner explicitly approves the key.
     new_keys=set(ingredients)-set(prior['ingredients'])
     pending_ingredients=new_keys-APPROVED_NEW_INGREDIENTS
     active_ingredients={k:v for k,v in ingredients.items() if k not in pending_ingredients}
+    strengths=read_strength(inp['ingredientStrength'],pending_ingredients)
     nonbaseline=(set(active_ingredients)-set(BASE_FOOD_STRENGTH))
     check(all(k in strengths and strengths[k]>0 for k in nonbaseline),
           'approved ingredient requires a verified upstream energy coefficient')
@@ -174,7 +183,10 @@ def project(src,prior,commit=None,today_jst=None):
           'upstream dataset incomplete')
     check(set(old_n)==set(natures) and set(old_s)==set(ss),'unknown subskill/nature coefficients')
     check(set(prior['ingredients']).issubset(ingredients),'ingredient removed')
-    check(all(isinstance(k,str) and k and isinstance(v,str) and v.strip() for k,v in ingredients.items()) and len(set(ingredients.values()))==len(ingredients),'ingredient translation missing or non-unique')
+    check(all(isinstance(k,str) and k and isinstance(v,str) and v.strip()
+              for k,v in active_ingredients.items()) and
+          len(set(active_ingredients.values()))==len(active_ingredients),
+          'published ingredient translation missing or non-unique')
     used_en=set();used_ja=set();used_ids=set();parsed=[];deferred=[];equivalent_aliases=[]
     installed_by_name={x['name_en']:x for x in prior['pokemon']}
     installed_names=set(installed_by_name)

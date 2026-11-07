@@ -18,6 +18,10 @@ becoming positive does NOT constitute approval. New ingredient keys are listed
 in `pendingIngredients`, but omitted from the installed master and CSV.
 Otherwise-valid new Pokémon that use unapproved ingredients remain deferred as
 provisional; unrelated new Pokémon and existing-species improvements continue.
+Draft unapproved food may also have an unfinished, duplicate, or invalid
+Japanese translation or a nonnumeric provisional energy expression. These
+unpublished values are isolated from the published 19-ingredient validation;
+approved and existing ingredient labels and coefficients remain strict.
 If an installed species starts using an unapproved ingredient, the entire
 update is held to prevent corrupting its known food options. After explicit
 approval, a positive verified coefficient and the existing asset validation
