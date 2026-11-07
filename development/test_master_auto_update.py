@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Two-species migration, failure-rollback, and future-release lifecycle fixtures."""
 import copy, json, pathlib, tempfile, unittest, sys
+from unittest.mock import patch
+import master_auto_update as master_sync
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'development'))
 from master_auto_update import project, Hold, BASE_FOOD_STRENGTH
@@ -94,24 +96,77 @@ class OctoberFifthTest(unittest.TestCase):
         self.assertIn(release,(root/'sw.js').read_text(encoding='utf-8'))
         _,second=project(self.dir,active,commit='a'*40)
         self.assertFalse(second['changed'],'auto updater should not endlessly republish the same master')
-    def test_new_20th_ingredient_is_detected_not_guessed(self):
-        data=pathlib.Path(self.dir/'src/i18n/ja/data.json')
-        doc=json.loads(data.read_text(encoding='utf-8'))
-        doc['ingredients']['futureFood']='未来の食材'
-        save(data,doc)
-        strength=self.dir/'src/util/PokemonRp.ts'
-        strength.write_text(strength.read_text(encoding='utf-8').replace('  unknown:', '  futureFood: 123,\n  unknown:'),encoding='utf-8')
-        new,report=project(self.dir,self.pre,commit='a'*40)
-        self.assertIn('futureFood',report['newIngredients'])
-        self.assertEqual(new['ingredients']['futureFood'],'未来の食材')
-        self.assertEqual(new['ingredientStrength']['futureFood'],123)
-    def test_new_ingredient_without_coefficients_holds_release(self):
+    def add_future_food(self, coefficient=None):
         data=self.dir/'src/i18n/ja/data.json'
         doc=json.loads(data.read_text(encoding='utf-8'))
         doc['ingredients']['futureFood']='未来の食材'
         save(data,doc)
-        with self.assertRaises(Hold):
-            project(self.dir,self.pre,commit='a'*40)
+        if coefficient is not None:
+            strength=self.dir/'src/util/PokemonRp.ts'
+            strength.write_text(strength.read_text(encoding='utf-8').replace(
+                '  unknown:', f'  futureFood: {coefficient},\\n  unknown:' .replace('\\n','\n')),
+                encoding='utf-8')
+    def test_new_20th_ingredient_is_pending_even_when_upstream_coefficient_is_valid(self):
+        self.add_future_food(123)
+        new,report=project(self.dir,self.full,commit='a'*40)
+        self.assertEqual(new['ingredients'],self.full['ingredients'])
+        self.assertNotIn('ingredientStrength',new)
+        self.assertEqual(report['newIngredients'],[])
+        self.assertEqual(report['pendingIngredients'],['futureFood'])
+        self.assertFalse(report['changed'])
+        # An unrelated installed-species adjustment is still publishable.
+        src=self.dir/'src/data/pokemon.json'
+        doc=json.loads(src.read_text(encoding='utf-8'))
+        doc[0]['frequency']+=2
+        save(src,doc)
+        updated,report=project(self.dir,self.full,commit='a'*40)
+        self.assertTrue(report['changed'])
+        self.assertEqual(updated['ingredients'],self.full['ingredients'])
+        self.assertEqual(report['pendingIngredients'],['futureFood'])
+    def test_new_ingredient_zero_or_missing_coefficient_never_blocks_old_updates(self):
+        for value in (None,0):
+            make_fixture(self.dir,self.full)
+            self.add_future_food(value)
+            updated,report=project(self.dir,self.full,commit='a'*40)
+            self.assertFalse(report['changed'])
+            self.assertEqual(report['pendingIngredients'],['futureFood'])
+    def test_explicit_approval_still_requires_positive_verified_coefficient(self):
+        self.add_future_food(0)
+        with patch.object(master_sync,'APPROVED_NEW_INGREDIENTS',frozenset({'futureFood'})):
+            with self.assertRaisesRegex(Hold,'approved ingredient requires'):
+                project(self.dir,self.full,commit='a'*40)
+        self.add_future_food(123)
+        with patch.object(master_sync,'APPROVED_NEW_INGREDIENTS',frozenset({'futureFood'})):
+            new,report=project(self.dir,self.full,commit='a'*40)
+            self.assertEqual(report['newIngredients'],['futureFood'])
+            self.assertEqual(report['pendingIngredients'],[])
+            self.assertEqual(new['ingredients']['futureFood'],'未来の食材')
+            self.assertEqual(new['ingredientStrength']['futureFood'],123)
+            again,status=project(self.dir,new,commit='a'*40)
+            self.assertFalse(status['changed'])
+            self.assertEqual(again['ingredientStrength']['futureFood'],123)
+    def test_future_species_using_unapproved_food_deferred_while_safe_species_updates(self):
+        self.add_future_food(0)
+        src=self.dir/'src/data/pokemon.json'
+        rows=json.loads(src.read_text(encoding='utf-8'))
+        newcomer=next(p for p in rows if p['name']=='Foongus')
+        newcomer['ing1']['name']='futureFood'
+        rows[0]['frequency']+=2
+        save(src,rows)
+        projected,report=project(self.dir,self.pre,commit='a'*40)
+        self.assertNotIn('futureFood',projected['ingredients'])
+        self.assertIn('Amoonguss',report['addedSpecies'])
+        self.assertNotIn('Foongus',report['addedSpecies'])
+        self.assertEqual(next(x for x in report['deferredSpecies'] if x['name']=='Foongus')['reason'],'provisional-data')
+        self.assertIn(rows[0]['name'],report['changedSpecies'])
+    def test_installed_species_referencing_unapproved_food_blocks_unsafe_change(self):
+        self.add_future_food(0)
+        src=self.dir/'src/data/pokemon.json'
+        rows=json.loads(src.read_text(encoding='utf-8'))
+        rows[0]['ing1']['name']='futureFood'
+        save(src,rows)
+        with self.assertRaisesRegex(Hold,'installed species requires an unapproved'):
+            project(self.dir,self.full,commit='a'*40)
 
     def test_bad_numeric_upstream_holds_release(self):
         src=self.dir/'src/data/pokemon.json'
