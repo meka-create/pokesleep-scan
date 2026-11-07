@@ -135,6 +135,7 @@ class OctoberFifthTest(unittest.TestCase):
         with patch.object(master_sync,'APPROVED_NEW_INGREDIENTS',frozenset({'futureFood'})):
             with self.assertRaisesRegex(Hold,'approved ingredient requires'):
                 project(self.dir,self.full,commit='a'*40)
+        make_fixture(self.dir,self.full)
         self.add_future_food(123)
         with patch.object(master_sync,'APPROVED_NEW_INGREDIENTS',frozenset({'futureFood'})):
             new,report=project(self.dir,self.full,commit='a'*40)
