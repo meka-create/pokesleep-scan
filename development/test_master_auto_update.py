@@ -130,6 +130,80 @@ class OctoberFifthTest(unittest.TestCase):
             updated,report=project(self.dir,self.full,commit='a'*40)
             self.assertFalse(report['changed'])
             self.assertEqual(report['pendingIngredients'],['futureFood'])
+    def test_pending_new_ingredient_translation_can_be_unfinished_without_holding_other_updates(self):
+        # An UNAPPROVED ingredient must never be published, even when its JP
+        # label is missing, duplicate, or invalid in the draft upstream data.
+        # Existing 19 names must still be unique and validated independently.
+        for draft_name in (None, '', self.full['ingredients']['apple'], ['draft']):
+            with self.subTest(draft_name=draft_name):
+                make_fixture(self.dir,self.full)
+                self.add_future_food(0)
+                source=self.dir/'src/i18n/ja/data.json'
+                doc=json.loads(source.read_text(encoding='utf-8'))
+                doc['ingredients']['futureFood']=draft_name
+                save(source,doc)
+                species=self.dir/'src/data/pokemon.json'
+                records=json.loads(species.read_text(encoding='utf-8'))
+                records[0]['frequency']+=2
+                save(species,records)
+                projected,report=project(self.dir,self.full,commit='a'*40)
+                self.assertEqual(projected['ingredients'],self.full['ingredients'])
+                self.assertEqual(report['pendingIngredients'],['futureFood'])
+                self.assertEqual(report['newIngredients'],[])
+                self.assertTrue(report['changed'])
+                self.assertIn(records[0]['name'],report['changedSpecies'])
+
+    def test_pending_food_coefficient_placeholder_isolated_but_legacy_coefficients_not(self):
+        self.add_future_food(0)
+        coeff=self.dir/'src/util/PokemonRp.ts'
+        # An upstream draft may temporarily use a literal placeholder, which
+        # is irrelevant while this ingredient remains explicitly unapproved.
+        coeff.write_text(coeff.read_text(encoding='utf-8').replace(
+            'futureFood: 0,','futureFood: awaitingRelease,'),
+            encoding='utf-8')
+        updated,report=project(self.dir,self.full,commit='a'*40)
+        self.assertEqual(updated['ingredients'],self.full['ingredients'])
+        self.assertEqual(report['pendingIngredients'],['futureFood'])
+        self.assertFalse(report['changed'])
+        # Never allow non-numeric existing coefficient to pass this isolation.
+        coeff.write_text(coeff.read_text(encoding='utf-8').replace(
+            'apple: 90,','apple: awaitingRelease,'),
+            encoding='utf-8')
+        with self.assertRaisesRegex(Hold,'unrecognized ingredient coefficient'):
+            project(self.dir,self.full,commit='a'*40)
+
+    def test_new_species_with_unapproved_third_or_mythical_food_remains_deferred(self):
+        for field in ('ing3','mythIng'):
+            with self.subTest(field=field):
+                make_fixture(self.dir,self.full)
+                self.add_future_food(0)
+                rows_path=self.dir/'src/data/pokemon.json'
+                rows=json.loads(rows_path.read_text(encoding='utf-8'))
+                new_row=next(x for x in rows if x['name']=='Foongus')
+                if field=='ing3':
+                    new_row['ing3']={'name':'futureFood','c3':4}
+                else:
+                    new_row['mythIng']=[{'name':'futureFood','c1':1,'c2':2,'c3':3}]
+                save(rows_path,rows)
+                projected,report=project(self.dir,self.pre,commit='a'*40)
+                self.assertEqual(report['pendingIngredients'],['futureFood'])
+                self.assertNotIn('Foongus',report['addedSpecies'])
+                self.assertIn('Amoonguss',report['addedSpecies'])
+                self.assertNotIn('futureFood',projected['ingredients'])
+
+    def test_approved_new_food_invalid_label_or_coefficient_fails_closed(self):
+        for bad_name in ('',self.full['ingredients']['apple']):
+            with self.subTest(bad_name=bad_name):
+                make_fixture(self.dir,self.full)
+                self.add_future_food(123)
+                data=self.dir/'src/i18n/ja/data.json'
+                doc=json.loads(data.read_text(encoding='utf-8'))
+                doc['ingredients']['futureFood']=bad_name
+                save(data,doc)
+                with patch.object(master_sync,'APPROVED_NEW_INGREDIENTS',frozenset({'futureFood'})):
+                    with self.assertRaisesRegex(Hold,'published ingredient translation'):
+                        project(self.dir,self.full,commit='a'*40)
+
     def test_explicit_approval_still_requires_positive_verified_coefficient(self):
         self.add_future_food(0)
         with patch.object(master_sync,'APPROVED_NEW_INGREDIENTS',frozenset({'futureFood'})):
