@@ -35,6 +35,8 @@ jobs:
         run: git clone --depth 1 --single-branch https://github.com/nitoyon/pokesleep-tool.git "$RUNNER_TEMP/upstream"
       - name: Prepare food sprite generator
         run: python -m pip install Pillow==11.3.0
+      # The importer stages unapproved new food labels and draft coefficients
+      # without weakening the independently verified installed master.
       - name: Stage, validate, test and refresh self-owned release metadata
         id: stage
         shell: bash
