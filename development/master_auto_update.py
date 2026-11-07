@@ -55,6 +55,17 @@ BASE_FOOD_STRENGTH = {
     "ginger":109,"tomato":110,"cacao":151,"tail":342,"soy":100,
     "corn":140,"coffee":153,"pumpkin":250,"avocado":162
 }
+# New ingredients are explicitly opt-in: empty until the owner authorizes
+# each ingredient after confirming its actual in-game implementation.
+# The scheduled sync must NOT grant approval from upstream coefficient changes.
+APPROVED_NEW_INGREDIENTS = frozenset()
+
+def source_food_keys(p):
+    items=[p.get('ing'+str(n)) for n in (1,2,3)]
+    if isinstance(p.get('mythIng'),list):
+        items+=p['mythIng']
+    return {v.get('name') for v in items if isinstance(v,dict)}
+
 def read_strength(source):
     block=re.search(r"export\s+const\s+ingredientStrength\s*:\s*\{[^}]+\}\s*=\s*\{(.*?)\}\s*;",
                     source,re.S)
@@ -145,10 +156,16 @@ def project(src,prior,commit=None,today_jst=None):
     pokemon=inp['pokemon'];names=inp['names']['pokemons'];jp=inp['data'];skills=inp['skills']['skills']
     ingredients=jp['ingredients'];natures=jp['natures'];ss=selectable(inp['subskill'])
     strengths=read_strength(inp['ingredientStrength'])
-    newly_supported=set(ingredients)-set(BASE_FOOD_STRENGTH)
-    check(all(k in strengths and strengths[k]>0 for k in newly_supported),
-          'new ingredient requires a verified upstream energy coefficient')
-    extra={k:strengths[k] for k in sorted(newly_supported)}
+    # An unapproved ingredient is staged in the sync report only. Even if the
+    # upstream later gives it a positive coefficient, it is NOT automatically
+    # selectable in OCR/CSV until the owner explicitly approves the key.
+    new_keys=set(ingredients)-set(prior['ingredients'])
+    pending_ingredients=new_keys-APPROVED_NEW_INGREDIENTS
+    active_ingredients={k:v for k,v in ingredients.items() if k not in pending_ingredients}
+    nonbaseline=(set(active_ingredients)-set(BASE_FOOD_STRENGTH))
+    check(all(k in strengths and strengths[k]>0 for k in nonbaseline),
+          'approved ingredient requires a verified upstream energy coefficient')
+    extra={k:strengths[k] for k in sorted(nonbaseline)}
     old_n={x['en']:x for x in prior['natures']}
     old_s={x['en']:x for x in prior['subskills']}
     check(isinstance(pokemon,list) and len(pokemon)>=240 and
@@ -178,9 +195,14 @@ def project(src,prior,commit=None,today_jst=None):
               'pokemon identifier/translation collision')
         used_en.add(en);used_ids.add(ident)
         # Never skip an installed species; upstream corruption must HOLD.
+        if en in installed_names:
+            # Existing species must NEVER silently lose or change a food slot.
+            check(not (source_food_keys(p) & pending_ingredients),
+                  'installed species requires an unapproved new ingredient')
         if en not in installed_names:
             when=arrival_date(p.get('arrival'))
             provisional=(provisional_new_species(p) or
+                         bool(source_food_keys(p) & pending_ingredients) or
                          not isinstance(ja,str) or not ja.strip() or
                          skill not in skills or
                          not isinstance(skills[skill].get('name'),str) or
@@ -223,21 +245,21 @@ def project(src,prior,commit=None,today_jst=None):
                 row['ing3']=None
             else:
                 k=item['name']
-                check(k in ingredients or (p.get('mythIng') and k in ('unknown','unknown1','unknown2','unknown3')),
+                check(k in active_ingredients or (p.get('mythIng') and k in ('unknown','unknown1','unknown2','unknown3')),
                       f'unknown ingredient {en}:{k}')
                 check(all(item.get(q) is None or (type(item.get(q)) is int and 0<=item[q]<=999) for q in ('c1','c2','c3'))
                       and (str(k).startswith('unknown') or
                            (type(item.get('c'+str(n))) is int and item['c'+str(n)]>0)),
                       'invalid ingredient quantities')
-                row['ing'+str(n)]={'key':k,'name':ingredients.get(k,k),
+                row['ing'+str(n)]={'key':k,'name':active_ingredients.get(k,k),
                                   **{c:item.get(c) for c in ('c1','c2','c3')}}
         if p.get('mythIng'):
             row['mythIng']=[]
             for it in p['mythIng']:
                 k=it['name']
-                check(k in ingredients,'unknown mythical ingredient')
+                check(k in active_ingredients,'unknown mythical ingredient')
                 check(all(it.get(q) is None or (type(it.get(q)) is int and 0<=it[q]<=999) for q in ('c1','c2','c3')),'invalid mythical ingredient quantities')
-                row['mythIng'].append({'key':k,'name':ingredients[k],
+                row['mythIng'].append({'key':k,'name':active_ingredients[k],
                                        **{c:it.get(c) for c in ('c1','c2','c3')}})
         parsed.append(row)
     old_by={x['name_en']:x for x in prior['pokemon']}
@@ -247,7 +269,7 @@ def project(src,prior,commit=None,today_jst=None):
           'subskill translations incomplete')
     commit=commit or sha(src)
     master={'cutoff':max(p['arrival'] for p in parsed),
-            'ingredients':dict(sorted(ingredients.items())),
+            'ingredients':dict(sorted(active_ingredients.items())),
             'natures':[{**old_n[k],'ja':v} for k,v in natures.items()],
             'pokemon':parsed,
             'subskills':[{**old_s[k],'ja':jp['subskill'][k]} for k in ss],
@@ -256,8 +278,8 @@ def project(src,prior,commit=None,today_jst=None):
                           'sourceCommit':commit,
                           'sourceFilesSha256':{k:digest(p.read_bytes()) for k,p in paths.items()},
                           'verification':'source structure checked; real importer E2E in STEP 3'}}
-    # Dynamic extras are included only when required; this keeps today's
-    # 249-species / 19-ingredient source projection byte-equivalent.
+    # Coefficients exist only for authorized nonbaseline ingredients. Existing
+    # approved extras remain verified across subsequent routine syncs.
     if extra:master['ingredientStrength']=extra
     signature=lambda m:{k:m.get(k) for k in ('cutoff','ingredients','natures','pokemon','subskills','ingredientStrength')}
     overdue=[x for x in deferred
@@ -266,7 +288,8 @@ def project(src,prior,commit=None,today_jst=None):
     result={'sourceCommit':commit,
             'addedSpecies':sorted(set(updated_by)-set(old_by)),
             'changedSpecies':sorted(k for k in old_by if old_by[k]!=updated_by[k]),
-            'newIngredients':sorted(set(ingredients)-set(prior['ingredients'])),
+            'newIngredients':sorted(set(active_ingredients)-set(prior['ingredients'])),
+            'pendingIngredients':sorted(pending_ingredients),
             'deferredSpecies':deferred,
             'equivalentAliases':sorted(equivalent_aliases,key=lambda x:x['name']),
             'overdueReasons':sorted({x['reason'] for x in overdue}),
