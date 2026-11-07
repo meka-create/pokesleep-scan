@@ -1,503 +1,503 @@
 {
-"schemaVersion": 2,
-"kind": "current-tracked-repository-inventory",
-"releaseId": "2026-11-03-master-alias-audit-v6-1",
-"appBuildId": "v12-mixed-capture-food3-safe-20261103-v6-1-master-audit",
-"purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
-"scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
-"developmentIncludedInPublicRepository": true,
-"knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
-"fileCount": 98,
-"files": [
-{
-"path": ".github/workflows/independent-master-sync.yml",
-"bytes": 5964,
-"sha256": "641d6565b031135090c30f1722729c6af76dc003d97d0e69dd748dce15a50277"
-},
-{
-"path": ".github/workflows/pixel142-main-release.yml",
-"bytes": 14167,
-"sha256": "2808c311d4bbf98e153b8a6957f77550d1c4c3057889643e20939feb18946f3a"
-},
-{
-"path": ".gitignore",
-"bytes": 580,
-"sha256": "c652a3fd8e6fe99fb2487e2d8f28b571706994963a4c6168f1c019b29ceba820"
-},
-{
-"path": ".nojekyll",
-"bytes": 0,
-"sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-},
-{
-"path": "THIRD_PARTY_NOTICES.md",
-"bytes": 4318,
-"sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
-},
-{
-"path": "android_roi.js",
-"bytes": 10755,
-"sha256": "c1e5c91646be6c197f629404cfe340808dc089633d0d805bf73adbfaeaab8e37"
-},
-{
-"path": "app.js",
-"bytes": 351082,
-"sha256": "c3905bc0e7cd0a3f29e7ad1f46e57aa35a5f0cf9f84bda2ccb6ce9f73acf009a"
-},
-{
-"path": "assets/example-screenshot.png",
-"bytes": 105755,
-"sha256": "faf93b7dfeab7395ba20d5e296ef81da2a2df3b1b61e62f3ebb5674313fe8a06"
-},
-{
-"path": "assets/ogp-card.png",
-"bytes": 1083675,
-"sha256": "461dd958fc6f4cd5ebe7fc1d2fd1fc1f8c86aad667562a858138120c16a4fd14"
-},
-{
-"path": "classifier.js",
-"bytes": 15456,
-"sha256": "df7646faa245e38ae15e2f6bf5939d8ae5cf4ca10bdf9968bf19acf797660786"
-},
-{
-"path": "csv_gate.js",
-"bytes": 8947,
-"sha256": "d78405f3cd613b1f06f588b36254d85048aac199611062b60ff9009863196cbf"
-},
-{
-"path": "development/CSV18_DEVICE_ACCEPTANCE.md",
-"bytes": 5880,
-"sha256": "73b9390ce5b02b23759b2f7d0888162795c42b88c1d6ccc091cd86c67b607297"
-},
-{
-"path": "development/ROADMAP_20261013.md",
-"bytes": 6526,
-"sha256": "4a26cbc0fa5c43382121c3da12179f51dce458ff191f9b128469b633e87bc4b4"
-},
-{
-"path": "development/ROADMAP_CURRENT.md",
-"bytes": 53245,
-"sha256": "60dec9763c4f0f3f4695bad79c234fbecab66828282322c3a8272863e6619454"
-},
-{
-"path": "development/STEP1_INDEPENDENT_MASTER.md",
-"bytes": 2831,
-"sha256": "28837c7e156857e4ad2e754b2c21724cdd0370881bcb420414906d55b7ffa66c"
-},
-{
-"path": "development/browser_append_after_results.py",
-"bytes": 8235,
-"sha256": "075af9fb40b00b249f2ff068313a51fe158115512b4301779b2c30e6e9c5d2e7"
-},
-{
-"path": "development/browser_boot_smoke.py",
-"bytes": 23598,
-"sha256": "c8f54959fd16747a2fbdf1cea929ba7ec95ed4cac4a70f79fc5a20c38581d350"
-},
-{
-"path": "development/browser_choice_picker_kana.py",
-"bytes": 5980,
-"sha256": "291eacfccf1aab891f2e00b79438834656fe1bf245cfdded55e1f240f26f99b4"
-},
-{
-"path": "development/browser_csv_download_audit.py",
-"bytes": 30362,
-"sha256": "b13938b058f738baf7fcd743f2c7221c7527bb0699ae24a4ff39630b09bb15a6"
-},
-{
-"path": "development/browser_failure_card_modal.py",
-"bytes": 6765,
-"sha256": "f0dbb68a45f385521f09aa52ec38424ff99a4592b2caf1d6ec0a2ba732346d6b"
-},
-{
-"path": "development/browser_paddle_wait_choice.py",
-"bytes": 8206,
-"sha256": "8fdf55cdea52d2946bac06fdf906ba0b7cf74666126e89634c2de8a6092a6e00"
-},
-{
-"path": "development/browser_step3_review_audit.py",
-"bytes": 13792,
-"sha256": "4b1b30abc571e88c1bbda74a330b60571b1cf879d5b6c0f3b08fcd83501b36e7"
-},
-{
-"path": "development/browser_unified_mobile_layout.py",
-"bytes": 5874,
-"sha256": "cf24f8b25e6bc7f7f3b9d94a55edd3759ee21645e5be3e10688e50b13ecae668"
-},
-{
-"path": "development/csv18_roundtrip_acceptance.py",
-"bytes": 6740,
-"sha256": "c93873c8b4573511ff4169fca23723fead1241bdf36e094a1579363b76b54dbe"
-},
-{
-"path": "development/failure_card_actions.test.cjs",
-"bytes": 6528,
-"sha256": "4d3d2176e3cb90abeb3d0b815ff4a61e4d5e346c1006aef73f1330b464b45feb"
-},
-{
-"path": "development/final_evidence_gate.py",
-"bytes": 9511,
-"sha256": "e70c294f09aeef7f3fba33294f6b249d416621f1b3690360a3b3624cb65770b4"
-},
-{
-"path": "development/final_two_field_evidence.test.cjs",
-"bytes": 5700,
-"sha256": "4aa4d65c378bb2022730c5a1a039334664343e2be8df9dba590da28550238384"
-},
-{
-"path": "development/generate_public_package_manifest.py",
-"bytes": 6487,
-"sha256": "84413c3e43434b0bb2b856998cc6ad5787db8ba900f79f563f1a37561eba3bf6"
-},
-{
-"path": "development/generate_upstream_import_fixture.cjs",
-"bytes": 2768,
-"sha256": "f6d287579de84cf64007aea043e4f2e45da97401f058d6ec7d5ba570657e3d5e"
-},
-{
-"path": "development/image_button_compact.test.cjs",
-"bytes": 1729,
-"sha256": "0cdc38eb95d751f45731578919653703e9572b781aa80e2837892c03170dbad1"
-},
-{
-"path": "development/image_source_choice.test.cjs",
-"bytes": 2358,
-"sha256": "140d43fecdfcec2365c9f1372a89b4e7d2c54d5560b0eae44e0686d28efc4b5b"
-},
-{
-"path": "development/layout_cropped_banner.test.cjs",
-"bytes": 2419,
-"sha256": "a79b67ae9e5911e858533fb703dad6c871802596b20434c4ce6f05fafa4a2429"
-},
-{
-"path": "development/locked_food2_self_witness.test.cjs",
-"bytes": 3615,
-"sha256": "1c2cf382437aea1655419987ef312d550a1158014085e649bbd6fe38776924a7"
-},
-{
-"path": "development/master_auto_update.py",
-"bytes": 21170,
-"sha256": "3b9c9aeceac87189a1e6b262faf5379be0b466cbc73a7028bce25ad85c901c32"
-},
-{
-"path": "development/master_auto_update.test.cjs",
-"bytes": 7676,
-"sha256": "f40dd83144932acf289e1d0cc37f9314b194645239cd6823c9ddc93b4e95fd98"
-},
-{
-"path": "development/master_deploy_workflow.test.cjs",
-"bytes": 2094,
-"sha256": "6773dd17bd3673f515701d4c889bb7b30e6f2b573b41c62ee63ed65145e13ca4"
-},
-{
-"path": "development/master_update_status.test.cjs",
-"bytes": 6576,
-"sha256": "48aec2d18abe90b19bb9cf3bcfa0f556a268892d1a52de42420ab96576ff7091"
-},
-{
-"path": "development/nickname_caption_rescue.test.cjs",
-"bytes": 30918,
-"sha256": "0ef45be6f6128049e4cba0f3e657f199e7d14925e25a1cfad3492852771d9a39"
-},
-{
-"path": "development/nickname_consensus_autoconfirm.test.cjs",
-"bytes": 4302,
-"sha256": "d70a76e0e15898e3982ebacc9e0bb918ec0c71c3fc252275eec0bf14a6990309"
-},
-{
-"path": "development/nickname_freeze.test.cjs",
-"bytes": 4933,
-"sha256": "da86f038b617200335707b75e8016f7f6a176b0783db35804481886d42703540"
-},
-{
-"path": "development/nickname_level_candidate_ranking.test.cjs",
-"bytes": 7813,
-"sha256": "fc852ec6dfff205fd31061f198637de8826643b6019cf09d88ca0e5d1cd3690d"
-},
-{
-"path": "development/nickname_lv_consensus85.test.cjs",
-"bytes": 4332,
-"sha256": "15a28492a1b064a18612df353363508c552a6adafb5dda7d3d9bc842a7442ab3"
-},
-{
-"path": "development/nickname_meka142_gate.py",
-"bytes": 8244,
-"sha256": "330f5852504ed37dee595431d892aef5fc80342fda401a04e4124047b20a62a7"
-},
-{
-"path": "development/nickname_spatial_advisory.test.cjs",
-"bytes": 4258,
-"sha256": "6e975547f4ee9972f83bab5d041abe14cbbedfbc3dc8acc944d467b37cf75a83"
-},
-{
-"path": "development/paddle_wait_choice.test.cjs",
-"bytes": 10009,
-"sha256": "2c44c16f7b7e502c58c6f30d01e79f5ce0c69ffc38ea3dc8553a65467c53d49c"
-},
-{
-"path": "development/performance_profile.test.cjs",
-"bytes": 3817,
-"sha256": "7bc807f27f2950e64b549d273e5f133fcfda6973ce97294260ca8cf4fcec6c53"
-},
-{
-"path": "development/publish_master_status.py",
-"bytes": 2467,
-"sha256": "6c7a7712d14e64cb7750556f7da80194961ef0de085fa70b64b5943d07134fe5"
-},
-{
-"path": "development/register_food_icons.py",
-"bytes": 3180,
-"sha256": "a4b82e6deaabb19d55f6264d99167ffdc1dc2e908d1d37facf8f370405677b8c"
-},
-{
-"path": "development/review_picker_kana_prefix.test.cjs",
-"bytes": 3587,
-"sha256": "fa5970688bc8863d9931c5bd80fbaceef8fc45b6ad7e528fae77c1c4c358a51f"
-},
-{
-"path": "development/runtime_smoke.test.cjs",
-"bytes": 2353,
-"sha256": "1d85a83ce5bda029d4c8b8ded7b4cbf78ae0b92a1b1f3c7cf8463c1d534e3ace"
-},
-{
-"path": "development/shifted_carry_band.test.cjs",
-"bytes": 19842,
-"sha256": "30eb3f99b8cdb0611e3ff6b1582f7f5dbab0f4759dc71a3f585bea1078315d3c"
-},
-{
-"path": "development/speed_warning.test.cjs",
-"bytes": 6784,
-"sha256": "e253621beb9653083b00da0f162fe76334277b62977bb1ba71495519ac2540c6"
-},
-{
-"path": "development/step2_asset_revision.test.cjs",
-"bytes": 1638,
-"sha256": "99dfd8abb403112fe16ca0f89f0fd12a450ebe98dbedf402f33803ee0fab1a7a"
-},
-{
-"path": "development/step2_food3_independent_pixel_witness.test.cjs",
-"bytes": 3439,
-"sha256": "06620e30a404c98402dfe697a6d85ca30a69186e7fb1937a59500aa1c12cb5ca"
-},
-{
-"path": "development/step2_food3_selfmatch.test.cjs",
-"bytes": 3611,
-"sha256": "8e3556a3cacf48254dacd520eb035f3e63f122ef8d9e6a2576c9dbd1568ff4d0"
-},
-{
-"path": "development/step2_meka142_benchmark.py",
-"bytes": 15835,
-"sha256": "6b7b3e3435fe7fdf64784dc1bd6e4a15982b0db877d5ad7c4c209e49c84818be"
-},
-{
-"path": "development/step2_mythical_empty_dash.test.cjs",
-"bytes": 2456,
-"sha256": "7d5156bb3eb740078c1dd4fb611dcf5262f20cf3bd9fb16a1dc65f8d45ae3edb"
-},
-{
-"path": "development/step2_mythical_food_sentinel.test.cjs",
-"bytes": 3119,
-"sha256": "6b661a577f2c4b5c720ea73ac67c75d6e84d45592a76b19f51579c60cb465c2c"
-},
-{
-"path": "development/step2_mythical_subskill_dash.test.cjs",
-"bytes": 5022,
-"sha256": "28745238d33de09bff51ad901b6cd6128f0675da51da842b924d7443be20dc71"
-},
-{
-"path": "development/step2_shared_csv.test.cjs",
-"bytes": 24093,
-"sha256": "6f12070beb09e16722779bedc8b0ab9f8e5b47f322de6088179c4d8efcc98047"
-},
-{
-"path": "development/step3_android_roi.test.cjs",
-"bytes": 20364,
-"sha256": "c5c98efaab467e4db504317d055764325f9d0fc73231bb80495d16140986ad9c"
-},
-{
-"path": "development/step3_carry_food3.test.cjs",
-"bytes": 8907,
-"sha256": "f3e3543c2632e9ed52a18e15db7771464930d35fd17a3470f1e926fe17274da7"
-},
-{
-"path": "development/step3_dimmed_food_conflict.test.cjs",
-"bytes": 4572,
-"sha256": "25b8fee5f2ac2a2df44ea7a938d500d994b56124efbaf0274bc491a4f01fd434"
-},
-{
-"path": "development/step3_header_sp_subskill_review.test.cjs",
-"bytes": 3152,
-"sha256": "0d0db98e6af46be6522a08dca6d20b45a3f9575d3816a7a97c0b300a1457a993"
-},
-{
-"path": "development/step3_joint_rescue.test.cjs",
-"bytes": 4516,
-"sha256": "727c1941c8b70b7ede21f528792785029b1f0b7f9a5e2338ad31d2605efafc9e"
-},
-{
-"path": "development/step3_meka142_targeted_quality.test.cjs",
-"bytes": 4152,
-"sha256": "f3d6a357b18051e65d0f13b10be97d79621d6b7862b757c7a66a2370fdf2760f"
-},
-{
-"path": "development/step3_mystical_fire_sp.test.cjs",
-"bytes": 2417,
-"sha256": "c7c4472cf6aef961fc6c280c91c060ac0caaac9b1337e96910984c7a4b1fcb9b"
-},
-{
-"path": "development/step3_pixel142_safety.test.cjs",
-"bytes": 8446,
-"sha256": "cddc4a35f2ed3b8a6697c04aa3f7c6c8cda11584317a82ea785a3509880f25dc"
-},
-{
-"path": "development/step3_real_upstream_importer.test.ts",
-"bytes": 11392,
-"sha256": "25408e79a9252d466dbd01caa6beba596250029439cc2fc6a09ab42fd73c8aad"
-},
-{
-"path": "development/test_csv18_roundtrip_acceptance.py",
-"bytes": 6216,
-"sha256": "a341dfa18065c86f09471b6cb4530b75b696ac2d1852bb6c0ac6c2eaef6cfea2"
-},
-{
-"path": "development/test_final_evidence_gate.py",
-"bytes": 12421,
-"sha256": "572440d8aab61f7341dc39c44f54500df0765f5f275562e5fec09392ecf14e44"
-},
-{
-"path": "development/test_master_auto_update.py",
-"bytes": 33289,
-"sha256": "96388a9b4d6a721ad1bf80f4ee98605385849bfec81e1feb4cefcbc7bee6bf85"
-},
-{
-"path": "development/test_master_status.py",
-"bytes": 4577,
-"sha256": "75ba54a27c16ded4e7e9390f12661b3ccbc3f83fc4e7abc32bd34eb2d013c824"
-},
-{
-"path": "development/test_nickname_meka142_gate.py",
-"bytes": 4634,
-"sha256": "1c94d689420ce5b7e60ee5ad51e6e59ae76f394318282a94192e993d1e99e867"
-},
-{
-"path": "development/test_public_package_privacy.py",
-"bytes": 2819,
-"sha256": "944b97df4c65a492e2c138c87395f86f5756f4f662ab7f0161973919a7b44c58"
-},
-{
-"path": "development/test_step2_meka142_benchmark.py",
-"bytes": 10204,
-"sha256": "9af428db3ad8249380dbef4abb9e4ada6f291b77f31ddfcb7b19a70ca4c5e6fd"
-},
-{
-"path": "development/verify_oct26_classify_csv.cjs",
-"bytes": 2880,
-"sha256": "de3ea8412ac21fc2e2a698274bd8c4808c843651e247d8fe55e59d672a21341d"
-},
-{
-"path": "development/verify_oct26_preflight.py",
-"bytes": 5595,
-"sha256": "f49230580ec516350c61a0dba6e36ccc07bf71bacaae8b4071ff5d90d0c27af1"
-},
-{
-"path": "development/write_master_update_status.py",
-"bytes": 1196,
-"sha256": "660e3cf33b7653c84147e0c3935f5addb19a9ad668dbf111baeb38556ae571b6"
-},
-{
-"path": "food_color_features.js",
-"bytes": 497419,
-"sha256": "e00286ae2e8fe96d6f0b49c93e03150469175382ba09c62b499e6f33d85ae444"
-},
-{
-"path": "food_matcher.js",
-"bytes": 19375,
-"sha256": "32015a1294a35f0394e4a6c8d77f8639aec037099ee7703b5dce6514d1517234"
-},
-{
-"path": "icons/apple-touch-icon.png",
-"bytes": 38588,
-"sha256": "878b81f376b474f19e61ab86724934c00e8cb3058517b65dc0872aabd22e0688"
-},
-{
-"path": "icons/favicon-32.png",
-"bytes": 2796,
-"sha256": "87c006c09b99b58864777e8aa566fc4fed066c5423191c476835357ac97b1760"
-},
-{
-"path": "icons/icon-192.png",
-"bytes": 45985,
-"sha256": "75550a30c39818f43cd39157544bb1d64d8bd1d77e5a88067c270f127d0d37e5"
-},
-{
-"path": "icons/icon-512.png",
-"bytes": 265749,
-"sha256": "dd0f157cf81aed9325f5208e54caa03626c29854ae69751e511667951215c418"
-},
-{
-"path": "icons/icon-maskable-192.png",
-"bytes": 34776,
-"sha256": "d80de0922bb8be973cce16a0cb1b8d6a2119b9848dec996a271132de65ff29d5"
-},
-{
-"path": "icons/icon-maskable-512.png",
-"bytes": 191495,
-"sha256": "fafc1a3be39aee764127d29eeb2d8cbffdaf0f81abd7ab5eb77291c3a37ae8f7"
-},
-{
-"path": "index.html",
-"bytes": 74018,
-"sha256": "a268b0f6ead2becb03d2ea2a9ebb08723996fb39cd3071aa88cbda8ba2fc6927"
-},
-{
-"path": "manifest.webmanifest",
-"bytes": 1250,
-"sha256": "8b3751a6c224f95dd9435284e28273c6a94066f351256b1c74958506eb8b918c"
-},
-{
-"path": "master-update-status.js",
-"bytes": 5137,
-"sha256": "ecd1ed4a9d9e951496eb6e34095659b2a66f5215b034997581f187946ceecddc"
-},
-{
-"path": "master-update-status.json",
-"bytes": 150,
-"sha256": "d1d9b2845532c8496040ae74afe3f3a93dfe2b1bad302cbc8439cad106ca5abb"
-},
-{
-"path": "master_data.js",
-"bytes": 131939,
-"sha256": "b0f3bc100966de43dfdd4bd2d6b2036d8f7609b718b241a60674612aaf384ab4"
-},
-{
-"path": "nickname_spatial.js",
-"bytes": 4102,
-"sha256": "1186394fa1d8877c66f380e948a0cfc07e52deab18579428a0e24efabab0fb7b"
-},
-{
-"path": "release.json",
-"bytes": 49,
-"sha256": "dfa95105d1c07b37d99ede611ba842a18942958e5569fdfb337ad741ab73db30"
-},
-{
-"path": "shared/MASTER_DATA.json",
-"bytes": 213992,
-"sha256": "d0a40e122de9f82367ae2e59cad7f15e8425fb02ce7896a914932a93cca269ba"
-},
-{
-"path": "shared/master_release.json",
-"bytes": 397,
-"sha256": "8793b323a0e4d4c69b3ed0272d1961b7bb94606d7fa75df5a6d5950f1ced1b85"
-},
-{
-"path": "shared_master.js",
-"bytes": 5816,
-"sha256": "bc817438a9c541c141501cf314e62eee32f61acb9bdc87af22cf685a209b79dd"
-},
-{
-"path": "sw.js",
-"bytes": 4088,
-"sha256": "2a428410f742ec628282a68c4f5b5213964de2ea1f6aed9d9f10a84348f79e51"
-}
-]
+  "schemaVersion": 2,
+  "kind": "current-tracked-repository-inventory",
+  "releaseId": "2026-11-03-master-alias-audit-v6-1",
+  "appBuildId": "v12-mixed-capture-food3-safe-20261103-v6-1-master-audit",
+  "purpose": "SHA-256 file inventory of tracked repository resources; excludes this self-referential manifest",
+  "scopeNote": "Not a claim of GitHub Pages served routes, precached assets, or runtime-only public allowlist",
+  "developmentIncludedInPublicRepository": true,
+  "knownHistoricalBaseline": "Candidate125; see Git commit history for that older package",
+  "fileCount": 98,
+  "files": [
+    {
+      "path": ".github/workflows/independent-master-sync.yml",
+      "bytes": 5964,
+      "sha256": "641d6565b031135090c30f1722729c6af76dc003d97d0e69dd748dce15a50277"
+    },
+    {
+      "path": ".github/workflows/pixel142-main-release.yml",
+      "bytes": 14167,
+      "sha256": "2808c311d4bbf98e153b8a6957f77550d1c4c3057889643e20939feb18946f3a"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 580,
+      "sha256": "c652a3fd8e6fe99fb2487e2d8f28b571706994963a4c6168f1c019b29ceba820"
+    },
+    {
+      "path": ".nojekyll",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 4318,
+      "sha256": "d1f61d2ddd3e66e5362c2fae5d2a39ea56a0a1c30733b2e3ae01f8af9035b234"
+    },
+    {
+      "path": "android_roi.js",
+      "bytes": 10755,
+      "sha256": "c1e5c91646be6c197f629404cfe340808dc089633d0d805bf73adbfaeaab8e37"
+    },
+    {
+      "path": "app.js",
+      "bytes": 351082,
+      "sha256": "c3905bc0e7cd0a3f29e7ad1f46e57aa35a5f0cf9f84bda2ccb6ce9f73acf009a"
+    },
+    {
+      "path": "assets/example-screenshot.png",
+      "bytes": 105755,
+      "sha256": "faf93b7dfeab7395ba20d5e296ef81da2a2df3b1b61e62f3ebb5674313fe8a06"
+    },
+    {
+      "path": "assets/ogp-card.png",
+      "bytes": 1083675,
+      "sha256": "461dd958fc6f4cd5ebe7fc1d2fd1fc1f8c86aad667562a858138120c16a4fd14"
+    },
+    {
+      "path": "classifier.js",
+      "bytes": 15456,
+      "sha256": "df7646faa245e38ae15e2f6bf5939d8ae5cf4ca10bdf9968bf19acf797660786"
+    },
+    {
+      "path": "csv_gate.js",
+      "bytes": 8947,
+      "sha256": "d78405f3cd613b1f06f588b36254d85048aac199611062b60ff9009863196cbf"
+    },
+    {
+      "path": "development/CSV18_DEVICE_ACCEPTANCE.md",
+      "bytes": 5880,
+      "sha256": "73b9390ce5b02b23759b2f7d0888162795c42b88c1d6ccc091cd86c67b607297"
+    },
+    {
+      "path": "development/ROADMAP_20261013.md",
+      "bytes": 6526,
+      "sha256": "4a26cbc0fa5c43382121c3da12179f51dce458ff191f9b128469b633e87bc4b4"
+    },
+    {
+      "path": "development/ROADMAP_CURRENT.md",
+      "bytes": 53245,
+      "sha256": "60dec9763c4f0f3f4695bad79c234fbecab66828282322c3a8272863e6619454"
+    },
+    {
+      "path": "development/STEP1_INDEPENDENT_MASTER.md",
+      "bytes": 2831,
+      "sha256": "28837c7e156857e4ad2e754b2c21724cdd0370881bcb420414906d55b7ffa66c"
+    },
+    {
+      "path": "development/browser_append_after_results.py",
+      "bytes": 8235,
+      "sha256": "075af9fb40b00b249f2ff068313a51fe158115512b4301779b2c30e6e9c5d2e7"
+    },
+    {
+      "path": "development/browser_boot_smoke.py",
+      "bytes": 23598,
+      "sha256": "c8f54959fd16747a2fbdf1cea929ba7ec95ed4cac4a70f79fc5a20c38581d350"
+    },
+    {
+      "path": "development/browser_choice_picker_kana.py",
+      "bytes": 5980,
+      "sha256": "291eacfccf1aab891f2e00b79438834656fe1bf245cfdded55e1f240f26f99b4"
+    },
+    {
+      "path": "development/browser_csv_download_audit.py",
+      "bytes": 30362,
+      "sha256": "b13938b058f738baf7fcd743f2c7221c7527bb0699ae24a4ff39630b09bb15a6"
+    },
+    {
+      "path": "development/browser_failure_card_modal.py",
+      "bytes": 6765,
+      "sha256": "f0dbb68a45f385521f09aa52ec38424ff99a4592b2caf1d6ec0a2ba732346d6b"
+    },
+    {
+      "path": "development/browser_paddle_wait_choice.py",
+      "bytes": 8206,
+      "sha256": "8fdf55cdea52d2946bac06fdf906ba0b7cf74666126e89634c2de8a6092a6e00"
+    },
+    {
+      "path": "development/browser_step3_review_audit.py",
+      "bytes": 13792,
+      "sha256": "4b1b30abc571e88c1bbda74a330b60571b1cf879d5b6c0f3b08fcd83501b36e7"
+    },
+    {
+      "path": "development/browser_unified_mobile_layout.py",
+      "bytes": 5874,
+      "sha256": "cf24f8b25e6bc7f7f3b9d94a55edd3759ee21645e5be3e10688e50b13ecae668"
+    },
+    {
+      "path": "development/csv18_roundtrip_acceptance.py",
+      "bytes": 6740,
+      "sha256": "c93873c8b4573511ff4169fca23723fead1241bdf36e094a1579363b76b54dbe"
+    },
+    {
+      "path": "development/failure_card_actions.test.cjs",
+      "bytes": 6528,
+      "sha256": "4d3d2176e3cb90abeb3d0b815ff4a61e4d5e346c1006aef73f1330b464b45feb"
+    },
+    {
+      "path": "development/final_evidence_gate.py",
+      "bytes": 9511,
+      "sha256": "e70c294f09aeef7f3fba33294f6b249d416621f1b3690360a3b3624cb65770b4"
+    },
+    {
+      "path": "development/final_two_field_evidence.test.cjs",
+      "bytes": 5700,
+      "sha256": "4aa4d65c378bb2022730c5a1a039334664343e2be8df9dba590da28550238384"
+    },
+    {
+      "path": "development/generate_public_package_manifest.py",
+      "bytes": 6487,
+      "sha256": "84413c3e43434b0bb2b856998cc6ad5787db8ba900f79f563f1a37561eba3bf6"
+    },
+    {
+      "path": "development/generate_upstream_import_fixture.cjs",
+      "bytes": 2768,
+      "sha256": "f6d287579de84cf64007aea043e4f2e45da97401f058d6ec7d5ba570657e3d5e"
+    },
+    {
+      "path": "development/image_button_compact.test.cjs",
+      "bytes": 1729,
+      "sha256": "0cdc38eb95d751f45731578919653703e9572b781aa80e2837892c03170dbad1"
+    },
+    {
+      "path": "development/image_source_choice.test.cjs",
+      "bytes": 2358,
+      "sha256": "140d43fecdfcec2365c9f1372a89b4e7d2c54d5560b0eae44e0686d28efc4b5b"
+    },
+    {
+      "path": "development/layout_cropped_banner.test.cjs",
+      "bytes": 2419,
+      "sha256": "a79b67ae9e5911e858533fb703dad6c871802596b20434c4ce6f05fafa4a2429"
+    },
+    {
+      "path": "development/locked_food2_self_witness.test.cjs",
+      "bytes": 3615,
+      "sha256": "1c2cf382437aea1655419987ef312d550a1158014085e649bbd6fe38776924a7"
+    },
+    {
+      "path": "development/master_auto_update.py",
+      "bytes": 21170,
+      "sha256": "3b9c9aeceac87189a1e6b262faf5379be0b466cbc73a7028bce25ad85c901c32"
+    },
+    {
+      "path": "development/master_auto_update.test.cjs",
+      "bytes": 7676,
+      "sha256": "f40dd83144932acf289e1d0cc37f9314b194645239cd6823c9ddc93b4e95fd98"
+    },
+    {
+      "path": "development/master_deploy_workflow.test.cjs",
+      "bytes": 2094,
+      "sha256": "6773dd17bd3673f515701d4c889bb7b30e6f2b573b41c62ee63ed65145e13ca4"
+    },
+    {
+      "path": "development/master_update_status.test.cjs",
+      "bytes": 6576,
+      "sha256": "48aec2d18abe90b19bb9cf3bcfa0f556a268892d1a52de42420ab96576ff7091"
+    },
+    {
+      "path": "development/nickname_caption_rescue.test.cjs",
+      "bytes": 30918,
+      "sha256": "0ef45be6f6128049e4cba0f3e657f199e7d14925e25a1cfad3492852771d9a39"
+    },
+    {
+      "path": "development/nickname_consensus_autoconfirm.test.cjs",
+      "bytes": 4302,
+      "sha256": "d70a76e0e15898e3982ebacc9e0bb918ec0c71c3fc252275eec0bf14a6990309"
+    },
+    {
+      "path": "development/nickname_freeze.test.cjs",
+      "bytes": 4933,
+      "sha256": "da86f038b617200335707b75e8016f7f6a176b0783db35804481886d42703540"
+    },
+    {
+      "path": "development/nickname_level_candidate_ranking.test.cjs",
+      "bytes": 7813,
+      "sha256": "fc852ec6dfff205fd31061f198637de8826643b6019cf09d88ca0e5d1cd3690d"
+    },
+    {
+      "path": "development/nickname_lv_consensus85.test.cjs",
+      "bytes": 4332,
+      "sha256": "15a28492a1b064a18612df353363508c552a6adafb5dda7d3d9bc842a7442ab3"
+    },
+    {
+      "path": "development/nickname_meka142_gate.py",
+      "bytes": 8244,
+      "sha256": "330f5852504ed37dee595431d892aef5fc80342fda401a04e4124047b20a62a7"
+    },
+    {
+      "path": "development/nickname_spatial_advisory.test.cjs",
+      "bytes": 4258,
+      "sha256": "6e975547f4ee9972f83bab5d041abe14cbbedfbc3dc8acc944d467b37cf75a83"
+    },
+    {
+      "path": "development/paddle_wait_choice.test.cjs",
+      "bytes": 10009,
+      "sha256": "2c44c16f7b7e502c58c6f30d01e79f5ce0c69ffc38ea3dc8553a65467c53d49c"
+    },
+    {
+      "path": "development/performance_profile.test.cjs",
+      "bytes": 3817,
+      "sha256": "7bc807f27f2950e64b549d273e5f133fcfda6973ce97294260ca8cf4fcec6c53"
+    },
+    {
+      "path": "development/publish_master_status.py",
+      "bytes": 2467,
+      "sha256": "6c7a7712d14e64cb7750556f7da80194961ef0de085fa70b64b5943d07134fe5"
+    },
+    {
+      "path": "development/register_food_icons.py",
+      "bytes": 3180,
+      "sha256": "a4b82e6deaabb19d55f6264d99167ffdc1dc2e908d1d37facf8f370405677b8c"
+    },
+    {
+      "path": "development/review_picker_kana_prefix.test.cjs",
+      "bytes": 3587,
+      "sha256": "fa5970688bc8863d9931c5bd80fbaceef8fc45b6ad7e528fae77c1c4c358a51f"
+    },
+    {
+      "path": "development/runtime_smoke.test.cjs",
+      "bytes": 2353,
+      "sha256": "1d85a83ce5bda029d4c8b8ded7b4cbf78ae0b92a1b1f3c7cf8463c1d534e3ace"
+    },
+    {
+      "path": "development/shifted_carry_band.test.cjs",
+      "bytes": 19842,
+      "sha256": "30eb3f99b8cdb0611e3ff6b1582f7f5dbab0f4759dc71a3f585bea1078315d3c"
+    },
+    {
+      "path": "development/speed_warning.test.cjs",
+      "bytes": 6784,
+      "sha256": "e253621beb9653083b00da0f162fe76334277b62977bb1ba71495519ac2540c6"
+    },
+    {
+      "path": "development/step2_asset_revision.test.cjs",
+      "bytes": 1638,
+      "sha256": "99dfd8abb403112fe16ca0f89f0fd12a450ebe98dbedf402f33803ee0fab1a7a"
+    },
+    {
+      "path": "development/step2_food3_independent_pixel_witness.test.cjs",
+      "bytes": 3439,
+      "sha256": "06620e30a404c98402dfe697a6d85ca30a69186e7fb1937a59500aa1c12cb5ca"
+    },
+    {
+      "path": "development/step2_food3_selfmatch.test.cjs",
+      "bytes": 3611,
+      "sha256": "8e3556a3cacf48254dacd520eb035f3e63f122ef8d9e6a2576c9dbd1568ff4d0"
+    },
+    {
+      "path": "development/step2_meka142_benchmark.py",
+      "bytes": 15835,
+      "sha256": "6b7b3e3435fe7fdf64784dc1bd6e4a15982b0db877d5ad7c4c209e49c84818be"
+    },
+    {
+      "path": "development/step2_mythical_empty_dash.test.cjs",
+      "bytes": 2456,
+      "sha256": "7d5156bb3eb740078c1dd4fb611dcf5262f20cf3bd9fb16a1dc65f8d45ae3edb"
+    },
+    {
+      "path": "development/step2_mythical_food_sentinel.test.cjs",
+      "bytes": 3119,
+      "sha256": "6b661a577f2c4b5c720ea73ac67c75d6e84d45592a76b19f51579c60cb465c2c"
+    },
+    {
+      "path": "development/step2_mythical_subskill_dash.test.cjs",
+      "bytes": 5022,
+      "sha256": "28745238d33de09bff51ad901b6cd6128f0675da51da842b924d7443be20dc71"
+    },
+    {
+      "path": "development/step2_shared_csv.test.cjs",
+      "bytes": 24093,
+      "sha256": "6f12070beb09e16722779bedc8b0ab9f8e5b47f322de6088179c4d8efcc98047"
+    },
+    {
+      "path": "development/step3_android_roi.test.cjs",
+      "bytes": 20364,
+      "sha256": "c5c98efaab467e4db504317d055764325f9d0fc73231bb80495d16140986ad9c"
+    },
+    {
+      "path": "development/step3_carry_food3.test.cjs",
+      "bytes": 8907,
+      "sha256": "f3e3543c2632e9ed52a18e15db7771464930d35fd17a3470f1e926fe17274da7"
+    },
+    {
+      "path": "development/step3_dimmed_food_conflict.test.cjs",
+      "bytes": 4572,
+      "sha256": "25b8fee5f2ac2a2df44ea7a938d500d994b56124efbaf0274bc491a4f01fd434"
+    },
+    {
+      "path": "development/step3_header_sp_subskill_review.test.cjs",
+      "bytes": 3152,
+      "sha256": "0d0db98e6af46be6522a08dca6d20b45a3f9575d3816a7a97c0b300a1457a993"
+    },
+    {
+      "path": "development/step3_joint_rescue.test.cjs",
+      "bytes": 4516,
+      "sha256": "727c1941c8b70b7ede21f528792785029b1f0b7f9a5e2338ad31d2605efafc9e"
+    },
+    {
+      "path": "development/step3_meka142_targeted_quality.test.cjs",
+      "bytes": 4152,
+      "sha256": "f3d6a357b18051e65d0f13b10be97d79621d6b7862b757c7a66a2370fdf2760f"
+    },
+    {
+      "path": "development/step3_mystical_fire_sp.test.cjs",
+      "bytes": 2417,
+      "sha256": "c7c4472cf6aef961fc6c280c91c060ac0caaac9b1337e96910984c7a4b1fcb9b"
+    },
+    {
+      "path": "development/step3_pixel142_safety.test.cjs",
+      "bytes": 8446,
+      "sha256": "cddc4a35f2ed3b8a6697c04aa3f7c6c8cda11584317a82ea785a3509880f25dc"
+    },
+    {
+      "path": "development/step3_real_upstream_importer.test.ts",
+      "bytes": 11392,
+      "sha256": "25408e79a9252d466dbd01caa6beba596250029439cc2fc6a09ab42fd73c8aad"
+    },
+    {
+      "path": "development/test_csv18_roundtrip_acceptance.py",
+      "bytes": 6216,
+      "sha256": "a341dfa18065c86f09471b6cb4530b75b696ac2d1852bb6c0ac6c2eaef6cfea2"
+    },
+    {
+      "path": "development/test_final_evidence_gate.py",
+      "bytes": 12421,
+      "sha256": "572440d8aab61f7341dc39c44f54500df0765f5f275562e5fec09392ecf14e44"
+    },
+    {
+      "path": "development/test_master_auto_update.py",
+      "bytes": 33289,
+      "sha256": "96388a9b4d6a721ad1bf80f4ee98605385849bfec81e1feb4cefcbc7bee6bf85"
+    },
+    {
+      "path": "development/test_master_status.py",
+      "bytes": 4577,
+      "sha256": "75ba54a27c16ded4e7e9390f12661b3ccbc3f83fc4e7abc32bd34eb2d013c824"
+    },
+    {
+      "path": "development/test_nickname_meka142_gate.py",
+      "bytes": 4634,
+      "sha256": "1c94d689420ce5b7e60ee5ad51e6e59ae76f394318282a94192e993d1e99e867"
+    },
+    {
+      "path": "development/test_public_package_privacy.py",
+      "bytes": 2819,
+      "sha256": "944b97df4c65a492e2c138c87395f86f5756f4f662ab7f0161973919a7b44c58"
+    },
+    {
+      "path": "development/test_step2_meka142_benchmark.py",
+      "bytes": 10204,
+      "sha256": "9af428db3ad8249380dbef4abb9e4ada6f291b77f31ddfcb7b19a70ca4c5e6fd"
+    },
+    {
+      "path": "development/verify_oct26_classify_csv.cjs",
+      "bytes": 2880,
+      "sha256": "de3ea8412ac21fc2e2a698274bd8c4808c843651e247d8fe55e59d672a21341d"
+    },
+    {
+      "path": "development/verify_oct26_preflight.py",
+      "bytes": 5595,
+      "sha256": "f49230580ec516350c61a0dba6e36ccc07bf71bacaae8b4071ff5d90d0c27af1"
+    },
+    {
+      "path": "development/write_master_update_status.py",
+      "bytes": 1196,
+      "sha256": "660e3cf33b7653c84147e0c3935f5addb19a9ad668dbf111baeb38556ae571b6"
+    },
+    {
+      "path": "food_color_features.js",
+      "bytes": 497419,
+      "sha256": "e00286ae2e8fe96d6f0b49c93e03150469175382ba09c62b499e6f33d85ae444"
+    },
+    {
+      "path": "food_matcher.js",
+      "bytes": 19375,
+      "sha256": "32015a1294a35f0394e4a6c8d77f8639aec037099ee7703b5dce6514d1517234"
+    },
+    {
+      "path": "icons/apple-touch-icon.png",
+      "bytes": 38588,
+      "sha256": "878b81f376b474f19e61ab86724934c00e8cb3058517b65dc0872aabd22e0688"
+    },
+    {
+      "path": "icons/favicon-32.png",
+      "bytes": 2796,
+      "sha256": "87c006c09b99b58864777e8aa566fc4fed066c5423191c476835357ac97b1760"
+    },
+    {
+      "path": "icons/icon-192.png",
+      "bytes": 45985,
+      "sha256": "75550a30c39818f43cd39157544bb1d64d8bd1d77e5a88067c270f127d0d37e5"
+    },
+    {
+      "path": "icons/icon-512.png",
+      "bytes": 265749,
+      "sha256": "dd0f157cf81aed9325f5208e54caa03626c29854ae69751e511667951215c418"
+    },
+    {
+      "path": "icons/icon-maskable-192.png",
+      "bytes": 34776,
+      "sha256": "d80de0922bb8be973cce16a0cb1b8d6a2119b9848dec996a271132de65ff29d5"
+    },
+    {
+      "path": "icons/icon-maskable-512.png",
+      "bytes": 191495,
+      "sha256": "fafc1a3be39aee764127d29eeb2d8cbffdaf0f81abd7ab5eb77291c3a37ae8f7"
+    },
+    {
+      "path": "index.html",
+      "bytes": 74018,
+      "sha256": "a268b0f6ead2becb03d2ea2a9ebb08723996fb39cd3071aa88cbda8ba2fc6927"
+    },
+    {
+      "path": "manifest.webmanifest",
+      "bytes": 1250,
+      "sha256": "8b3751a6c224f95dd9435284e28273c6a94066f351256b1c74958506eb8b918c"
+    },
+    {
+      "path": "master-update-status.js",
+      "bytes": 5137,
+      "sha256": "ecd1ed4a9d9e951496eb6e34095659b2a66f5215b034997581f187946ceecddc"
+    },
+    {
+      "path": "master-update-status.json",
+      "bytes": 150,
+      "sha256": "d1d9b2845532c8496040ae74afe3f3a93dfe2b1bad302cbc8439cad106ca5abb"
+    },
+    {
+      "path": "master_data.js",
+      "bytes": 131939,
+      "sha256": "b0f3bc100966de43dfdd4bd2d6b2036d8f7609b718b241a60674612aaf384ab4"
+    },
+    {
+      "path": "nickname_spatial.js",
+      "bytes": 4102,
+      "sha256": "1186394fa1d8877c66f380e948a0cfc07e52deab18579428a0e24efabab0fb7b"
+    },
+    {
+      "path": "release.json",
+      "bytes": 49,
+      "sha256": "dfa95105d1c07b37d99ede611ba842a18942958e5569fdfb337ad741ab73db30"
+    },
+    {
+      "path": "shared/MASTER_DATA.json",
+      "bytes": 213992,
+      "sha256": "d0a40e122de9f82367ae2e59cad7f15e8425fb02ce7896a914932a93cca269ba"
+    },
+    {
+      "path": "shared/master_release.json",
+      "bytes": 397,
+      "sha256": "8793b323a0e4d4c69b3ed0272d1961b7bb94606d7fa75df5a6d5950f1ced1b85"
+    },
+    {
+      "path": "shared_master.js",
+      "bytes": 5816,
+      "sha256": "bc817438a9c541c141501cf314e62eee32f61acb9bdc87af22cf685a209b79dd"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 4088,
+      "sha256": "2a428410f742ec628282a68c4f5b5213964de2ea1f6aed9d9f10a84348f79e51"
+    }
+  ]
 }
