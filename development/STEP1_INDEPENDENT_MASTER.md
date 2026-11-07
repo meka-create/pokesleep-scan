@@ -1,8 +1,8 @@
 # STEP 1: Independent automatic master updates
 
 The OCR PWA receives data directly from nitoyon/pokesleep-tool, without
-depending on AI Bukkomi Scan. The scheduled check runs at **午前4:00 JST**
-(UTC cron `0 19 * * *`). A structurally valid upstream change is automatically
+depending on AI Bukkomi Scan. The scheduled check runs at **午前4:17 JST**
+(UTC cron `17 19 * * *`; GitHub scheduling may still be delayed). A structurally valid upstream change is automatically
 promoted with a validated SHA-256 receipt. New species and legitimate existing
 species updates do **not** require per-release manual precision approval.
 
@@ -11,12 +11,20 @@ the **meka142 Golden 142 screenshots** in STEP 2; it is not a blanket ban on
 recognizing future Pokémon. Supported new species enter normal inference
 and CSV workflows immediately.
 
-New ingredients with valid energy coefficients and icon templates follow the
-same matcher as current ingredients. If the icon template is actually missing,
-that individual ingredient remains review-gated rather than guessed. Missing
-computation parameters or malformed upstream inputs HOLD the update and
-preserve the last functioning master. These are actual compatibility problems,
-not a requirement to manually approve every added species.
+**New ingredients require the owner's explicit per-ingredient approval after
+their actual in-game release.** `APPROVED_NEW_INGREDIENTS` in
+`development/master_auto_update.py` starts empty; an upstream coefficient
+becoming positive does NOT constitute approval. New ingredient keys are listed
+in `pendingIngredients`, but omitted from the installed master and CSV.
+Otherwise-valid new Pokémon that use unapproved ingredients remain deferred as
+provisional; unrelated new Pokémon and existing-species improvements continue.
+If an installed species starts using an unapproved ingredient, the entire
+update is held to prevent corrupting its known food options. After explicit
+approval, a positive verified coefficient and the existing asset validation
+remain required. Missing icon templates stay review-gated.
+Malformed existing data and unsafe upstream changes still HOLD the update.
+This ingredient-specific approval is separate from the normal automatic
+introduction of new Pokémon.
 
 Approved PNG icon images under `assets/food-icons/<ingredient key>.png` can be
 registered with `development/register_food_icons.py`. Images are not scraped

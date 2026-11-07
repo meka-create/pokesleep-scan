@@ -69,7 +69,7 @@ class MasterStatusTest(unittest.TestCase):
         with self.assertRaises(ValueError):receipt("success",dt.datetime(2026,10,12))
     def test_workflow_attempts_reporting_even_if_sync_fails(self):
         w=(ROOT/".github/workflows/independent-master-sync.yml").read_text(encoding="utf-8")
-        self.assertIn("cron: '0 19 * * *'",w)
+        self.assertIn("cron: '17 19 * * *'",w)
         self.assertIn("publish-status:",w)
         self.assertIn("if: always()",w)
         self.assertIn("needs: [sync]",w)
