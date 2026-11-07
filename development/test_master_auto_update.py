@@ -2,9 +2,9 @@
 """Two-species migration, failure-rollback, and future-release lifecycle fixtures."""
 import copy, json, pathlib, tempfile, unittest, sys
 from unittest.mock import patch
-import master_auto_update as master_sync
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'development'))
+import master_auto_update as master_sync
 from master_auto_update import project, Hold, BASE_FOOD_STRENGTH
 def save(p,x):
     p.parent.mkdir(parents=True,exist_ok=True)
@@ -104,7 +104,7 @@ class OctoberFifthTest(unittest.TestCase):
         if coefficient is not None:
             strength=self.dir/'src/util/PokemonRp.ts'
             strength.write_text(strength.read_text(encoding='utf-8').replace(
-                '  unknown:', f'  futureFood: {coefficient},\\n  unknown:' .replace('\\n','\n')),
+                '  unknown:', f'  futureFood: {coefficient},\n  unknown:'),
                 encoding='utf-8')
     def test_new_20th_ingredient_is_pending_even_when_upstream_coefficient_is_valid(self):
         self.add_future_food(123)
