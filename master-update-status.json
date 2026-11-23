@@ -1,6 +1,6 @@
 {
   "schemaVersion": "pokesleep-ocr-master-status-v1",
   "state": "attention",
-  "checkedAt": "2026-11-21T23:47:45Z",
+  "checkedAt": "2026-11-23T00:17:29Z",
   "reasonCode": "NEW_SPECIES_DATA_INCOMPLETE"
 }
